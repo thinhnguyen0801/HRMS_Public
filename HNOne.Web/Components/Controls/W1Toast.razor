@@ -1,0 +1,15 @@
+﻿@rendermode InteractiveServer
+<BlazoredToasts Position="@Position" Timeout="6"
+                IconType="IconType.FontAwesome"
+                ErrorIcon="fas fa-times"
+                InfoIcon="fas fa-info"
+                SuccessIcon="fas fa-check"
+                WarningIcon="fas fa-exclamation"
+                ShowProgressBar="@true"
+                ShowCloseButton="@true"
+                InfoClass="info-toast">
+</BlazoredToasts>
+
+@code {
+    [Parameter] public ToastPosition Position { get; set; } = ToastPosition.BottomRight;
+}

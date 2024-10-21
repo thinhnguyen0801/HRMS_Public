@@ -1,0 +1,38 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <base href="/" />
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css" rel="stylesheet" />
+    <link rel="stylesheet" href="css/dx-theme.css" />
+    <link rel="stylesheet" href="css/mainLayout.css?v=1.0" type="text/css" />
+    <link rel="stylesheet" href="css/nprogress.css?v=1.0" type="text/css" />
+    <link rel="stylesheet" href="app.css?v=2.0" type="text/css" />
+    <link rel="stylesheet" href="css/globalStyle.css?v=1.0" type="text/css" />
+    <link rel="stylesheet" href="HNOne.Web.styles.css" type="text/css" />
+    <link rel="icon" type="image/png" href="favicon.png" />
+    <!-- style switcher -->
+    <link rel="stylesheet" href="css/skins/color.css" class="alternate-style" title="color" />
+    <link rel="stylesheet" href="css/skins/color-1.css" class="alternate-style" title="color-1" disabled />
+    <link rel="stylesheet" href="css/skins/color-2.css" class="alternate-style" title="color-2" disabled />
+    <link rel="stylesheet" href="css/skins/color-3.css" class="alternate-style" title="color-3" disabled />
+    @DxResourceManager.RegisterScripts()
+    <HeadOutlet @rendermode="InteractiveServer" />
+</head>
+
+<body>
+    <Routes @rendermode="InteractiveServer" />
+    <!-- Back to top button -->
+    <a id="btn-back-to-top" class=""></a>
+    <script src="_framework/blazor.web.js"></script>
+    <!-- Tabler Core -->
+    <script src="js/tabler.min.js"></script>
+    <!-- nprogress -->
+    <script src="js/nprogress.js"></script>
+    <!-- globalScript -->
+    <script src="js/globalScript.js"></script>
+</body>
+
+</html>

@@ -1,0 +1,7 @@
+﻿:root {
+    --h1-navbar-bg-color: #189cab;
+    /* --bs-blue: #189cab; thay thế cho 2 thằng này #fe7109; #ffb884*/
+    --h1-dxbl-grid-focus-color: #212529; /* thay thế --dxbl-grid-focus-color: #fff*/
+    /*.dxbl-grid .dxbl-grid-table .dxbl-grid-focused-row:not(.dxbl-grid-touch-selection):not(.dxbl-grid-touch-selection-edge) > td:not(.dxbl-grid-empty-cell):not(.dxbl-grid-indent-cell)::before { opacity: 8% }*/
+    --h1-bg-primary: 24, 156, 171; /*has của --h1-navbar-bg-color*/
+}

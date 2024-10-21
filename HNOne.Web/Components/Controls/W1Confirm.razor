@@ -1,0 +1,68 @@
+﻿@implements IDisposable
+<DxPopup @bind-Visible="@ConfirmationShown"
+         ShowCloseButton="false"
+         CloseOnOutsideClick="false"
+         CloseOnEscape="false"
+         ShowHeader="true"
+         ShowFooter="true"
+         Width="@Width"
+         CssClass="w1FontSize"
+         BodyCssClass="p-2"
+         HeaderCssClass="w1FontSize py-0"
+         FooterCssClass="w1FontSize py-0"
+         HeaderText="@HeaderText">
+    <BodyContentTemplate>
+        @((MarkupString)$"{BodyText}")
+    </BodyContentTemplate>
+    <FooterContentTemplate Context="Context">
+        <DxButton CssClass="popup-button my-1 ms-2" RenderStyle="ButtonRenderStyle.Primary" Text="Xác nhận" Click="@YesClick" />
+        <DxButton CssClass="popup-button my-1 ms-2" RenderStyle="ButtonRenderStyle.Secondary" Text="Hủy" Click="@NoClick" />
+    </FooterContentTemplate>
+</DxPopup>
+
+@code {
+    public string Width = "450px";
+    bool ConfirmationShown { get; set; } = false;
+    public string HeaderText { get; set; } = "";
+    public string BodyText { get; set; } = "";
+    public string IconClass { get; set; } = "";
+
+    TaskCompletionSource<bool>? tcs;
+
+    public async Task<bool> SetConfirm(string headerText, string bodyText, string iconClass = "")
+    {
+        HeaderText = headerText;
+        BodyText = bodyText;
+        IconClass = iconClass;
+        ConfirmationShown = true;
+        await InvokeAsync(StateHasChanged);
+
+        tcs = new TaskCompletionSource<bool>();
+        tcs.Task.ContinueWith(_ =>
+        {
+            ConfirmationShown = false;
+            InvokeAsync(StateHasChanged);
+        });
+        return await tcs.Task;
+    }
+
+    private async Task YesClick()
+    {
+        if (tcs != null && !tcs.Task.IsCompleted)
+        {
+            tcs.SetResult(true);
+            await Task.Yield();
+        }
+    }
+    private async Task NoClick()
+    {
+        if (tcs != null && !tcs.Task.IsCompleted)
+        {
+            tcs.SetResult(false);
+            await Task.Yield();
+        }
+
+    }
+
+    public void Dispose() => tcs = null;
+}

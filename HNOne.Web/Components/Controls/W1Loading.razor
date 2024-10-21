@@ -1,0 +1,27 @@
+﻿@implements IDisposable
+@inject ILoadingService _loadingService;
+@rendermode InteractiveServer
+
+@if (IsShow)
+{
+    <div class="modal fade show" id="myModal" style="display:block;z-index:2000" aria-modal="true" role="dialog">
+        <div class="spinner-container" style="height:100%;background-color:whitesmoke;opacity:0.7;align-items:center;display:flex;">
+            <SpinKitCircle />
+        </div>
+    </div>
+}
+
+@code {
+    [Parameter]
+    public bool IsShow { get; set; } = false;
+
+    protected override void OnInitialized() => _loadingService.OnShow += showLoading;
+
+    private void showLoading(bool isLoading)
+    {
+        IsShow = isLoading;
+        StateHasChanged();
+    }
+
+    public void Dispose() => _loadingService.OnShow -= showLoading;
+}

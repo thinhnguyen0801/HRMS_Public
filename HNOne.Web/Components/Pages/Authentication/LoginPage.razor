@@ -1,0 +1,97 @@
+﻿@page "/login"
+@layout Components.Layout.EmptyLayout
+@inherits Controllers.LoginController
+
+<PageTitle>Đăng nhập</PageTitle>
+<div class="h-full bg-white">
+    <div class="row g-0 flex-fill">
+        <div class="col-12 col-lg-6 col-xl-8 d-none d-lg-block">
+            <!-- Photo -->
+            <div class="bg-cover h-100 min-vh-100" style="background-image: url(https://blog.hub-js.com/wp-content/uploads/2022/01/Bai-hoc-thanh-cong-HRM-Mobi@3x.png)"></div>
+        </div>
+        <div class="col-12 col-lg-6 col-xl-4 border-top-wide border-primary d-flex flex-column justify-content-center">
+            @if (!string.IsNullOrEmpty(ErrorMessage))
+            {
+                <div class="px-2 mb-3">
+                    <div class="alert alert-important alert-danger alert-dismissible" role="alert">
+                        <div class="d-flex">
+                            <div>
+                                <svg xmlns="http://www.w3.org/2000/svg" class="icon alert-icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"></path><path d="M3 12a9 9 0 1 0 18 0a9 9 0 0 0 -18 0"></path><path d="M12 8v4"></path><path d="M12 16h.01"></path></svg>
+                            </div>
+                            <div>
+                                @ErrorMessage
+                            </div>
+                        </div>
+                        <a class="btn-close" data-bs-dismiss="alert" aria-label="close"></a>
+                    </div>
+                </div>
+
+            }
+            <div class="container container-tight my-5 px-lg-5">
+                <div class="text-center mb-3">
+                    <a href="." class="navbar-brand navbar-brand-autodark"><img src="../assets/logo.png" height="36" alt=""></a>
+                </div>
+                <h2 class="h3 text-center mb-3">
+                    Thông tin đăng nhập
+                </h2>
+                <EditForm Model="LoginRequest" OnValidSubmit="(async() => await LoginHandler())" autocomplete="off">
+                    <DataAnnotationsValidator />
+                    <div class="mb-3">
+                        <label class="form-label" for="cboBranch">Chi nhánh</label>
+                        <DxComboBox Data="@ListBranch"
+                                    Id="cboBranch"
+                                    @bind-Value="@LoginRequest.branchId"
+                                    FilteringMode="DataGridFilteringMode.Contains"
+                                    SizeMode="SizeMode.Medium"
+                                    ValueFieldName="@nameof(ComboboxModel.code)"
+                                    TextFieldName="@nameof(ComboboxModel.name)">
+                        </DxComboBox>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label" for="txtUserName">Tên đăng nhập</label>
+                        <DxTextBox @bind-Text="@LoginRequest.userName" Id="txtUserName"
+                                   NullText="" SizeMode="SizeMode.Medium" />
+                    </div>
+                    <div class="mb-2">
+                        <label class="form-label" for="txtPassword">
+                            Mật khẩu
+                            <span class="form-label-description">
+                                <a href="./forgot-password">Quên mật khẩu</a>
+                            </span>
+                        </label>
+                        <DxTextBox @bind-Text="@LoginRequest.password" Id="txtPassword"
+                                   SizeMode="SizeMode.Medium" Password="@(!IsShowPassword)">
+                            <Buttons>
+                                <DxEditorButton IconCssClass="@(IsShowPassword ? "fa-regular fa-eye" : "fa-regular fa-eye-slash")"
+                                                Tooltip="Hiển thị mật khẩu" Click="@(() => IsShowPassword = !IsShowPassword)" />
+                            </Buttons>
+                        </DxTextBox>
+                    </div>
+                    <div class="mb-2">
+                        <label class="form-check">
+                            <input type="checkbox" class="form-check-input" wfd-id="id2">
+                            <span class="form-check-label">Ghi nhớ đăng nhập ?</span>
+                        </label>
+                    </div>
+                    <div class="form-footer mt-3">
+                        <button type="submit" class="btn btn-primary w-100">
+                            @if (IsShowLoading)
+                            {
+                                <span class="spinner-border spinner-border-sm" style="margin-right: 7.5px" role="status" aria-hidden="true"></span>
+                                <span>Loading...</span>
+                            }
+                            else
+                            {
+                                <i class="fa-solid fa-key" style="margin-right: 7.5px"></i>
+                                <span>Đăng nhập</span>
+                            }
+                        </button>
+                    </div>
+                </EditForm>
+                <div class="text-center text-secondary mt-3">
+                    Copyright © 2024  <a href="https://onesystem.com.vn/" target="_blank">OneSystem JSC</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

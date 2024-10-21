@@ -1,0 +1,50 @@
+﻿<DxPopup @bind-Visible="@IsOpenModal"
+         CloseOnOutsideClick="@CloseOnOutsideClick"
+         ShowCloseButton="true"
+         CloseButtonClick="@CloseClick"
+         ShowHeader="true"
+         ShowFooter="IsShowFooter"
+         Width="@Width"
+         CssClass="w1FontSize"
+         BodyCssClass="p-2"
+         HeaderCssClass="w1FontSize py-0"
+         FooterCssClass="w1FontSize py-0"
+         HeaderText="@HeaderText">
+    <BodyContentTemplate>
+        @ChildContent
+    </BodyContentTemplate>
+    <FooterContentTemplate Context="Context">
+        <DxButton CssClass="popup-button my-1 ms-2" RenderStyle="ButtonRenderStyle.Primary" Text="@TextBtnAccept" Click="@HandleClickAccept" />
+        <DxButton CssClass="popup-button my-1 ms-2" RenderStyle="ButtonRenderStyle.Secondary" Text="Hủy" Click="@CloseClick" />
+    </FooterContentTemplate>
+</DxPopup>
+
+
+
+@code {
+    [Parameter] public bool IsOpenModal { get; set; }
+    [Parameter] public bool CloseOnOutsideClick { get; set; }
+    [Parameter] public string HeaderText { get; set; } = "Xác nhận";
+    [Parameter] public string TextBtnAccept { get; set; } = "Xác nhận";
+    [Parameter] public string CssClass { get; set; } = ""; // muốn mở rộng -> w1Popup
+    [Parameter] public string Width { get; set; } = "85%";
+    [Parameter] public bool IsShowFooter { get; set; } = true;
+    [Parameter] public bool Visible { get; set; } = true;
+    [Parameter] public RenderFragment? ChildContent { get; set; }
+    [Parameter] public EventCallback<bool> IsOpenModalChanged { get; set; }
+    [Parameter] public EventCallback HandleClickAccept { get; set; }
+    [Parameter] public Action? ActionClose { get; set; }
+
+
+    #region Control Events
+
+    private async Task CloseClick()
+    {
+        if (ActionClose != null) ActionClose(); // nếu có sự kiện tắt popup
+        IsOpenModal = false;
+        await IsOpenModalChanged.InvokeAsync(IsOpenModal);
+    }
+
+    #endregion Control Events
+
+}

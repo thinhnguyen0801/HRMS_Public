@@ -1,0 +1,16 @@
+@URL_PRO = http://server3.onesystem.vn:8076
+@PublicKey = PublicKey
+@Token = AC51C173-3B00-492F-B1C5-8FE8A78BEEB6
+
+POST {{URL_PRO}}/MasterData/GetData
+Content-Type: application/json
+Authorization: Bearer {{Token}}
+PublicKey: {{PublicKey}}
+
+{
+    "userID": 14,
+    "token": "AC51C173-3B00-492F-B1C5-8FE8A78BEEB6",
+    "process": "approvalFunctionCatalog",
+    "branchId": 1,
+    "objectId": "120111"
+}

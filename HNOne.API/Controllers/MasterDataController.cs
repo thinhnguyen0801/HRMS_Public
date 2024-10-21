@@ -1,0 +1,140 @@
+﻿using Azure;
+using HNOne.API.Services.Interfaces;
+using HNOne.Common;
+using HNOne.Model;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
+
+namespace HNOne.API.Controllers
+{
+    [Route("api/[controller]")]
+    [ApiController]
+    public class MasterDataController : ControllerBase
+    {
+        private readonly ILogger<MasterDataController> _logger;
+        private readonly IMasterDataService _masterDataService;
+        public MasterDataController(IMasterDataService masterDataService, ILogger<MasterDataController> logger)
+        {
+            _masterDataService = masterDataService;
+            _logger = logger;
+        }
+
+        /// <summary>
+        /// lấy dữ liệu cho danh sách không cần token
+        /// </summary>
+        /// <param name="request"></param>
+        /// <returns></returns>
+        [HttpPost]
+        [Route("get-data-without-token")]
+        public async Task<IActionResult> GetDataWithoutToken([FromBody] RequestModel request)
+        {
+            ResponseModel response = new ResponseModel();
+            try
+            {
+                string? processKey = request.process?.Trim();
+                switch (processKey)
+                {
+                    case ProcessConstants.GET_BRANCH:
+                        response.data = await _masterDataService.GetBranch();
+                        break;
+                    default:
+                        response.status = StatusCodes.Status404NotFound;
+                        response.message = $"Process Key {processKey} was not provider!!!";
+                        return Ok(response);
+                }
+                if (!(response.data is IEnumerable<object> dataList) || dataList.IsNullOrEmpty())
+                {
+                    response.status = StatusCodes.Status204NoContent;
+                    response.message = "Không tìm thấy dữ liệu!!!";
+                }
+            }
+            catch (Exception ex)
+            {
+                response.status = StatusCodes.Status400BadRequest;
+                response.message = ex.Message;
+            }
+            return Ok(response);
+        }
+
+        /// <summary>
+        /// lấy dữ liệu
+        /// </summary>
+        /// <param name="request"></param>
+        /// <returns></returns>
+        //[Authorize] // sau có token mở ra
+        [HttpPost]
+        [Route("get-data")]
+        public async Task<IActionResult> GetData([FromBody] RequestModel request)
+        {
+            ResponseModel response = new ResponseModel();
+            try
+            {
+                string? processKey = request.process?.Trim();
+                switch (processKey)
+                {
+                    case ProcessConstants.GET_MENU:
+                        response.data = await _masterDataService.GetMenu();
+                        break;
+                    default:
+                        response.status = StatusCodes.Status404NotFound;
+                        response.message = $"Process Key {processKey} was not provider!!!";
+                        return Ok(response);
+                }
+                if(!(response.data is IEnumerable<object> dataList) || dataList.IsNullOrEmpty())
+                {
+                    response.status = StatusCodes.Status204NoContent;
+                    response.message = "Không tìm thấy dữ liệu!!!";
+                }
+            }
+            catch (Exception ex)
+            {
+                response.status = StatusCodes.Status400BadRequest;
+                response.message = ex.Message;
+            }
+            return Ok(response);
+        }
+
+        /// <summary>
+        /// Post dữ liệu
+        /// </summary>
+        /// <param name="request"></param>
+        /// <returns></returns>
+        //[Authorize] // sau có token mở ra
+        [HttpPost]
+        [Route("post-data")]
+        public async Task<IActionResult> PostData([FromBody] RequestModel request)
+        {
+            ResponseModel response = new ResponseModel();
+            try
+            {
+                string? processKey = request.process?.Trim();
+                switch (processKey)
+                {
+                    case ProcessConstants.GET_MENU:
+                        response.data = await _masterDataService.GetMenu();
+                        break;
+                    default:
+                        response.status = StatusCodes.Status404NotFound;
+                        response.message = $"Process Key {processKey} was not provider!!!";
+                        return Ok(response);
+                }
+                if (!(response.data is IEnumerable<object> dataList) || dataList.IsNullOrEmpty())
+                {
+                    response.status = StatusCodes.Status204NoContent;
+                    response.message = "Không tìm thấy dữ liệu!!!";
+                }
+            }
+            catch (Exception ex)
+            {
+                response.status = StatusCodes.Status400BadRequest;
+                response.message = ex.Message;
+            }
+            return Ok(response);
+        }
+        
+        
+        #region Private Function
+        #endregion
+    }
+}

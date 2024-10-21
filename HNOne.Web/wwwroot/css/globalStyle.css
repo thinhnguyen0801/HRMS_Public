@@ -1,0 +1,163 @@
+﻿html {
+    overflow-x: hidden;
+    scroll-behavior: smooth;
+    scroll-padding-top: 9rem;
+}
+
+    html::-webkit-scrollbar {
+        width: 1rem;
+    }
+
+    html::-webkit-scrollbar-track {
+        background: rgba(17, 17, 17, 0.7);
+    }
+
+    html::-webkit-scrollbar-thumb {
+        background: #29d9d5;
+        border-radius: 5rem;
+    }
+
+.btn-primary:not(:disabled):not(.disabled).active:focus,
+.btn-primary:not(:disabled):not(.disabled):active:focus,
+.btn-primary.focus, .btn-primary:focus {
+    -webkit-box-shadow: unset;
+    box-shadow: unset;
+}
+
+.dxbl-text-edit.dxbl-focused, .dxbl-text-edit:focus-within {
+    -webkit-box-shadow: unset;
+    box-shadow: unset;
+}
+
+.form-control:focus {
+    -webkit-box-shadow: unset;
+    box-shadow: unset;
+}
+
+
+.w1FontSize {
+    font-size: 13px !important;
+}
+
+.dxbl-grid a {
+    color: rgba(var(--tblr-link-color-rgb), var(--tblr-link-opacity, 1)) !important;
+    cursor: pointer;
+}
+
+    .dxbl-grid a:hover {
+        text-decoration: underline !important;
+    }
+
+.dxbl-grid .dxbl-grid-table > tbody > tr > td,
+.dxbl-grid .dxbl-grid-table > tbody > tr > th,
+.dxbl-grid .dxbl-grid-table > tfoot > tr > td,
+.dxbl-grid .dxbl-grid-table > tfoot > tr > th,
+.dxbl-grid .dxbl-grid-table > thead > tr > td,
+.dxbl-grid .dxbl-grid-table > thead > tr > th,
+.dxbl-modal > .dxbl-modal-root > .dxbl-popup > .dxbl-modal-content {
+    font-size: 13px !important;
+}
+
+.dxbl-grid > .dxbl-grid-toolbar-container {
+    min-height: unset;
+    padding: 0.25rem !important;
+}
+
+.header-grid-template {
+    padding: 0.5rem;
+    border: 1px solid #d2d2d2;
+    border-bottom: 0;
+    border-top-left-radius: 0.1875rem;
+    border-top-right-radius: 0.1875rem;
+    width: 100%;
+}
+
+/* responsive */
+@media (max-width: 600px) {
+    .dxbl-popup {
+        width: 87% !important;
+    }
+}
+
+.dxbl-toolbar-item-tmpl {
+    outline: none !important;
+}
+
+.dxbs-sc-tb-wrapper {
+    padding: 0.25rem !important;
+}
+
+
+.blazored-toast-container {
+    z-index: 10000 !important;
+}
+
+.dxbl-btn-group .dxbl-edit-btn-dropdown .dxbl-image {
+    margin-top: 0px;
+    margin-bottom: 0px;
+}
+/*hainguyen create 2024.06.20 - chỉnh màu chủ đạo*/
+.h1-text-icon-primary {
+    color: var(--h1-navbar-bg-color) !important;
+}
+
+#navbar-menu .navbar {
+    background-color: var(--h1-navbar-bg-color);
+}
+/*hainguyen create 2024.06.20 - chỉnh màu chủ đạo*/
+
+.dxbs-uc .dxuc-button-container {
+    height: unset;
+}
+
+
+/*style cho cái lịch làm việc*/
+#dxCalendarWordSchedule table tbody td {
+    padding: 0.25rem 0.25rem;
+    height: 80px;
+}
+
+
+/*back to top button*/
+#btn-back-to-top {
+    display: inline-block;
+    background-color: var(--h1-navbar-bg-color);
+    width: 40px;
+    height: 40px;
+    text-align: center;
+    border-radius: 50%;
+    position: fixed;
+    bottom: 30px;
+    right: 30px;
+    transition: background-color .3s, opacity .5s, visibility .5s;
+    opacity: 0;
+    visibility: hidden;
+    z-index: 1000;
+
+}
+
+    #btn-back-to-top::after {
+        content: "\f077";
+        font-family: FontAwesome;
+        font-weight: normal;
+        font-style: normal;
+        font-size: 1.5rem;
+        line-height: 45px;
+        color: #fff;
+    }
+
+    #btn-back-to-top:hover {
+        cursor: pointer;
+        background-color: #333;
+        text-decoration: none;
+    }
+
+    #btn-back-to-top:active {
+        background-color: #555;
+    }
+
+    #btn-back-to-top.show {
+        opacity: 1;
+        visibility: visible;
+    }
+/*back to top button*/

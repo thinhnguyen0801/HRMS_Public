@@ -1,0 +1,5 @@
+﻿:root {
+    --h1-navbar-bg-color: #fe7109;
+    --h1-dxbl-grid-focus-color: #212529;
+    --h1-bg-primary: 254, 113, 9; /*has của --h1-navbar-bg-color*/
+}

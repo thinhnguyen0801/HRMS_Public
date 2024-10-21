@@ -1,0 +1,17 @@
+﻿@inject NavigationManager _nav;
+@layout Components.Layout.EmptyLayout
+@code {
+    protected override void OnAfterRender(bool firstRender)
+    {
+        if (firstRender)
+        {
+            try
+            {
+                var path = _nav.ToBaseRelativePath(_nav.Uri);
+                _nav.NavigateTo($"/login?returnUrl={path}", true);
+            }
+            catch (Exception) { }
+
+        }
+    }
+}

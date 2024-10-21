@@ -1,0 +1,18 @@
+﻿<label for="@Id" class="h-label" style="@Styles">
+    @Value
+    @if (IsRequired)
+    {
+        <span style="color: red;">&nbsp;*</span>
+    }
+</label>
+
+@code {
+    [Parameter]
+    public string? Styles { get; set; }
+    [Parameter]
+    public bool IsRequired { get; set; } = false;
+    [Parameter]
+    public string Id { get; set; } = "";
+    [Parameter]
+    public string Value { get; set; } = "";
+}
