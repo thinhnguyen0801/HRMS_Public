@@ -91,6 +91,7 @@ namespace HNOne.API.Controllers
             }
             catch (Exception ex)
             {
+                _logger.LogError(ex, "An error occurred while processing the request.");
                 response.status = StatusCodes.Status400BadRequest;
                 response.message = ex.Message;
             }
@@ -118,6 +119,21 @@ namespace HNOne.API.Controllers
                         var branch = JsonConvert.DeserializeObject<Branchs>($"{request.json}");
                         response = await _masterDataService.UpdateBranch(processKey, branch!);
                         break;
+                    case ProcessConstants.PUT_DEPARTMENT:
+                    case ProcessConstants.POST_DEPARTMENT:
+                        var department = JsonConvert.DeserializeObject<Departments>($"{request.json}");
+                        response = await _masterDataService.UpdateDepartment(processKey, department!);
+                        break;
+                    case ProcessConstants.PUT_POSITION:
+                    case ProcessConstants.POST_POSITION:
+                        var position = JsonConvert.DeserializeObject<Positions>($"{request.json}");
+                        response = await _masterDataService.UpdatePosition(processKey, position!);
+                        break;
+                    case ProcessConstants.PUT_TITLE:
+                    case ProcessConstants.POST_TITLE:
+                        var title = JsonConvert.DeserializeObject<Titles>($"{request.json}");
+                        response = await _masterDataService.UpdateTitle(processKey, title!);
+                        break;
                     default:
                         response.status = StatusCodes.Status404NotFound;
                         response.message = $"Process Key {processKey} was not provider!!!";
@@ -126,6 +142,7 @@ namespace HNOne.API.Controllers
             }
             catch (Exception ex)
             {
+                _logger.LogError(ex, "An error occurred while processing the request.");
                 response.status = StatusCodes.Status400BadRequest;
                 response.message = ex.Message;
             }

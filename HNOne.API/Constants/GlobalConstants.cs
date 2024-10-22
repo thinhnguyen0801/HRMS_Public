@@ -6,6 +6,9 @@
 
         #region
         public const string TABLE_BRANCH = "Branchs";
+        public const string TABLE_DEPARTMENT = "Departments";
+        public const string TABLE_POSITION = "Positions";
+        public const string TABLE_TITLE = "Titles";
         #endregion
     }
 }
