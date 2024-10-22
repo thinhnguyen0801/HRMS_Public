@@ -1,12 +1,20 @@
 ﻿using HNOne.API.Repositories.Interfaces;
+using Microsoft.EntityFrameworkCore;
 
 namespace HNOne.API.Repositories
 {
     public class GenericRepository<T> : IGenericRepository<T> where T : class
     {
-        public Task<bool> Add(T entity)
+        private readonly MasterDbContext _dbContext;
+        private readonly DbSet<T> dbSet;
+        public GenericRepository(MasterDbContext dbContext)
         {
-            throw new NotImplementedException();
+            _dbContext = dbContext;
+            dbSet = dbContext.Set<T>();
+        }
+        public async Task AddAsync(T entity)
+        {
+            await dbSet.AddAsync(entity);
         }
 
         public Task<IEnumerable<T>> All()

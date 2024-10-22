@@ -1,4 +1,5 @@
-﻿using HNOne.Model.Entities;
+﻿using HNOne.Model;
+using HNOne.Model.Entities;
 
 namespace HNOne.API.Repositories.Interfaces
 {
@@ -6,5 +7,7 @@ namespace HNOne.API.Repositories.Interfaces
     {
         Task<IEnumerable<Menus>> GetMenu();
         Task<IEnumerable<Branchs>> GetBranch();
+        Task<ResponseModel> AddBranch(Branchs entity);
+        Task<ResponseModel> UpdateBranch(Branchs entity);
     }
 }

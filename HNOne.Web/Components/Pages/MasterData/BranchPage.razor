@@ -1,0 +1,69 @@
+﻿@page "/chi-nhanh"
+@inherits Controllers.BranchController
+
+<PageTitle>Chi nhánh</PageTitle>
+
+<div class="h-content-filter">
+    <div class="card p-1">
+        <DxToolbar ItemRenderStyleMode="@ToolbarRenderStyleMode.Contained">
+            <Items>
+                <DxToolbarItem Text="Thêm mới" BeginGroup="true" IconCssClass="@($"{IconClassConstants.ICON_ADD}")"
+                               Alignment="@ToolbarItemAlignment.Right"/>
+
+                <DxToolbarItem Text="Xóa" BeginGroup="true" IconCssClass="@($"{IconClassConstants.ICON_DELETE}")"
+                               Alignment="@ToolbarItemAlignment.Right" />
+
+                <DxToolbarItem Text="Làm mới" BeginGroup="true" IconCssClass="@($"{IconClassConstants.ICON_REFRESH}")"
+                               Alignment="@ToolbarItemAlignment.Right" />
+            </Items>
+        </DxToolbar>
+    </div>
+    <div class="row row-gap-2">
+        <div class="col-12">
+            <div class="card w1FontSize">
+                <div class="card-body p-1" style="height: calc(100vh - 160px) !important; min-height: 350px">
+                    <DxGrid Data="ListBranch" @ref="GridBranch"
+                            ShowFilterRow="true"
+                            ColumnResizeMode="GridColumnResizeMode.ColumnsContainer"
+                            PagerPosition="GridPagerPosition.Bottom"
+                            PageSizeSelectorVisible="true"
+                            PageSize="@GlobalContants.PageSize"
+                            PageSizeSelectorItems="@(GlobalContants.PageSizeList)"
+                            PageSizeSelectorAllRowsItemVisible="true"
+                            PagerSwitchToInputBoxButtonCount="10"
+                            PagerVisibleNumericButtonCount="10"
+                            TextWrapEnabled="false"
+                            FocusedRowEnabled="true"
+                            CssClass="h-full">
+                        <Columns>
+                            <DxGridDataColumn FieldName="maHopDong" Caption="Mã hợp đồng" MinWidth="155">
+                                @* <CellDisplayTemplate>
+                                    @{
+                                        <a @onclick="@(()=> RedirectContractDetailHandler(nameof(EnumType.Update), (context.DataItem as ContractModel)!.id_HopDong))">@context.Value</a>
+                                    }
+                                </CellDisplayTemplate> *@
+                            </DxGridDataColumn>
+                            <DxGridDataColumn FieldName="loaiHopDong)" Caption="Loại hợp đồng" MinWidth="170" />
+                            <DxGridDataColumn FieldName="isHopDongMoi)" Caption="Hợp đồng loại mới" MinWidth="130" />
+                            <DxGridDataColumn FieldName="maNhanVien)" Caption="Mã nhân viên" MinWidth="110" />
+                            <DxGridDataColumn FieldName="nv_HoTen)" Caption="Nhân viên" MinWidth="140" />
+                            <DxGridDataColumn FieldName="tenPhongBan)" Caption="Tên phòng ban" MinWidth="150" />
+                            <DxGridDataColumn FieldName="kyLanThu)" Caption="Lần ký thứ" MinWidth="100" />
+                            <DxGridDataColumn FieldName="ngayBatDau)" Caption="Ngày bắt đầu" DisplayFormat="@GlobalContants.FORMAT_DATE" MinWidth="120" />
+                            <DxGridDataColumn FieldName="ngayKetThuc)" Caption="Ngày kết thúc" DisplayFormat="@GlobalContants.FORMAT_DATE" MinWidth="120" />
+                            <DxGridDataColumn FieldName="ghiChu)" Caption="Ghi chú" MinWidth="140" />
+                            <DxGridDataColumn FieldName="createUser)" Caption="Người tạo" MinWidth="120" />
+                            <DxGridDataColumn FieldName="createDatetime)" Caption="Ngày tạo" DisplayFormat="@GlobalContants.FORMAT_DATE_TIME" MinWidth="120" />
+                            <DxGridDataColumn FieldName="createComputer)" Caption="Máy sử dụng" DisplayFormat="d" MinWidth="120" />
+                        </Columns>
+                        <TotalSummary>
+                            <DxGridSummaryItem DisplayText="@GlobalContants.FORMAT_GRID_DISPLAYTEXT_COUNT" SummaryType="GridSummaryItemType.Count"
+                                               FieldName="maHopDong" ValueDisplayFormat="@GlobalContants.FORMAT_CURRENCY"
+                                               FooterColumnName="maHopDong" />
+                        </TotalSummary>
+                    </DxGrid>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

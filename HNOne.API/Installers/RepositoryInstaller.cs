@@ -15,7 +15,8 @@ namespace HNOne.API.Installers
             {
                 options.UseQueryTrackingBehavior(QueryTrackingBehavior.NoTracking);
                 options.UseSqlServer(configuration.GetConnectionString(CONN_NAME) ?? throw new InvalidOperationException($"Connection string '{CONN_NAME}' not found"));
-            }, ServiceLifetime.Singleton);
+            }, ServiceLifetime.Scoped);
+            services.AddTransient<IDapperDbContext, DapperDbContext>();
             services.AddScoped<IMasterDataRepository, MasterDataRepository>();
             services.AddScoped<IUserRepository, UserRepository>();
 

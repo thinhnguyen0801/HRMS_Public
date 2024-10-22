@@ -1,8 +1,18 @@
-using HNOne.API.Extensions;
+﻿using HNOne.API.Extensions;
+using Microsoft.AspNetCore.Localization;
+using System.Globalization;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
+// Cấu hình múi giờ mặc định cho ứng dụng là múi giờ Việt Nam (GMT+7)
+builder.Services.Configure<RequestLocalizationOptions>(options =>
+{
+    options.DefaultRequestCulture = new RequestCulture("vi-VN");
+    options.SupportedCultures = new List<CultureInfo> { new CultureInfo("vi-VN") };
+    options.SupportedUICultures = new List<CultureInfo> { new CultureInfo("vi-VN") };
+});
+
 builder.Services.AddControllers().AddJsonOptions(options =>
 {
     options.JsonSerializerOptions.DefaultIgnoreCondition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull;

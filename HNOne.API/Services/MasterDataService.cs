@@ -1,5 +1,7 @@
 ﻿using HNOne.API.Repositories.Interfaces;
 using HNOne.API.Services.Interfaces;
+using HNOne.Common;
+using HNOne.Model;
 using HNOne.Model.Entities;
 
 namespace HNOne.API.Services
@@ -33,9 +35,35 @@ namespace HNOne.API.Services
         #endregion
 
         #region Command
-        public async Task<Branchs> UpdateBranch(string actionType, Branchs branch)
+        /// <summary>
+        /// Thêm mới, cập nhật chi nhánh
+        /// </summary>
+        /// <param name="actionType"></param>
+        /// <param name="branch"></param>
+        /// <returns></returns>
+        public async Task<ResponseModel> UpdateBranch(string actionType, Branchs branch)
         {
-            return null;
+            ResponseModel response = new ResponseModel();
+            try
+            {
+                switch (actionType)
+                {
+                    case ProcessConstants.POST_BRANCH:
+                        response = await _masterRepository.AddBranch(branch);
+                        break;
+                    case ProcessConstants.PUT_BRANCH:
+                        response = await _masterRepository.UpdateBranch(branch);
+                        break;
+                }
+                return response;
+            }
+            catch (Exception ex)
+            {
+                response.status = StatusCodes.Status400BadRequest;
+                response.message = ex.Message;
+            }
+            return response;
+
         }
         #endregion
     }

@@ -2,11 +2,24 @@
 using HNOne.Web.Components;
 using HNOne.Web.Extensions;
 using Microsoft.AspNetCore.Components.Authorization;
+using Microsoft.AspNetCore.Localization;
+using System.Globalization;
 
 var builder = WebApplication.CreateBuilder(args);
+
+// Cấu hình múi giờ mặc định cho ứng dụng là múi giờ Việt Nam (GMT+7)
+builder.Services.Configure<RequestLocalizationOptions>(options =>
+{
+    options.DefaultRequestCulture = new RequestCulture("vi-VN");
+    options.SupportedCultures = new List<CultureInfo> { new CultureInfo("vi-VN") };
+    options.SupportedUICultures = new List<CultureInfo> { new CultureInfo("vi-VN") };
+});
+
+// config url api
 string apiUrl = builder.Configuration.GetSection("appSettings:ApiUrl").Value + "";
 string tokenKey = builder.Configuration.GetSection("appSettings:TokenKey").Value + "";
 string tokenValue = builder.Configuration.GetSection("appSettings:TokenValue").Value + "";
+
 // Add services to the container.
 builder.Services.AddRazorComponents(options => 
     options.DetailedErrors = builder.Environment.IsDevelopment())
