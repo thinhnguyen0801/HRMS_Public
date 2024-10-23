@@ -8,7 +8,7 @@ namespace HNOne.Model
 {
     public class RequestModel
     {
-        public string? userId { get; set; }
+        public int userId { get; set; }
         public string? token { get; set; }
         public string? process { get; set; }
         public string? json { get; set; }

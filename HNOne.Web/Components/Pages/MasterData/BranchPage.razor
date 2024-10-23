@@ -4,24 +4,23 @@
 <PageTitle>Chi nhánh</PageTitle>
 
 <div class="h-content-filter">
-    <div class="card p-1">
-        <DxToolbar ItemRenderStyleMode="@ToolbarRenderStyleMode.Contained">
-            <Items>
-                <DxToolbarItem Text="Thêm mới" BeginGroup="true" IconCssClass="@($"{IconClassConstants.ICON_ADD}")"
-                               Alignment="@ToolbarItemAlignment.Right"/>
-
-                <DxToolbarItem Text="Xóa" BeginGroup="true" IconCssClass="@($"{IconClassConstants.ICON_DELETE}")"
-                               Alignment="@ToolbarItemAlignment.Right" />
-
-                <DxToolbarItem Text="Làm mới" BeginGroup="true" IconCssClass="@($"{IconClassConstants.ICON_REFRESH}")"
-                               Alignment="@ToolbarItemAlignment.Right" />
-            </Items>
-        </DxToolbar>
-    </div>
     <div class="row row-gap-2">
         <div class="col-12">
             <div class="card w1FontSize">
-                <div class="card-body p-1" style="height: calc(100vh - 160px) !important; min-height: 350px">
+                <div class="card-header p-1">
+                    <DxToolbar ItemRenderStyleMode="@ToolbarRenderStyleMode.Contained">
+                        <Items>
+                            <DxToolbarItem Text="Làm mới" BeginGroup="true" IconCssClass="@($"{IconClassConstants.ICON_REFRESH}")"
+                                           Alignment="@ToolbarItemAlignment.Right" Click="@(()=> RefreshHandler())" />
+                            <DxToolbarItem Text="Thêm mới" BeginGroup="true" IconCssClass="@($"{IconClassConstants.ICON_ADD}")"
+                                           Alignment="@ToolbarItemAlignment.Right" Click="@(()=> OnOpenDialogHandler())" />
+
+                            <DxToolbarItem Text="Xóa" BeginGroup="true" IconCssClass="@($"{IconClassConstants.ICON_DELETE}")"
+                                           Alignment="@ToolbarItemAlignment.Right" Click="@(()=> DeleteDataHandler())" />
+                        </Items>
+                    </DxToolbar>
+                </div>
+                <div class="card-body p-1" style="height: calc(100vh - 150px); min-height: 350px">
                     <DxGrid Data="ListBranch" @ref="GridBranch"
                             ShowFilterRow="true"
                             ColumnResizeMode="GridColumnResizeMode.ColumnsContainer"
@@ -34,32 +33,30 @@
                             PagerVisibleNumericButtonCount="10"
                             TextWrapEnabled="false"
                             FocusedRowEnabled="true"
+                            SelectionMode="@GridSelectionMode.Multiple"
+                            @bind-SelectedDataItems="@SelectedBranchs"
+                            KeyFieldName="@nameof(BranchModel.branchCode)"
                             CssClass="h-full">
                         <Columns>
-                            <DxGridDataColumn FieldName="maHopDong" Caption="Mã hợp đồng" MinWidth="155">
-                                @* <CellDisplayTemplate>
+                            <DxGridSelectionColumn Width="45px" />
+                            <DxGridDataColumn FieldName="@nameof(BranchModel.branchCode)" Caption="Mã chi nhánh" MinWidth="150">
+                                <CellDisplayTemplate>
                                     @{
-                                        <a @onclick="@(()=> RedirectContractDetailHandler(nameof(EnumType.Update), (context.DataItem as ContractModel)!.id_HopDong))">@context.Value</a>
+                                        <a @onclick="@(() => OnOpenDialogHandler(EnumType.Update, (context.DataItem as BranchModel)))">@context.Value</a>
                                     }
-                                </CellDisplayTemplate> *@
+                                </CellDisplayTemplate>
                             </DxGridDataColumn>
-                            <DxGridDataColumn FieldName="loaiHopDong)" Caption="Loại hợp đồng" MinWidth="170" />
-                            <DxGridDataColumn FieldName="isHopDongMoi)" Caption="Hợp đồng loại mới" MinWidth="130" />
-                            <DxGridDataColumn FieldName="maNhanVien)" Caption="Mã nhân viên" MinWidth="110" />
-                            <DxGridDataColumn FieldName="nv_HoTen)" Caption="Nhân viên" MinWidth="140" />
-                            <DxGridDataColumn FieldName="tenPhongBan)" Caption="Tên phòng ban" MinWidth="150" />
-                            <DxGridDataColumn FieldName="kyLanThu)" Caption="Lần ký thứ" MinWidth="100" />
-                            <DxGridDataColumn FieldName="ngayBatDau)" Caption="Ngày bắt đầu" DisplayFormat="@GlobalContants.FORMAT_DATE" MinWidth="120" />
-                            <DxGridDataColumn FieldName="ngayKetThuc)" Caption="Ngày kết thúc" DisplayFormat="@GlobalContants.FORMAT_DATE" MinWidth="120" />
-                            <DxGridDataColumn FieldName="ghiChu)" Caption="Ghi chú" MinWidth="140" />
-                            <DxGridDataColumn FieldName="createUser)" Caption="Người tạo" MinWidth="120" />
-                            <DxGridDataColumn FieldName="createDatetime)" Caption="Ngày tạo" DisplayFormat="@GlobalContants.FORMAT_DATE_TIME" MinWidth="120" />
-                            <DxGridDataColumn FieldName="createComputer)" Caption="Máy sử dụng" DisplayFormat="d" MinWidth="120" />
+                            <DxGridDataColumn FieldName="@nameof(BranchModel.branchName)" Caption="Tên chi nhánh" MinWidth="170" />
+                            <DxGridDataColumn FieldName="@nameof(BranchModel.phoneNumber)" Caption="Số điện thoại" MinWidth="170" />
+                            <DxGridDataColumn FieldName="@nameof(BranchModel.address)" Caption="Địa chỉ" MinWidth="210" />
+                            <DxGridDataColumn FieldName="@nameof(BranchModel.createDate)" Caption="Ngày cập nhật" MinWidth="120" DisplayFormat="@GlobalContants.FORMAT_DATE_TIME" />
+                            <DxGridDataColumn FieldName="@nameof(BranchModel.userSignName)" Caption="Người tạo" MinWidth="120" />
+                            <DxGridDataColumn FieldName="@nameof(BranchModel.userSignName)" Caption="Người cập nhật" MinWidth="120" />
                         </Columns>
                         <TotalSummary>
                             <DxGridSummaryItem DisplayText="@GlobalContants.FORMAT_GRID_DISPLAYTEXT_COUNT" SummaryType="GridSummaryItemType.Count"
-                                               FieldName="maHopDong" ValueDisplayFormat="@GlobalContants.FORMAT_CURRENCY"
-                                               FooterColumnName="maHopDong" />
+                                               FieldName="@nameof(BranchModel.branchCode)" ValueDisplayFormat="@GlobalContants.FORMAT_CURRENCY"
+                                               FooterColumnName="@nameof(BranchModel.branchCode)" />
                         </TotalSummary>
                     </DxGrid>
                 </div>
@@ -67,3 +64,45 @@
         </div>
     </div>
 </div>
+
+<W1Popup @bind-IsOpenModal="@IsShowDialog"
+         Width="65%" TextBtnAccept="Cập nhật"
+         HeaderText= "Thêm mới chi nhánh"
+         HandleClickAccept="@SaveDataHandler">
+    <div class="row row-gap-2">
+        <div class="col-sm-12">
+            <div class="d-flex ">
+                <W1Label Value="Mã chi nhánh" Id="bacLuong" Styles="width: 110px" />
+                <div style="width: calc(100% - 110px)">
+                    <DxTextBox @bind-Text="@BranchUpdate.branchCode" ReadOnly="true" CssClass="w1FontSize"></DxTextBox>
+                </div>
+            </div>
+        </div>
+        <div class="col-sm-12">
+            <div class="d-flex ">
+                <W1Label Value="Tên chi nhánh" Id="bacLuong" Styles="width: 110px" IsRequired="true" />
+                <div style="width: calc(100% - 110px)">
+                    <DxTextBox @bind-Text="@BranchUpdate.branchName" CssClass="w1FontSize"></DxTextBox>
+                </div>
+            </div>
+        </div>
+        <div class="col-sm-12">
+            <div class="d-flex ">
+                <W1Label Value="Số điện thoại" Id="bacLuong" Styles="width: 110px" />
+                <div style="width: calc(100% - 110px)">
+                    <DxTextBox @bind-Text="@BranchUpdate.phoneNumber" CssClass="w1FontSize"></DxTextBox>
+                </div>
+            </div>
+        </div>
+        <div class="col-sm-12">
+            <div class="d-flex ">
+                <W1Label Value="Địa chỉ" Id="bacLuong" Styles="width: 110px" />
+                <div style="width: calc(100% - 110px)">
+                    <DxTextBox @bind-Text="@BranchUpdate.address" CssClass="w1FontSize"></DxTextBox>
+                </div>
+            </div>
+        </div>
+    </div>
+</W1Popup>
+
+<W1Confirm @ref="confirm" />

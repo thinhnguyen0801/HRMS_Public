@@ -133,7 +133,6 @@
     opacity: 0;
     visibility: hidden;
     z-index: 1000;
-
 }
 
     #btn-back-to-top::after {

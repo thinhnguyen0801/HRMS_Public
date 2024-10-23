@@ -24,9 +24,11 @@ string tokenValue = builder.Configuration.GetSection("appSettings:TokenValue").V
 builder.Services.AddRazorComponents(options => 
     options.DetailedErrors = builder.Environment.IsDevelopment())
     .AddInteractiveServerComponents();
-
+builder.Services.AddControllers().AddJsonOptions(options =>
+{
+    options.JsonSerializerOptions.DefaultIgnoreCondition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull;
+});
 builder.Services.InstallerExtensionsInAssembly(builder.Configuration);
-
 builder.Services.AddResponseCompression();
 builder.Services.AddCascadingAuthenticationState();
 builder.Services.AddAuthorizationCore();

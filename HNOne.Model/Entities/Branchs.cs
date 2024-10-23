@@ -4,7 +4,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 namespace HNOne.Model.Entities
 {
     [Table("Branchs")]
-    public class Branchs : Auditable
+    public sealed class Branchs : Auditable
     {
         [Key]
         [DatabaseGenerated(DatabaseGeneratedOption.None)] // Không tự tăng

@@ -22,6 +22,7 @@ namespace HNOne.Web.Controllers
         [Inject] protected IToastService _toastService { get; init; }
         [Inject] private AuthenticationStateProvider _authenticationStateProvider { get; init; }
         [Inject] protected ILocalStorageService _localStorageService { get; init; }
+        [Inject] protected IProgressService _progressService { get; init; }
 
         #region Properties
         public int BranchId { get; set; }
