@@ -10,6 +10,7 @@ namespace HNOne.API.Repositories
         public DbSet<Departments> Departments { get; set; }
         public DbSet<Positions> Positions { get; set; }
         public DbSet<Titles> Titles { get; set; }
+        public DbSet<Employees> Employees { get; set; }
         public MasterDbContext(DbContextOptions<MasterDbContext> options)
             : base(options)
         {
@@ -22,6 +23,18 @@ namespace HNOne.API.Repositories
             modelBuilder.Entity<Departments>().HasIndex(m => m.Code).IsUnique(true);
             modelBuilder.Entity<Positions>().HasIndex(m => m.Code).IsUnique(true);
             modelBuilder.Entity<Titles>().HasIndex(m => m.Code).IsUnique(true);
+            modelBuilder.Entity<Employees>().HasIndex(m => m.Code).IsUnique(true);
+        }
+
+        private void seedMenus(ModelBuilder modelBuilder)
+        {
+            //modelBuilder.Entity<Menus>().HasData(
+            //    new Menus() { MenuID = "000-001", MenuName = "Trang chủ"},
+            //    new Menus() { MenuID = "000-001", MenuName = "Trang chủ"},
+            //    new Menus() { MenuID = "000-001", MenuName = "Trang chủ"},
+            //    new Menus() { MenuID = "000-001", MenuName = "Trang chủ"},
+            //    new Menus() { MenuID = "000-001", MenuName = "Trang chủ"}
+            //    );
         }
 
 
