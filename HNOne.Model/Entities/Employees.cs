@@ -24,6 +24,11 @@ namespace HNOne.Model.Entities
         public string? PlaceOfBirth { get; set; } // Nơi sinh
         [MaxLength(1000)]
         public string? PlaceOfOrigin { get; set; } // Quê quán
+        [MaxLength(1000)]
+        public string? TemporaryAddress { get; set; } // địa chỉ tạm trú
+        [MaxLength(1000)]
+        public string? ContactAddress { get; set; } // địa chỉ liên hệ
+
         [MaxLength(100)]
         public string? Religion { get; set; } // Tôn giáo
         [MaxLength(100)]
@@ -32,6 +37,7 @@ namespace HNOne.Model.Entities
         public string? ImageUrl { get; set; } // Đường dẫn ảnh
         [MaxLength(100)]
         public string? MaritalStatus { get; set; } // Tình trạng hôn nhân
+        public DateTime? DateOfJoining { get; set; } // Ngày công ty
         public DateTime? StartDate { get; set; } // Ngày vào làm
         [MaxLength(1000)]
         public string? Remark { get; set; } // ghi chú
@@ -54,8 +60,6 @@ namespace HNOne.Model.Entities
         public string? AccountNumber { get; set; } // Số tài khoản
         [MaxLength(100)]
         public string? BankName { get; set; } // tên ngân hàng
-        [MaxLength(100)]
-        public string? BankCode { get; set; } // mã chi nhánh ngân hàng
         [MaxLength(1000)]
         public string? BankBranch { get; set; } // chi nhánh ngân hàng
         [MaxLength(250)]
@@ -64,8 +68,6 @@ namespace HNOne.Model.Entities
         public string? Nationality { get; set; } // Quốc tịch
         [MaxLength(50)]
         public string? TaxNumber { get; set; } // mã số thuế
-        [MaxLength(50)]
-        public string? PassportNumber { get; set; } // Hộ chiếu
         public int? LevelOfEducationId1 { get; set; } // trình độ học vấn 1
         public int? LevelOfEducationId2 { get; set; } // trình độ học vấn 2
         [MaxLength(250)]
@@ -83,17 +85,14 @@ namespace HNOne.Model.Entities
         [MaxLength(250)]
         public string? LanguageLevel { get; set; } // Trình độ ngoại ngữ
         [MaxLength(250)]
-        public string? RankingLang { get; set; } // Xếp loại ngoại ngữ
-        [MaxLength(250)]
         public string? LevelOfComputerLiteracy { get; set; } // Trình độ tin học
-        [MaxLength(250)]
-        public string? RankingComputer { get; set; } // Xếp loại tin học
         [MaxLength(250)]
         public string? OtherSkills { get; set; } // Kĩ năng khác
         public DateTime? ProbationEndDate { get; set; } // ngày kết thúc thử việcs
         public int BranchId { get; set; } // ID chi nhánh
         public int DepartmentId { get; set; } // phòng ban
         public int PositionId { get; set; } // chức vụ
+        public int? TitleId { get; set; } // chức danh
         public int? ManagerId { get; set; } // Người quản lý
         public int? AttendanceSheetId { get; set; } // ID bảng công
         

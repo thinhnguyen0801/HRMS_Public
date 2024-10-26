@@ -1,0 +1,61 @@
+﻿@page "/danh-sach-nhan-vien"
+@inherits Controllers.EmployeeListController
+<PageTitle>Danh sách nhân viên</PageTitle>
+
+<div class="h-content-filter">
+    <div class="row row-gap-2">
+        <div class="col-12">
+            <div class="card w1FontSize">
+                <div class="card-header p-1">
+                    <DxToolbar ItemRenderStyleMode="@ToolbarRenderStyleMode.Contained">
+                        <Items>
+                            <DxToolbarItem Text="Làm mới" BeginGroup="true" IconCssClass="@($"{IconClassConstants.ICON_REFRESH}")"
+                                           Alignment="@ToolbarItemAlignment.Right" />
+                            <DxToolbarItem Text="Thêm mới" BeginGroup="true" IconCssClass="@($"{IconClassConstants.ICON_ADD}")"
+                                           Alignment="@ToolbarItemAlignment.Right" />
+                            <DxToolbarItem Text="Xóa" BeginGroup="true" IconCssClass="@($"{IconClassConstants.ICON_DELETE}")"
+                                           Alignment="@ToolbarItemAlignment.Right" />
+                        </Items>
+                    </DxToolbar>
+                </div>
+                <div class="card-body p-1" style="height: calc(100vh - 150px); min-height: 350px">
+                    <DxGrid Data="ListEmployee" @ref="GridEmployee"
+                            ShowFilterRow="true"
+                            ColumnResizeMode="GridColumnResizeMode.ColumnsContainer"
+                            PagerPosition="GridPagerPosition.Bottom"
+                            PageSizeSelectorVisible="true"
+                            PageSize="@GlobalContants.PageSize"
+                            PageSizeSelectorItems="@(GlobalContants.PageSizeList)"
+                            PageSizeSelectorAllRowsItemVisible="true"
+                            PagerSwitchToInputBoxButtonCount="10"
+                            PagerVisibleNumericButtonCount="10"
+                            TextWrapEnabled="false"
+                            FocusedRowEnabled="true"
+                            CssClass="h-full">
+                        <Columns>
+                            <DxGridSelectionColumn Width="45px" />
+                            <DxGridDataColumn FieldName="@nameof(BranchModel.branchCode)" Caption="Mã nhân viên" MinWidth="150">
+                                <CellDisplayTemplate>
+                                    @{
+                                        <a>@context.Value</a>
+                                    }
+                                </CellDisplayTemplate>
+                            </DxGridDataColumn>
+                            <DxGridDataColumn FieldName="@nameof(BranchModel.branchName)" Caption="Tên nhân viên" MinWidth="170" />
+                            <DxGridDataColumn FieldName="@nameof(BranchModel.phoneNumber)" Caption="Số điện thoại" MinWidth="170" />
+                            <DxGridDataColumn FieldName="@nameof(BranchModel.address)" Caption="Địa chỉ" MinWidth="210" />
+                            <DxGridDataColumn FieldName="@nameof(BranchModel.createDate)" Caption="Ngày cập nhật" MinWidth="120" DisplayFormat="@GlobalContants.FORMAT_DATE_TIME" />
+                            <DxGridDataColumn FieldName="@nameof(BranchModel.userSignName)" Caption="Người tạo" MinWidth="120" />
+                            <DxGridDataColumn FieldName="@nameof(BranchModel.userSignName)" Caption="Người cập nhật" MinWidth="120" />
+                        </Columns>
+                        <TotalSummary>
+                            <DxGridSummaryItem DisplayText="@GlobalContants.FORMAT_GRID_DISPLAYTEXT_COUNT" SummaryType="GridSummaryItemType.Count"
+                                               FieldName="@nameof(BranchModel.branchCode)" ValueDisplayFormat="@GlobalContants.FORMAT_CURRENCY"
+                                               FooterColumnName="@nameof(BranchModel.branchCode)" />
+                        </TotalSummary>
+                    </DxGrid>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

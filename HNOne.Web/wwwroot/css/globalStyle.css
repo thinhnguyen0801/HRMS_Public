@@ -36,7 +36,7 @@
 
 
 .w1FontSize {
-    font-size: 13px !important;
+    font-size: 12px !important;
 }
 
 .dxbl-grid a {
@@ -55,7 +55,7 @@
 .dxbl-grid .dxbl-grid-table > thead > tr > td,
 .dxbl-grid .dxbl-grid-table > thead > tr > th,
 .dxbl-modal > .dxbl-modal-root > .dxbl-popup > .dxbl-modal-content {
-    font-size: 13px !important;
+    font-size: 12px !important;
 }
 
 .dxbl-grid > .dxbl-grid-toolbar-container {
