@@ -8,6 +8,12 @@ namespace HNOne.Web.Services.Interfaces
     {
         Task<List<Menus>?> GetMenuAsync(RequestModel request);
         Task<List<BranchModel>?> GetBranchAsync(int userId, string token = "");
+        Task<List<DepartmentModel>?> GetDepartmentAsync(int userId, string token = "");
+        Task<List<TitleModel>?> GetTitleAsync(int userId, string token = "");
+        Task<List<PositionModel>?> GetPositionAsync(int userId, string token = "");
         Task<bool> UpdateBranchAsync(string processKey, int userId, string token, string json);
+        Task<bool> UpdateDepartmentAsync(string processKey, int userId, string token, string json);
+        Task<bool> UpdateTitleAsync(string processKey, int userId, string token, string json);
+        Task<bool> UpdatePositionAsync(string processKey, int userId, string token, string json);
     }
 }

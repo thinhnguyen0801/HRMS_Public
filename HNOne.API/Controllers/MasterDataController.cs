@@ -78,6 +78,15 @@ namespace HNOne.API.Controllers
                     case ProcessConstants.GET_MENU:
                         response.data = await _masterDataService.GetMenu();
                         break;
+                    case ProcessConstants.GET_DEPARTMENT:
+                        response.data = await _masterDataService.GetDepartment();
+                        break;
+                    case ProcessConstants.GET_TITLE:
+                        response.data = await _masterDataService.GetTitle();
+                        break;
+                    case ProcessConstants.GET_POSITION:
+                        response.data = await _masterDataService.GetPosition();
+                        break;
                     default:
                         response.status = StatusCodes.Status404NotFound;
                         response.message = $"Process Key {processKey} was not provider!!!";
