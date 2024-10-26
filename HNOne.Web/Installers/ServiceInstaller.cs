@@ -8,6 +8,7 @@ namespace HNOne.Web.Installers
         public void InstallerService(IServiceCollection services, IConfiguration configuration)
         {
             services.AddScoped<IMasterDataService, MasterDataService>();
+            services.AddScoped<IPersonnelService, PersonnelService>();
         }
     }
 }

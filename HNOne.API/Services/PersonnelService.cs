@@ -3,6 +3,7 @@ using HNOne.API.Services.Interfaces;
 using HNOne.Model.Entities;
 using HNOne.Model;
 using HNOne.Common;
+using HNOne.Model.Models;
 
 namespace HNOne.API.Services
 {
@@ -15,6 +16,13 @@ namespace HNOne.API.Services
         }
 
         #region Query
+        /// <summary>
+        /// lấy danh sách nhân viên
+        /// </summary>
+        /// <param name="request"></param>
+        /// <returns></returns>
+        public async Task<IEnumerable<EmployeeModel>> GetEmployee(RequestModel request)
+            => await _personnelRepository.GetEmployee(request);
         #endregion
 
         #region Command
@@ -29,7 +37,7 @@ namespace HNOne.API.Services
                         response = await _personnelRepository.AddEmployee(entity);
                         break;
                     case ProcessConstants.PUT_EMPLOYEE:
-                        //response = await _masterRepository.UpdateBranch(branch);
+                        response = await _personnelRepository.UpdateEmployee(entity);
                         break;
                 }
                 return response;

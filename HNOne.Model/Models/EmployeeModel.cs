@@ -8,7 +8,7 @@ namespace HNOne.Model.Models
 {
     public class EmployeeModel
     {
-        public string? id { get; set; }
+        public int id { get; set; }
         public string? code { get; set; }
         public string? name { get; set; }
         public DateTime? dateOfBirth { get; set; }
@@ -54,5 +54,21 @@ namespace HNOne.Model.Models
         public int positionId { get; set; } // chức vụ
         public int? titleId { get; set; } // chức danh
         public int? managerId { get; set; } // Người quản lý
+        public int? userSign { get; set; }
+        public DateTime? updateDate { get; set; }
+        public int? userSign2 { get; set; }
+        public bool isDelete { get; set; }
+        public string? deleteReason { get; set; }
+        public DateTime? dateTracking { get; set; }
+        public string? userSignName { get; set; }
+        public string? userSign2Name { get; set; }
+        public string? departmentCode { get; set; }
+        public string? departmentName { get; set; }
+        public string? positionCode { get; set; }
+        public string? positionName { get; set; }
+        public string? titleCode { get; set; }
+        public string? titleName { get; set; }
+        public string? link { get; set; }
+
     }
 }

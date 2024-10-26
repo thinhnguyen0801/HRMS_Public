@@ -23,6 +23,46 @@ namespace HNOne.API.Controllers
             _logger = logger;
         }
 
+        /// <summary>
+        /// lấy dữ liệu
+        /// </summary>
+        /// <param name="request"></param>
+        /// <returns></returns>
+        //[Authorize] // sau có token mở ra
+        [HttpPost]
+        [Route("get-data")]
+        public async Task<IActionResult> GetData([FromBody] RequestModel request)
+        {
+            ResponseModel response = new ResponseModel();
+            try
+            {
+                string? processKey = request.process?.Trim();
+                switch (processKey)
+                {
+                    case ProcessConstants.GET_EMPLOYEE:
+                        response.data = await _personnelService.GetEmployee(request);
+                        break;
+
+                    default:
+                        response.status = StatusCodes.Status404NotFound;
+                        response.message = $"Process Key {processKey} was not provider!!!";
+                        return Ok(response);
+                }
+                if (!(response.data is IEnumerable<object> dataList) || dataList.IsNullOrEmpty())
+                {
+                    response.status = StatusCodes.Status204NoContent;
+                    response.message = "Không tìm thấy dữ liệu!!!";
+                }
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "An error occurred while processing the request.");
+                response.status = StatusCodes.Status400BadRequest;
+                response.message = ex.Message;
+            }
+            return Ok(response);
+        }
+
         [HttpPost]
         [Route("post-data")]
         public async Task<IActionResult> PostData([FromBody] RequestModel request)

@@ -15,5 +15,7 @@ namespace HNOne.Common
         public const string MESSAGE_CONFIRM_DELETE = "Bạn có chắc muốn xóa các dòng được chọn?";
         public const string MESSAGE_LOGIN_EXPIRED = "Hết phiên đăng nhập!";
         public const string MESSAGE_NO_CHOSE_DATA = "Không có dòng nào được chọn!";
+        public const string MESSAGE_STRING_REQUIRE = "Vui lòng điền {0}!";
+        public const string MESSAGE_COMBOBOX_REQUIRE = "Vui lòng chọn {0}!";
     }
 }
