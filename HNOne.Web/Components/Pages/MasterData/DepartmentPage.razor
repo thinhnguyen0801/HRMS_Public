@@ -1,0 +1,144 @@
+﻿@page "/phong-ban"
+@inherits Controllers.DepartmentController
+
+<PageTitle>Phòng ban</PageTitle>
+
+<div class="h-content-filter">
+    <div class="row row-gap-2">
+        <div class="col-12">
+            <div class="card w1FontSize">
+                <div class="card-header p-1">
+                    <DxToolbar ItemRenderStyleMode="@ToolbarRenderStyleMode.Contained">
+                        <Items>
+                            <DxToolbarItem Text="Làm mới" BeginGroup="true" IconCssClass="@($"{IconClassConstants.ICON_REFRESH}")"
+                                           Alignment="@ToolbarItemAlignment.Right" Click="@(()=> RefreshHandler())" />
+                            <DxToolbarItem Text="Thêm mới" BeginGroup="true" IconCssClass="@($"{IconClassConstants.ICON_ADD}")"
+                                           Alignment="@ToolbarItemAlignment.Right" Click="@(()=> OnOpenDialogHandler())" />
+
+                            <DxToolbarItem Text="Xóa" BeginGroup="true" IconCssClass="@($"{IconClassConstants.ICON_DELETE}")"
+                                           Alignment="@ToolbarItemAlignment.Right" Click="@(()=> DeleteDataHandler())" />
+                        </Items>
+                    </DxToolbar>
+                </div>
+                <div class="card-body p-1" style="height: calc(100vh - 150px); min-height: 350px">
+                    <DxGrid Data="ListDepartment" @ref="GridDepartment"
+                            ShowFilterRow="true"
+                            ColumnResizeMode="GridColumnResizeMode.ColumnsContainer"
+                            PagerPosition="GridPagerPosition.Bottom"
+                            PageSizeSelectorVisible="true"
+                            PageSize="@GlobalContants.PageSize"
+                            PageSizeSelectorItems="@(GlobalContants.PageSizeList)"
+                            PageSizeSelectorAllRowsItemVisible="true"
+                            PagerSwitchToInputBoxButtonCount="10"
+                            PagerVisibleNumericButtonCount="10"
+                            TextWrapEnabled="false"
+                            FocusedRowEnabled="true"
+                            SelectionMode="@GridSelectionMode.Multiple"
+                            @bind-SelectedDataItems="@SelectedDepartments"
+                            KeyFieldName="@nameof(DepartmentModel.code)"
+                            CssClass="h-full">
+                        <Columns>
+                            <DxGridSelectionColumn Width="45px" />
+                            <DxGridDataColumn FieldName="@nameof(DepartmentModel.code)" Caption="Mã phòng ban" MinWidth="150">
+                                <CellDisplayTemplate>
+                                    @{
+                                        <a @onclick="@(() => OnOpenDialogHandler(EnumType.Update, (context.DataItem as DepartmentModel)))">@context.Value</a>
+                                    }
+                                </CellDisplayTemplate>
+                            </DxGridDataColumn>
+                            <DxGridDataColumn FieldName="@nameof(DepartmentModel.name)" Caption="Tên phòng ban" MinWidth="170" />
+                            <DxGridDataColumn FieldName="@nameof(DepartmentModel.managerId)" Caption="Giám đốc" MinWidth="170" />
+                            <DxGridDataColumn FieldName="@nameof(DepartmentModel.headId)" Caption="Trưởng phòng" MinWidth="210" />
+                            <DxGridDataColumn FieldName="@nameof(DepartmentModel.assistantManagerIds)" Caption="Phó phòng" MinWidth="210" />
+                            <DxGridDataColumn FieldName="@nameof(DepartmentModel.remark)" Caption="Ghi chú" MinWidth="210" />
+                            <DxGridDataColumn FieldName="@nameof(DepartmentModel.isActive)" Caption="Active" MinWidth="210" />
+                            <DxGridDataColumn FieldName="@nameof(DepartmentModel.branchId)" Caption="Chi nhánh" MinWidth="210" />
+                            <DxGridDataColumn FieldName="@nameof(DepartmentModel.createDate)" Caption="Ngày cập nhật" MinWidth="120" DisplayFormat="@GlobalContants.FORMAT_DATE_TIME" />
+                            <DxGridDataColumn FieldName="@nameof(DepartmentModel.userSignName)" Caption="Người tạo" MinWidth="120" />
+                            <DxGridDataColumn FieldName="@nameof(DepartmentModel.userSign2Name)" Caption="Người cập nhật" MinWidth="120" />
+                        </Columns>
+                        <TotalSummary>
+                            <DxGridSummaryItem DisplayText="@GlobalContants.FORMAT_GRID_DISPLAYTEXT_COUNT" SummaryType="GridSummaryItemType.Count"
+                                               FieldName="@nameof(DepartmentModel.code)" ValueDisplayFormat="@GlobalContants.FORMAT_CURRENCY"
+                                               FooterColumnName="@nameof(DepartmentModel.code)" />
+                        </TotalSummary>
+                    </DxGrid>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<W1Popup @bind-IsOpenModal="@IsShowDialog"
+         Width="65%" TextBtnAccept="Cập nhật"
+         HeaderText="Thêm mới phòng ban"
+         HandleClickAccept="@SaveDataHandler">
+    <div class="row row-gap-2">
+        <div class="col-sm-12">
+            <div class="d-flex ">
+                <W1Label Value="Mã phòng ban" Id="bacLuong" Styles="width: 110px" />
+                <div style="width: calc(100% - 110px)">
+                    <DxTextBox @bind-Text="@DepartmentUpdate.code" ReadOnly="true" CssClass="w1FontSize"></DxTextBox>
+                </div>
+            </div>
+        </div>
+        <div class="col-sm-12">
+            <div class="d-flex ">
+                <W1Label Value="Tên phòng ban" Id="bacLuong" Styles="width: 110px" IsRequired="true" />
+                <div style="width: calc(100% - 110px)">
+                    <DxTextBox @bind-Text="@DepartmentUpdate.name" CssClass="w1FontSize"></DxTextBox>
+                </div>
+            </div>
+        </div>
+        <div class="col-sm-12">
+            <div class="d-flex ">
+                <W1Label Value="Trưởng phòng" Id="bacLuong" Styles="width: 110px" IsRequired="true" />
+                <div style="width: calc(100% - 110px)">
+                    @* <DxTextBox @bind-Text="@DepartmentUpdate.headId" CssClass="w1FontSize"></DxTextBox> *@
+                </div>
+            </div>
+        </div>
+        <div class="col-sm-12">
+            <div class="d-flex ">
+                <W1Label Value="Chức vụ" Id="bacLuong" Styles="width: 110px" IsRequired="true" />
+                <div style="width: calc(100% - 110px)">
+                    @* <DxTextBox @bind-Text="@DepartmentUpdate.assistantManagerIds" CssClass="w1FontSize"></DxTextBox> *@
+                </div>
+            </div>
+        </div>
+        <div class="col-sm-12">
+            <div class="d-flex ">
+                <W1Label Value="Số điện thoại" Id="bacLuong" Styles="width: 110px" />
+                <div style="width: calc(100% - 110px)">
+                    @* <DxTextBox @bind-Text="@DepartmentUpdate.managerId" CssClass="w1FontSize"></DxTextBox> *@
+                </div>
+            </div>
+        </div>
+        <div class="col-sm-12">
+            <div class="d-flex ">
+                <W1Label Value="Địa chỉ" Id="bacLuong" Styles="width: 110px" />
+                <div style="width: calc(100% - 110px)">
+                    @* <DxTextBox @bind-Text="@DepartmentUpdate.headId" CssClass="w1FontSize"></DxTextBox> *@
+                </div>
+            </div>
+        </div>
+        <div class="col-sm-6">
+            <div class="d-flex ">
+                <W1Label Value="Active" Id="bacLuong" Styles="width: 110px" />
+                <div style="width: calc(100% - 110px)">
+                    @* <DxTextBox @bind-Text="@DepartmentUpdate.headId" CssClass="w1FontSize"></DxTextBox> *@
+                </div>
+            </div>
+        </div>
+        <div class="col-sm-6">
+            <div class="d-flex ">
+                <W1Label Value="Chi nhánh" Id="bacLuong" Styles="width: 110px" IsRequired="true" />
+                <div style="width: calc(100% - 110px)">
+                    @* <DxTextBox @bind-Text="@DepartmentUpdate.headId" CssClass="w1FontSize"></DxTextBox> *@
+                </div>
+            </div>
+        </div>
+    </div>
+</W1Popup>
+
+<W1Confirm @ref="confirm" />

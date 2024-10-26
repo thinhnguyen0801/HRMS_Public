@@ -33,6 +33,18 @@ namespace HNOne.API.Services
         public async Task<IEnumerable<Branchs>> GetBranch()
             => await _masterRepository.GetBranch();
 
+        /// <summary>
+        /// lấy ra danh sách phòng ban
+        /// </summary>
+        /// <returns></returns>
+        public async Task<IEnumerable<Departments>> GetDepartment()
+            => await _masterRepository.GetDepartment();
+
+        public async Task<IEnumerable<Titles>> GetTitle()
+            => await _masterRepository.GetTitle();
+        public async Task<IEnumerable<Positions>> GetPosition()
+                    => await _masterRepository.GetPosition();
+
         #endregion
 
         #region Command

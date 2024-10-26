@@ -37,6 +37,22 @@ namespace HNOne.API.Repositories
             return lstMenus;
         }
 
+        public async Task<IEnumerable<Departments>> GetDepartment()
+        {
+            var lstMenus = await _dbContext.Departments.Where(m => m.IsActive).ToListAsync();
+            return lstMenus;
+        }
+        public async Task<IEnumerable<Titles>> GetTitle()
+        {
+            var lstMenus = await _dbContext.Titles.Where(m => m.IsActive).ToListAsync();
+            return lstMenus;
+        }
+        public async Task<IEnumerable<Positions>> GetPosition()
+        {
+            var lstMenus = await _dbContext.Positions.Where(m => m.IsActive).ToListAsync();
+            return lstMenus;
+        }
+
         #endregion 
 
         #region Command
