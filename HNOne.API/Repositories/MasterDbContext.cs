@@ -11,6 +11,7 @@ namespace HNOne.API.Repositories
         public DbSet<Positions> Positions { get; set; }
         public DbSet<Titles> Titles { get; set; }
         public DbSet<Employees> Employees { get; set; }
+        public DbSet<ContractTypes> ContractTypes { get; set; }
         public MasterDbContext(DbContextOptions<MasterDbContext> options)
             : base(options)
         {
@@ -24,6 +25,7 @@ namespace HNOne.API.Repositories
             modelBuilder.Entity<Positions>().HasIndex(m => m.Code).IsUnique(true);
             modelBuilder.Entity<Titles>().HasIndex(m => m.Code).IsUnique(true);
             modelBuilder.Entity<Employees>().HasIndex(m => m.Code).IsUnique(true);
+            modelBuilder.Entity<ContractTypes>().HasIndex(m => m.Code).IsUnique(true);
         }
 
         private void seedMenus(ModelBuilder modelBuilder)
