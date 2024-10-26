@@ -9,6 +9,7 @@
         public const string TABLE_DEPARTMENT = "Departments";
         public const string TABLE_POSITION = "Positions";
         public const string TABLE_TITLE = "Titles";
+        public const string TABLE_EMPLOYEE = "Employees";
         #endregion
     }
 }

@@ -22,5 +22,7 @@
         public const string GET_TITLE = "get-title";
         public const string POST_TITLE = "post-title";
         public const string PUT_TITLE = "put-title";
+        public const string POST_EMPLOYEE = "post-employee";
+        public const string PUT_EMPLOYEE = "put-employee";
     }
 }
