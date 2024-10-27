@@ -13,6 +13,7 @@ namespace HNOne.API.Installers
             services.AddSingleton<IEncryptHelper, EncryptHelper>();
             services.AddScoped<IMasterDataService, MasterDataService>();
             services.AddScoped<IUserService, UserService>();
+            services.AddScoped<IPersonnelService, PersonnelService>();
         }
     }
 }

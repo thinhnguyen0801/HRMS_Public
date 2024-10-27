@@ -6,7 +6,8 @@ namespace HNOne.API.Repositories.Interfaces
 {
     public interface IPersonnelRepository
     {
-        Task<IEnumerable<EmployeeModel>> GetEmployee();
+        Task<IEnumerable<EmployeeModel>> GetEmployee(RequestModel request);
         Task<ResponseModel> AddEmployee(Employees entity);
+        Task<ResponseModel> UpdateEmployee(Employees entity);
     }
 }

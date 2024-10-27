@@ -20,6 +20,14 @@ function setActiveStyle(color) {
     });
 }
 
+// focus input
+function focusInput(id) {
+    var input = document.querySelector('input[name="'+id+'"]');
+    if (input) {
+        input.focus();
+    }
+}
+
 
 /*
 hainguyen create 2024.07.17

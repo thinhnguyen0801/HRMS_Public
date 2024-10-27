@@ -18,7 +18,7 @@ namespace HNOne.Web.Controllers
     {
         [Inject] IMasterDataService _masterDataService { get; init; }
 
-        [Inject] IJSRuntime _jsRuntime { get; init; }
+        [Inject] IJSRuntime _jsRuntime { get; set; }
 
         #region Properties
 

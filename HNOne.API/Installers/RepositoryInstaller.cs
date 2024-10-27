@@ -19,6 +19,7 @@ namespace HNOne.API.Installers
             services.AddTransient<IDapperDbContext, DapperDbContext>();
             services.AddScoped<IMasterDataRepository, MasterDataRepository>();
             services.AddScoped<IUserRepository, UserRepository>();
+            services.AddScoped<IPersonnelRepository, PersonnelRepository>();
 
         }
     }

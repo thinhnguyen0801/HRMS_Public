@@ -10,7 +10,7 @@
                     <DxToolbar ItemRenderStyleMode="@ToolbarRenderStyleMode.Contained">
                         <Items>
                             <DxToolbarItem Text="Làm mới" BeginGroup="true" IconCssClass="@($"{IconClassConstants.ICON_REFRESH}")"
-                                           Alignment="@ToolbarItemAlignment.Right" />
+                                           Alignment="@ToolbarItemAlignment.Right" Click="@RefreshHandler" />
                             <DxToolbarItem Text="Thêm mới" BeginGroup="true" IconCssClass="@($"{IconClassConstants.ICON_ADD}")"
                                            Alignment="@ToolbarItemAlignment.Right" />
                             <DxToolbarItem Text="Xóa" BeginGroup="true" IconCssClass="@($"{IconClassConstants.ICON_DELETE}")"
@@ -31,27 +31,31 @@
                             PagerVisibleNumericButtonCount="10"
                             TextWrapEnabled="false"
                             FocusedRowEnabled="true"
+                            AutoExpandAllGroupRows="true"
+                            KeyboardNavigationEnabled="true"
                             CssClass="h-full">
                         <Columns>
-                            <DxGridSelectionColumn Width="45px" />
-                            <DxGridDataColumn FieldName="@nameof(BranchModel.branchCode)" Caption="Mã nhân viên" MinWidth="150">
+                            <DxGridSelectionColumn Width="35px" />
+                            <DxGridDataColumn FieldName="@nameof(EmployeeModel.departmentCode)" Caption="Mã phòng ban" Width="100%" MinWidth="120" GroupIndex="0" />
+                            <DxGridDataColumn FieldName="@nameof(EmployeeModel.departmentName)" Caption="Tên phòng ban" Width="100%" MinWidth="170" />
+                            <DxGridDataColumn FieldName="@nameof(EmployeeModel.code)" Caption="Mã nhân viên" MinWidth="150">
                                 <CellDisplayTemplate>
                                     @{
-                                        <a>@context.Value</a>
+                                        <a href="@($"ho-so-nhan-vien?key={(context.DataItem as EmployeeModel)!.link}")">@context.Value</a>
                                     }
                                 </CellDisplayTemplate>
                             </DxGridDataColumn>
-                            <DxGridDataColumn FieldName="@nameof(BranchModel.branchName)" Caption="Tên nhân viên" MinWidth="170" />
-                            <DxGridDataColumn FieldName="@nameof(BranchModel.phoneNumber)" Caption="Số điện thoại" MinWidth="170" />
-                            <DxGridDataColumn FieldName="@nameof(BranchModel.address)" Caption="Địa chỉ" MinWidth="210" />
-                            <DxGridDataColumn FieldName="@nameof(BranchModel.createDate)" Caption="Ngày cập nhật" MinWidth="120" DisplayFormat="@GlobalContants.FORMAT_DATE_TIME" />
+                            <DxGridDataColumn FieldName="@nameof(EmployeeModel.name)" Caption="Tên nhân viên" MinWidth="170" />
+                            <DxGridDataColumn FieldName="@nameof(EmployeeModel.positionName)" Caption="Chức vụ" MinWidth="170" />
+                            <DxGridDataColumn FieldName="@nameof(EmployeeModel.titleName)" Caption="Chức danh" MinWidth="170" />
+                            <DxGridDataColumn FieldName="@nameof(BranchModel.dateTracking)" Caption="Ngày cập nhật" MinWidth="120" DisplayFormat="@GlobalContants.FORMAT_DATE_TIME" />
                             <DxGridDataColumn FieldName="@nameof(BranchModel.userSignName)" Caption="Người tạo" MinWidth="120" />
                             <DxGridDataColumn FieldName="@nameof(BranchModel.userSignName)" Caption="Người cập nhật" MinWidth="120" />
                         </Columns>
                         <TotalSummary>
                             <DxGridSummaryItem DisplayText="@GlobalContants.FORMAT_GRID_DISPLAYTEXT_COUNT" SummaryType="GridSummaryItemType.Count"
-                                               FieldName="@nameof(BranchModel.branchCode)" ValueDisplayFormat="@GlobalContants.FORMAT_CURRENCY"
-                                               FooterColumnName="@nameof(BranchModel.branchCode)" />
+                                               FieldName="@nameof(EmployeeModel.code)" ValueDisplayFormat="@GlobalContants.FORMAT_CURRENCY"
+                                               FooterColumnName="@nameof(EmployeeModel.departmentName)" />
                         </TotalSummary>
                     </DxGrid>
                 </div>

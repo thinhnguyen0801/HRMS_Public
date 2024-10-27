@@ -9,8 +9,14 @@ namespace HNOne.Model
     public class RequestModel
     {
         public int userId { get; set; }
+        public int branchId { get; set; }
         public string? token { get; set; }
         public string? process { get; set; }
         public string? json { get; set; }
+        public string? jsonDetail { get; set; }
+        public string? opt { get; set; }
+        public string? opt1 { get; set; }
+        public string? opt2 { get; set; }
+        public string? opt3 { get; set; }
     }   
 }
