@@ -7,9 +7,9 @@ namespace HNOne.API.Repositories.Interfaces
     {
         Task<IEnumerable<Menus>> GetMenu();
         Task<IEnumerable<Branchs>> GetBranch();
-        Task<IEnumerable<Departments>> GetDepartment();
-        Task<IEnumerable<Titles>> GetTitle();
-        Task<IEnumerable<Positions>> GetPosition();
+        Task<IEnumerable<Departments>> GetDepartment(RequestModel request);
+        Task<IEnumerable<Titles>> GetTitle(RequestModel request);
+        Task<IEnumerable<Positions>> GetPosition(RequestModel request);
         Task<ResponseModel> AddBranch(Branchs entity);
         Task<ResponseModel> UpdateBranch(Branchs entity);
         Task<ResponseModel> AddDepartment(Departments entity);
@@ -18,5 +18,11 @@ namespace HNOne.API.Repositories.Interfaces
         Task<ResponseModel> UpdatePosition(Positions entity);
         Task<ResponseModel> AddTitle(Titles entity);
         Task<ResponseModel> UpdateTitle(Titles entity);
+        Task<IEnumerable<ContractTypes>> GetContractType(RequestModel request);
+        Task<ResponseModel> AddContractType(ContractTypes entity);
+        Task<ResponseModel> UpdateContractType(ContractTypes entity);
+        Task<IEnumerable<ReasonCategories>> GetReasonCategorie(RequestModel request);
+        Task<ResponseModel> AddReasonCategorie(ReasonCategories entity);
+        Task<ResponseModel> UpdateReasonCategorie(ReasonCategories entity);
     }
 }

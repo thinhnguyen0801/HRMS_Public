@@ -367,5 +367,163 @@ namespace HNOne.Web.Services
             }
             catch (Exception) { throw; }
         }
+
+        /// <summary>
+        /// lấy danh sách loại hợp đồng
+        /// </summary>
+        /// <param name="request"></param>
+        /// <returns></returns>
+        public async Task<List<ContractTypeModel>?> GetContractTypeAsync(int userId, string token = "")
+        {
+
+            try
+            {
+                List<ContractTypeModel>? data = null;
+                RequestModel request = new RequestModel();
+                request.process = ProcessConstants.GET_CONTRACTTYPE;
+                request.userId = userId;
+                request.token = token;
+                HttpResponseMessage httpResponse = await PostAsync(EnpointConstants.MASTERDATA_GET_DATA, request);
+                var checkContent = ValidateJsonContent(httpResponse.Content);
+                if (!checkContent) _toastService.ShowInfo(MessageConstants.MESSAGE_JSON_INVALID);
+                else
+                {
+                    var response = await httpResponse.Content.ReadFromJsonAsync<ResCliModel<ContractTypeModel>>();
+                    if (response == null || response.status != StatusCodes.Status200OK)
+                    {
+                        _toastService.ShowWarning(response?.message ?? MessageConstants.MESSAGE_IT_SUPPORT);
+                        return data;
+                    }
+                    data = response.data?.ToList();
+                }
+                return data;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "GetContractTypeAsync");
+                throw ex;
+            }
+        }
+
+        /// <summary>
+        /// cập nhật thông tin loại hợp đồng
+        /// </summary>
+        /// <param name="userId"></param>
+        /// <param name="token"></param>
+        /// <param name="processKey"></param>
+        /// <param name="json"></param>
+        /// <returns></returns>
+        public async Task<bool> UpdateContractTypeAsync(string processKey, int userId, string token, string json)
+        {
+            try
+            {
+                RequestModel request = new RequestModel();
+                request.process = processKey;
+                request.userId = userId;
+                request.token = token;
+                request.json = json;
+                HttpResponseMessage httpResponse = await PostAsync(EnpointConstants.MASTERDATA_POST_DATA, request);
+                if (httpResponse.StatusCode == System.Net.HttpStatusCode.Unauthorized)
+                {
+                    _toastService.ShowInfo(MessageConstants.MESSAGE_LOGIN_EXPIRED);
+                    return false;
+                }
+                var checkContent = ValidateJsonContent(httpResponse.Content);
+                if (!checkContent) _toastService.ShowError(MessageConstants.MESSAGE_JSON_INVALID);
+                else
+                {
+                    var content = await httpResponse.Content.ReadAsStringAsync();
+                    ResponseModel response = JsonConvert.DeserializeObject<ResponseModel>(content)!;
+                    if (httpResponse.IsSuccessStatusCode
+                        && response?.status == StatusCodes.Status200OK)
+                    {
+                        _toastService.ShowSuccess(response.message);
+                        return true;
+                    }
+                    _toastService.ShowError(response?.message ?? MessageConstants.MESSAGE_IT_SUPPORT);
+                }
+                return true;
+            }
+            catch (Exception) { throw; }
+        }
+
+        /// <summary>
+        /// lấy danh sách danh mục lý do
+        /// </summary>
+        /// <param name="request"></param>
+        /// <returns></returns>
+        public async Task<List<ReasonCategorieModel>?> GetReasonCategorieAsync(int userId, string token = "")
+        {
+
+            try
+            {
+                List<ReasonCategorieModel>? data = null;
+                RequestModel request = new RequestModel();
+                request.process = ProcessConstants.GET_REASONCATEGORIE;
+                request.userId = userId;
+                request.token = token;
+                HttpResponseMessage httpResponse = await PostAsync(EnpointConstants.MASTERDATA_GET_DATA, request);
+                var checkContent = ValidateJsonContent(httpResponse.Content);
+                if (!checkContent) _toastService.ShowInfo(MessageConstants.MESSAGE_JSON_INVALID);
+                else
+                {
+                    var response = await httpResponse.Content.ReadFromJsonAsync<ResCliModel<ReasonCategorieModel>>();
+                    if (response == null || response.status != StatusCodes.Status200OK)
+                    {
+                        _toastService.ShowWarning(response?.message ?? MessageConstants.MESSAGE_IT_SUPPORT);
+                        return data;
+                    }
+                    data = response.data?.ToList();
+                }
+                return data;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "GetReasonCategorieAsync");
+                throw ex;
+            }
+        }
+
+        /// <summary>
+        /// cập nhật thông tin danh mục lý do
+        /// </summary>
+        /// <param name="userId"></param>
+        /// <param name="token"></param>
+        /// <param name="processKey"></param>
+        /// <param name="json"></param>
+        /// <returns></returns>
+        public async Task<bool> UpdateReasonCategorieAsync(string processKey, int userId, string token, string json)
+        {
+            try
+            {
+                RequestModel request = new RequestModel();
+                request.process = processKey;
+                request.userId = userId;
+                request.token = token;
+                request.json = json;
+                HttpResponseMessage httpResponse = await PostAsync(EnpointConstants.MASTERDATA_POST_DATA, request);
+                if (httpResponse.StatusCode == System.Net.HttpStatusCode.Unauthorized)
+                {
+                    _toastService.ShowInfo(MessageConstants.MESSAGE_LOGIN_EXPIRED);
+                    return false;
+                }
+                var checkContent = ValidateJsonContent(httpResponse.Content);
+                if (!checkContent) _toastService.ShowError(MessageConstants.MESSAGE_JSON_INVALID);
+                else
+                {
+                    var content = await httpResponse.Content.ReadAsStringAsync();
+                    ResponseModel response = JsonConvert.DeserializeObject<ResponseModel>(content)!;
+                    if (httpResponse.IsSuccessStatusCode
+                        && response?.status == StatusCodes.Status200OK)
+                    {
+                        _toastService.ShowSuccess(response.message);
+                        return true;
+                    }
+                    _toastService.ShowError(response?.message ?? MessageConstants.MESSAGE_IT_SUPPORT);
+                }
+                return true;
+            }
+            catch (Exception) { throw; }
+        }
     }
 }

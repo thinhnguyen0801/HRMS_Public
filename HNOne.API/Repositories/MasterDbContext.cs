@@ -12,6 +12,7 @@ namespace HNOne.API.Repositories
         public DbSet<Titles> Titles { get; set; }
         public DbSet<Employees> Employees { get; set; }
         public DbSet<ContractTypes> ContractTypes { get; set; }
+        public DbSet<ReasonCategories> ReasonCategories { get; set; }
         public MasterDbContext(DbContextOptions<MasterDbContext> options)
             : base(options)
         {

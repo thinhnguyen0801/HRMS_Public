@@ -10,6 +10,8 @@
         public const string TABLE_POSITION = "Positions";
         public const string TABLE_TITLE = "Titles";
         public const string TABLE_EMPLOYEE = "Employees";
+        public const string TABLE_CONTRACTTYPE = "ContractTypes";
+        public const string TABLE_REASONCATEGORIER = "ReasonCategories";
         #endregion
     }
 }

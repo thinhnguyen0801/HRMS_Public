@@ -1,0 +1,147 @@
+﻿@page "/loai-hop-dong"
+@inherits Controllers.ContractTypeController
+
+<PageTitle>Loại hợp đồng</PageTitle>
+
+<div class="h-content-filter">
+    <div class="row row-gap-2">
+        <div class="col-12">
+            <div class="card w1FontSize">
+                <div class="card-header p-1">
+                    <DxToolbar ItemRenderStyleMode="@ToolbarRenderStyleMode.Contained">
+                        <Items>
+                            <DxToolbarItem Text="Làm mới" BeginGroup="true" IconCssClass="@($"{IconClassConstants.ICON_REFRESH}")"
+                                           Alignment="@ToolbarItemAlignment.Right" Click="@(()=> RefreshHandler())" />
+                            <DxToolbarItem Text="Thêm mới" BeginGroup="true" IconCssClass="@($"{IconClassConstants.ICON_ADD}")"
+                                           Alignment="@ToolbarItemAlignment.Right" Click="@(()=> OnOpenDialogHandler())" />
+
+                            <DxToolbarItem Text="Xóa" BeginGroup="true" IconCssClass="@($"{IconClassConstants.ICON_DELETE}")"
+                                           Alignment="@ToolbarItemAlignment.Right" Click="@(()=> DeleteDataHandler())" />
+                        </Items>
+                    </DxToolbar>
+                </div>
+                <div class="card-body p-1" style="height: calc(100vh - 150px); min-height: 350px">
+                    <DxGrid Data="ListContractType" @ref="GridContractType"
+                            ShowFilterRow="true"
+                            ColumnResizeMode="GridColumnResizeMode.ColumnsContainer"
+                            PagerPosition="GridPagerPosition.Bottom"
+                            PageSizeSelectorVisible="true"
+                            PageSize="@GlobalContants.PageSize"
+                            PageSizeSelectorItems="@(GlobalContants.PageSizeList)"
+                            PageSizeSelectorAllRowsItemVisible="true"
+                            PagerSwitchToInputBoxButtonCount="10"
+                            PagerVisibleNumericButtonCount="10"
+                            TextWrapEnabled="false"
+                            FocusedRowEnabled="true"
+                            SelectionMode="@GridSelectionMode.Multiple"
+                            @bind-SelectedDataItems="@SelectedContractTypes"
+                            KeyFieldName="@nameof(ContractTypeModel.code)"
+                            CssClass="h-full">
+                        <Columns>
+                            <DxGridSelectionColumn Width="45px" />
+                            <DxGridDataColumn FieldName="@nameof(ContractTypeModel.code)" Caption="Mã loại hợp đồng" MinWidth="170" >
+                                <CellDisplayTemplate>
+                                    @{
+                                        <a @onclick="@(() => OnOpenDialogHandler(EnumType.Update, (context.DataItem as ContractTypeModel)))">@context.Value</a>
+                                    }
+                                </CellDisplayTemplate>
+                            </DxGridDataColumn>/>
+                            <DxGridDataColumn FieldName="@nameof(ContractTypeModel.name)" Caption="Tên loại hợp đồng" MinWidth="170" />
+                            <DxGridDataColumn FieldName="@nameof(ContractTypeModel.isActive)" Caption="Active" MinWidth="210" />
+                            <DxGridDataColumn FieldName="@nameof(ContractTypeModel.createDate)" Caption="Ngày cập nhật" MinWidth="120" DisplayFormat="@GlobalContants.FORMAT_DATE_TIME" />
+                            <DxGridDataColumn FieldName="@nameof(ContractTypeModel.userSignName)" Caption="Người tạo" MinWidth="120" />
+                            <DxGridDataColumn FieldName="@nameof(ContractTypeModel.userSign2Name)" Caption="Người cập nhật" MinWidth="120" />
+                        </Columns>
+                        <TotalSummary>
+                            <DxGridSummaryItem DisplayText="@GlobalContants.FORMAT_GRID_DISPLAYTEXT_COUNT" SummaryType="GridSummaryItemType.Count"
+                                               FieldName="@nameof(ContractTypeModel.code)" ValueDisplayFormat="@GlobalContants.FORMAT_CURRENCY"
+                                               FooterColumnName="@nameof(ContractTypeModel.code)" />
+                        </TotalSummary>
+                    </DxGrid>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<W1Popup @bind-IsOpenModal="@IsShowDialog"
+         Width="65%" TextBtnAccept="Cập nhật"
+         HeaderText="Thêm mới loại hợp đồng"
+         HandleClickAccept="@SaveDataHandler">
+    <div class="row row-gap-2">
+        <div class="col-sm-12">
+            <div class="d-flex ">
+                <W1Label Value="Mã loại hợp đồng" Id="bacLuong" Styles="width: 110px" IsRequired="true" />
+                <div style="width: calc(100% - 110px)">
+                    <DxTextBox @bind-Text="@ContractTypeUpdate.code" CssClass="w1FontSize"></DxTextBox>
+                </div>
+            </div>
+        </div>
+        <div class="col-sm-12">
+            <div class="d-flex ">
+                <W1Label Value="Tên loại hợp đồng" Id="bacLuong" Styles="width: 110px" />
+                <div style="width: calc(100% - 110px)">
+                    <DxTextBox @bind-Text="@ContractTypeUpdate.name" CssClass="w1FontSize"></DxTextBox>
+                </div>
+            </div>
+        </div>
+        <div class="col-sm-12">
+            <div class="d-flex ">
+                <W1Label Value="Ghi chú" Id="bacLuong" Styles="width: 110px" />
+                <div style="width: calc(100% - 110px)">
+                    <DxTextBox @bind-Text="@ContractTypeUpdate.remark" CssClass="w1FontSize"></DxTextBox>
+                </div>
+            </div>
+        </div>
+        <div class="col-sm-12">
+            <div class="d-flex ">
+                <W1Label Value="Chi nhánh" Id="bacLuong" Styles="width: 110px" />
+                <div style="width: calc(100% - 110px)">
+                    @* <DxTextBox @bind-Text="@ContractTypeUpdate.branchId" CssClass="w1FontSize"></DxTextBox> *@
+                </div>
+            </div>
+        </div>
+        <div class="col-sm-6">
+            <div class="d-flex ">
+                <W1Label Value="Active" Id="bacLuong" Styles="width: 110px" />
+                <div style="width: calc(100% - 110px)">
+                    @* <DxTextBox @bind-Text="@ContractTypeUpdate.headId" CssClass="w1FontSize"></DxTextBox> *@
+                </div>
+            </div>
+        </div>
+        <div class="col-sm-6">
+            <div class="d-flex ">
+                <W1Label Value="Trạng thái nhân viên" Id="bacLuong" Styles="width: 110px" />
+                <div style="width: calc(100% - 110px)">
+                    @* <DxTextBox @bind-Text="@ContractTypeUpdate.headId" CssClass="w1FontSize"></DxTextBox> *@
+                </div>
+            </div>
+        </div>
+        <div class="col-sm-6">
+            <div class="d-flex ">
+                <W1Label Value="Thời hạn" Id="bacLuong" Styles="width: 110px" />
+                <div style="width: calc(100% - 110px)">
+                    @* <DxTextBox @bind-Text="@ContractTypeUpdate.headId" CssClass="w1FontSize"></DxTextBox> *@
+                </div>
+            </div>
+        </div>
+        <div class="col-sm-6">
+            <div class="d-flex ">
+                <W1Label Value="Thời hạn không xác định" Id="bacLuong" Styles="width: 110px" />
+                <div style="width: calc(100% - 110px)">
+                    @* <DxTextBox @bind-Text="@ContractTypeUpdate.headId" CssClass="w1FontSize"></DxTextBox> *@
+                </div>
+            </div>
+        </div>
+        <div class="col-sm-6">
+            <div class="d-flex ">
+                <W1Label Value="Số ngày cho phép giảm" Id="bacLuong" Styles="width: 110px" />
+                <div style="width: calc(100% - 110px)">
+                    @* <DxTextBox @bind-Text="@ContractTypeUpdate.headId" CssClass="w1FontSize"></DxTextBox> *@
+                </div>
+            </div>
+        </div>
+    </div>
+</W1Popup>
+
+<W1Confirm @ref="confirm" />

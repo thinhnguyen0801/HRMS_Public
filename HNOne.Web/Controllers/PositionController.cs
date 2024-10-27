@@ -32,7 +32,7 @@ namespace HNOne.Web.Controllers
             {
                 try
                 {
-                    await _progressService.SetPercent(0.4);
+                    await ShowLoading();
                     //string errMessage = await CheckAuthMenuAsync("contractlist");
                     //if (errMessage == "401") return; // kiểm quyền menu page danh sách
                     //Permission = await _masterDataService.GetAccessControl(UserId, Token, PositionId, 10012);
@@ -49,7 +49,7 @@ namespace HNOne.Web.Controllers
                 }
                 finally
                 {
-                    await _progressService!.Done();
+                    await ShowLoading(false);
                     await InvokeAsync(StateHasChanged);
                 }
             }
