@@ -15,5 +15,6 @@ namespace HNOne.Web.Services.Interfaces
         Task<bool> UpdateDepartmentAsync(string processKey, int userId, string token, string json);
         Task<bool> UpdateTitleAsync(string processKey, int userId, string token, string json);
         Task<bool> UpdatePositionAsync(string processKey, int userId, string token, string json);
+        Task<List<EnumCatagoryModel>?> GetEnumAsync(int userId, string token, string? enumType, bool isShowToast = false);
     }
 }

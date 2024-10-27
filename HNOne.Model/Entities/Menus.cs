@@ -23,5 +23,6 @@ namespace HNOne.Model.Entities
         public int Level { get; set; }
         public bool IsVisible { get; set; }
         public int OrdinalNumber { get; set; }
+        public string? Breadcrumb { get; set; } // đường đẫn
     }
 }

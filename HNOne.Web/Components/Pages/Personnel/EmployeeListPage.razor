@@ -4,6 +4,21 @@
 
 <div class="h-content-filter">
     <div class="row row-gap-2">
+        <div class="col-md-4 col-sm-12">
+            <div class="d-flex ">
+                <W1Label Value="Trạng thái" Id="txtKiDanhGia" Styles="width: 100px" />
+                <div style="width: calc(100% - 100px)">
+                    <DxComboBox Data="@ListCboStatus"
+                                @bind-Value="@StatusFilter"
+                                FilteringMode="DataGridFilteringMode.Contains"
+                                TextFieldName="@nameof(ComboboxModel.name)"
+                                ValueFieldName="@nameof(ComboboxModel.code)" CssClass="w1FontSize">
+                    </DxComboBox>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="row row-gap-2 mt-2">
         <div class="col-12">
             <div class="card w1FontSize">
                 <div class="card-header p-1">
@@ -18,7 +33,7 @@
                         </Items>
                     </DxToolbar>
                 </div>
-                <div class="card-body p-1" style="height: calc(100vh - 150px); min-height: 350px">
+                <div class="card-body p-1" style="height: calc(100vh - 185px); min-height: 350px">
                     <DxGrid Data="ListEmployee" @ref="GridEmployee"
                             ShowFilterRow="true"
                             ColumnResizeMode="GridColumnResizeMode.ColumnsContainer"
@@ -48,9 +63,10 @@
                             <DxGridDataColumn FieldName="@nameof(EmployeeModel.name)" Caption="Tên nhân viên" MinWidth="170" />
                             <DxGridDataColumn FieldName="@nameof(EmployeeModel.positionName)" Caption="Chức vụ" MinWidth="170" />
                             <DxGridDataColumn FieldName="@nameof(EmployeeModel.titleName)" Caption="Chức danh" MinWidth="170" />
-                            <DxGridDataColumn FieldName="@nameof(BranchModel.dateTracking)" Caption="Ngày cập nhật" MinWidth="120" DisplayFormat="@GlobalContants.FORMAT_DATE_TIME" />
-                            <DxGridDataColumn FieldName="@nameof(BranchModel.userSignName)" Caption="Người tạo" MinWidth="120" />
-                            <DxGridDataColumn FieldName="@nameof(BranchModel.userSignName)" Caption="Người cập nhật" MinWidth="120" />
+                            <DxGridDataColumn FieldName="@nameof(EmployeeModel.statusName)" Caption="Trạng thái" MinWidth="170" />
+                            <DxGridDataColumn FieldName="@nameof(EmployeeModel.dateTracking)" Caption="Ngày cập nhật" MinWidth="120" DisplayFormat="@GlobalContants.FORMAT_DATE_TIME" />
+                            <DxGridDataColumn FieldName="@nameof(EmployeeModel.userSignName)" Caption="Người tạo" MinWidth="120" />
+                            <DxGridDataColumn FieldName="@nameof(EmployeeModel.userSignName)" Caption="Người cập nhật" MinWidth="120" />
                         </Columns>
                         <TotalSummary>
                             <DxGridSummaryItem DisplayText="@GlobalContants.FORMAT_GRID_DISPLAYTEXT_COUNT" SummaryType="GridSummaryItemType.Count"

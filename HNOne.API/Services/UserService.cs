@@ -14,9 +14,10 @@ namespace HNOne.API.Services
             _userRepository = userRepository;
         }
 
-        public Task<ResponseModel<UserModel>> LoginAsync(LoginRequestModel request)
-        {
-            throw new NotImplementedException();
-        }
+        public async Task<ResponseModel<UserModel>> Login(LoginRequestModel request)
+            => await _userRepository.Login(request);
+
+        public async Task UpdateRefreshToken(int userId, string token, int refreshTokenExpiryTime)
+            => await _userRepository.UpdateRefreshToken(userId, token, refreshTokenExpiryTime);
     }
 }

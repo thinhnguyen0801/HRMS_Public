@@ -25,5 +25,6 @@
         public const string GET_EMPLOYEE = "get-employee";
         public const string POST_EMPLOYEE = "post-employee";
         public const string PUT_EMPLOYEE = "put-employee";
+        public const string GET_ENUM = "get-enum";
     }
 }

@@ -6,4 +6,9 @@
         Update,
         Delete
     }
+
+    public enum EnumCatagory
+    {
+        TrangThaiNhanVien
+    }
 }

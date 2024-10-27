@@ -1,4 +1,4 @@
-﻿@page "/login"
+﻿@page "/dang-nhap"
 @layout Components.Layout.EmptyLayout
 @inherits Controllers.LoginController
 
@@ -10,23 +10,6 @@
             <div class="bg-cover h-100 min-vh-100" style="background-image: url(https://blog.hub-js.com/wp-content/uploads/2022/01/Bai-hoc-thanh-cong-HRM-Mobi@3x.png)"></div>
         </div>
         <div class="col-12 col-lg-6 col-xl-4 border-top-wide border-primary d-flex flex-column justify-content-center">
-            @if (!string.IsNullOrEmpty(ErrorMessage))
-            {
-                <div class="px-2 mb-3">
-                    <div class="alert alert-important alert-danger alert-dismissible" role="alert">
-                        <div class="d-flex">
-                            <div>
-                                <svg xmlns="http://www.w3.org/2000/svg" class="icon alert-icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"></path><path d="M3 12a9 9 0 1 0 18 0a9 9 0 0 0 -18 0"></path><path d="M12 8v4"></path><path d="M12 16h.01"></path></svg>
-                            </div>
-                            <div>
-                                @ErrorMessage
-                            </div>
-                        </div>
-                        <a class="btn-close" data-bs-dismiss="alert" aria-label="close"></a>
-                    </div>
-                </div>
-
-            }
             <div class="container container-tight my-5 px-lg-5">
                 <div class="text-center mb-3">
                     <a href="." class="navbar-brand navbar-brand-autodark"><img src="../assets/logo.png" height="36" alt=""></a>

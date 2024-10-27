@@ -87,6 +87,9 @@ namespace HNOne.API.Controllers
                     case ProcessConstants.GET_POSITION:
                         response.data = await _masterDataService.GetPosition();
                         break;
+                    case ProcessConstants.GET_ENUM:
+                        response.data = await _masterDataService.GetEnum($"{request.opt}");
+                        break;
                     default:
                         response.status = StatusCodes.Status404NotFound;
                         response.message = $"Process Key {processKey} was not provider!!!";

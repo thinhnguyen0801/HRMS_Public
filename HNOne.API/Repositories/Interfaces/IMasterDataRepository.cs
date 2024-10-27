@@ -18,5 +18,6 @@ namespace HNOne.API.Repositories.Interfaces
         Task<ResponseModel> UpdatePosition(Positions entity);
         Task<ResponseModel> AddTitle(Titles entity);
         Task<ResponseModel> UpdateTitle(Titles entity);
+        Task<IEnumerable<EnumCatagories>> GetEnum(string enumType);
     }
 }

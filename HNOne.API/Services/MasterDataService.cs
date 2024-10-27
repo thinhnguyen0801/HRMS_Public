@@ -45,6 +45,8 @@ namespace HNOne.API.Services
         public async Task<IEnumerable<Positions>> GetPosition()
                     => await _masterRepository.GetPosition();
 
+        public async Task<IEnumerable<EnumCatagories>> GetEnum(string enumType)
+            => await _masterRepository.GetEnum(enumType);
         #endregion
 
         #region Command

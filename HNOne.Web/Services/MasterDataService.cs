@@ -367,5 +367,46 @@ namespace HNOne.Web.Services
             }
             catch (Exception) { throw; }
         }
+
+        /// <summary>
+        /// lấy danh sách enum
+        /// </summary>
+        /// <param name="userId"></param>
+        /// <param name="token"></param>
+        /// <param name="enumType"></param>
+        /// <param name="isShowToast"></param>
+        /// <returns></returns>
+        public async Task<List<EnumCatagoryModel>?> GetEnumAsync(int userId, string token, string? enumType, bool isShowToast = false)
+        {
+
+            try
+            {
+                List<EnumCatagoryModel>? data = null;
+                RequestModel request = new RequestModel();
+                request.process = ProcessConstants.GET_ENUM;
+                request.userId = userId;
+                request.token = token;
+                request.opt = enumType;
+                HttpResponseMessage httpResponse = await PostAsync(EnpointConstants.MASTERDATA_GET_DATA, request);
+                var checkContent = ValidateJsonContent(httpResponse.Content);
+                if (!checkContent) _toastService.ShowInfo(MessageConstants.MESSAGE_JSON_INVALID);
+                else
+                {
+                    var response = await httpResponse.Content.ReadFromJsonAsync<ResCliModel<EnumCatagoryModel>>();
+                    if (response == null || response.status != StatusCodes.Status200OK)
+                    {
+                        if(isShowToast) _toastService.ShowWarning(response?.message ?? MessageConstants.MESSAGE_IT_SUPPORT);
+                        return data;
+                    }
+                    data = response.data?.ToList();
+                }
+                return data;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "GetEnumAsync");
+                throw;
+            }
+        }
     }
 }
