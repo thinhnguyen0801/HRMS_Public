@@ -76,7 +76,7 @@
     <div class="row row-gap-2">
         <div class="col-sm-12">
             <div class="d-flex ">
-                <W1Label Value="Mã phòng ban" Id="bacLuong" Styles="width: 110px" IsRequired="true" />
+                <W1Label Value="Mã phòng ban" Id="bacLuong" Styles="width: 110px" />
                 <div style="width: calc(100% - 110px)">
                     <DxTextBox @bind-Text="@DepartmentUpdate.code" ReadOnly="true" CssClass="w1FontSize"></DxTextBox>
                 </div>
@@ -87,6 +87,27 @@
                 <W1Label Value="Tên phòng ban" Id="bacLuong" Styles="width: 110px" IsRequired="true" />
                 <div style="width: calc(100% - 110px)">
                     <DxTextBox @bind-Text="@DepartmentUpdate.name" CssClass="w1FontSize"></DxTextBox>
+                </div>
+            </div>
+        </div>
+        <div class="col-sm-6">
+            <div class="d-flex ">
+                <W1Label Value="Chi nhánh" Id="bacLuong" Styles="width: 110px" IsRequired="true" />
+                <div style="width: calc(100% - 110px)">
+                    <DxComboBox Data="@ListCboBranchId"
+                                @bind-Value="@DepartmentUpdate.branchId"
+                                FilteringMode="DataGridFilteringMode.Contains"
+                                TextFieldName="@nameof(ComboboxModel.name)"
+                                ValueFieldName="@nameof(ComboboxModel.id)" CssClass="w1FontSize">
+                    </DxComboBox>
+                </div>
+            </div>
+        </div>
+        <div class="col-sm-6">
+            <div class="d-flex ">
+                <W1Label Value="Active" Id="bacLuong" Styles="width: 110px" />
+                <div style="width: calc(100% - 110px)">
+                    <DxCheckBox @bind-Checked="@DepartmentUpdate.isActive" CssClass="w1FontSize"></DxCheckBox>
                 </div>
             </div>
         </div>
@@ -118,7 +139,7 @@
         </div>
         <div class="col-sm-12">
             <div class="d-flex ">
-                <W1Label Value="Trưởng phòng" Id="bacLuong" Styles="width: 110px" />
+                <W1Label Value="Phó phòng" Id="bacLuong" Styles="width: 110px" />
                 <div style="width: calc(100% - 110px)">
                     <DxComboBox Data="@ListCboAssistantManagerIds"
                                 @bind-Value="@DepartmentUpdate.assistantManagerIds"
@@ -134,27 +155,6 @@
                 <W1Label Value="Ghi chú" Id="bacLuong" Styles="width: 110px" />
                 <div style="width: calc(100% - 110px)">
                     <DxMemo @bind-Text="@DepartmentUpdate.remark" CssClass="w1FontSize"></DxMemo>
-                </div>
-            </div>
-        </div>
-        <div class="col-sm-6">
-            <div class="d-flex ">
-                <W1Label Value="Active" Id="bacLuong" Styles="width: 110px" />
-                <div style="width: calc(100% - 110px)">
-                    <DxCheckBox @bind-Checked="@DepartmentUpdate.isActive" CssClass="w1FontSize"></DxCheckBox>
-                </div>
-            </div>
-        </div>
-        <div class="col-sm-6">
-            <div class="d-flex ">
-                <W1Label Value="Chi nhánh" Id="bacLuong" Styles="width: 110px" IsRequired="true" />
-                <div style="width: calc(100% - 110px)">
-                    <DxComboBox Data="@ListCboBranchId"
-                                @bind-Value="@DepartmentUpdate.branchId"
-                                FilteringMode="DataGridFilteringMode.Contains"
-                                TextFieldName="@nameof(ComboboxModel.name)"
-                                ValueFieldName="@nameof(ComboboxModel.id)" CssClass="w1FontSize">
-                    </DxComboBox>
                 </div>
             </div>
         </div>

@@ -46,7 +46,7 @@
                                     }
                                 </CellDisplayTemplate>
                             </DxGridDataColumn>/>
-                            <DxGridDataColumn FieldName="@nameof(ReasonCategorieModel.type)" Caption="Loại danh mục" MinWidth="210" />
+                            <DxGridDataColumn FieldName="@nameof(ReasonCategorieModel.type)" Caption="Loại lý do" MinWidth="210" />
                             <DxGridDataColumn FieldName="@nameof(ReasonCategorieModel.isActive)" Caption="Active" MinWidth="210" />
                             <DxGridDataColumn FieldName="@nameof(ReasonCategorieModel.createDate)" Caption="Ngày cập nhật" MinWidth="120" DisplayFormat="@GlobalContants.FORMAT_DATE_TIME" />
                             <DxGridDataColumn FieldName="@nameof(ReasonCategorieModel.userSignName)" Caption="Người tạo" MinWidth="120" />
@@ -77,11 +77,16 @@
                 </div>
             </div>
         </div>
-        <div class="col-sm-12">
+        <div class="col-sm-6">
             <div class="d-flex ">
-                <W1Label Value="Loại danh mục lý do" Id="bacLuong" Styles="width: 110px" IsRequired="true" />
+                <W1Label Value="Loại lý do" Id="bacLuong" Styles="width: 110px" IsRequired="true" />
                 <div style="width: calc(100% - 110px)">
-                    <DxTextBox @bind-Text="@ReasonCategorieUpdate.type" CssClass="w1FontSize"></DxTextBox>
+                    <DxComboBox Data="@ListCboType"
+                                @bind-Value="@ReasonCategorieUpdate.type"
+                                FilteringMode="DataGridFilteringMode.Contains"
+                                TextFieldName="@nameof(ComboboxModel.name)"
+                                ValueFieldName="@nameof(ComboboxModel.id)" CssClass="w1FontSize">
+                    </DxComboBox>
                 </div>
             </div>
         </div>
@@ -89,7 +94,7 @@
             <div class="d-flex ">
                 <W1Label Value="Active" Id="bacLuong" Styles="width: 110px" />
                 <div style="width: calc(100% - 110px)">
-                    @* <DxTextBox @bind-Text="@ReasonCategorieUpdate.headId" CssClass="w1FontSize"></DxTextBox> *@
+                    <DxCheckBox @bind-Checked="@ReasonCategorieUpdate.isActive" CssClass="w1FontSize"></DxCheckBox>
                 </div>
             </div>
         </div>

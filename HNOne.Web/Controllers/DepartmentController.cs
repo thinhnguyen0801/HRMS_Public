@@ -17,7 +17,6 @@ namespace HNOne.Web.Controllers
     public class DepartmentController : DocumentControllerBase
     {
         [Inject] IMasterDataService _masterDataService { get; init; }
-
         [Inject] IJSRuntime _jsRuntime { get; set; }
 
         #region Properties
@@ -30,11 +29,10 @@ namespace HNOne.Web.Controllers
         public bool IsShowDialog { get; set; }
         public bool IsCreate { get; set; } = true;
         public W1Confirm confirm { get; set; }
-        public List<ComboboxModel>? ListCboHeadId { get; set; } // cbo ds phòng ban
-        public List<ComboboxModel>? ListCboManagerId { get; set; } // cbo ds phòng ban
-        public List<ComboboxModel>? ListCboAssistantManagerIds { get; set; } // cbo ds phòng ban
-        public List<ComboboxModel>? ListCboBranchId { get; set; } // cbo ds phòng ban
-
+        public List<ComboboxModel>? ListCboHeadId { get; set; } // cbo ds trưởng phòng
+        public List<ComboboxModel>? ListCboManagerId { get; set; } // cbo ds giám đốc
+        public List<ComboboxModel>? ListCboAssistantManagerIds { get; set; } // cbo ds phó phòng
+        public List<ComboboxModel>? ListCboBranchId { get; set; } // cbo ds chi nhánh
 
         #endregion
 
@@ -99,7 +97,13 @@ namespace HNOne.Web.Controllers
                 errorMessage = String.Format(MessageConstants.MESSAGE_COMBOBOX_REQUIRE, "Tên phòng ban");
                 fieldName = nameof(DepartmentUpdate.name);
                 return;
-            }    
+            }
+            if (DepartmentUpdate.branchId < 1)
+            {
+                errorMessage = String.Format(MessageConstants.MESSAGE_COMBOBOX_REQUIRE, "Chi nhánh");
+                fieldName = nameof(DepartmentUpdate.branchId);
+                return;
+            }
         }
         #endregion
 

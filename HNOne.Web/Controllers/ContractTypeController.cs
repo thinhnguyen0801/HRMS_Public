@@ -8,6 +8,7 @@ using HNOne.Web.Services;
 using HNOne.Web.Services.Interfaces;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Forms;
+using Microsoft.JSInterop;
 using Newtonsoft.Json;
 
 namespace HNOne.Web.Controllers
@@ -15,6 +16,8 @@ namespace HNOne.Web.Controllers
     public class ContractTypeController : DocumentControllerBase
     {
         [Inject] IMasterDataService _masterDataService { get; init; }
+        [Inject] IJSRuntime _jsRuntime { get; set; }
+
         #region Properties
         public List<ContractTypeModel>? ListContractType { get; set; }
         public IGrid? GridContractType { get; set; }
@@ -24,6 +27,12 @@ namespace HNOne.Web.Controllers
         public bool IsShowDialog { get; set; }
         public bool IsCreate { get; set; } = true;
         public W1Confirm confirm { get; set; }
+        public List<ComboboxModel>? ListCboBranchId { get; set; } // cbo ds chi nhánh
+        public List<ComboboxModel>? ListCboStatusCode { get; set; } // cbo ds chi nhánh
+        public List<ComboboxModel>? ListCboDuration { get; set; } // cbo ds chi nhánh
+        public List<ComboboxModel>? ListCboIndefiniteDuration { get; set; } // cbo ds chi nhánh
+        public List<ComboboxModel>? ListCboNumberOfDaysReduced { get; set; } // cbo ds chi nhánh
+
         #endregion
 
         protected override async Task OnAfterRenderAsync(bool firstRender)
@@ -33,6 +42,7 @@ namespace HNOne.Web.Controllers
                 try
                 {
                     await ShowLoading();
+                    await buildComboboxAsync();
                     //await _progressService.SetPercent(0.4);
                     //string errMessage = await CheckAuthMenuAsync("contractlist");
                     //if (errMessage == "401") return; // kiểm quyền menu page danh sách
@@ -63,10 +73,40 @@ namespace HNOne.Web.Controllers
             ListContractType = new List<ContractTypeModel>();
             ListContractType = await _masterDataService.GetContractTypeAsync(UserId, Token);
         }
+        private async Task buildComboboxAsync()
+        {
+            try
+            {
+                var getTask1 = _masterDataService.GetBranchAsync(UserId, Token);
+                await Task.WhenAll(
+                    getTask1
+                    );
+                ListCboBranchId = (await getTask1)?.Select(m => new ComboboxModel() { id = m.branchId, name = m.branchName })?.ToList();
+            }
+            catch (Exception ex)
+            {
+                ShowError(ex.Message);
+                _logger.LogError(ex, "BuildComboAsync");
+            }
+        }
+        private void validateForSave(ref string errorMessage, ref string fieldName)
+        {
+            if (string.IsNullOrEmpty(ContractTypeUpdate.name))
+            {
+                errorMessage = String.Format(MessageConstants.MESSAGE_COMBOBOX_REQUIRE, "Tên loại hợp đồng");
+                fieldName = nameof(ContractTypeUpdate.name);
+                return;
+            }
+            if (ContractTypeUpdate.branchId < 1)
+            {
+                errorMessage = String.Format(MessageConstants.MESSAGE_COMBOBOX_REQUIRE, "Chi nhánh");
+                fieldName = nameof(ContractTypeUpdate.branchId);
+                return;
+            }
+        }
+            #endregion
 
-        #endregion
-
-        #region
+            #region
         protected async Task RefreshHandler()
         {
             try
@@ -124,8 +164,15 @@ namespace HNOne.Web.Controllers
         {
             try
             {
-                var checkData = _EditContext!.Validate();
-                if (!checkData) return;
+                string errorMessage = string.Empty;
+                string fieldName = string.Empty;
+                validateForSave(ref errorMessage, ref fieldName);
+                if (!string.IsNullOrEmpty(errorMessage))
+                {
+                    ShowWarning(errorMessage);
+                    await _jsRuntime.InvokeVoidAsync("focusInput", fieldName);
+                    return;
+                }
                 bool isConfirm = await confirm.SetConfirm(MessageConstants.MESSAGE_TITLE, MessageConstants.MESSAGE_CONFIRM_ADD);
                 if (!isConfirm) return;
                 await ShowLoading();

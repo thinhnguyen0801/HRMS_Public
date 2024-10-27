@@ -8,6 +8,7 @@ using HNOne.Web.Services;
 using HNOne.Web.Services.Interfaces;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Forms;
+using Microsoft.JSInterop;
 using Newtonsoft.Json;
 
 namespace HNOne.Web.Controllers
@@ -15,6 +16,8 @@ namespace HNOne.Web.Controllers
     public class BranchController : DocumentControllerBase
     {
         [Inject] IMasterDataService _masterDataService { get; init; }
+        [Inject] IJSRuntime _jsRuntime { get; set; }
+
         #region Properties
         public List<BranchModel>? ListBranch { get; set; }
         public IGrid? GridBranch { get; set; }
@@ -63,7 +66,15 @@ namespace HNOne.Web.Controllers
             ListBranch = new List<BranchModel>();
             ListBranch = await _masterDataService.GetBranchAsync(UserId, Token);
         }
-
+        private void validateForSave(ref string errorMessage, ref string fieldName)
+        {
+            if (string.IsNullOrEmpty(BranchUpdate.branchName))
+            {
+                errorMessage = String.Format(MessageConstants.MESSAGE_COMBOBOX_REQUIRE, "Tên chi nhánh");
+                fieldName = nameof(BranchUpdate.branchName);
+                return;
+            }
+        }
         #endregion
 
         #region
@@ -119,8 +130,15 @@ namespace HNOne.Web.Controllers
         {
             try
             {
-                var checkData = _EditContext!.Validate();
-                if (!checkData) return;
+                string errorMessage = string.Empty;
+                string fieldName = string.Empty;
+                validateForSave(ref errorMessage, ref fieldName);
+                if (!string.IsNullOrEmpty(errorMessage))
+                {
+                    ShowWarning(errorMessage);
+                    await _jsRuntime.InvokeVoidAsync("focusInput", fieldName);
+                    return;
+                }
                 bool isConfirm = await confirm.SetConfirm(MessageConstants.MESSAGE_TITLE, MessageConstants.MESSAGE_CONFIRM_ADD);
                 if (!isConfirm) return;
                 await ShowLoading();

@@ -47,10 +47,10 @@
                                 </CellDisplayTemplate>
                             </DxGridDataColumn>
                             <DxGridDataColumn FieldName="@nameof(PositionModel.name)" Caption="Tên chức vụ" MinWidth="170" />
-                            <DxGridDataColumn FieldName="@nameof(PositionModel.remark)" Caption="Ghi chú" MinWidth="210" />
-                            <DxGridDataColumn FieldName="@nameof(PositionModel.isActive)" Caption="Active" MinWidth="210" />
                             <DxGridDataColumn FieldName="@nameof(PositionModel.branchId)" Caption="Chi nhánh" MinWidth="210" />
+                            <DxGridDataColumn FieldName="@nameof(PositionModel.isActive)" Caption="Active" MinWidth="210" />
                             <DxGridDataColumn FieldName="@nameof(PositionModel.levelCode)" Caption="Cấp độ" MinWidth="210" />
+                            <DxGridDataColumn FieldName="@nameof(PositionModel.remark)" Caption="Ghi chú" MinWidth="210" />
                             <DxGridDataColumn FieldName="@nameof(PositionModel.createDate)" Caption="Ngày cập nhật" MinWidth="120" DisplayFormat="@GlobalContants.FORMAT_DATE_TIME" />
                             <DxGridDataColumn FieldName="@nameof(PositionModel.userSignName)" Caption="Người tạo" MinWidth="120" />
                             <DxGridDataColumn FieldName="@nameof(PositionModel.userSign2Name)" Caption="Người cập nhật" MinWidth="120" />
@@ -88,35 +88,16 @@
                 </div>
             </div>
         </div>
-        <div class="col-sm-12">
+        <div class="col-sm-6">
             <div class="d-flex ">
-                <W1Label Value="Cấp độ" Id="bacLuong" Styles="width: 110px" IsRequired="true" />
+                <W1Label Value="Chi nhánh" Id="bacLuong" Styles="width: 110px" IsRequired="true" />
                 <div style="width: calc(100% - 110px)">
-                    @* <DxTextBox @bind-Text="@PositionUpdate.headId" CssClass="w1FontSize"></DxTextBox> *@
-                </div>
-            </div>
-        </div>
-        <div class="col-sm-12">
-            <div class="d-flex ">
-                <W1Label Value="Chức vụ" Id="bacLuong" Styles="width: 110px" IsRequired="true" />
-                <div style="width: calc(100% - 110px)">
-                    @* <DxTextBox @bind-Text="@PositionUpdate.assistantManagerIds" CssClass="w1FontSize"></DxTextBox> *@
-                </div>
-            </div>
-        </div>
-        <div class="col-sm-12">
-            <div class="d-flex ">
-                <W1Label Value="Số điện thoại" Id="bacLuong" Styles="width: 110px" />
-                <div style="width: calc(100% - 110px)">
-                    @* <DxTextBox @bind-Text="@PositionUpdate.managerId" CssClass="w1FontSize"></DxTextBox> *@
-                </div>
-            </div>
-        </div>
-        <div class="col-sm-12">
-            <div class="d-flex ">
-                <W1Label Value="Địa chỉ" Id="bacLuong" Styles="width: 110px" />
-                <div style="width: calc(100% - 110px)">
-                    @* <DxTextBox @bind-Text="@PositionUpdate.headId" CssClass="w1FontSize"></DxTextBox> *@
+                    <DxComboBox Data="@ListCboBranchId"
+                                @bind-Value="@PositionUpdate.branchId"
+                                FilteringMode="DataGridFilteringMode.Contains"
+                                TextFieldName="@nameof(ComboboxModel.name)"
+                                ValueFieldName="@nameof(ComboboxModel.id)" CssClass="w1FontSize">
+                    </DxComboBox>
                 </div>
             </div>
         </div>
@@ -124,23 +105,23 @@
             <div class="d-flex ">
                 <W1Label Value="Active" Id="bacLuong" Styles="width: 110px" />
                 <div style="width: calc(100% - 110px)">
-                    @* <DxTextBox @bind-Text="@PositionUpdate.headId" CssClass="w1FontSize"></DxTextBox> *@
+                    <DxCheckBox @bind-Checked="@PositionUpdate.isActive" CssClass="w1FontSize"></DxCheckBox>
                 </div>
             </div>
         </div>
-        <div class="col-sm-6">
+        <div class="col-sm-12">
             <div class="d-flex ">
-                <W1Label Value="Chi nhánh" Id="bacLuong" Styles="width: 110px" IsRequired="true" />
+                <W1Label Value="Cấp độ" Id="bacLuong" Styles="width: 110px" IsRequired="true" />
                 <div style="width: calc(100% - 110px)">
-                    @* <DxTextBox @bind-Text="@PositionUpdate.headId" CssClass="w1FontSize"></DxTextBox> *@
+                    <DxTextBox @bind-Text="@PositionUpdate.levelCode" CssClass="w1FontSize"></DxTextBox>
                 </div>
             </div>
         </div>
-        <div class="col-sm-6">
+        <div class="col-sm-12">
             <div class="d-flex ">
-                <W1Label Value="Phòng ban" Id="bacLuong" Styles="width: 110px" IsRequired="true" />
+                <W1Label Value="Ghi chú" Id="bacLuong" Styles="width: 110px" />
                 <div style="width: calc(100% - 110px)">
-                    @* <DxTextBox @bind-Text="@PositionUpdate.headId" CssClass="w1FontSize"></DxTextBox> *@
+                    <DxMemo @bind-Text="@PositionUpdate.remark" CssClass="w1FontSize"></DxMemo>
                 </div>
             </div>
         </div>

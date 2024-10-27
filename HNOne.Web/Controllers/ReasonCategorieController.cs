@@ -8,6 +8,7 @@ using HNOne.Web.Services;
 using HNOne.Web.Services.Interfaces;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Forms;
+using Microsoft.JSInterop;
 using Newtonsoft.Json;
 
 namespace HNOne.Web.Controllers
@@ -15,6 +16,8 @@ namespace HNOne.Web.Controllers
     public class ReasonCategorieController : DocumentControllerBase
     {
         [Inject] IMasterDataService _masterDataService { get; init; }
+        [Inject] IJSRuntime _jsRuntime { get; set; }
+
         #region Properties
         public List<ReasonCategorieModel>? ListReasonCategorie { get; set; }
         public IGrid? GridReasonCategorie { get; set; }
@@ -24,6 +27,9 @@ namespace HNOne.Web.Controllers
         public bool IsShowDialog { get; set; }
         public bool IsCreate { get; set; } = true;
         public W1Confirm confirm { get; set; }
+        public List<ComboboxModel>? ListCboType { get; set; } // cbo ds loại lý do
+
+        
         #endregion
 
         protected override async Task OnAfterRenderAsync(bool firstRender)
@@ -63,7 +69,15 @@ namespace HNOne.Web.Controllers
             ListReasonCategorie = new List<ReasonCategorieModel>();
             ListReasonCategorie = await _masterDataService.GetReasonCategorieAsync(UserId, Token);
         }
-
+        private void validateForSave(ref string errorMessage, ref string fieldName)
+        {
+            if (string.IsNullOrEmpty(ReasonCategorieUpdate.name))
+            {
+                errorMessage = String.Format(MessageConstants.MESSAGE_COMBOBOX_REQUIRE, "Tên danh mục lý do");
+                fieldName = nameof(ReasonCategorieUpdate.name);
+                return;
+            }
+        }
         #endregion
 
         #region
@@ -118,8 +132,15 @@ namespace HNOne.Web.Controllers
         {
             try
             {
-                var checkData = _EditContext!.Validate();
-                if (!checkData) return;
+                string errorMessage = string.Empty;
+                string fieldName = string.Empty;
+                validateForSave(ref errorMessage, ref fieldName);
+                if (!string.IsNullOrEmpty(errorMessage))
+                {
+                    ShowWarning(errorMessage);
+                    await _jsRuntime.InvokeVoidAsync("focusInput", fieldName);
+                    return;
+                }
                 bool isConfirm = await confirm.SetConfirm(MessageConstants.MESSAGE_TITLE, MessageConstants.MESSAGE_CONFIRM_ADD);
                 if (!isConfirm) return;
                 await ShowLoading();

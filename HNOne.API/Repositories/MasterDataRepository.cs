@@ -156,6 +156,7 @@ namespace HNOne.API.Repositories
                         response.message = MessageConstants.MESSAGE_VOUCHER_NO_MISSING;
                         return response;
                     }
+                    entity.Id = await _dbContext.Departments.Select(m => m.Id).DefaultIfEmpty().MaxAsync() + 1;
                     entity.Code = voucherNo;
                     entity.DateTracking = _dateTimeHelper.GetCurrentVietnamTime();
                     entity.CreateDate = _dateTimeHelper.GetCurrentVietnamTime();
@@ -295,6 +296,7 @@ namespace HNOne.API.Repositories
                         response.message = MessageConstants.MESSAGE_VOUCHER_NO_MISSING;
                         return response;
                     }
+                    entity.Id = await _dbContext.Titles.Select(m => m.Id).DefaultIfEmpty().MaxAsync() + 1;
                     entity.Code = voucherNo;
                     entity.DateTracking = _dateTimeHelper.GetCurrentVietnamTime();
                     entity.CreateDate = _dateTimeHelper.GetCurrentVietnamTime();
@@ -428,6 +430,7 @@ namespace HNOne.API.Repositories
             {
                 using (var connection = _dapperDbContext.CreateConnection())
                 {
+                    entity.Id = await _dbContext.ReasonCategories.Select(m => m.Id).DefaultIfEmpty().MaxAsync() + 1;
                     entity.DateTracking = _dateTimeHelper.GetCurrentVietnamTime();
                     entity.CreateDate = _dateTimeHelper.GetCurrentVietnamTime();
                     await _dbContext.ReasonCategories.AddAsync(entity);
