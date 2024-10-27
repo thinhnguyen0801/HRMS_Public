@@ -76,6 +76,71 @@ namespace HNOne.API.Migrations
                     b.ToTable("Branchs");
                 });
 
+            modelBuilder.Entity("HNOne.Model.Entities.ContractTypes", b =>
+                {
+                    b.Property<int>("Id")
+                        .HasColumnType("int");
+
+                    b.Property<int>("BranchId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Code")
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
+
+                    b.Property<DateTime?>("CreateDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<DateTime?>("DateTracking")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("DeleteReason")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("Duration")
+                        .HasColumnType("int");
+
+                    b.Property<int>("IndefiniteDuration")
+                        .HasColumnType("int");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("bit");
+
+                    b.Property<bool>("IsDelete")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("Name")
+                        .HasMaxLength(250)
+                        .HasColumnType("nvarchar(250)");
+
+                    b.Property<int>("NumberOfDaysReduced")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Remark")
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)");
+
+                    b.Property<string>("StatusCode")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime?>("UpdateDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int?>("UserSign")
+                        .HasColumnType("int");
+
+                    b.Property<int?>("UserSign2")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("Code")
+                        .IsUnique()
+                        .HasFilter("[Code] IS NOT NULL");
+
+                    b.ToTable("ContractTypes");
+                });
+
             modelBuilder.Entity("HNOne.Model.Entities.Departments", b =>
                 {
                     b.Property<int>("Id")
@@ -155,10 +220,6 @@ namespace HNOne.API.Migrations
                         .HasMaxLength(1000)
                         .HasColumnType("nvarchar(1000)");
 
-                    b.Property<string>("BankCode")
-                        .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)");
-
                     b.Property<string>("BankName")
                         .HasMaxLength(100)
                         .HasColumnType("nvarchar(100)");
@@ -178,10 +239,17 @@ namespace HNOne.API.Migrations
                         .HasMaxLength(50)
                         .HasColumnType("nvarchar(50)");
 
+                    b.Property<string>("ContactAddress")
+                        .HasMaxLength(1000)
+                        .HasColumnType("nvarchar(1000)");
+
                     b.Property<DateTime?>("CreateDate")
                         .HasColumnType("datetime2");
 
                     b.Property<DateTime?>("DateOfBirth")
+                        .HasColumnType("datetime2");
+
+                    b.Property<DateTime?>("DateOfJoining")
                         .HasColumnType("datetime2");
 
                     b.Property<DateTime?>("DateTracking")
@@ -268,10 +336,6 @@ namespace HNOne.API.Migrations
                         .HasMaxLength(250)
                         .HasColumnType("nvarchar(250)");
 
-                    b.Property<string>("PassportNumber")
-                        .HasMaxLength(50)
-                        .HasColumnType("nvarchar(50)");
-
                     b.Property<string>("Phone1")
                         .HasMaxLength(50)
                         .HasColumnType("nvarchar(50)");
@@ -310,14 +374,6 @@ namespace HNOne.API.Migrations
                         .HasMaxLength(250)
                         .HasColumnType("nvarchar(250)");
 
-                    b.Property<string>("RankingComputer")
-                        .HasMaxLength(250)
-                        .HasColumnType("nvarchar(250)");
-
-                    b.Property<string>("RankingLang")
-                        .HasMaxLength(250)
-                        .HasColumnType("nvarchar(250)");
-
                     b.Property<string>("Religion")
                         .HasMaxLength(100)
                         .HasColumnType("nvarchar(100)");
@@ -335,6 +391,13 @@ namespace HNOne.API.Migrations
                     b.Property<string>("TaxNumber")
                         .HasMaxLength(50)
                         .HasColumnType("nvarchar(50)");
+
+                    b.Property<string>("TemporaryAddress")
+                        .HasMaxLength(1000)
+                        .HasColumnType("nvarchar(1000)");
+
+                    b.Property<int?>("TitleId")
+                        .HasColumnType("int");
 
                     b.Property<DateTime?>("UpdateDate")
                         .HasColumnType("datetime2");
@@ -449,6 +512,48 @@ namespace HNOne.API.Migrations
                         .HasFilter("[Code] IS NOT NULL");
 
                     b.ToTable("Positions");
+                });
+
+            modelBuilder.Entity("HNOne.Model.Entities.ReasonCategories", b =>
+                {
+                    b.Property<int>("Id")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime?>("CreateDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<DateTime?>("DateTracking")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("DeleteReason")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("bit");
+
+                    b.Property<bool>("IsDelete")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("Name")
+                        .HasMaxLength(250)
+                        .HasColumnType("nvarchar(250)");
+
+                    b.Property<string>("Type")
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
+
+                    b.Property<DateTime?>("UpdateDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int?>("UserSign")
+                        .HasColumnType("int");
+
+                    b.Property<int?>("UserSign2")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("ReasonCategories");
                 });
 
             modelBuilder.Entity("HNOne.Model.Entities.Titles", b =>
