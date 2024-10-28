@@ -1,0 +1,28 @@
+﻿@page "/dang-xuat"
+@inject NavigationManager _nav
+@inject ILocalStorageService _localStorage
+
+@code {
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        try
+        {
+            var savedUser = await _localStorage.GetItemAsync<string>("authToken");
+            if (!string.IsNullOrWhiteSpace(savedUser))
+            {
+                // gọi API đăng xuất. clear token
+                await logout("");
+            }
+            _nav.NavigateTo($"dang-nhap", true);
+        }
+        catch (Exception) { }
+    }
+
+    private async Task logout(string token)
+    {
+        try
+        {
+        }
+        catch (Exception) {}
+    }
+}

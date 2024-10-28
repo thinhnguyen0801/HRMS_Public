@@ -63,6 +63,17 @@ namespace HNOne.API.Repositories
             return lstMenus;
         }
 
+        /// <summary>
+        /// lấy danh sách enum
+        /// </summary>
+        /// <param name="enumType"></param>
+        /// <returns></returns>
+        public async Task<IEnumerable<EnumCatagories>> GetEnum(string enumType)
+        {
+            var lstEnums = await _dbContext.EnumCatagories.Where(m => m.EnumType == enumType).OrderBy(m=> m.RowOrder).ToListAsync();
+            return lstEnums;
+        }
+
         #endregion 
 
         #region Command

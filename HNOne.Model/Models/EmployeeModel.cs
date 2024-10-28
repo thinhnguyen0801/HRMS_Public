@@ -69,6 +69,7 @@ namespace HNOne.Model.Models
         public string? titleCode { get; set; }
         public string? titleName { get; set; }
         public string? link { get; set; }
+        public string? statusName { get; set; } // trạng thái làm việc
 
     }
 }

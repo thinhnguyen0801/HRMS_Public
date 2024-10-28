@@ -6,22 +6,32 @@ using HNOne.Web.Services.Interfaces;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Authorization;
 using Microsoft.JSInterop;
+using HNOne.Web.Commons;
+using Newtonsoft.Json;
+using HNOne.Common;
+using static DevExpress.Data.Helpers.FindSearchRichParser;
+using Blazored.LocalStorage;
 
 namespace HNOne.Web.Components.Layout
 {
     public partial class MainLayout
     {
-        [Inject] HttpClient Http { get; init; }
-        [Inject] NavigationManager _navManager { get; init; }
         [Inject] IJSRuntime _jsRuntime { get; init; }
         [Inject] AuthenticationStateProvider _authenticationStateProvider { get; init; }
         [Inject] IToastService toastService { get; init; }
         [Inject] ILogger<MainLayout> _logger { get; init; }
         [Inject] IMasterDataService _masterDataService { get; init; }
+        [Inject] IEncryptHelper  _encryptHelper { get; init; }
+        [Inject] ILocalStorageService _localStorage { get; init; }
 
         #region Properties
         public List<BreadcrumbModel>? ListBreadcrumbs { get; set; }
         public List<Menus> ListMenus { get; set; } = new List<Menus>();
+        public int UserId { get; set; }
+        public string Token { get; set; } = string.Empty;
+        public string UserCode { get; set; } = string.Empty;
+        public string FullName { get; set; } = string.Empty;
+        public int BrandId { get; set; } = 0;
         #endregion
 
         EventCallback<List<BreadcrumbModel>> BreadcrumbsHandler =>
@@ -42,7 +52,26 @@ namespace HNOne.Web.Components.Layout
             try
             {
                 //ListMenus = await Http!.GetFromJsonAsync<List<Menus>>("https://localhost:7140/menus.json") ?? new List<Menus>();
-                await getMenus();
+                var userLogin = await ((ApiAuthenticationStateProvider)_authenticationStateProvider!).GetAuthenticationStateAsync();
+                if (userLogin != null)
+                {
+                    string claimKey = userLogin.User.Claims.FirstOrDefault(m => m.Type == "JSON_USER")?.Value + "";
+                    ResUserModel? result = JsonConvert.DeserializeObject<ResUserModel>(_encryptHelper.Decrypt(claimKey));
+                    if (result == null) return; // laod lần đầu
+                    UserId = result.userId;
+                    Token = $"{result.token}";
+                    FullName = $"{result.employeeName}";
+                    UserCode = $"{result.branchCode} - {result.employeeCode}";
+                    BrandId = result.branchId;
+                    await getMenus();
+                    // kiểm tra cái key bgcolor default -> thì set lại color theo user
+                    if (await _localStorage.ContainKeyAsync("bgcolor"))
+                    {
+                        string? color = await _localStorage.GetItemAsStringAsync("bgcolor");
+                        await _jsRuntime.InvokeVoidAsync("setActiveStyle", color);
+                    }
+                }    
+                    
             }
             catch (Exception) { }
         }
@@ -67,7 +96,8 @@ namespace HNOne.Web.Components.Layout
         private async Task getMenus()
         {
             RequestModel request = new RequestModel();
-            request.token = "";
+            request.token = Token;
+            request.userId = UserId;
             ListMenus = await _masterDataService.GetMenuAsync(request) ?? []; 
         }
         #endregion

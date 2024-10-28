@@ -4,6 +4,7 @@ using HNOne.API.Repositories;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace HNOne.API.Migrations
 {
     [DbContext(typeof(MasterDbContext))]
-    partial class MasterDbContextModelSnapshot : ModelSnapshot
+    [Migration("20241027151121_ENUM")]
+    partial class ENUM
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -438,9 +441,6 @@ namespace HNOne.API.Migrations
                         .HasMaxLength(250)
                         .HasColumnType("nvarchar(250)");
 
-                    b.Property<int>("RowOrder")
-                        .HasColumnType("int");
-
                     b.Property<int?>("UserSign")
                         .HasColumnType("int");
 
@@ -466,9 +466,6 @@ namespace HNOne.API.Migrations
                     b.Property<string>("MenuID")
                         .HasMaxLength(50)
                         .HasColumnType("nvarchar(50)");
-
-                    b.Property<string>("Breadcrumb")
-                        .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Controller")
                         .HasMaxLength(100)
@@ -657,83 +654,6 @@ namespace HNOne.API.Migrations
                         .HasFilter("[Code] IS NOT NULL");
 
                     b.ToTable("Titles");
-                });
-
-            modelBuilder.Entity("HNOne.Model.Entities.Users", b =>
-                {
-                    b.Property<int>("UserId")
-                        .HasColumnType("int");
-
-                    b.Property<int>("BranchId")
-                        .HasColumnType("int");
-
-                    b.Property<string>("BranchIds")
-                        .HasMaxLength(250)
-                        .HasColumnType("nvarchar(250)");
-
-                    b.Property<DateTime?>("CreateDate")
-                        .HasColumnType("datetime2");
-
-                    b.Property<DateTime?>("DateTracking")
-                        .HasColumnType("datetime2");
-
-                    b.Property<string>("DefaultPassword")
-                        .HasMaxLength(500)
-                        .HasColumnType("nvarchar(500)");
-
-                    b.Property<string>("DeleteReason")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("DepartmentIds")
-                        .HasMaxLength(250)
-                        .HasColumnType("nvarchar(250)");
-
-                    b.Property<int>("EmployeeId")
-                        .HasColumnType("int");
-
-                    b.Property<bool>("IsActive")
-                        .HasColumnType("bit");
-
-                    b.Property<bool>("IsAdmin")
-                        .HasColumnType("bit");
-
-                    b.Property<bool>("IsDelete")
-                        .HasColumnType("bit");
-
-                    b.Property<string>("Password")
-                        .HasMaxLength(500)
-                        .HasColumnType("nvarchar(500)");
-
-                    b.Property<int>("PerGroupId")
-                        .HasColumnType("int");
-
-                    b.Property<string>("RefreshToken")
-                        .HasMaxLength(250)
-                        .HasColumnType("nvarchar(250)");
-
-                    b.Property<DateTime?>("RefreshTokenExpiryTime")
-                        .HasColumnType("datetime2");
-
-                    b.Property<DateTime?>("UpdateDate")
-                        .HasColumnType("datetime2");
-
-                    b.Property<string>("UserName")
-                        .HasMaxLength(50)
-                        .HasColumnType("nvarchar(50)");
-
-                    b.Property<int?>("UserSign")
-                        .HasColumnType("int");
-
-                    b.Property<int?>("UserSign2")
-                        .HasColumnType("int");
-
-                    b.HasKey("UserId");
-
-                    b.HasIndex("UserName")
-                        .IsUnique()
-                        .HasFilter("[UserName] IS NOT NULL");
-
-                    b.ToTable("Users");
                 });
 #pragma warning restore 612, 618
         }

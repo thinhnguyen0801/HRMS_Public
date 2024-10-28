@@ -9,6 +9,7 @@ namespace HNOne.Web.Installers
         {
             services.AddScoped<IMasterDataService, MasterDataService>();
             services.AddScoped<IPersonnelService, PersonnelService>();
+            services.AddScoped<IUserService, UserService>();
         }
     }
 }

@@ -48,6 +48,9 @@ namespace HNOne.API.Services
                     => await _masterRepository.GetContractType(request);
         public async Task<IEnumerable<ReasonCategories>> GetReasonCategorie(RequestModel request)
                     => await _masterRepository.GetReasonCategorie(request);
+
+        public async Task<IEnumerable<EnumCatagories>> GetEnum(string enumType)
+            => await _masterRepository.GetEnum(enumType);
         #endregion
 
         #region Command
