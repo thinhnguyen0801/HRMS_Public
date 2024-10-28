@@ -13,12 +13,6 @@ namespace HNOne.Model.Entities
         public string? Name { get; set; }
         [MaxLength(50)]
         public string? Type { get; set; } // loại lý do
-        [MaxLength(250)]
-        public string? Value { get; set; } // config nếu có
-        [MaxLength(250)]
-        public string? Value1 { get; set; } // config nếu có 1
-        [MaxLength(250)]
-        public string? Value2 { get; set; } // config nếu có 2
         public bool IsActive { get; set; }
     }
 }
