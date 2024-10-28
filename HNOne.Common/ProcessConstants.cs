@@ -26,5 +26,13 @@
         public const string POST_EMPLOYEE = "post-employee";
         public const string PUT_EMPLOYEE = "put-employee";
         public const string GET_ENUM = "get-enum";
+
+        public const string GET_CONTRACTTYPE = "get-contracttype";
+        public const string POST_CONTRACTTYPE = "post-contracttype";
+        public const string PUT_CONTRACTTYPE = "put-contracttype";
+
+        public const string GET_REASONCATEGORIE = "get-reasoncategorie";
+        public const string POST_REASONCATEGORIE = "post-reasoncategorie";
+        public const string PUT_REASONCATEGORIE = "put-reasoncategorie";
     }
 }

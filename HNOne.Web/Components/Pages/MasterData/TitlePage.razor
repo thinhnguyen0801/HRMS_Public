@@ -47,10 +47,10 @@
                                 </CellDisplayTemplate>
                             </DxGridDataColumn>
                             <DxGridDataColumn FieldName="@nameof(TitleModel.name)" Caption="Tên chức danh" MinWidth="170" />
-                            <DxGridDataColumn FieldName="@nameof(TitleModel.remark)" Caption="Ghi chú" MinWidth="210" />
-                            <DxGridDataColumn FieldName="@nameof(TitleModel.isActive)" Caption="Active" MinWidth="210" />
                             <DxGridDataColumn FieldName="@nameof(TitleModel.branchId)" Caption="Chi nhánh" MinWidth="210" />
+                            <DxGridDataColumn FieldName="@nameof(TitleModel.isActive)" Caption="Active" MinWidth="210" />
                             <DxGridDataColumn FieldName="@nameof(TitleModel.departmentId)" Caption="Phòng ban" MinWidth="210" />
+                            <DxGridDataColumn FieldName="@nameof(TitleModel.remark)" Caption="Ghi chú" MinWidth="210" />
                             <DxGridDataColumn FieldName="@nameof(TitleModel.createDate)" Caption="Ngày cập nhật" MinWidth="120" DisplayFormat="@GlobalContants.FORMAT_DATE_TIME" />
                             <DxGridDataColumn FieldName="@nameof(TitleModel.userSignName)" Caption="Người tạo" MinWidth="120" />
                             <DxGridDataColumn FieldName="@nameof(TitleModel.userSign2Name)" Caption="Người cập nhật" MinWidth="120" />
@@ -88,35 +88,16 @@
                 </div>
             </div>
         </div>
-        <div class="col-sm-12">
+        <div class="col-sm-6">
             <div class="d-flex ">
-                <W1Label Value="Trưởng phòng" Id="bacLuong" Styles="width: 110px" IsRequired="true" />
+                <W1Label Value="Chi nhánh" Id="bacLuong" Styles="width: 110px" IsRequired="true" />
                 <div style="width: calc(100% - 110px)">
-                    @* <DxTextBox @bind-Text="@TitleUpdate.headId" CssClass="w1FontSize"></DxTextBox> *@
-                </div>
-            </div>
-        </div>
-        <div class="col-sm-12">
-            <div class="d-flex ">
-                <W1Label Value="Chức vụ" Id="bacLuong" Styles="width: 110px" IsRequired="true" />
-                <div style="width: calc(100% - 110px)">
-                    @* <DxTextBox @bind-Text="@TitleUpdate.assistantManagerIds" CssClass="w1FontSize"></DxTextBox> *@
-                </div>
-            </div>
-        </div>
-        <div class="col-sm-12">
-            <div class="d-flex ">
-                <W1Label Value="Số điện thoại" Id="bacLuong" Styles="width: 110px" />
-                <div style="width: calc(100% - 110px)">
-                    @* <DxTextBox @bind-Text="@TitleUpdate.managerId" CssClass="w1FontSize"></DxTextBox> *@
-                </div>
-            </div>
-        </div>
-        <div class="col-sm-12">
-            <div class="d-flex ">
-                <W1Label Value="Địa chỉ" Id="bacLuong" Styles="width: 110px" />
-                <div style="width: calc(100% - 110px)">
-                    @* <DxTextBox @bind-Text="@TitleUpdate.headId" CssClass="w1FontSize"></DxTextBox> *@
+                    <DxComboBox Data="@ListCboBranchId"
+                                @bind-Value="@TitleUpdate.branchId"
+                                FilteringMode="DataGridFilteringMode.Contains"
+                                TextFieldName="@nameof(ComboboxModel.name)"
+                                ValueFieldName="@nameof(ComboboxModel.id)" CssClass="w1FontSize">
+                    </DxComboBox>
                 </div>
             </div>
         </div>
@@ -124,23 +105,28 @@
             <div class="d-flex ">
                 <W1Label Value="Active" Id="bacLuong" Styles="width: 110px" />
                 <div style="width: calc(100% - 110px)">
-                    @* <DxTextBox @bind-Text="@TitleUpdate.headId" CssClass="w1FontSize"></DxTextBox> *@
+                    <DxCheckBox @bind-Checked="@TitleUpdate.isActive" CssClass="w1FontSize"></DxCheckBox>
                 </div>
             </div>
         </div>
-        <div class="col-sm-6">
+        <div class="col-sm-12">
             <div class="d-flex ">
-                <W1Label Value="Chi nhánh" Id="bacLuong" Styles="width: 110px" IsRequired="true" />
+                <W1Label Value="Phòng ban" Id="bacLuong" Styles="width: 110px" IsRequired="true"  />
                 <div style="width: calc(100% - 110px)">
-                    @* <DxTextBox @bind-Text="@TitleUpdate.headId" CssClass="w1FontSize"></DxTextBox> *@
+                    <DxComboBox Data="@ListCboDepartmentId"
+                                @bind-Value="@TitleUpdate.departmentId"
+                                FilteringMode="DataGridFilteringMode.Contains"
+                                TextFieldName="@nameof(ComboboxModel.name)"
+                                ValueFieldName="@nameof(ComboboxModel.id)" CssClass="w1FontSize">
+                    </DxComboBox>
                 </div>
             </div>
         </div>
-        <div class="col-sm-6">
+        <div class="col-sm-12">
             <div class="d-flex ">
-                <W1Label Value="Phòng ban" Id="bacLuong" Styles="width: 110px" IsRequired="true" />
+                <W1Label Value="Ghi chú" Id="bacLuong" Styles="width: 110px" />
                 <div style="width: calc(100% - 110px)">
-                    @* <DxTextBox @bind-Text="@TitleUpdate.headId" CssClass="w1FontSize"></DxTextBox> *@
+                    <DxMemo @bind-Text="@TitleUpdate.remark" CssClass="w1FontSize"></DxMemo>
                 </div>
             </div>
         </div>

@@ -13,20 +13,23 @@ using Newtonsoft.Json;
 
 namespace HNOne.Web.Controllers
 {
-    public class BranchController : DocumentControllerBase
+    public class ReasonCategorieController : DocumentControllerBase
     {
         [Inject] IMasterDataService _masterDataService { get; init; }
         [Inject] IJSRuntime _jsRuntime { get; set; }
 
         #region Properties
-        public List<BranchModel>? ListBranch { get; set; }
-        public IGrid? GridBranch { get; set; }
-        public IReadOnlyList<object>? SelectedBranchs { get; set; } = null;
-        public BranchModel BranchUpdate { get; set; } = new BranchModel();
+        public List<ReasonCategorieModel>? ListReasonCategorie { get; set; }
+        public IGrid? GridReasonCategorie { get; set; }
+        public IReadOnlyList<object>? SelectedReasonCategories { get; set; } = null;
+        public ReasonCategorieModel ReasonCategorieUpdate { get; set; } = new ReasonCategorieModel();
         public EditContext? _EditContext { get; set; }
         public bool IsShowDialog { get; set; }
         public bool IsCreate { get; set; } = true;
         public W1Confirm confirm { get; set; }
+        public List<ComboboxModel>? ListCboType { get; set; } // cbo ds loại lý do
+
+        
         #endregion
 
         protected override async Task OnAfterRenderAsync(bool firstRender)
@@ -39,11 +42,11 @@ namespace HNOne.Web.Controllers
                     //await _progressService.SetPercent(0.4);
                     //string errMessage = await CheckAuthMenuAsync("contractlist");
                     //if (errMessage == "401") return; // kiểm quyền menu page danh sách
-                    //Permission = await _masterDataService.GetAccessControl(UserId, Token, BranchId, 10012);
+                    //Permission = await _masterDataService.GetAccessControl(UserId, Token, ReasonCategorieId, 10012);
                     //ItemSearch.fromDate = new DateTime(DateTime.Now.Year, DateTime.Now.Month, 1);
                     //ItemSearch.toDate = DateTime.Now;
                     //await NotifyBreadcrumb.InvokeAsync(ListBreadcrumbs);
-                    await getBranchs();
+                    await getReasonCategories();
 
                 }
                 catch (Exception ex)
@@ -61,17 +64,17 @@ namespace HNOne.Web.Controllers
         }
 
         #region Private Functions
-        private async Task getBranchs()
+        private async Task getReasonCategories()
         {
-            ListBranch = new List<BranchModel>();
-            ListBranch = await _masterDataService.GetBranchAsync(UserId, Token);
+            ListReasonCategorie = new List<ReasonCategorieModel>();
+            ListReasonCategorie = await _masterDataService.GetReasonCategorieAsync(UserId, Token);
         }
         private void validateForSave(ref string errorMessage, ref string fieldName)
         {
-            if (string.IsNullOrEmpty(BranchUpdate.branchName))
+            if (string.IsNullOrEmpty(ReasonCategorieUpdate.name))
             {
-                errorMessage = String.Format(MessageConstants.MESSAGE_COMBOBOX_REQUIRE, "Tên chi nhánh");
-                fieldName = nameof(BranchUpdate.branchName);
+                errorMessage = String.Format(MessageConstants.MESSAGE_COMBOBOX_REQUIRE, "Tên danh mục lý do");
+                fieldName = nameof(ReasonCategorieUpdate.name);
                 return;
             }
         }
@@ -83,7 +86,7 @@ namespace HNOne.Web.Controllers
             try
             {
                 await ShowLoading();
-                await getBranchs();
+                await getReasonCategories();
             }
             catch (Exception ex)
             {
@@ -97,27 +100,26 @@ namespace HNOne.Web.Controllers
                 await InvokeAsync(StateHasChanged);
             }
         }
-        
-        protected void OnOpenDialogHandler(EnumType pAction = EnumType.Add, BranchModel? pItemDetails = null)
+
+        protected void OnOpenDialogHandler(EnumType pAction = EnumType.Add, ReasonCategorieModel? pItemDetails = null)
         {
             try
             {
                 if (pAction == EnumType.Add)
                 {
                     IsCreate = true;
-                    BranchUpdate = new BranchModel();
+                    ReasonCategorieUpdate = new ReasonCategorieModel();
                 }
                 else
                 {
-                    BranchUpdate.branchId = pItemDetails!.branchId;
-                    BranchUpdate.branchCode = pItemDetails!.branchCode;
-                    BranchUpdate.branchName = pItemDetails!.branchName;
-                    BranchUpdate.imgUrl = pItemDetails!.imgUrl;
-                    BranchUpdate.address = pItemDetails!.address;
+                    ReasonCategorieUpdate.id = pItemDetails!.id;
+                    ReasonCategorieUpdate.name = pItemDetails!.name;
+                    ReasonCategorieUpdate.type = pItemDetails!.type;
+                    ReasonCategorieUpdate.isActive = pItemDetails!.isActive;
                     IsCreate = false;
                 }
                 IsShowDialog = true;
-                _EditContext = new EditContext(BranchUpdate);
+                _EditContext = new EditContext(ReasonCategorieUpdate);
             }
             catch (Exception ex)
             {
@@ -142,17 +144,17 @@ namespace HNOne.Web.Controllers
                 bool isConfirm = await confirm.SetConfirm(MessageConstants.MESSAGE_TITLE, MessageConstants.MESSAGE_CONFIRM_ADD);
                 if (!isConfirm) return;
                 await ShowLoading();
-                string processKey = IsCreate ? ProcessConstants.POST_BRANCH : ProcessConstants.PUT_BRANCH;
-                BranchUpdate.userSign = UserId;
-                BranchUpdate.userSign2 = UserId;
-                string content = JsonConvert.SerializeObject(BranchUpdate);
-                isConfirm = await _masterDataService.UpdateBranchAsync(processKey, UserId, Token, content);
+                string processKey = IsCreate ? ProcessConstants.POST_REASONCATEGORIE : ProcessConstants.PUT_REASONCATEGORIE;
+                ReasonCategorieUpdate.userSign = UserId;
+                ReasonCategorieUpdate.userSign2 = UserId;
+                string content = JsonConvert.SerializeObject(ReasonCategorieUpdate);
+                isConfirm = await _masterDataService.UpdateReasonCategorieAsync(processKey, UserId, Token, content);
                 if (isConfirm)
                 {
-                    await getBranchs();
+                    await getReasonCategories();
                     IsShowDialog = false;
-                    SelectedBranchs = null;
-                }    
+                    SelectedReasonCategories = null;
+                }
             }
             catch (Exception ex)
             {
@@ -171,19 +173,19 @@ namespace HNOne.Web.Controllers
         {
             try
             {
-                if (SelectedBranchs.IsNullOrEmpty())
+                if (SelectedReasonCategories.IsNullOrEmpty())
                 {
                     ShowWarning(MessageConstants.MESSAGE_NO_CHOSE_DATA);
                     return;
                 }
                 bool isConfirm = await confirm.SetConfirm(MessageConstants.MESSAGE_TITLE, $"{MessageConstants.MESSAGE_CONFIRM_DELETE} ");
                 if (!isConfirm) return;
-                //isConfirm = await _masterDataService.UpdateBranchAsync(processKey, UserId, Token, content);
+                //isConfirm = await _masterDataService.UpdateReasonCategorieAsync(processKey, UserId, Token, content);
                 //if (isConfirm)
                 //{
-                //    await getBranchs();
+                //    await getReasonCategories();
                 //    IsShowDialog = false;
-                //    SelectedBranchs = null;
+                //    SelectedReasonCategories = null;
                 //}
             }
             catch (Exception ex)

@@ -1,7 +1,7 @@
-﻿@page "/chuc-vu"
-@inherits Controllers.PositionController
+﻿@page "/danh-muc-ly-do"
+@inherits Controllers.ReasonCategorieController
 
-<PageTitle>chức vụ</PageTitle>
+<PageTitle>Danh mục lý do</PageTitle>
 
 <div class="h-content-filter">
     <div class="row row-gap-2">
@@ -21,7 +21,7 @@
                     </DxToolbar>
                 </div>
                 <div class="card-body p-1" style="height: calc(100vh - 150px); min-height: 350px">
-                    <DxGrid Data="ListPosition" @ref="GridPosition"
+                    <DxGrid Data="ListReasonCategorie" @ref="GridReasonCategorie"
                             ShowFilterRow="true"
                             ColumnResizeMode="GridColumnResizeMode.ColumnsContainer"
                             PagerPosition="GridPagerPosition.Bottom"
@@ -34,31 +34,28 @@
                             TextWrapEnabled="false"
                             FocusedRowEnabled="true"
                             SelectionMode="@GridSelectionMode.Multiple"
-                            @bind-SelectedDataItems="@SelectedPositions"
-                            KeyFieldName="@nameof(PositionModel.code)"
+                            @bind-SelectedDataItems="@SelectedReasonCategories"
+                            KeyFieldName="@nameof(ReasonCategorieModel.name)"
                             CssClass="h-full">
                         <Columns>
                             <DxGridSelectionColumn Width="45px" />
-                            <DxGridDataColumn FieldName="@nameof(PositionModel.code)" Caption="Mã chức vụ" MinWidth="150">
+                            <DxGridDataColumn FieldName="@nameof(ReasonCategorieModel.name)" Caption="Tên danh mục lý do" MinWidth="170" >
                                 <CellDisplayTemplate>
                                     @{
-                                        <a @onclick="@(() => OnOpenDialogHandler(EnumType.Update, (context.DataItem as PositionModel)))">@context.Value</a>
+                                        <a @onclick="@(() => OnOpenDialogHandler(EnumType.Update, (context.DataItem as ReasonCategorieModel)))">@context.Value</a>
                                     }
                                 </CellDisplayTemplate>
-                            </DxGridDataColumn>
-                            <DxGridDataColumn FieldName="@nameof(PositionModel.name)" Caption="Tên chức vụ" MinWidth="170" />
-                            <DxGridDataColumn FieldName="@nameof(PositionModel.branchId)" Caption="Chi nhánh" MinWidth="210" />
-                            <DxGridDataColumn FieldName="@nameof(PositionModel.isActive)" Caption="Active" MinWidth="210" />
-                            <DxGridDataColumn FieldName="@nameof(PositionModel.levelCode)" Caption="Cấp độ" MinWidth="210" />
-                            <DxGridDataColumn FieldName="@nameof(PositionModel.remark)" Caption="Ghi chú" MinWidth="210" />
-                            <DxGridDataColumn FieldName="@nameof(PositionModel.createDate)" Caption="Ngày cập nhật" MinWidth="120" DisplayFormat="@GlobalContants.FORMAT_DATE_TIME" />
-                            <DxGridDataColumn FieldName="@nameof(PositionModel.userSignName)" Caption="Người tạo" MinWidth="120" />
-                            <DxGridDataColumn FieldName="@nameof(PositionModel.userSign2Name)" Caption="Người cập nhật" MinWidth="120" />
+                            </DxGridDataColumn>/>
+                            <DxGridDataColumn FieldName="@nameof(ReasonCategorieModel.type)" Caption="Loại lý do" MinWidth="210" />
+                            <DxGridDataColumn FieldName="@nameof(ReasonCategorieModel.isActive)" Caption="Active" MinWidth="210" />
+                            <DxGridDataColumn FieldName="@nameof(ReasonCategorieModel.createDate)" Caption="Ngày cập nhật" MinWidth="120" DisplayFormat="@GlobalContants.FORMAT_DATE_TIME" />
+                            <DxGridDataColumn FieldName="@nameof(ReasonCategorieModel.userSignName)" Caption="Người tạo" MinWidth="120" />
+                            <DxGridDataColumn FieldName="@nameof(ReasonCategorieModel.userSign2Name)" Caption="Người cập nhật" MinWidth="120" />
                         </Columns>
                         <TotalSummary>
                             <DxGridSummaryItem DisplayText="@GlobalContants.FORMAT_GRID_DISPLAYTEXT_COUNT" SummaryType="GridSummaryItemType.Count"
-                                               FieldName="@nameof(PositionModel.code)" ValueDisplayFormat="@GlobalContants.FORMAT_CURRENCY"
-                                               FooterColumnName="@nameof(PositionModel.code)" />
+                                               FieldName="@nameof(ReasonCategorieModel.name)" ValueDisplayFormat="@GlobalContants.FORMAT_CURRENCY"
+                                               FooterColumnName="@nameof(ReasonCategorieModel.name)" />
                         </TotalSummary>
                     </DxGrid>
                 </div>
@@ -69,31 +66,23 @@
 
 <W1Popup @bind-IsOpenModal="@IsShowDialog"
          Width="65%" TextBtnAccept="Cập nhật"
-         HeaderText="Thêm mới chức vụ"
+         HeaderText="Thêm mới danh mục lý do"
          HandleClickAccept="@SaveDataHandler">
     <div class="row row-gap-2">
         <div class="col-sm-12">
             <div class="d-flex ">
-                <W1Label Value="Mã chức vụ" Id="bacLuong" Styles="width: 110px" />
+                <W1Label Value="Tên danh mục lý do" Id="bacLuong" Styles="width: 110px" IsRequired="true" />
                 <div style="width: calc(100% - 110px)">
-                    <DxTextBox @bind-Text="@PositionUpdate.code" ReadOnly="true" CssClass="w1FontSize"></DxTextBox>
-                </div>
-            </div>
-        </div>
-        <div class="col-sm-12">
-            <div class="d-flex ">
-                <W1Label Value="Tên chức vụ" Id="bacLuong" Styles="width: 110px" IsRequired="true" />
-                <div style="width: calc(100% - 110px)">
-                    <DxTextBox @bind-Text="@PositionUpdate.name" CssClass="w1FontSize"></DxTextBox>
+                    <DxTextBox @bind-Text="@ReasonCategorieUpdate.name" CssClass="w1FontSize"></DxTextBox>
                 </div>
             </div>
         </div>
         <div class="col-sm-6">
             <div class="d-flex ">
-                <W1Label Value="Chi nhánh" Id="bacLuong" Styles="width: 110px" IsRequired="true" />
+                <W1Label Value="Loại lý do" Id="bacLuong" Styles="width: 110px" IsRequired="true" />
                 <div style="width: calc(100% - 110px)">
-                    <DxComboBox Data="@ListCboBranchId"
-                                @bind-Value="@PositionUpdate.branchId"
+                    <DxComboBox Data="@ListCboType"
+                                @bind-Value="@ReasonCategorieUpdate.type"
                                 FilteringMode="DataGridFilteringMode.Contains"
                                 TextFieldName="@nameof(ComboboxModel.name)"
                                 ValueFieldName="@nameof(ComboboxModel.id)" CssClass="w1FontSize">
@@ -105,23 +94,7 @@
             <div class="d-flex ">
                 <W1Label Value="Active" Id="bacLuong" Styles="width: 110px" />
                 <div style="width: calc(100% - 110px)">
-                    <DxCheckBox @bind-Checked="@PositionUpdate.isActive" CssClass="w1FontSize"></DxCheckBox>
-                </div>
-            </div>
-        </div>
-        <div class="col-sm-12">
-            <div class="d-flex ">
-                <W1Label Value="Cấp độ" Id="bacLuong" Styles="width: 110px" IsRequired="true" />
-                <div style="width: calc(100% - 110px)">
-                    <DxTextBox @bind-Text="@PositionUpdate.levelCode" CssClass="w1FontSize"></DxTextBox>
-                </div>
-            </div>
-        </div>
-        <div class="col-sm-12">
-            <div class="d-flex ">
-                <W1Label Value="Ghi chú" Id="bacLuong" Styles="width: 110px" />
-                <div style="width: calc(100% - 110px)">
-                    <DxMemo @bind-Text="@PositionUpdate.remark" CssClass="w1FontSize"></DxMemo>
+                    <DxCheckBox @bind-Checked="@ReasonCategorieUpdate.isActive" CssClass="w1FontSize"></DxCheckBox>
                 </div>
             </div>
         </div>

@@ -37,13 +37,17 @@ namespace HNOne.API.Services
         /// lấy ra danh sách phòng ban
         /// </summary>
         /// <returns></returns>
-        public async Task<IEnumerable<Departments>> GetDepartment()
-            => await _masterRepository.GetDepartment();
+        public async Task<IEnumerable<Departments>> GetDepartment(RequestModel request)
+            => await _masterRepository.GetDepartment(request);
 
-        public async Task<IEnumerable<Titles>> GetTitle()
-            => await _masterRepository.GetTitle();
-        public async Task<IEnumerable<Positions>> GetPosition()
-                    => await _masterRepository.GetPosition();
+        public async Task<IEnumerable<Titles>> GetTitle(RequestModel request)
+            => await _masterRepository.GetTitle(request);
+        public async Task<IEnumerable<Positions>> GetPosition(RequestModel request)
+                    => await _masterRepository.GetPosition(request);
+        public async Task<IEnumerable<ContractTypes>> GetContractType(RequestModel request)
+                    => await _masterRepository.GetContractType(request);
+        public async Task<IEnumerable<ReasonCategories>> GetReasonCategorie(RequestModel request)
+                    => await _masterRepository.GetReasonCategorie(request);
 
         public async Task<IEnumerable<EnumCatagories>> GetEnum(string enumType)
             => await _masterRepository.GetEnum(enumType);
@@ -82,7 +86,7 @@ namespace HNOne.API.Services
         }
 
         /// <summary>
-        /// Thêm mới, cập nhật chi nhánh
+        /// Thêm mới, cập nhật phòng ban
         /// </summary>
         /// <param name="actionType"></param>
         /// <param name="branch"></param>
@@ -113,7 +117,7 @@ namespace HNOne.API.Services
         }
 
         /// <summary>
-        /// Thêm mới, cập nhật chi nhánh
+        /// Thêm mới, cập nhật chức danh
         /// </summary>
         /// <param name="actionType"></param>
         /// <param name="branch"></param>
@@ -144,7 +148,7 @@ namespace HNOne.API.Services
         }
 
         /// <summary>
-        /// Thêm mới, cập nhật chi nhánh
+        /// Thêm mới, cập nhật chức vụ
         /// </summary>
         /// <param name="actionType"></param>
         /// <param name="branch"></param>
@@ -161,6 +165,68 @@ namespace HNOne.API.Services
                         break;
                     case ProcessConstants.PUT_TITLE:
                         response = await _masterRepository.UpdateTitle(entity);
+                        break;
+                }
+                return response;
+            }
+            catch (Exception ex)
+            {
+                response.status = StatusCodes.Status400BadRequest;
+                response.message = ex.Message;
+            }
+            return response;
+
+        }
+
+        /// <summary>
+        /// Thêm mới, cập nhật loại hợp đồng
+        /// </summary>
+        /// <param name="actionType"></param>
+        /// <param name="branch"></param>
+        /// <returns></returns>
+        public async Task<ResponseModel> UpdateContractType(string actionType, ContractTypes entity)
+        {
+            ResponseModel response = new ResponseModel();
+            try
+            {
+                switch (actionType)
+                {
+                    case ProcessConstants.POST_CONTRACTTYPE:
+                        response = await _masterRepository.AddContractType(entity);
+                        break;
+                    case ProcessConstants.PUT_CONTRACTTYPE:
+                        response = await _masterRepository.UpdateContractType(entity);
+                        break;
+                }
+                return response;
+            }
+            catch (Exception ex)
+            {
+                response.status = StatusCodes.Status400BadRequest;
+                response.message = ex.Message;
+            }
+            return response;
+
+        }
+
+        /// <summary>
+        /// Thêm mới, cập nhật danh mục lý do
+        /// </summary>
+        /// <param name="actionType"></param>
+        /// <param name="branch"></param>
+        /// <returns></returns>
+        public async Task<ResponseModel> UpdateReasonCategorie(string actionType, ReasonCategories entity)
+        {
+            ResponseModel response = new ResponseModel();
+            try
+            {
+                switch (actionType)
+                {
+                    case ProcessConstants.POST_REASONCATEGORIE:
+                        response = await _masterRepository.AddReasonCategorie(entity);
+                        break;
+                    case ProcessConstants.PUT_REASONCATEGORIE:
+                        response = await _masterRepository.UpdateReasonCategorie(entity);
                         break;
                 }
                 return response;

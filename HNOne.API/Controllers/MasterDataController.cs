@@ -79,13 +79,19 @@ namespace HNOne.API.Controllers
                         response.data = await _masterDataService.GetMenu();
                         break;
                     case ProcessConstants.GET_DEPARTMENT:
-                        response.data = await _masterDataService.GetDepartment();
+                        response.data = await _masterDataService.GetDepartment(request);
                         break;
                     case ProcessConstants.GET_TITLE:
-                        response.data = await _masterDataService.GetTitle();
+                        response.data = await _masterDataService.GetTitle(request);
                         break;
                     case ProcessConstants.GET_POSITION:
-                        response.data = await _masterDataService.GetPosition();
+                        response.data = await _masterDataService.GetPosition(request);
+                        break;
+                    case ProcessConstants.GET_CONTRACTTYPE:
+                        response.data = await _masterDataService.GetContractType(request);
+                        break;
+                    case ProcessConstants.GET_REASONCATEGORIE:
+                        response.data = await _masterDataService.GetReasonCategorie(request);
                         break;
                     case ProcessConstants.GET_ENUM:
                         response.data = await _masterDataService.GetEnum($"{request.opt}");
@@ -145,6 +151,16 @@ namespace HNOne.API.Controllers
                     case ProcessConstants.POST_TITLE:
                         var title = JsonConvert.DeserializeObject<Titles>($"{request.json}");
                         response = await _masterDataService.UpdateTitle(processKey, title!);
+                        break;
+                    case ProcessConstants.PUT_CONTRACTTYPE:
+                    case ProcessConstants.POST_CONTRACTTYPE:
+                        var contractType = JsonConvert.DeserializeObject<ContractTypes>($"{request.json}");
+                        response = await _masterDataService.UpdateContractType(processKey, contractType!);
+                        break;
+                    case ProcessConstants.PUT_REASONCATEGORIE:
+                    case ProcessConstants.POST_REASONCATEGORIE:
+                        var reasonCategorie = JsonConvert.DeserializeObject<ReasonCategories>($"{request.json}");
+                        response = await _masterDataService.UpdateReasonCategorie(processKey, reasonCategorie!);
                         break;
                     default:
                         response.status = StatusCodes.Status404NotFound;

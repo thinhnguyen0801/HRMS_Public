@@ -1,7 +1,7 @@
-﻿@page "/phong-ban"
-@inherits Controllers.DepartmentController
+﻿@page "/loai-hop-dong"
+@inherits Controllers.ContractTypeController
 
-<PageTitle>Phòng ban</PageTitle>
+<PageTitle>Loại hợp đồng</PageTitle>
 
 <div class="h-content-filter">
     <div class="row row-gap-2">
@@ -21,7 +21,7 @@
                     </DxToolbar>
                 </div>
                 <div class="card-body p-1" style="height: calc(100vh - 150px); min-height: 350px">
-                    <DxGrid Data="ListDepartment" @ref="GridDepartment"
+                    <DxGrid Data="ListContractType" @ref="GridContractType"
                             ShowFilterRow="true"
                             ColumnResizeMode="GridColumnResizeMode.ColumnsContainer"
                             PagerPosition="GridPagerPosition.Bottom"
@@ -34,33 +34,34 @@
                             TextWrapEnabled="false"
                             FocusedRowEnabled="true"
                             SelectionMode="@GridSelectionMode.Multiple"
-                            @bind-SelectedDataItems="@SelectedDepartments"
-                            KeyFieldName="@nameof(DepartmentModel.code)"
+                            @bind-SelectedDataItems="@SelectedContractTypes"
+                            KeyFieldName="@nameof(ContractTypeModel.code)"
                             CssClass="h-full">
                         <Columns>
                             <DxGridSelectionColumn Width="45px" />
-                            <DxGridDataColumn FieldName="@nameof(DepartmentModel.code)" Caption="Mã phòng ban" MinWidth="150">
+                            <DxGridDataColumn FieldName="@nameof(ContractTypeModel.code)" Caption="Mã loại hợp đồng" MinWidth="170" >
                                 <CellDisplayTemplate>
                                     @{
-                                        <a @onclick="@(() => OnOpenDialogHandler(EnumType.Update, (context.DataItem as DepartmentModel)))">@context.Value</a>
+                                        <a @onclick="@(() => OnOpenDialogHandler(EnumType.Update, (context.DataItem as ContractTypeModel)))">@context.Value</a>
                                     }
                                 </CellDisplayTemplate>
-                            </DxGridDataColumn>
-                            <DxGridDataColumn FieldName="@nameof(DepartmentModel.name)" Caption="Tên phòng ban" MinWidth="170" />
-                            <DxGridDataColumn FieldName="@nameof(DepartmentModel.managerId)" Caption="Giám đốc" MinWidth="170" />
-                            <DxGridDataColumn FieldName="@nameof(DepartmentModel.headId)" Caption="Trưởng phòng" MinWidth="210" />
-                            <DxGridDataColumn FieldName="@nameof(DepartmentModel.assistantManagerIds)" Caption="Phó phòng" MinWidth="210" />
-                            <DxGridDataColumn FieldName="@nameof(DepartmentModel.remark)" Caption="Ghi chú" MinWidth="210" />
-                            <DxGridDataColumn FieldName="@nameof(DepartmentModel.isActive)" Caption="Active" MinWidth="210" />
-                            <DxGridDataColumn FieldName="@nameof(DepartmentModel.branchId)" Caption="Chi nhánh" MinWidth="210" />
-                            <DxGridDataColumn FieldName="@nameof(DepartmentModel.createDate)" Caption="Ngày cập nhật" MinWidth="120" DisplayFormat="@GlobalContants.FORMAT_DATE_TIME" />
-                            <DxGridDataColumn FieldName="@nameof(DepartmentModel.userSignName)" Caption="Người tạo" MinWidth="120" />
-                            <DxGridDataColumn FieldName="@nameof(DepartmentModel.userSign2Name)" Caption="Người cập nhật" MinWidth="120" />
+                            </DxGridDataColumn>/>
+                            <DxGridDataColumn FieldName="@nameof(ContractTypeModel.name)" Caption="Tên loại hợp đồng" MinWidth="170" />
+                            <DxGridDataColumn FieldName="@nameof(ContractTypeModel.branchId)" Caption="Chi nhánh" MinWidth="210" />
+                            <DxGridDataColumn FieldName="@nameof(ContractTypeModel.isActive)" Caption="Active" MinWidth="210" />
+                            <DxGridDataColumn FieldName="@nameof(ContractTypeModel.statusCode)" Caption="Trạng thái nhân viên" MinWidth="210" />
+                            <DxGridDataColumn FieldName="@nameof(ContractTypeModel.duration)" Caption="Thời hạn" MinWidth="210" />
+                            <DxGridDataColumn FieldName="@nameof(ContractTypeModel.indefiniteDuration)" Caption="Thời hạn không xác định" MinWidth="210" />
+                            <DxGridDataColumn FieldName="@nameof(ContractTypeModel.numberOfDaysReduced)" Caption="Số ngày cho phép giảm" MinWidth="210" />
+                            <DxGridDataColumn FieldName="@nameof(ContractTypeModel.remark)" Caption="Ghi chú" MinWidth="210" />
+                            <DxGridDataColumn FieldName="@nameof(ContractTypeModel.createDate)" Caption="Ngày cập nhật" MinWidth="120" DisplayFormat="@GlobalContants.FORMAT_DATE_TIME" />
+                            <DxGridDataColumn FieldName="@nameof(ContractTypeModel.userSignName)" Caption="Người tạo" MinWidth="120" />
+                            <DxGridDataColumn FieldName="@nameof(ContractTypeModel.userSign2Name)" Caption="Người cập nhật" MinWidth="120" />
                         </Columns>
                         <TotalSummary>
                             <DxGridSummaryItem DisplayText="@GlobalContants.FORMAT_GRID_DISPLAYTEXT_COUNT" SummaryType="GridSummaryItemType.Count"
-                                               FieldName="@nameof(DepartmentModel.code)" ValueDisplayFormat="@GlobalContants.FORMAT_CURRENCY"
-                                               FooterColumnName="@nameof(DepartmentModel.code)" />
+                                               FieldName="@nameof(ContractTypeModel.code)" ValueDisplayFormat="@GlobalContants.FORMAT_CURRENCY"
+                                               FooterColumnName="@nameof(ContractTypeModel.code)" />
                         </TotalSummary>
                     </DxGrid>
                 </div>
@@ -71,22 +72,22 @@
 
 <W1Popup @bind-IsOpenModal="@IsShowDialog"
          Width="65%" TextBtnAccept="Cập nhật"
-         HeaderText="Thêm mới phòng ban"
+         HeaderText="Thêm mới loại hợp đồng"
          HandleClickAccept="@SaveDataHandler">
     <div class="row row-gap-2">
         <div class="col-sm-12">
             <div class="d-flex ">
-                <W1Label Value="Mã phòng ban" Id="bacLuong" Styles="width: 110px" />
+                <W1Label Value="Mã loại hợp đồng" Id="bacLuong" Styles="width: 110px" />
                 <div style="width: calc(100% - 110px)">
-                    <DxTextBox @bind-Text="@DepartmentUpdate.code" ReadOnly="true" CssClass="w1FontSize"></DxTextBox>
+                    <DxTextBox @bind-Text="@ContractTypeUpdate.code" ReadOnly="true" CssClass="w1FontSize"></DxTextBox>
                 </div>
             </div>
         </div>
         <div class="col-sm-12">
             <div class="d-flex ">
-                <W1Label Value="Tên phòng ban" Id="bacLuong" Styles="width: 110px" IsRequired="true" />
+                <W1Label Value="Tên loại hợp đồng" Id="bacLuong" Styles="width: 110px" IsRequired="true" />
                 <div style="width: calc(100% - 110px)">
-                    <DxTextBox @bind-Text="@DepartmentUpdate.name" CssClass="w1FontSize"></DxTextBox>
+                    <DxTextBox @bind-Text="@ContractTypeUpdate.name" CssClass="w1FontSize"></DxTextBox>
                 </div>
             </div>
         </div>
@@ -95,7 +96,7 @@
                 <W1Label Value="Chi nhánh" Id="bacLuong" Styles="width: 110px" IsRequired="true" />
                 <div style="width: calc(100% - 110px)">
                     <DxComboBox Data="@ListCboBranchId"
-                                @bind-Value="@DepartmentUpdate.branchId"
+                                @bind-Value="@ContractTypeUpdate.branchId"
                                 FilteringMode="DataGridFilteringMode.Contains"
                                 TextFieldName="@nameof(ComboboxModel.name)"
                                 ValueFieldName="@nameof(ComboboxModel.id)" CssClass="w1FontSize">
@@ -107,16 +108,16 @@
             <div class="d-flex ">
                 <W1Label Value="Active" Id="bacLuong" Styles="width: 110px" />
                 <div style="width: calc(100% - 110px)">
-                    <DxCheckBox @bind-Checked="@DepartmentUpdate.isActive" CssClass="w1FontSize"></DxCheckBox>
+                    <DxCheckBox @bind-Checked="@ContractTypeUpdate.isActive" CssClass="w1FontSize"></DxCheckBox>
                 </div>
             </div>
         </div>
-        <div class="col-sm-12">
+        <div class="col-sm-6">
             <div class="d-flex ">
-                <W1Label Value="Giám đốc" Id="bacLuong" Styles="width: 110px" />
+                <W1Label Value="Trạng thái nhân viên" Id="bacLuong" Styles="width: 110px" />
                 <div style="width: calc(100% - 110px)">
-                    <DxComboBox Data="@ListCboManagerId"
-                                @bind-Value="@DepartmentUpdate.managerId"
+                    <DxComboBox Data="@ListCboStatusCode"
+                                @bind-Value="@ContractTypeUpdate.statusCode"
                                 FilteringMode="DataGridFilteringMode.Contains"
                                 TextFieldName="@nameof(ComboboxModel.name)"
                                 ValueFieldName="@nameof(ComboboxModel.id)" CssClass="w1FontSize">
@@ -124,25 +125,38 @@
                 </div>
             </div>
         </div>
-        <div class="col-sm-12">
+        <div class="col-sm-6">
             <div class="d-flex ">
-                <W1Label Value="Trưởng phòng" Id="bacLuong" Styles="width: 110px" />
+                <W1Label Value="Thời hạn" Id="bacLuong" Styles="width: 110px" />
                 <div style="width: calc(100% - 110px)">
-                    <DxComboBox Data="@ListCboHeadId"
-                                @bind-Value="@DepartmentUpdate.headId"
+                    <DxComboBox Data="@ListCboDuration"
+                                @bind-Value="@ContractTypeUpdate.duration"
                                 FilteringMode="DataGridFilteringMode.Contains"
                                 TextFieldName="@nameof(ComboboxModel.name)"
                                 ValueFieldName="@nameof(ComboboxModel.id)" CssClass="w1FontSize">
-                    </DxComboBox>                            
+                    </DxComboBox>
                 </div>
             </div>
         </div>
-        <div class="col-sm-12">
+        <div class="col-sm-6">
             <div class="d-flex ">
-                <W1Label Value="Phó phòng" Id="bacLuong" Styles="width: 110px" />
+                <W1Label Value="Thời hạn không xác định" Id="bacLuong" Styles="width: 110px" />
                 <div style="width: calc(100% - 110px)">
-                    <DxComboBox Data="@ListCboAssistantManagerIds"
-                                @bind-Value="@DepartmentUpdate.assistantManagerIds"
+                    <DxComboBox Data="@ListCboIndefiniteDuration"
+                                @bind-Value="@ContractTypeUpdate.indefiniteDuration"
+                                FilteringMode="DataGridFilteringMode.Contains"
+                                TextFieldName="@nameof(ComboboxModel.name)"
+                                ValueFieldName="@nameof(ComboboxModel.id)" CssClass="w1FontSize">
+                    </DxComboBox>
+                </div>
+            </div>
+        </div>
+        <div class="col-sm-6">
+            <div class="d-flex ">
+                <W1Label Value="Số ngày cho phép giảm" Id="bacLuong" Styles="width: 110px" />
+                <div style="width: calc(100% - 110px)">
+                    <DxComboBox Data="@ListCboNumberOfDaysReduced"
+                                @bind-Value="@ContractTypeUpdate.numberOfDaysReduced"
                                 FilteringMode="DataGridFilteringMode.Contains"
                                 TextFieldName="@nameof(ComboboxModel.name)"
                                 ValueFieldName="@nameof(ComboboxModel.id)" CssClass="w1FontSize">
@@ -154,7 +168,7 @@
             <div class="d-flex ">
                 <W1Label Value="Ghi chú" Id="bacLuong" Styles="width: 110px" />
                 <div style="width: calc(100% - 110px)">
-                    <DxMemo @bind-Text="@DepartmentUpdate.remark" CssClass="w1FontSize"></DxMemo>
+                    <DxTextBox @bind-Text="@ContractTypeUpdate.remark" CssClass="w1FontSize"></DxTextBox>
                 </div>
             </div>
         </div>
