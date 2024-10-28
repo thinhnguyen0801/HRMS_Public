@@ -20,5 +20,6 @@ namespace HNOne.Model.Entities
         [MaxLength(250)]
         public string? Value2 { get; set; } // config nếu có 2
         public bool IsActive { get; set; }
+
     }
 }
