@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace HNOne.API.Migrations
 {
     /// <inheritdoc />
-    public partial class NewMigration : Migration
+    public partial class initdatabase : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -154,6 +154,26 @@ namespace HNOne.API.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "EnumCatagories",
+                columns: table => new
+                {
+                    Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    EnumType = table.Column<string>(type: "nvarchar(250)", maxLength: 250, nullable: true),
+                    Code = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: true),
+                    Name = table.Column<string>(type: "nvarchar(250)", maxLength: 250, nullable: true),
+                    Value = table.Column<string>(type: "nvarchar(250)", maxLength: 250, nullable: true),
+                    Value1 = table.Column<string>(type: "nvarchar(250)", maxLength: 250, nullable: true),
+                    Value2 = table.Column<string>(type: "nvarchar(250)", maxLength: 250, nullable: true),
+                    UserSign = table.Column<int>(type: "int", nullable: true),
+                    DateTracking = table.Column<DateTime>(type: "datetime2", nullable: true),
+                    RowOrder = table.Column<int>(type: "int", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_EnumCatagories", x => x.Id);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "Menus",
                 columns: table => new
                 {
@@ -165,7 +185,8 @@ namespace HNOne.API.Migrations
                     ParentID = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: true),
                     Level = table.Column<int>(type: "int", nullable: false),
                     IsVisible = table.Column<bool>(type: "bit", nullable: false),
-                    OrdinalNumber = table.Column<int>(type: "int", nullable: false)
+                    OrdinalNumber = table.Column<int>(type: "int", nullable: false),
+                    Breadcrumb = table.Column<string>(type: "nvarchar(max)", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -197,6 +218,30 @@ namespace HNOne.API.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "ReasonCategories",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "int", nullable: false),
+                    Name = table.Column<string>(type: "nvarchar(250)", maxLength: 250, nullable: true),
+                    Type = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: true),
+                    Value = table.Column<string>(type: "nvarchar(250)", maxLength: 250, nullable: true),
+                    Value1 = table.Column<string>(type: "nvarchar(250)", maxLength: 250, nullable: true),
+                    Value2 = table.Column<string>(type: "nvarchar(250)", maxLength: 250, nullable: true),
+                    IsActive = table.Column<bool>(type: "bit", nullable: false),
+                    CreateDate = table.Column<DateTime>(type: "datetime2", nullable: true),
+                    UserSign = table.Column<int>(type: "int", nullable: true),
+                    UpdateDate = table.Column<DateTime>(type: "datetime2", nullable: true),
+                    UserSign2 = table.Column<int>(type: "int", nullable: true),
+                    IsDelete = table.Column<bool>(type: "bit", nullable: false),
+                    DeleteReason = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    DateTracking = table.Column<DateTime>(type: "datetime2", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_ReasonCategories", x => x.Id);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "Titles",
                 columns: table => new
                 {
@@ -218,6 +263,36 @@ namespace HNOne.API.Migrations
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_Titles", x => x.Id);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "Users",
+                columns: table => new
+                {
+                    UserId = table.Column<int>(type: "int", nullable: false),
+                    UserName = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: true),
+                    Password = table.Column<string>(type: "nvarchar(500)", maxLength: 500, nullable: true),
+                    DefaultPassword = table.Column<string>(type: "nvarchar(500)", maxLength: 500, nullable: true),
+                    RefreshToken = table.Column<string>(type: "nvarchar(250)", maxLength: 250, nullable: true),
+                    RefreshTokenExpiryTime = table.Column<DateTime>(type: "datetime2", nullable: true),
+                    BranchId = table.Column<int>(type: "int", nullable: false),
+                    EmployeeId = table.Column<int>(type: "int", nullable: false),
+                    DepartmentIds = table.Column<string>(type: "nvarchar(250)", maxLength: 250, nullable: true),
+                    BranchIds = table.Column<string>(type: "nvarchar(250)", maxLength: 250, nullable: true),
+                    IsActive = table.Column<bool>(type: "bit", nullable: false),
+                    IsAdmin = table.Column<bool>(type: "bit", nullable: false),
+                    PerGroupId = table.Column<int>(type: "int", nullable: false),
+                    CreateDate = table.Column<DateTime>(type: "datetime2", nullable: true),
+                    UserSign = table.Column<int>(type: "int", nullable: true),
+                    UpdateDate = table.Column<DateTime>(type: "datetime2", nullable: true),
+                    UserSign2 = table.Column<int>(type: "int", nullable: true),
+                    IsDelete = table.Column<bool>(type: "bit", nullable: false),
+                    DeleteReason = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    DateTracking = table.Column<DateTime>(type: "datetime2", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Users", x => x.UserId);
                 });
 
             migrationBuilder.CreateIndex(
@@ -261,6 +336,13 @@ namespace HNOne.API.Migrations
                 column: "Code",
                 unique: true,
                 filter: "[Code] IS NOT NULL");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Users_UserName",
+                table: "Users",
+                column: "UserName",
+                unique: true,
+                filter: "[UserName] IS NOT NULL");
         }
 
         /// <inheritdoc />
@@ -279,13 +361,22 @@ namespace HNOne.API.Migrations
                 name: "Employees");
 
             migrationBuilder.DropTable(
+                name: "EnumCatagories");
+
+            migrationBuilder.DropTable(
                 name: "Menus");
 
             migrationBuilder.DropTable(
                 name: "Positions");
 
             migrationBuilder.DropTable(
+                name: "ReasonCategories");
+
+            migrationBuilder.DropTable(
                 name: "Titles");
+
+            migrationBuilder.DropTable(
+                name: "Users");
         }
     }
 }
