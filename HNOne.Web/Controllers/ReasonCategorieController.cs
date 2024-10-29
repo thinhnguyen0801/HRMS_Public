@@ -4,6 +4,7 @@ using HNOne.Model;
 using HNOne.Model.Models;
 using HNOne.Web.Commons;
 using HNOne.Web.Components.Controls;
+using HNOne.Web.Models;
 using HNOne.Web.Services;
 using HNOne.Web.Services.Interfaces;
 using Microsoft.AspNetCore.Components;
@@ -39,13 +40,12 @@ namespace HNOne.Web.Controllers
                 try
                 {
                     await ShowLoading();
-                    //await _progressService.SetPercent(0.4);
-                    //string errMessage = await CheckAuthMenuAsync("contractlist");
-                    //if (errMessage == "401") return; // kiểm quyền menu page danh sách
-                    //Permission = await _masterDataService.GetAccessControl(UserId, Token, ReasonCategorieId, 10012);
-                    //ItemSearch.fromDate = new DateTime(DateTime.Now.Year, DateTime.Now.Month, 1);
-                    //ItemSearch.toDate = DateTime.Now;
-                    //await NotifyBreadcrumb.InvokeAsync(ListBreadcrumbs);
+                    ListBreadcrumbs = new List<BreadcrumbModel>()
+                    {
+                        new BreadcrumbModel("Danh mục"),
+                        new BreadcrumbModel("Lý do", isActive: true)
+                    };
+                    await NotifyBreadcrumb.InvokeAsync(ListBreadcrumbs);
                     await getReasonCategories();
 
                 }
@@ -141,7 +141,8 @@ namespace HNOne.Web.Controllers
                     await _jsRuntime.InvokeVoidAsync("focusInput", fieldName);
                     return;
                 }
-                bool isConfirm = await confirm.SetConfirm(MessageConstants.MESSAGE_TITLE, MessageConstants.MESSAGE_CONFIRM_ADD);
+                errorMessage = IsCreate ? MessageConstants.MESSAGE_CONFIRM_ADD : MessageConstants.MESSAGE_CONFIRM_UPDATE;
+                bool isConfirm = await confirm.SetConfirm(MessageConstants.MESSAGE_TITLE, errorMessage);
                 if (!isConfirm) return;
                 await ShowLoading();
                 string processKey = IsCreate ? ProcessConstants.POST_REASONCATEGORIE : ProcessConstants.PUT_REASONCATEGORIE;

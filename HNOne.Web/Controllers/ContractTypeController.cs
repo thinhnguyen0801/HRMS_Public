@@ -185,7 +185,8 @@ namespace HNOne.Web.Controllers
                     await _jsRuntime.InvokeVoidAsync("focusInput", fieldName);
                     return;
                 }
-                bool isConfirm = await confirm.SetConfirm(MessageConstants.MESSAGE_TITLE, MessageConstants.MESSAGE_CONFIRM_ADD);
+                errorMessage = IsCreate ? MessageConstants.MESSAGE_CONFIRM_ADD : MessageConstants.MESSAGE_CONFIRM_UPDATE;
+                bool isConfirm = await confirm.SetConfirm(MessageConstants.MESSAGE_TITLE, errorMessage);
                 if (!isConfirm) return;
                 await ShowLoading();
                 string processKey = IsCreate ? ProcessConstants.POST_CONTRACTTYPE : ProcessConstants.PUT_CONTRACTTYPE;

@@ -1,11 +1,15 @@
-﻿namespace HNOne.Model.Models
+﻿
+namespace HNOne.Model.Models
 {
     public class ReasonCategorieModel
     {
         public int id { get; set; }
         public string? name { get; set; }
         public string? type { get; set; } // loại lý do
-        public bool isActive { get; set; }
+        public bool isActive { get; set; } = true;
+        public string? value { get; set; } // config nếu có
+        public string? value1 { get; set; } // config nếu có 1
+        public string? value2 { get; set; } // config nếu có 2
         public DateTime? createDate { get; set; }
         public int? userSign { get; set; }
         public DateTime? updateDate { get; set; }

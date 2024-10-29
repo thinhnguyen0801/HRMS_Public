@@ -47,11 +47,11 @@
                                 </CellDisplayTemplate>
                             </DxGridDataColumn>
                             <DxGridDataColumn FieldName="@nameof(TitleModel.name)" Caption="Tên chức danh" MinWidth="170" />
-                            <DxGridDataColumn FieldName="@nameof(TitleModel.branchId)" Caption="Chi nhánh" MinWidth="210" />
-                            <DxGridDataColumn FieldName="@nameof(TitleModel.isActive)" Caption="Active" MinWidth="210" />
-                            <DxGridDataColumn FieldName="@nameof(TitleModel.departmentId)" Caption="Phòng ban" MinWidth="210" />
-                            <DxGridDataColumn FieldName="@nameof(TitleModel.remark)" Caption="Ghi chú" MinWidth="210" />
-                            <DxGridDataColumn FieldName="@nameof(TitleModel.createDate)" Caption="Ngày cập nhật" MinWidth="120" DisplayFormat="@GlobalContants.FORMAT_DATE_TIME" />
+                            <DxGridDataColumn FieldName="@nameof(TitleModel.branchId)" Caption="Chi nhánh" MinWidth="170" />
+                            <DxGridDataColumn FieldName="@nameof(TitleModel.isActive)" Caption="Hoạt động?" MinWidth="100" />
+                            <DxGridDataColumn FieldName="@nameof(TitleModel.departmentId)" Caption="Phòng ban" MinWidth="130" />
+                            <DxGridDataColumn FieldName="@nameof(TitleModel.remark)" Caption="Ghi chú" MinWidth="170" />
+                            <DxGridDataColumn FieldName="@nameof(TitleModel.dateTracking)" Caption="Ngày cập nhật" MinWidth="120" DisplayFormat="@GlobalContants.FORMAT_DATE_TIME" />
                             <DxGridDataColumn FieldName="@nameof(TitleModel.userSignName)" Caption="Người tạo" MinWidth="120" />
                             <DxGridDataColumn FieldName="@nameof(TitleModel.userSign2Name)" Caption="Người cập nhật" MinWidth="120" />
                         </Columns>
@@ -69,14 +69,26 @@
 
 <W1Popup @bind-IsOpenModal="@IsShowDialog"
          Width="65%" TextBtnAccept="Cập nhật"
-         HeaderText="Thêm mới chức danh"
+         HeaderText="@(IsCreate ? "Thêm mới chức danh" : $"Cập nhật chức danh [{TitleUpdate.code}]")"
          HandleClickAccept="@SaveDataHandler">
     <div class="row row-gap-2">
         <div class="col-sm-12">
             <div class="d-flex ">
                 <W1Label Value="Mã chức danh" Id="bacLuong" Styles="width: 110px" />
-                <div style="width: calc(100% - 110px)">
-                    <DxTextBox @bind-Text="@TitleUpdate.code" ReadOnly="true" CssClass="w1FontSize"></DxTextBox>
+                <div style="width: calc(100% - 120px)">
+                    <div class="row row-gap-2">
+                        <div class="col-md-8 col-sm-12">
+                            <DxTextBox @bind-Text="@TitleUpdate.code" ReadOnly="true" CssClass="w1FontSize"></DxTextBox>
+                        </div>
+                        <div class="col-md-4 col-sm-12">
+                            <DxCheckBox CssClass="w-100 w1FontSize"
+                                        SizeMode="@SizeMode.Small"
+                                        @bind-Checked="@TitleUpdate.isActive"
+                                        LabelPosition="@LabelPosition.Right">
+                                Hoạt động?
+                            </DxCheckBox>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
@@ -84,28 +96,21 @@
             <div class="d-flex ">
                 <W1Label Value="Tên chức danh" Id="bacLuong" Styles="width: 110px" IsRequired="true" />
                 <div style="width: calc(100% - 110px)">
-                    <DxTextBox @bind-Text="@TitleUpdate.name" CssClass="w1FontSize"></DxTextBox>
+                    <DxTextBox @bind-Text="@TitleUpdate.name" CssClass="w1FontSize" Id="txtName"></DxTextBox>
                 </div>
             </div>
         </div>
-        <div class="col-sm-6">
+        <div class="col-sm-12">
             <div class="d-flex ">
                 <W1Label Value="Chi nhánh" Id="bacLuong" Styles="width: 110px" IsRequired="true" />
                 <div style="width: calc(100% - 110px)">
-                    <DxComboBox Data="@ListCboBranchId"
+                    <DxComboBox Data="@ListCboBranch"
                                 @bind-Value="@TitleUpdate.branchId"
                                 FilteringMode="DataGridFilteringMode.Contains"
+                                Id="txtBranchId"
                                 TextFieldName="@nameof(ComboboxModel.name)"
                                 ValueFieldName="@nameof(ComboboxModel.id)" CssClass="w1FontSize">
                     </DxComboBox>
-                </div>
-            </div>
-        </div>
-        <div class="col-sm-6">
-            <div class="d-flex ">
-                <W1Label Value="Active" Id="bacLuong" Styles="width: 110px" />
-                <div style="width: calc(100% - 110px)">
-                    <DxCheckBox @bind-Checked="@TitleUpdate.isActive" CssClass="w1FontSize"></DxCheckBox>
                 </div>
             </div>
         </div>
@@ -113,10 +118,11 @@
             <div class="d-flex ">
                 <W1Label Value="Phòng ban" Id="bacLuong" Styles="width: 110px" IsRequired="true"  />
                 <div style="width: calc(100% - 110px)">
-                    <DxComboBox Data="@ListCboDepartmentId"
+                    <DxComboBox Data="@ListCboDepartment"
                                 @bind-Value="@TitleUpdate.departmentId"
                                 FilteringMode="DataGridFilteringMode.Contains"
                                 TextFieldName="@nameof(ComboboxModel.name)"
+                                Id="txtDepartmentId"
                                 ValueFieldName="@nameof(ComboboxModel.id)" CssClass="w1FontSize">
                     </DxComboBox>
                 </div>
@@ -126,7 +132,7 @@
             <div class="d-flex ">
                 <W1Label Value="Ghi chú" Id="bacLuong" Styles="width: 110px" />
                 <div style="width: calc(100% - 110px)">
-                    <DxMemo @bind-Text="@TitleUpdate.remark" CssClass="w1FontSize"></DxMemo>
+                    <DxMemo @bind-Text="@TitleUpdate.remark" CssClass="w1FontSize" BindValueMode="@BindValueMode.OnInput" Rows="2" />
                 </div>
             </div>
         </div>

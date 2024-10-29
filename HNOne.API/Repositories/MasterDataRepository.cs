@@ -27,7 +27,7 @@ namespace HNOne.API.Repositories
 
         public async Task<IEnumerable<Branchs>> GetBranch()
         {
-            var lstBranch = await _dbContext.Branchs.Where(m=> m.IsDelete == false).ToListAsync();
+            var lstBranch = await _dbContext.Branchs.Where(m=> !m.IsDelete).ToListAsync();
             return lstBranch;
         }
 
@@ -39,28 +39,28 @@ namespace HNOne.API.Repositories
 
         public async Task<IEnumerable<Departments>> GetDepartment(RequestModel request)
         {
-            var lstMenus = await _dbContext.Departments.Where(m => m.IsActive).ToListAsync();
-            return lstMenus;
+            var lstData = await _dbContext.Departments.Where(m => !m.IsDelete).ToListAsync();
+            return lstData;
         }
         public async Task<IEnumerable<Titles>> GetTitle(RequestModel request)
         {
-            var lstMenus = await _dbContext.Titles.Where(m => m.IsActive).ToListAsync();
-            return lstMenus;
+            var lstData = await _dbContext.Titles.Where(m => !m.IsDelete).ToListAsync();
+            return lstData;
         }
         public async Task<IEnumerable<Positions>> GetPosition(RequestModel request)
         {
-            var lstMenus = await _dbContext.Positions.Where(m => m.IsActive).ToListAsync();
-            return lstMenus;
+            var lstData = await _dbContext.Positions.Where(m => !m.IsDelete).ToListAsync();
+            return lstData;
         }
         public async Task<IEnumerable<ContractTypes>> GetContractType(RequestModel request)
         {
-            var lstMenus = await _dbContext.ContractTypes.Where(m => m.IsActive).ToListAsync();
-            return lstMenus;
+            var lstData = await _dbContext.ContractTypes.Where(m => !m.IsDelete).ToListAsync();
+            return lstData;
         }
         public async Task<IEnumerable<ReasonCategories>> GetReasonCategorie(RequestModel request)
         {
-            var lstMenus = await _dbContext.ReasonCategories.Where(m => m.IsActive).ToListAsync();
-            return lstMenus;
+            var lstData = await _dbContext.ReasonCategories.Where(m => !m.IsDelete).ToListAsync();
+            return lstData;
         }
 
         /// <summary>
@@ -157,24 +157,12 @@ namespace HNOne.API.Repositories
             ResponseModel response = new ResponseModel();
             try
             {
-                using (var connection = _dapperDbContext.CreateConnection())
-                {
-                    string commandText = @$"select {StoreConstants.FUNC_GET_VOUCHER}(@Type)";
-                    string? voucherNo = await connection.QueryFirstOrDefaultAsync<string>(commandText, param: new { Type = GlobalConstants.TABLE_DEPARTMENT }, commandTimeout: GlobalConstants.COMMAND_TIMEOUT, commandType: CommandType.Text);
-                    if (string.IsNullOrEmpty(voucherNo))
-                    {
-                        response.status = StatusCodes.Status204NoContent;
-                        response.message = MessageConstants.MESSAGE_VOUCHER_NO_MISSING;
-                        return response;
-                    }
-                    entity.Id = await _dbContext.Departments.Select(m => m.Id).DefaultIfEmpty().MaxAsync() + 1;
-                    entity.Code = voucherNo;
-                    entity.DateTracking = _dateTimeHelper.GetCurrentVietnamTime();
-                    entity.CreateDate = _dateTimeHelper.GetCurrentVietnamTime();
-                    await _dbContext.Departments.AddAsync(entity);
-                    await _dbContext.SaveChangesAsync();
-                    response.message = MessageConstants.MESSAGE_ADD_SUCCESS;
-                }
+                entity.Id = await _dbContext.Departments.Select(m => m.Id).DefaultIfEmpty().MaxAsync() + 1;
+                entity.DateTracking = _dateTimeHelper.GetCurrentVietnamTime();
+                entity.CreateDate = _dateTimeHelper.GetCurrentVietnamTime();
+                await _dbContext.Departments.AddAsync(entity);
+                await _dbContext.SaveChangesAsync();
+                response.message = MessageConstants.MESSAGE_ADD_SUCCESS;
                 return response;
             }
             catch (Exception) { throw; }

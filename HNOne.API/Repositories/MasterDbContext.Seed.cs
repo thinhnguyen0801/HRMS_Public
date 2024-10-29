@@ -36,6 +36,12 @@ namespace HNOne.API.Repositories
                 new EnumCatagories() {Id = Guid.Parse("f3c05ddc-3e2a-498e-bbe9-cb9286003034"), EnumType = "TinhTrangHonNhan", Code = "DT", Name = "Độc thân", DateTracking = DateTime.Now, RowOrder = 1},
                 new EnumCatagories() {Id = Guid.Parse("c864a687-4769-48ba-99bd-8dac4956bfeb"), EnumType = "TinhTrangHonNhan", Code = "GD", Name = "Lập gia đình", DateTracking = DateTime.Now, RowOrder = 2},
                 new EnumCatagories() {Id = Guid.Parse("f38544fb-1227-421f-8e67-5c69e20d8c87"), EnumType = "TinhTrangHonNhan", Code = "LD", Name = "Ly dị", DateTracking = DateTime.Now, RowOrder = 3},
+
+                // Cấp độ nhân viên
+                new EnumCatagories() {Id = Guid.Parse("a71c1547-2365-4d93-a799-46a7ad2bbb5d"), EnumType = "CapDoNhanVien", Code = "NV", Name = "Nhân viên", DateTracking = DateTime.Now, RowOrder = 1},
+                new EnumCatagories() {Id = Guid.Parse("95d4b868-9fa8-45b8-a4d6-d7863c6cf0b0"), EnumType = "CapDoNhanVien", Code = "QLCT", Name = "Quản lý cấp trung", DateTracking = DateTime.Now, RowOrder = 2},
+                new EnumCatagories() {Id = Guid.Parse("1b21ae4b-9eb1-48c6-98c3-8593a5bd9ec6"), EnumType = "CapDoNhanVien", Code = "QL", Name = "Quản lý", DateTracking = DateTime.Now, RowOrder = 3},
+                new EnumCatagories() {Id = Guid.Parse("82e38ad5-9feb-4345-a42f-514c651197ef"), EnumType = "CapDoNhanVien", Code = "CC", Name = "Cấp cao", DateTracking = DateTime.Now, RowOrder = 4},
             };
             modelBuilder.Entity<EnumCatagories>().HasData(lstData);
         }

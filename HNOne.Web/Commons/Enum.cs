@@ -10,6 +10,7 @@
     public enum EnumCatagory
     {
         TrangThaiNhanVien,
-        TinhTrangHonNhan
+        TinhTrangHonNhan,
+        CapDoNhanVien
     }
 }

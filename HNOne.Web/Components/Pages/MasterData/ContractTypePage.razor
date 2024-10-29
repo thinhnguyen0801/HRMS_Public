@@ -39,7 +39,7 @@
                             CssClass="h-full">
                         <Columns>
                             <DxGridSelectionColumn Width="45px" />
-                            <DxGridDataColumn FieldName="@nameof(ContractTypeModel.code)" Caption="Mã loại hợp đồng" MinWidth="170" >
+                            <DxGridDataColumn FieldName="@nameof(ContractTypeModel.code)" Caption="Mã loại hợp đồng" MinWidth="150" >
                                 <CellDisplayTemplate>
                                     @{
                                         <a @onclick="@(() => OnOpenDialogHandler(EnumType.Update, (context.DataItem as ContractTypeModel)))">@context.Value</a>
@@ -47,14 +47,14 @@
                                 </CellDisplayTemplate>
                             </DxGridDataColumn>/>
                             <DxGridDataColumn FieldName="@nameof(ContractTypeModel.name)" Caption="Tên loại hợp đồng" MinWidth="170" />
-                            <DxGridDataColumn FieldName="@nameof(ContractTypeModel.branchId)" Caption="Chi nhánh" MinWidth="210" />
-                            <DxGridDataColumn FieldName="@nameof(ContractTypeModel.isActive)" Caption="Active" MinWidth="210" />
-                            <DxGridDataColumn FieldName="@nameof(ContractTypeModel.statusCode)" Caption="Trạng thái nhân viên" MinWidth="210" />
-                            <DxGridDataColumn FieldName="@nameof(ContractTypeModel.duration)" Caption="Thời hạn" MinWidth="210" />
-                            <DxGridDataColumn FieldName="@nameof(ContractTypeModel.isIndefiniteDuration)" Caption="Không xác định thời hạn" MinWidth="210" />
-                            <DxGridDataColumn FieldName="@nameof(ContractTypeModel.numberOfDaysReduced)" Caption="Số ngày cho phép giảm" MinWidth="210" />
-                            <DxGridDataColumn FieldName="@nameof(ContractTypeModel.remark)" Caption="Ghi chú" MinWidth="210" />
-                            <DxGridDataColumn FieldName="@nameof(ContractTypeModel.createDate)" Caption="Ngày cập nhật" MinWidth="120" DisplayFormat="@GlobalContants.FORMAT_DATE_TIME" />
+                            <DxGridDataColumn FieldName="@nameof(ContractTypeModel.branchId)" Caption="Chi nhánh" MinWidth="170" />
+                            <DxGridDataColumn FieldName="@nameof(ContractTypeModel.isActive)" Caption="Hoạt động?" MinWidth="100" />
+                            <DxGridDataColumn FieldName="@nameof(ContractTypeModel.statusCode)" Caption="Trạng thái NV" MinWidth="110" />
+                            <DxGridDataColumn FieldName="@nameof(ContractTypeModel.duration)" Caption="Thời hạn" MinWidth="110" />
+                            <DxGridDataColumn FieldName="@nameof(ContractTypeModel.isIndefiniteDuration)" Caption="Không xác định?" MinWidth="120" />
+                            <DxGridDataColumn FieldName="@nameof(ContractTypeModel.numberOfDaysReduced)" Caption="Số ngày giảm" MinWidth="120" />
+                            <DxGridDataColumn FieldName="@nameof(ContractTypeModel.remark)" Caption="Ghi chú" MinWidth="170" />
+                            <DxGridDataColumn FieldName="@nameof(ContractTypeModel.dateTracking)" Caption="Ngày cập nhật" MinWidth="120" DisplayFormat="@GlobalContants.FORMAT_DATE_TIME" />
                             <DxGridDataColumn FieldName="@nameof(ContractTypeModel.userSignName)" Caption="Người tạo" MinWidth="120" />
                             <DxGridDataColumn FieldName="@nameof(ContractTypeModel.userSign2Name)" Caption="Người cập nhật" MinWidth="120" />
                         </Columns>
@@ -74,7 +74,7 @@
          Width="65%" TextBtnAccept="Cập nhật"
          HeaderText="@(IsCreate ? "Thêm mới loại hợp đồng" : $"Cập nhật loại hợp đồng [{ContractTypeUpdate.code}]")"
          HandleClickAccept="@SaveDataHandler">
-    <div class="row row-gap-2">
+    <div class="row row-gap-2 w1FontSize">
         <div class="col-sm-12">
             <div class="d-flex ">
                 <W1Label Value="Mã loại hợp đồng" Id="bacLuong" Styles="width: 120px" IsRequired="true" />
@@ -113,7 +113,8 @@
                                 FilteringMode="DataGridFilteringMode.Contains"
                                 TextFieldName="@nameof(ComboboxModel.name)"
                                 Id="txtBranchId"
-                                ValueFieldName="@nameof(ComboboxModel.id)" CssClass="w1FontSize">
+                                CssClass="w1FontSize"
+                                ValueFieldName="@nameof(ComboboxModel.id)">
                     </DxComboBox>
                 </div>
             </div>
@@ -127,7 +128,8 @@
                                 FilteringMode="DataGridFilteringMode.Contains"
                                 TextFieldName="@nameof(ComboboxModel.name)"
                                 Id="txtStatusCode"
-                                ValueFieldName="@nameof(ComboboxModel.code)" CssClass="w1FontSize">
+                                CssClass="w1FontSize"
+                                ValueFieldName="@nameof(ComboboxModel.code)">
                     </DxComboBox>
                 </div>
             </div>
