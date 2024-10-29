@@ -13,13 +13,15 @@
         public DateTime? endDate { get; set; } // Ngày kết thúc
         public DateTime? dateOfSigning { get; set; } // Ngày kí
         public int employeeSignatureId { get; set; } // nhân viên kí
+        public string? employeeSignatureCode { get; set; }
+        public string? employeeSignatureName { get; set; }
         public int contractTypeId { get; set; } // Loại hợp đồng
         public int positionId { get; set; } // chức vụ
         public int titleId { get; set; } // chức danh
         public int contractNumber { get; set; } // kí lần thứ mấy rồi
         public string? remark { get; set; } // ghi chú
         public string? statusCode { get; set; } // trạng thái lấy từ enum
-        public double? salaryCoefficient { get; set; } // Hệ số lương
+        public double salaryCoefficient { get; set; } // Hệ số lương
         public decimal totalSalary { get; set; } // Tổng lương
         public decimal netSalary { get; set; } // Tổng lương thực nhận
         public double numberOfMonths { get; set; } // số tháng

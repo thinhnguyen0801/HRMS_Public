@@ -34,7 +34,7 @@ namespace HNOne.Model.Entities
         public string? Remark { get; set; } // ghi chú
         [MaxLength(50)]
         public string? StatusCode { get; set; } // trạng thái lấy từ enum
-        public double? SalaryCoefficient { get; set; } // Hệ số lương
+        public double SalaryCoefficient { get; set; } // Hệ số lương
         public decimal TotalSalary { get; set; } // Tổng lương
         public decimal NetSalary { get; set; } // Tổng lương thực nhận
         public int NumberOfMonths { get; set; } // số tháng

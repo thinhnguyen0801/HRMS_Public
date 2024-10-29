@@ -6,6 +6,7 @@ using HNOne.Web.Services.Interfaces;
 using HNOne.Web.Components.Controls;
 using Microsoft.JSInterop;
 using HNOne.Common;
+using DevExpress.Blazor;
 
 namespace HNOne.Web.Controllers
 {
@@ -18,11 +19,14 @@ namespace HNOne.Web.Controllers
         #region Properties
         public string? pActionType { get; set; } = nameof(EnumType.Add);
         private int pDocEntry { get; set; } = 0;
+        public int ActiveTabIndex { get; set; } = 0;
         public ContractModel ContractDocument { get; set; } = new ContractModel();
         public List<ComboboxModel>? ListCboDepartment { get; set; } // cbo ds phòng ban
         public List<ComboboxModel>? ListCboPosition { get; set; } // cbo ds chức vụ
         public List<ComboboxModel>? ListCboTitle { get; set; } // cbo ds chức danh
         public List<ContractTypeModel>? ListCboContractType { get; set; } // ds cbo loại hợp đồng
+        public List<SalaryConfigurationModel>? ListSalaryInfoConfig { get; set; } // danh sách thông tin lương
+        public IGrid? GridSalaryInfoConfig { get; set; }
 
         private string? pPopupType { get; set; } = string.Empty; // mở popup nào
         public bool IsShowDialogEmpSearch { get; set; }

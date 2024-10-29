@@ -11,6 +11,7 @@
     {
         TrangThaiNhanVien,
         TinhTrangHonNhan,
-        CapDoNhanVien
+        CapDoNhanVien,
+        DanhMucThueTNCN
     }
 }

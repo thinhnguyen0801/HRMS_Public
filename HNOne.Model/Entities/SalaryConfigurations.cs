@@ -10,7 +10,7 @@ namespace HNOne.Model.Entities
     public class SalaryConfigurations : Auditable
     {
         [Key]
-        [DatabaseGenerated(DatabaseGeneratedOption.None)] // Không tự tăng
+        [DatabaseGenerated(DatabaseGeneratedOption.None)] // tự tăng
         public int Id { get; set; }
         [MaxLength(50)]
         public string? Code { get; set; }

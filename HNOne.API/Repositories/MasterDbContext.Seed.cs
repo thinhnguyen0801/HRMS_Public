@@ -42,6 +42,12 @@ namespace HNOne.API.Repositories
                 new EnumCatagories() {Id = Guid.Parse("95d4b868-9fa8-45b8-a4d6-d7863c6cf0b0"), EnumType = "CapDoNhanVien", Code = "QLCT", Name = "Quản lý cấp trung", DateTracking = DateTime.Now, RowOrder = 2},
                 new EnumCatagories() {Id = Guid.Parse("1b21ae4b-9eb1-48c6-98c3-8593a5bd9ec6"), EnumType = "CapDoNhanVien", Code = "QL", Name = "Quản lý", DateTracking = DateTime.Now, RowOrder = 3},
                 new EnumCatagories() {Id = Guid.Parse("82e38ad5-9feb-4345-a42f-514c651197ef"), EnumType = "CapDoNhanVien", Code = "CC", Name = "Cấp cao", DateTracking = DateTime.Now, RowOrder = 4},
+
+                // Danh mục thuế TNCN
+                new EnumCatagories() {Id = Guid.Parse("cc0c722d-210f-4a63-85ba-68fd6130883a"), EnumType = "DanhMucThueTNCN", Code = "0", Name = "Không tính", DateTracking = DateTime.Now, RowOrder = 1},
+                new EnumCatagories() {Id = Guid.Parse("6c367ce5-d19f-402e-b375-35aad3ebfdf5"), EnumType = "DanhMucThueTNCN", Code = "1", Name = "Tính lũy tiến", DateTracking = DateTime.Now, RowOrder = 2},
+                new EnumCatagories() {Id = Guid.Parse("9a258f1b-4c21-4f72-9558-4fff7161bdf7"), EnumType = "DanhMucThueTNCN", Code = "2", Name = "Tính 10%", DateTracking = DateTime.Now, RowOrder = 3},
+                new EnumCatagories() {Id = Guid.Parse("145d39d8-2358-4b8e-b73b-2f70cd4eeefd"), EnumType = "DanhMucThueTNCN", Code = "3", Name = "Tính lũy tiến không giảm trừ", DateTracking = DateTime.Now, RowOrder = 4},
             };
             modelBuilder.Entity<EnumCatagories>().HasData(lstData);
         }
