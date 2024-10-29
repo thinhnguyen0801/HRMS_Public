@@ -16,7 +16,7 @@ namespace HNOne.Model.Entities
         public string? Code { get; set; }
         [MaxLength(250)]
         public string? Name { get; set; }
-        public int BranchId { get; set; }
+        public string? BranchId { get; set; }
         public bool IsActive { get; set; } // áp dụng chưa
         public bool IsCalculatePersonalIncomeTax { get; set; } // Tính thuế TNCN ?
         public decimal TaxLimit { get; set; } // giới hạn thuế

@@ -16,6 +16,7 @@ namespace HNOne.API.Repositories
         public DbSet<EnumCatagories> EnumCatagories { get; set; }
         public DbSet<Users> Users { get; set; }
         public DbSet<FamilyRelationships> FamilyRelationships { get; set; }
+        public DbSet<SalaryCategories> SalaryCategories { get; set; }
 
         public MasterDbContext(DbContextOptions<MasterDbContext> options)
             : base(options)
@@ -32,6 +33,7 @@ namespace HNOne.API.Repositories
             modelBuilder.Entity<Employees>().HasIndex(m => m.Code).IsUnique();
             modelBuilder.Entity<ContractTypes>().HasIndex(m => new { m.Code, m.BranchId }).IsUnique();
             modelBuilder.Entity<Users>().HasIndex(m => m.UserName).IsUnique();
+            modelBuilder.Entity<SalaryCategories>().HasIndex(m => m.Code).IsUnique();
         }
 
 

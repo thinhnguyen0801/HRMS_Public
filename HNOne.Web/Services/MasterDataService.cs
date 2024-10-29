@@ -126,7 +126,7 @@ namespace HNOne.Web.Services
                     }
                     _toastService.ShowError(response?.message ?? MessageConstants.MESSAGE_IT_SUPPORT);
                 }
-                return true;
+                return false;
             }
             catch (Exception) { throw; }
         }
@@ -205,7 +205,7 @@ namespace HNOne.Web.Services
                     }
                     _toastService.ShowError(response?.message ?? MessageConstants.MESSAGE_IT_SUPPORT);
                 }
-                return true;
+                return false;
             }
             catch (Exception) { throw; }
         }
@@ -284,7 +284,7 @@ namespace HNOne.Web.Services
                     }
                     _toastService.ShowError(response?.message ?? MessageConstants.MESSAGE_IT_SUPPORT);
                 }
-                return true;
+                return false;
             }
             catch (Exception) { throw; }
         }
@@ -363,7 +363,7 @@ namespace HNOne.Web.Services
                     }
                     _toastService.ShowError(response?.message ?? MessageConstants.MESSAGE_IT_SUPPORT);
                 }
-                return true;
+                return false;
             }
             catch (Exception) { throw; }
         }
@@ -442,7 +442,7 @@ namespace HNOne.Web.Services
                     }
                     _toastService.ShowError(response?.message ?? MessageConstants.MESSAGE_IT_SUPPORT);
                 }
-                return true;
+                return false;
             }
             catch (Exception) { throw; }
         }
@@ -521,7 +521,7 @@ namespace HNOne.Web.Services
                     }
                     _toastService.ShowError(response?.message ?? MessageConstants.MESSAGE_IT_SUPPORT);
                 }
-                return true;
+                return false;
             }
             catch (Exception) { throw; }
         }
@@ -566,5 +566,92 @@ namespace HNOne.Web.Services
                 throw;
             }
         }
+
+        /// <summary>
+        /// lấy danh sách loại lương
+        /// </summary>
+        /// <param name="userId"></param>
+        /// <param name="token"></param>
+        /// <param name="isShowToast"></param>
+        /// <returns></returns>
+        public async Task<List<SalaryCategoryModel>?> GetSalaryCatagoryAsync(int userId, string token = "", bool isShowToast = false)
+        {
+
+            try
+            {
+                List<SalaryCategoryModel>? data = null;
+                RequestModel request = new RequestModel();
+                request.process = ProcessConstants.GET_SALARY_CATEGORY;
+                request.userId = userId;
+                request.token = token;
+                HttpResponseMessage httpResponse = await PostAsync(EnpointConstants.MASTERDATA_GET_DATA, request);
+                var checkContent = ValidateJsonContent(httpResponse.Content);
+                if (!checkContent) _toastService.ShowInfo(MessageConstants.MESSAGE_JSON_INVALID);
+                else
+                {
+                    var response = await httpResponse.Content.ReadFromJsonAsync<ResCliModel<SalaryCategoryModel>>();
+                    if (response == null || response.status != StatusCodes.Status200OK)
+                    {
+                        if (isShowToast) _toastService.ShowWarning(response?.message ?? MessageConstants.MESSAGE_IT_SUPPORT);
+                        return data;
+                    }
+                    data = response.data?.ToList();
+                }
+                return data;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "GetSalaryCatagoryAsync");
+                throw ex;
+            }
+        }
+
+        /// <summary>
+        /// cập nhật thông tin loại lương
+        /// </summary>
+        /// <param name="processKey"></param>
+        /// <param name="userId"></param>
+        /// <param name="token"></param>
+        /// <param name="json"></param>
+        /// <returns></returns>
+        public async Task<bool> UpdateSalaryCategoryAsync(string processKey, int userId, string token, string json)
+        {
+            try
+            {
+                RequestModel request = new RequestModel();
+                request.process = processKey;
+                request.userId = userId;
+                request.token = token;
+                request.json = json;
+                HttpResponseMessage httpResponse = await PostAsync(EnpointConstants.MASTERDATA_POST_DATA, request);
+                if (httpResponse.StatusCode == System.Net.HttpStatusCode.Unauthorized)
+                {
+                    _toastService.ShowInfo(MessageConstants.MESSAGE_LOGIN_EXPIRED);
+                    return false;
+                }
+                var checkContent = ValidateJsonContent(httpResponse.Content);
+                if (!checkContent) _toastService.ShowError(MessageConstants.MESSAGE_JSON_INVALID);
+                else
+                {
+                    var content = await httpResponse.Content.ReadAsStringAsync();
+                    ResponseModel response = JsonConvert.DeserializeObject<ResponseModel>(content)!;
+                    if (httpResponse.IsSuccessStatusCode
+                        && response?.status == StatusCodes.Status200OK)
+                    {
+                        _toastService.ShowSuccess(response.message);
+                        return true;
+                    }
+                    if (response?.status == StatusCodes.Status409Conflict)
+                    {
+                        _toastService.ShowInfo(response?.message ?? MessageConstants.MESSAGE_IT_SUPPORT);
+                        return false;
+                    }
+                    _toastService.ShowError(response?.message ?? MessageConstants.MESSAGE_IT_SUPPORT);
+                }
+                return false;
+            }
+            catch (Exception) { throw; }
+        }
+
     }
 }

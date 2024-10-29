@@ -74,6 +74,16 @@ namespace HNOne.API.Repositories
             return lstEnums;
         }
 
+        /// <summary>
+        /// lấy danh sách loại lương
+        /// </summary>
+        /// <param name="enumType"></param>
+        /// <returns></returns>
+        public async Task<IEnumerable<SalaryCategories>> GetSalaryCatagory()
+        {
+            var results = await _dbContext.SalaryCategories.Where(m => !m.IsDelete).OrderBy(m => m.RowOrder).ToListAsync();
+            return results;
+        }
         #endregion 
 
         #region Command
@@ -456,6 +466,72 @@ namespace HNOne.API.Repositories
                 data.UserSign2 = entity.UserSign2;
                 _dbContext.ReasonCategories.Attach(data);
                 _dbContext.Entry(data).State = EntityState.Modified;
+                await _dbContext.SaveChangesAsync();
+                response.message = MessageConstants.MESSAGE_UPDATE_SUCCESS;
+                return response;
+            }
+            catch (Exception) { throw; }
+        }
+
+        /// <summary>
+        /// Thêm mới danh mục loại lương
+        /// </summary>
+        /// <param name="entity"></param>
+        /// <returns></returns>
+        public async Task<ResponseModel> AddSalaryCategory(SalaryCategories entity)
+        {
+            ResponseModel response = new ResponseModel();
+            try
+            {
+                using (var connection = _dapperDbContext.CreateConnection())
+                {
+                    DynamicParameters parameters = new DynamicParameters();
+                    bool isResult = true;
+                    string strQuery = "select count(1) from [SalaryCategories] with(nolock) where Code = @Code";
+                    isResult = await connection.ExecuteScalarAsync<bool>(strQuery, new { Code = entity.Code?.Trim() });
+                    if (isResult)
+                    {
+                        response.status = StatusCodes.Status409Conflict;
+                        response.message = "Mã loại lương đã tồn tại!";
+                        return response;
+                    }
+                    entity.Id = await _dbContext.SalaryCategories.Select(m => m.Id).DefaultIfEmpty().MaxAsync() + 1;
+                    entity.DateTracking = _dateTimeHelper.GetCurrentVietnamTime();
+                    entity.CreateDate = _dateTimeHelper.GetCurrentVietnamTime();
+                    await _dbContext.SalaryCategories.AddAsync(entity);
+                    await _dbContext.SaveChangesAsync();
+                    response.message = MessageConstants.MESSAGE_ADD_SUCCESS;
+                    return response;
+                }    
+            }
+            catch (Exception) { throw; }
+        }
+
+        /// <summary>
+        /// cập nhật thông tin loại lương
+        /// </summary>
+        /// <param name="entity"></param>
+        /// <returns></returns>
+        public async Task<ResponseModel> UpdateSalaryCategory(SalaryCategories entity)
+        {
+            ResponseModel response = new ResponseModel();
+            try
+            {
+                var result = await _dbContext.SalaryCategories.FirstOrDefaultAsync(m => m.Id == entity.Id);
+                if (result == null)
+                {
+                    response.status = StatusCodes.Status404NotFound;
+                    response.message = MessageConstants.MESSAGE_NOT_FOUNT;
+                    return response;
+                }
+                result.Name = entity.Name;
+                result.RowOrder = entity.RowOrder;
+                result.IsActive = entity.IsActive;
+                result.DateTracking = _dateTimeHelper.GetCurrentVietnamTime();
+                result.UpdateDate = _dateTimeHelper.GetCurrentVietnamTime();
+                result.UserSign2 = entity.UserSign2;
+                _dbContext.SalaryCategories.Attach(result);
+                _dbContext.Entry(result).State = EntityState.Modified;
                 await _dbContext.SaveChangesAsync();
                 response.message = MessageConstants.MESSAGE_UPDATE_SUCCESS;
                 return response;

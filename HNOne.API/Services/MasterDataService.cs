@@ -42,15 +42,25 @@ namespace HNOne.API.Services
 
         public async Task<IEnumerable<Titles>> GetTitle(RequestModel request)
             => await _masterRepository.GetTitle(request);
+
         public async Task<IEnumerable<Positions>> GetPosition(RequestModel request)
                     => await _masterRepository.GetPosition(request);
+
         public async Task<IEnumerable<ContractTypes>> GetContractType(RequestModel request)
                     => await _masterRepository.GetContractType(request);
+
         public async Task<IEnumerable<ReasonCategories>> GetReasonCategorie(RequestModel request)
                     => await _masterRepository.GetReasonCategorie(request);
 
         public async Task<IEnumerable<EnumCatagories>> GetEnum(string enumType)
             => await _masterRepository.GetEnum(enumType);
+
+        /// <summary>
+        /// lấy danh sách loại lương
+        /// </summary>
+        /// <returns></returns>
+        public async Task<IEnumerable<SalaryCategories>> GetSalaryCatagory()
+            => await _masterRepository.GetSalaryCatagory();
         #endregion
 
         #region Command
@@ -227,6 +237,37 @@ namespace HNOne.API.Services
                         break;
                     case ProcessConstants.PUT_REASONCATEGORIE:
                         response = await _masterRepository.UpdateReasonCategorie(entity);
+                        break;
+                }
+                return response;
+            }
+            catch (Exception ex)
+            {
+                response.status = StatusCodes.Status400BadRequest;
+                response.message = ex.Message;
+            }
+            return response;
+
+        }
+
+        /// <summary>
+        /// cập nhật thông tin loại lương
+        /// </summary>
+        /// <param name="actionType"></param>
+        /// <param name="entity"></param>
+        /// <returns></returns>
+        public async Task<ResponseModel> UpdateSalaryCategory(string actionType, SalaryCategories entity)
+        {
+            ResponseModel response = new ResponseModel();
+            try
+            {
+                switch (actionType)
+                {
+                    case ProcessConstants.POST_SALARY_CATEGORY:
+                        response = await _masterRepository.AddSalaryCategory(entity);
+                        break;
+                    case ProcessConstants.PUT_SALARY_CATEGORY:
+                        response = await _masterRepository.UpdateSalaryCategory(entity);
                         break;
                 }
                 return response;

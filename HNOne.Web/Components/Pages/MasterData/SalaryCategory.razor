@@ -1,8 +1,7 @@
-﻿@page "/chi-nhanh"
-@inherits Controllers.BranchController
+﻿@page "/loai-luong"
+@inherits Controllers.SalaryCategoryController
 
-<PageTitle>Chi nhánh</PageTitle>
-
+<PageTitle>Danh mục loại lương</PageTitle>
 <div class="h-content-filter">
     <div class="row row-gap-2">
         <div class="col-12">
@@ -21,7 +20,7 @@
                     </DxToolbar>
                 </div>
                 <div class="card-body p-1" style="height: calc(100vh - 160px); min-height: 350px">
-                    <DxGrid Data="ListBranch" @ref="GridBranch"
+                    <DxGrid Data="ListSalary" @ref="GridSalary"
                             ShowFilterRow="true"
                             ColumnResizeMode="GridColumnResizeMode.ColumnsContainer"
                             PagerPosition="GridPagerPosition.Bottom"
@@ -34,29 +33,28 @@
                             TextWrapEnabled="false"
                             FocusedRowEnabled="true"
                             SelectionMode="@GridSelectionMode.Multiple"
-                            @bind-SelectedDataItems="@SelectedBranchs"
-                            KeyFieldName="@nameof(BranchModel.branchCode)"
+                            @bind-SelectedDataItems="@SelectedSalaries"
+                            KeyFieldName="@nameof(SalaryCategoryModel.code)"
                             CssClass="h-full">
                         <Columns>
                             <DxGridSelectionColumn Width="45px" />
-                            <DxGridDataColumn FieldName="@nameof(BranchModel.branchCode)" Caption="Mã chi nhánh" MinWidth="150">
+                            <DxGridDataColumn FieldName="@nameof(SalaryCategoryModel.code)" Caption="Mã loại lương" MinWidth="150">
                                 <CellDisplayTemplate>
                                     @{
-                                        <a @onclick="@(() => OnOpenDialogHandler(EnumType.Update, (context.DataItem as BranchModel)))">@context.Value</a>
+                                        <a @onclick="@(() => OnOpenDialogHandler(EnumType.Update, (context.DataItem as SalaryCategoryModel)))">@context.Value</a>
                                     }
                                 </CellDisplayTemplate>
                             </DxGridDataColumn>
-                            <DxGridDataColumn FieldName="@nameof(BranchModel.branchName)" Caption="Tên chi nhánh" MinWidth="170" />
-                            <DxGridDataColumn FieldName="@nameof(BranchModel.phoneNumber)" Caption="Số điện thoại" MinWidth="170" />
-                            <DxGridDataColumn FieldName="@nameof(BranchModel.address)" Caption="Địa chỉ" MinWidth="210" />
-                            <DxGridDataColumn FieldName="@nameof(BranchModel.dateTracking)" Caption="Ngày cập nhật" MinWidth="120" DisplayFormat="@GlobalContants.FORMAT_DATE_TIME" />
-                            <DxGridDataColumn FieldName="@nameof(BranchModel.userSignName)" Caption="Người tạo" MinWidth="120" />
-                            <DxGridDataColumn FieldName="@nameof(BranchModel.userSign2Name)" Caption="Người cập nhật" MinWidth="120" />
+                            <DxGridDataColumn FieldName="@nameof(SalaryCategoryModel.name)" Caption="Tên loại lương" MinWidth="170" />
+                            <DxGridDataColumn FieldName="@nameof(ContractTypeModel.isActive)" Caption="Hoạt động?" MinWidth="100" />
+                            <DxGridDataColumn FieldName="@nameof(ContractTypeModel.dateTracking)" Caption="Ngày cập nhật" MinWidth="120" DisplayFormat="@GlobalContants.FORMAT_DATE_TIME" />
+                            <DxGridDataColumn FieldName="@nameof(ContractTypeModel.userSignName)" Caption="Người tạo" MinWidth="120" />
+                            <DxGridDataColumn FieldName="@nameof(ContractTypeModel.userSign2Name)" Caption="Người cập nhật" MinWidth="120" />
                         </Columns>
                         <TotalSummary>
                             <DxGridSummaryItem DisplayText="@GlobalContants.FORMAT_GRID_DISPLAYTEXT_COUNT" SummaryType="GridSummaryItemType.Count"
-                                               FieldName="@nameof(BranchModel.branchCode)" ValueDisplayFormat="@GlobalContants.FORMAT_CURRENCY"
-                                               FooterColumnName="@nameof(BranchModel.branchCode)" />
+                                               FieldName="@nameof(SalaryCategoryModel.code)" ValueDisplayFormat="@GlobalContants.FORMAT_CURRENCY"
+                                               FooterColumnName="@nameof(SalaryCategoryModel.code)" />
                         </TotalSummary>
                     </DxGrid>
                 </div>
@@ -66,39 +64,44 @@
 </div>
 
 <W1Popup @bind-IsOpenModal="@IsShowDialog"
-         Width="65%" TextBtnAccept="Cập nhật"
-         HeaderText="@(IsCreate ? "Thêm mới chi nhánh" : $"Cập nhật chi nhánh [{BranchUpdate.branchCode}]")"
+         Width="60%" TextBtnAccept="Cập nhật"
+         HeaderText="@(IsCreate ? "Thêm mới chi nhánh" : $"Cập nhật chi nhánh [{EntityUpdate.code}]")"
          HandleClickAccept="@SaveDataHandler">
     <div class="row row-gap-2">
         <div class="col-sm-12">
             <div class="d-flex ">
-                <W1Label Value="Mã chi nhánh" Id="bacLuong" Styles="width: 110px" />
-                <div style="width: calc(100% - 110px)">
-                    <DxTextBox @bind-Text="@BranchUpdate.branchCode" ReadOnly="true" CssClass="w1FontSize"></DxTextBox>
+                <W1Label Value="Mã loại lương" Id="bacLuong" Styles="width: 110px" IsRequired="true" />
+                <div style="width: calc(100% - 120px)">
+                    <div class="row row-gap-2">
+                        <div class="col-md-8 col-sm-12">
+                            <DxTextBox @bind-Text="@EntityUpdate.code" CssClass="w1FontSize" ReadOnly="@(!IsCreate)" Id="txtCode"></DxTextBox>
+                        </div>
+                        <div class="col-md-4 col-sm-12">
+                            <DxCheckBox CssClass="w-100 w1FontSize"
+                                        SizeMode="@SizeMode.Small"
+                                        @bind-Checked="@EntityUpdate.isActive"
+                                        LabelPosition="@LabelPosition.Right">
+                                Hoạt động?
+                            </DxCheckBox>
+                        </div>
+                    </div>
+
                 </div>
             </div>
         </div>
         <div class="col-sm-12">
             <div class="d-flex ">
-                <W1Label Value="Tên chi nhánh" Id="bacLuong" Styles="width: 110px" IsRequired="true" />
+                <W1Label Value="Tên loại lương" Id="bacLuong" Styles="width: 110px" IsRequired="true" />
                 <div style="width: calc(100% - 110px)">
-                    <DxTextBox @bind-Text="@BranchUpdate.branchName" CssClass="w1FontSize"></DxTextBox>
+                    <DxTextBox @bind-Text="@EntityUpdate.name" CssClass="w1FontSize"></DxTextBox>
                 </div>
             </div>
         </div>
         <div class="col-sm-12">
             <div class="d-flex ">
-                <W1Label Value="Số điện thoại" Id="bacLuong" Styles="width: 110px" />
+                <W1Label Value="Số thứ tự" Id="bacLuong" Styles="width: 110px" />
                 <div style="width: calc(100% - 110px)">
-                    <DxTextBox @bind-Text="@BranchUpdate.phoneNumber" CssClass="w1FontSize"></DxTextBox>
-                </div>
-            </div>
-        </div>
-        <div class="col-sm-12">
-            <div class="d-flex ">
-                <W1Label Value="Địa chỉ" Id="bacLuong" Styles="width: 110px" />
-                <div style="width: calc(100% - 110px)">
-                    <DxTextBox @bind-Text="@BranchUpdate.address" CssClass="w1FontSize"></DxTextBox>
+                    <DxSpinEdit @bind-Value="@EntityUpdate.rowOrder" CssClass="w1FontSize" InputCssClass="text-end" />
                 </div>
             </div>
         </div>

@@ -1,34 +1,29 @@
-﻿using DevExpress.Blazor;
-using HNOne.Common;
-using HNOne.Model;
+﻿using Microsoft.AspNetCore.Components;
+using Microsoft.JSInterop;
+using HNOne.Web.Services.Interfaces;
+using DevExpress.Blazor;
 using HNOne.Model.Models;
+using HNOne.Web.Models;
+using HNOne.Common;
 using HNOne.Web.Commons;
 using HNOne.Web.Components.Controls;
-using HNOne.Web.Models;
-using HNOne.Web.Services;
-using HNOne.Web.Services.Interfaces;
-using Microsoft.AspNetCore.Components;
-using Microsoft.AspNetCore.Components.Forms;
-using Microsoft.JSInterop;
 using Newtonsoft.Json;
 
 namespace HNOne.Web.Controllers
 {
-    public class BranchController : DocumentControllerBase
+    public class SalaryCategoryController : DocumentControllerBase
     {
         [Inject] IMasterDataService _masterDataService { get; init; }
         [Inject] IJSRuntime _jsRuntime { get; set; }
         public W1Confirm confirm { get; set; }
 
         #region Properties
-        public List<BranchModel>? ListBranch { get; set; }
-        public IGrid? GridBranch { get; set; }
-        public IReadOnlyList<object>? SelectedBranchs { get; set; } = null;
-        public BranchModel BranchUpdate { get; set; } = new BranchModel();
-        public EditContext? _EditContext { get; set; }
+        public List<SalaryCategoryModel>? ListSalary { get; set; }
+        public IGrid? GridSalary { get; set; }
+        public IReadOnlyList<object>? SelectedSalaries { get; set; } = null;
+        public SalaryCategoryModel EntityUpdate { get; set; } = new SalaryCategoryModel();
         public bool IsShowDialog { get; set; }
         public bool IsCreate { get; set; } = true;
-        
         #endregion
 
         protected override async Task OnAfterRenderAsync(bool firstRender)
@@ -41,10 +36,10 @@ namespace HNOne.Web.Controllers
                     ListBreadcrumbs = new List<BreadcrumbModel>()
                     {
                         new BreadcrumbModel("Danh mục"),
-                        new BreadcrumbModel("Chi nhánh", isActive: true)
+                        new BreadcrumbModel("Loại lương", isActive: true)
                     };
                     await NotifyBreadcrumb.InvokeAsync(ListBreadcrumbs);
-                    await getBranchs();
+                    await getSalaryCatagory();
 
                 }
                 catch (Exception ex)
@@ -55,36 +50,43 @@ namespace HNOne.Web.Controllers
                 finally
                 {
                     await ShowLoading(false);
-                    //await _progressService!.Done();
                     await InvokeAsync(StateHasChanged);
                 }
             }
         }
 
         #region Private Functions
-        private async Task getBranchs()
+
+        private async Task getSalaryCatagory()
         {
-            ListBranch = new List<BranchModel>();
-            ListBranch = await _masterDataService.GetBranchAsync(UserId, Token);
+            ListSalary = new List<SalaryCategoryModel>();
+            ListSalary = await _masterDataService.GetSalaryCatagoryAsync(UserId, Token, isShowToast: true);
         }
         private void validateForSave(ref string errorMessage, ref string fieldName)
         {
-            if (string.IsNullOrEmpty(BranchUpdate.branchName))
+            if (string.IsNullOrEmpty(EntityUpdate.code))
             {
-                errorMessage = String.Format(MessageConstants.MESSAGE_STRING_REQUIRE, "Tên chi nhánh");
-                fieldName = nameof(BranchUpdate.branchName);
+                errorMessage = String.Format(MessageConstants.MESSAGE_STRING_REQUIRE, "Mã loại lương");
+                fieldName = "txtCode";
+                return;
+            }
+            if (string.IsNullOrEmpty(EntityUpdate.name))
+            {
+                errorMessage = String.Format(MessageConstants.MESSAGE_STRING_REQUIRE, "Tên loại lương");
+                fieldName = "txtName";
                 return;
             }
         }
+
         #endregion
 
-        #region
+        #region Projected Functions
         protected async Task RefreshHandler()
         {
             try
             {
                 await ShowLoading();
-                await getBranchs();
+                await getSalaryCatagory();
             }
             catch (Exception ex)
             {
@@ -98,27 +100,26 @@ namespace HNOne.Web.Controllers
                 await InvokeAsync(StateHasChanged);
             }
         }
-        
-        protected void OnOpenDialogHandler(EnumType pAction = EnumType.Add, BranchModel? pItemDetails = null)
+
+        protected void OnOpenDialogHandler(EnumType pAction = EnumType.Add, SalaryCategoryModel? pItemDetails = null)
         {
             try
             {
                 if (pAction == EnumType.Add)
                 {
                     IsCreate = true;
-                    BranchUpdate = new BranchModel();
+                    EntityUpdate = new SalaryCategoryModel();
                 }
                 else
                 {
-                    BranchUpdate.branchId = pItemDetails!.branchId;
-                    BranchUpdate.branchCode = pItemDetails!.branchCode;
-                    BranchUpdate.branchName = pItemDetails!.branchName;
-                    BranchUpdate.imgUrl = pItemDetails!.imgUrl;
-                    BranchUpdate.address = pItemDetails!.address;
+                    EntityUpdate.id = pItemDetails!.id;
+                    EntityUpdate.code = pItemDetails!.code;
+                    EntityUpdate.name = pItemDetails!.name;
+                    EntityUpdate.rowOrder = pItemDetails!.rowOrder;
+                    EntityUpdate.isActive = pItemDetails!.isActive;
                     IsCreate = false;
                 }
                 IsShowDialog = true;
-                _EditContext = new EditContext(BranchUpdate);
             }
             catch (Exception ex)
             {
@@ -144,17 +145,17 @@ namespace HNOne.Web.Controllers
                 bool isConfirm = await confirm.SetConfirm(MessageConstants.MESSAGE_TITLE, errorMessage);
                 if (!isConfirm) return;
                 await ShowLoading();
-                string processKey = IsCreate ? ProcessConstants.POST_BRANCH : ProcessConstants.PUT_BRANCH;
-                BranchUpdate.userSign = UserId;
-                BranchUpdate.userSign2 = UserId;
-                string content = JsonConvert.SerializeObject(BranchUpdate);
-                isConfirm = await _masterDataService.UpdateBranchAsync(processKey, UserId, Token, content);
+                string processKey = IsCreate ? ProcessConstants.POST_SALARY_CATEGORY : ProcessConstants.PUT_SALARY_CATEGORY;
+                EntityUpdate.userSign = UserId;
+                EntityUpdate.userSign2 = UserId;
+                string content = JsonConvert.SerializeObject(EntityUpdate);
+                isConfirm = await _masterDataService.UpdateSalaryCategoryAsync(processKey, UserId, Token, content);
                 if (isConfirm)
                 {
-                    await getBranchs();
+                    await getSalaryCatagory();
                     IsShowDialog = false;
-                    SelectedBranchs = null;
-                }    
+                    SelectedSalaries = null;
+                }
             }
             catch (Exception ex)
             {
@@ -173,7 +174,7 @@ namespace HNOne.Web.Controllers
         {
             try
             {
-                if (SelectedBranchs.IsNullOrEmpty())
+                if (SelectedSalaries.IsNullOrEmpty())
                 {
                     ShowWarning(MessageConstants.MESSAGE_NO_CHOSE_DATA);
                     return;

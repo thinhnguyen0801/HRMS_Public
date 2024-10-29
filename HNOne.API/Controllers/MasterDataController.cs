@@ -96,6 +96,9 @@ namespace HNOne.API.Controllers
                     case ProcessConstants.GET_ENUM:
                         response.data = await _masterDataService.GetEnum($"{request.opt}");
                         break;
+                    case ProcessConstants.GET_SALARY_CATEGORY:
+                        response.data = await _masterDataService.GetSalaryCatagory();
+                        break;
                     default:
                         response.status = StatusCodes.Status404NotFound;
                         response.message = $"Process Key {processKey} was not provider!!!";
@@ -161,6 +164,11 @@ namespace HNOne.API.Controllers
                     case ProcessConstants.POST_REASONCATEGORIE:
                         var reasonCategorie = JsonConvert.DeserializeObject<ReasonCategories>($"{request.json}");
                         response = await _masterDataService.UpdateReasonCategorie(processKey, reasonCategorie!);
+                        break;
+                    case ProcessConstants.PUT_SALARY_CATEGORY:
+                    case ProcessConstants.POST_SALARY_CATEGORY:
+                        var salaryCatagory = JsonConvert.DeserializeObject<SalaryCategories>($"{request.json}");
+                        response = await _masterDataService.UpdateSalaryCategory(processKey, salaryCatagory!);
                         break;
                     default:
                         response.status = StatusCodes.Status404NotFound;

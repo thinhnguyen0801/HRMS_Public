@@ -25,5 +25,8 @@ namespace HNOne.API.Repositories.Interfaces
         Task<IEnumerable<ReasonCategories>> GetReasonCategorie(RequestModel request);
         Task<ResponseModel> AddReasonCategorie(ReasonCategories entity);
         Task<ResponseModel> UpdateReasonCategorie(ReasonCategories entity);
+        Task<IEnumerable<SalaryCategories>> GetSalaryCatagory();
+        Task<ResponseModel> AddSalaryCategory(SalaryCategories entity);
+        Task<ResponseModel> UpdateSalaryCategory(SalaryCategories entity);
     }
 }
