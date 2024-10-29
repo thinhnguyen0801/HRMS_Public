@@ -366,24 +366,12 @@ namespace HNOne.API.Repositories
             ResponseModel response = new ResponseModel();
             try
             {
-                using (var connection = _dapperDbContext.CreateConnection())
-                {
-                    string commandText = @$"select {StoreConstants.FUNC_GET_VOUCHER}(@Type)";
-                    string? voucherNo = await connection.QueryFirstOrDefaultAsync<string>(commandText, param: new { Type = GlobalConstants.TABLE_CONTRACTTYPE }, commandTimeout: GlobalConstants.COMMAND_TIMEOUT, commandType: CommandType.Text);
-                    if (string.IsNullOrEmpty(voucherNo))
-                    {
-                        response.status = StatusCodes.Status204NoContent;
-                        response.message = MessageConstants.MESSAGE_VOUCHER_NO_MISSING;
-                        return response;
-                    }
-                    entity.Id = await _dbContext.ContractTypes.Select(m => m.Id).DefaultIfEmpty().MaxAsync() + 1;
-                    entity.Code = voucherNo;
-                    entity.DateTracking = _dateTimeHelper.GetCurrentVietnamTime();
-                    entity.CreateDate = _dateTimeHelper.GetCurrentVietnamTime();
-                    await _dbContext.ContractTypes.AddAsync(entity);
-                    await _dbContext.SaveChangesAsync();
-                    response.message = MessageConstants.MESSAGE_ADD_SUCCESS;
-                }
+                entity.Id = await _dbContext.ContractTypes.Select(m => m.Id).DefaultIfEmpty().MaxAsync() + 1;
+                entity.DateTracking = _dateTimeHelper.GetCurrentVietnamTime();
+                entity.CreateDate = _dateTimeHelper.GetCurrentVietnamTime();
+                await _dbContext.ContractTypes.AddAsync(entity);
+                await _dbContext.SaveChangesAsync();
+                response.message = MessageConstants.MESSAGE_ADD_SUCCESS;
                 return response;
             }
             catch (Exception) { throw; }
@@ -413,7 +401,7 @@ namespace HNOne.API.Repositories
                 data.BranchId = entity.BranchId;
                 data.StatusCode = entity.StatusCode;
                 data.Duration = entity.Duration;
-                data.IndefiniteDuration = entity.IndefiniteDuration;
+                data.IsIndefiniteDuration = entity.IsIndefiniteDuration;
                 data.NumberOfDaysReduced = entity.NumberOfDaysReduced;
                 data.IsActive = entity.IsActive;
                 data.DateTracking = _dateTimeHelper.GetCurrentVietnamTime();

@@ -25,13 +25,13 @@ namespace HNOne.API.Repositories
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
-            modelBuilder.Entity<Branchs>().HasIndex(m => m.BranchCode).IsUnique(true);
-            modelBuilder.Entity<Departments>().HasIndex(m => m.Code).IsUnique(true);
-            modelBuilder.Entity<Positions>().HasIndex(m => m.Code).IsUnique(true);
-            modelBuilder.Entity<Titles>().HasIndex(m => m.Code).IsUnique(true);
-            modelBuilder.Entity<Employees>().HasIndex(m => m.Code).IsUnique(true);
-            modelBuilder.Entity<ContractTypes>().HasIndex(m => m.Code).IsUnique(true);
-            modelBuilder.Entity<Users>().HasIndex(m => m.UserName).IsUnique(true);
+            modelBuilder.Entity<Branchs>().HasIndex(m => m.BranchCode).IsUnique();
+            modelBuilder.Entity<Departments>().HasIndex(m => m.Code).IsUnique();
+            modelBuilder.Entity<Positions>().HasIndex(m => m.Code).IsUnique();
+            modelBuilder.Entity<Titles>().HasIndex(m => m.Code).IsUnique();
+            modelBuilder.Entity<Employees>().HasIndex(m => m.Code).IsUnique();
+            modelBuilder.Entity<ContractTypes>().HasIndex(m => new { m.Code, m.BranchId }).IsUnique();
+            modelBuilder.Entity<Users>().HasIndex(m => m.UserName).IsUnique();
         }
 
 

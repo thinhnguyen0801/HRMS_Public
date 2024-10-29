@@ -1,0 +1,364 @@
+﻿@page "/chi-tiet-hop-dong"
+@inherits Controllers.ContractDetailController
+<PageTitle>Chi tiết hợp đồng</PageTitle>
+
+<div class="h-content-filter">
+    <div class="card p-1">
+        <DxToolbar ItemRenderStyleMode="@ToolbarRenderStyleMode.Contained">
+            <Items>
+                <DxToolbarItem Text="Làm mới" BeginGroup="true" IconCssClass="@($"{IconClassConstants.ICON_REFRESH}")"
+                               Alignment="@ToolbarItemAlignment.Right" />
+                <DxToolbarItem Text="Lưu" BeginGroup="true" IconCssClass="@($"{IconClassConstants.ICON_ADD}")"
+                               Alignment="@ToolbarItemAlignment.Right" />
+                <DxToolbarItem Text="Xóa" BeginGroup="true" IconCssClass="@($"{IconClassConstants.ICON_DELETE}")"
+                               Alignment="@ToolbarItemAlignment.Right" />
+            </Items>
+        </DxToolbar>
+    </div>
+
+    <div class="card card-lg mt-1" style="padding: 5px">
+        <div class="row row-gap-2">
+            <div class="col-12">
+                <div class="accordion" id="accordion-info">
+                    <div class="accordion-item" style="border: none">
+                        <span class="accordion-header" id="heading-1">
+                            <button class="accordion-button " style="padding-top: 1px; padding-bottom: 1px;padding-left: 5px;"
+                                    type="button" data-bs-toggle="collapse" data-bs-target="#collapse-info" aria-expanded="true">
+                                <h4 class="mb-0 w1FontSize">Thông tin hợp đồng</h4>
+                            </button>
+                        </span>
+                        <div style="border-bottom: 1px solid var(--tblr-border-color); margin-top: 2px"></div>
+                        <div id="collapse-info" class="accordion-collapse collapse show" data-bs-parent="#accordion-info">
+                            <div class="accordion-body p-2">
+                                <div class="row row-gap-2">
+                                    <div class="col-md-6 col-sm-12">
+                                        <div class="d-flex ">
+                                            <W1Label Value="Loại hợp đồng" Id="toDate" Styles="width: 120px" IsRequired="true" />
+                                            <div style="width: calc(100% - 120px)">
+                                                <DxComboBox Data="@ListCboContractType"
+                                                            Value="@ContractDocument.contractTypeId"
+                                                            ValueChanged="@((int? contractId) => ComboboxValueChangedHandler(contractId, controlID: nameof(ContractDocument.contractTypeId)))"
+                                                            FilteringMode="DataGridFilteringMode.Contains"
+                                                            CssClass="w1FontSize"
+                                                            ReadOnly="@(pActionType != nameof(EnumType.Add))"
+                                                            TextFieldName="@nameof(ContractTypeModel.name)"
+                                                            ValueFieldName="@nameof(ContractTypeModel.id)">
+                                                </DxComboBox>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6 col-sm-12">
+                                        <div class="d-flex ">
+                                            <W1Label Value="Mã hợp đồng" Id="txtKiDanhGia" Styles="width: 120px" />
+                                            <div style="width: calc(100% - 120px)">
+                                                <DxTextBox @bind-Text="@ContractDocument.contractCode" ReadOnly="true" CssClass="w1FontSize"></DxTextBox>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6 col-sm-12">
+                                        <div class="d-flex ">
+                                            <W1Label Value="Nhân viên" Id="txtKiDanhGia" Styles="width: 120px" />
+                                            <div style="width: calc(100% - 120px)">
+                                                <div class="grid gap-1 row-gap-2">
+                                                    <div class="g-col-md-4 g-col-sm-12 g-col-12">
+                                                        <DxTextBox @bind-Text="@ContractDocument.employeeCode" ReadOnly="true" CssClass="w1FontSize" ClearButtonDisplayMode="@DataEditorClearButtonDisplayMode.Auto" />
+                                                    </div>
+                                                    <div class="g-col-md-8 g-col-sm-12 g-col-12">
+                                                        <DxTextBox @bind-Text="@ContractDocument.employeeName" CssClass="w1FontSize" ReadOnly="true">
+                                                            <Buttons>
+                                                                <DxEditorButton style="width: 29px" CssClass="w1FontSize" IconCssClass="fas fa-search" Tooltip="Tìm kiếm nhân viên"
+                                                                                Click="@(async () => await OpenPopupHandler(nameof(EmployeeSelected), nameof(ContractDocument.employeeCode)))" />
+                                                            </Buttons>
+                                                        </DxTextBox>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6 col-sm-12">
+                                        <div class="grid gap-3 row-gap-2">
+                                            <div class="g-col-md-5 g-col-sm-12 g-col-12">
+                                                <div class="d-flex ">
+                                                    <W1Label Value="Ngày ký" Id="ngayKy" Styles="width: 120px" IsRequired="true" />
+                                                    <div style="width: calc(100% - 120px)">
+                                                        <DxDateEdit @bind-Date="@ContractDocument.dateOfSigning" DisplayFormat="@GlobalContants.FORMAT_DATE"
+                                                                    Mask="@GlobalContants.FORMAT_DATE" Format="@GlobalContants.FORMAT_DATE" CssClass="w1FontSize" />
+                                                    </div>
+                                                </div>
+
+                                            </div>
+                                            <div class="g-col-md-7 g-col-sm-12 g-col-12">
+                                                <div class="d-flex">
+                                                    <W1Label Value="Thời hạn (tháng)" Id="soThang" Styles="width: 120px" />
+                                                    <div style="width: calc(100% - 120px)">
+                                                        <div class="d-flex justify-content-between">
+                                                            <div style="width: 50%;">
+                                                                <DxSpinEdit Value="@ContractDocument.numberOfMonths"
+                                                                            ValueChanged="@((double value) => SpinEditValueChangedHandler(value, controlID: nameof(ContractDocument.numberOfMonths)))"
+                                                                            MinValue="1.0" Increment="1"
+                                                                            InputCssClass="text-end" ShowSpinButtons="true" CssClass="w1FontSize" />
+                                                            </div>
+                                                            <div style="width: 50%; margin-left: 2px;">
+                                                                <DxSpinEdit @bind-Value="@ContractDocument.numberOfDaysReduced" MinValue="1" Increment="1"
+                                                                            InputCssClass="text-end" ShowSpinButtons="true" CssClass="w1FontSize" />
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                @* <div class="row row-gap-2">
+                                    <div class="col-md-6 col-sm-12">
+                                        <div class="d-flex ">
+                                            <W1Label Value="Kỳ đánh giá" Id="txtKiDanhGia" Styles="width: 120px" />
+                                            <div style="width: calc(100% - 120px)">
+                                                <DxTextBox @bind-Text="@ContractDocument.kyDanhGia" ReadOnly="true" CssClass="w1FontSize"></DxTextBox>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6 col-sm-12">
+                                        <div class="d-flex ">
+                                            <W1Label Value="Loại hợp đồng" Id="toDate" Styles="width: 120px" IsRequired="true" />
+                                            <div style="width: calc(100% - 120px)">
+                                                <div class="row row-gap-2">
+                                                    <div class="col-md-8 col-sm-12">
+                                                        <DxComboBox Data="@ListCboContractType"
+                                                                    Value="@ContractDocument.id_LoaiHopDong"
+                                                                    ValueChanged="@((int? contractId) => ComboboxValueChangedHandler(contractId, controlID: nameof(ContractDocument.id_LoaiHopDong)))"
+                                                                    FilteringMode="DataGridFilteringMode.Contains"
+                                                                    TextFieldName="@nameof(ContractTypeModel.tenHopDong)"
+                                                                    CssClass="w1FontSize"
+                                                                    ReadOnly="@(pActionType != nameof(EnumType.Add))"
+                                                                    ValueFieldName="@nameof(ContractTypeModel.id_LoaiHopDong)">
+                                                        </DxComboBox>
+                                                    </div>
+                                                    <div class="col-md-4 col-sm-12">
+                                                        <DxCheckBox CssClass="w-100 w1FontSize"
+                                                                    SizeMode="@SizeMode.Small"
+                                                                    @bind-Checked="@ContractDocument.ckbLuongKhoan"
+                                                                    LabelPosition="@LabelPosition.Right">
+                                                            Lương khoán?
+                                                        </DxCheckBox>
+                                                    </div>
+                                                </div>
+
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6 col-sm-12">
+                                        <div class="d-flex ">
+                                            <W1Label Value="Nhân viên" Id="maNhanVien" Styles="width: 120px" IsRequired="true" />
+                                            <div style="width: calc(100% - 120px)">
+                                                <div class="grid gap-1 row-gap-2">
+                                                    <div class="g-col-md-4 g-col-sm-12 g-col-12">
+                                                        <DxTextBox @bind-Text="@ContractDocument.maNhanVien" ReadOnly="true" CssClass="w1FontSize" />
+                                                    </div>
+                                                    <div class="g-col-md-8 g-col-sm-12 g-col-12">
+                                                        <DxTextBox @bind-Text="@ContractDocument.nv_HoTen" CssClass="w1FontSize" ReadOnly="true">
+                                                            <Buttons>
+                                                                <DxEditorButton style="width: 29px" IconCssClass="fas fa-search" Tooltip="Tìm kiếm nhân viên"
+                                                                                Visible="@(pActionType == nameof(EnumType.Add))"
+                                                                                Click="@(async () => await OpenPopupHandler(nameof(ListEmpSelected), nameof(ContractDocument.nv_HoTen)))" />
+                                                            </Buttons>
+                                                        </DxTextBox>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6 col-sm-12">
+                                        <div class="d-flex ">
+                                            <W1Label Value="Mã hợp đồng" Id="kyLanThu" Styles="width: 120px" IsRequired="true" />
+                                            <div style="width: calc(100% - 120px)">
+                                                <div class="row row-gap-2">
+                                                    <div class="col-md-8 col-sm-12">
+                                                        <DxTextBox @bind-Text="@ContractDocument.maHopDong" Enabled="true" CssClass="w1FontSize"></DxTextBox>
+                                                    </div>
+                                                    <div class="col-md-4 col-sm-12">
+                                                        <DxSpinEdit @bind-Value="@ContractDocument.kyLanThu" ReadOnly="true" InputCssClass="text-end" ShowSpinButtons="true"
+                                                                    DisplayFormat="@Variable.FORMAT_CURRENCY" Mask="@Variable.FORMAT_CURRENCY" CssClass="w1FontSize" />
+                                                    </div>
+                                                </div>
+
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6 col-sm-12">
+                                        <div class="d-flex ">
+                                            <W1Label Value="Chức danh" Id="id_ChucDanh" Styles="width: 120px" IsRequired="true" />
+                                            <div style="width: calc(100% - 120px)">
+                                                <DxComboBox Data="@ListCboListJobTitle"
+                                                            @bind-Value="@ContractDocument.id_ChucDanh"
+                                                            FilteringMode="DataGridFilteringMode.Contains"
+                                                            TextFieldName="@nameof(ComboboxModel.name)"
+                                                            ReadOnly="@IsReadonlyControl"
+                                                            ValueFieldName="@nameof(ComboboxModel.id)" CssClass="w1FontSize">
+                                                </DxComboBox>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="col-md-6 col-sm-12">
+                                        <div class="grid gap-3 row-gap-2">
+                                            <div class="g-col-md-5 g-col-sm-12 g-col-12">
+                                                <div class="d-flex ">
+                                                    <W1Label Value="Ngày ký" Id="ngayKy" Styles="width: 120px" IsRequired="true" />
+                                                    <div style="width: calc(100% - 120px)">
+                                                        <DxDateEdit @bind-Date="@ContractDocument.ngayKy" DisplayFormat="@Variable.FORMAT_DATE"
+                                                                    ReadOnly="@IsReadonlyControl"
+                                                                    Mask="@Variable.FORMAT_DATE" Format="@Variable.FORMAT_DATE" CssClass="w1FontSize" />
+                                                    </div>
+                                                </div>
+
+                                            </div>
+                                            <div class="g-col-md-7 g-col-sm-12 g-col-12">
+                                                <div class="d-flex">
+                                                    <W1Label Value="Thời hạn (tháng)" Id="soThang" Styles="width: 120px" />
+                                                    <div style="width: calc(100% - 120px)">
+                                                        <div class="d-flex justify-content-between">
+                                                            <div style="width: 50%;">
+                                                                <DxSpinEdit Value="@ContractDocument.soThang"
+                                                                            ValueChanged="@((double value) => SpinEditValueChangedHandler(value, controlID: nameof(ContractDocument.soThang)))"
+                                                                            MinValue="1" Increment="1"
+                                                                            ReadOnly="@IsReadonlyControl"
+                                                                            InputCssClass="text-end" ShowSpinButtons="true" CssClass="w1FontSize" />
+                                                            </div>
+                                                            <div style="width: 50%; margin-left: 2px;">
+                                                                <DxSpinEdit @bind-Value="@ContractDocument.soNgayGiam" MinValue="1" Increment="1"
+                                                                            ReadOnly="@IsReadonlyControl"
+                                                                            InputCssClass="text-end" ShowSpinButtons="true" CssClass="w1FontSize" />
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6 col-sm-12">
+                                        <div class="d-flex ">
+                                            <W1Label Value="Chức danh b/hiểm" Id="txtKiDanhGia" Styles="width: 120px" />
+                                            <div style="width: calc(100% - 120px)">
+                                                <DxTextBox @bind-Text="@ContractDocument.chucDanhBH" ReadOnly="@IsReadonlyControl" CssClass="w1FontSize"></DxTextBox>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6 col-sm-12">
+                                        <div class="d-flex ">
+                                            <W1Label Value="Người ký" Id="nguoiKy" Styles="width: 120px" />
+                                            <div style="width: calc(100% - 120px)">
+                                                <div class="grid gap-1 row-gap-2">
+                                                    <div class="g-col-md-4 g-col-sm-12 g-col-12">
+                                                        <DxTextBox @bind-Text="@ContractDocument.nguoiKy" ReadOnly="true" CssClass="w1FontSize" />
+                                                    </div>
+                                                    <div class="g-col-md-8 g-col-sm-12 g-col-12">
+                                                        <DxTextBox @bind-Text="@ContractDocument.tenNguoiKy" ReadOnly="true" CssClass="w1FontSize">
+                                                            <Buttons>
+                                                                <DxEditorButton style="width: 29px" CssClass="w1FontSize" IconCssClass="fas fa-search" Tooltip="Tìm kiếm nhân viên"
+                                                                                Visible="@(!IsReadonlyControl)"
+                                                                                Click="@(async () => await OpenPopupHandler(nameof(ListEmpSelected), nameof(ContractDocument.tenNguoiKy)))" />
+                                                            </Buttons>
+                                                        </DxTextBox>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6 col-sm-12">
+                                        <div class="d-flex ">
+                                            <W1Label Value="Chức vụ" Id="id_ChucVu" Styles="width: 120px" IsRequired="true" />
+                                            <div style="width: calc(100% - 120px)">
+                                                <DxComboBox Data="@ListCboRole"
+                                                            @bind-Value="@ContractDocument.id_ChucVu"
+                                                            CssClass="w1FontSize"
+                                                            ReadOnly="@IsReadonlyControl"
+                                                            FilteringMode="DataGridFilteringMode.Contains"
+                                                            TextFieldName="@nameof(ComboboxModel.name)"
+                                                            ValueFieldName="@nameof(ComboboxModel.id)">
+                                                </DxComboBox>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6 col-sm-12">
+                                        <div class="d-flex ">
+                                            <W1Label Value="Giấy ủy quyền" Id="giayUyQuyen" Styles="width: 120px" />
+                                            <div style="width: calc(100% - 120px)">
+                                                <DxTextBox @bind-Text="@ContractDocument.giayUyQuyen" ReadOnly="true" CssClass="w1FontSize"></DxTextBox>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6 col-sm-12">
+                                        <div class="d-flex ">
+                                            <W1Label Value="Nơi làm việc" Id="noiLamViec" Styles="width: 120px" IsRequired="true" />
+                                            <div style="width: calc(100% - 120px)">
+                                                <DxComboBox Data="@ListCboWorkplace"
+                                                            @bind-Value="@ContractDocument.id_NoiLamViec"
+                                                            CssClass="w1FontSize"
+                                                            ReadOnly="@IsReadonlyControl"
+                                                            FilteringMode="DataGridFilteringMode.Contains"
+                                                            TextFieldName="@nameof(ComboboxModel.name)"
+                                                            ValueFieldName="@nameof(ComboboxModel.id)">
+                                                </DxComboBox>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="col-md-6 col-sm-12">
+                                        <div class="d-flex ">
+                                            <W1Label Value="Số quyết định" Id="soQuyetDinh" Styles="width: 120px" />
+                                            <div style="width: calc(100% - 120px)">
+                                                <DxTextBox @bind-Text="@ContractDocument.soQuyetDinh" ReadOnly="@IsReadonlyControl" CssClass="w1FontSize"></DxTextBox>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6 col-sm-12">
+                                        <div class="d-flex ">
+                                            <W1Label Value="Ghi chú" Id="ghiChu" Styles="width: 120px" />
+                                            <div style="width: calc(100% - 120px)">
+                                                <DxMemo @bind-Text="@ContractDocument.ghiChu" BindValueMode="@BindValueMode.OnInput"
+                                                        ReadOnly="@IsReadonlyControl"
+                                                        Rows="1" InputId="txtghiChu" CssClass="w1FontSize" />
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6 col-sm-12">
+                                        <div class="d-flex ">
+                                            <W1Label Value="Thời gian BĐ/KT" Id="ngayBatDau" Styles="width: 120px" IsRequired="true" />
+                                            <div style="width: calc(100% - 120px)">
+                                                <div class="grid gap-1 row-gap-2">
+                                                    <div class="g-col-md-6 g-col-sm-12 g-col-12">
+                                                        <DxDateEdit Date="@ContractDocument.ngayBatDau" DisplayFormat="@Variable.FORMAT_DATE"
+                                                                    ReadOnly="@IsReadonlyControl"
+                                                                    DateChanged="@((DateTime? date)=>HandleChangeDateStart(date))"
+                                                                    Mask="@Variable.FORMAT_DATE" Format="@Variable.FORMAT_DATE" CssClass="w1FontSize" />
+                                                    </div>
+                                                    <div class="g-col-md-6 g-col-sm-12 g-col-12">
+                                                        <DxDateEdit @bind-Date="@ContractDocument.ngayKetThuc" DisplayFormat="@Variable.FORMAT_DATE"
+                                                                    Mask="@Variable.FORMAT_DATE" Format="@Variable.FORMAT_DATE" CssClass="w1FontSize" ReadOnly="true" />
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div> *@
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<W1Popup @bind-IsOpenModal="@IsShowDialogEmpSearch" Width="70%"
+         HandleClickAccept="@(()=> SelectEmployeeHandler())"
+         TextBtnAccept="Chọn"
+         HeaderText="Danh sách nhân viên">
+    <div style="height: 400px; min-height: 350px">
+        <W1Employee UserId="@UserId" Token="@Token" BranchId="@BranchId" DepartmentIds="@DepartmentIds" StatusIds="@StatusIds"
+                    SelectedDataItemChanged="@EventCallbackEmpChangedHandler" />
+    </div>
+</W1Popup>
+<W1Confirm @ref="confirm" />

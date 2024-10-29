@@ -4,6 +4,7 @@ using HNOne.Model;
 using HNOne.Model.Models;
 using HNOne.Web.Commons;
 using HNOne.Web.Components.Controls;
+using HNOne.Web.Models;
 using HNOne.Web.Services;
 using HNOne.Web.Services.Interfaces;
 using Microsoft.AspNetCore.Components;
@@ -17,24 +18,19 @@ namespace HNOne.Web.Controllers
     {
         [Inject] IMasterDataService _masterDataService { get; init; }
         [Inject] IJSRuntime _jsRuntime { get; set; }
+        public W1Confirm confirm { get; set; }
 
         #region Properties
         public List<ContractTypeModel>? ListContractType { get; set; }
         public IGrid? GridContractType { get; set; }
         public IReadOnlyList<object>? SelectedContractTypes { get; set; } = null;
         public ContractTypeModel ContractTypeUpdate { get; set; } = new ContractTypeModel();
-        public EditContext? _EditContext { get; set; }
         public bool IsShowDialog { get; set; }
         public bool IsCreate { get; set; } = true;
-        public W1Confirm confirm { get; set; }
-        public List<ComboboxModel>? ListCboBranchId { get; set; } // cbo ds chi nhánh
-        public List<ComboboxModel>? ListCboStatusCode { get; set; } // cbo ds chi nhánh
-        public List<ComboboxModel>? ListCboDuration { get; set; } // cbo ds chi nhánh
-        public List<ComboboxModel>? ListCboIndefiniteDuration { get; set; } // cbo ds chi nhánh
-        public List<ComboboxModel>? ListCboNumberOfDaysReduced { get; set; } // cbo ds chi nhánh
+        public List<ComboboxModel>? ListCboBranch { get; set; } // cbo ds chi nhánh
+        public List<EnumCatagoryModel>? ListCboStatus { get; set; } // cbo ds trạng thái nhân viên
 
         #endregion
-
         protected override async Task OnAfterRenderAsync(bool firstRender)
         {
             if (firstRender)
@@ -42,14 +38,13 @@ namespace HNOne.Web.Controllers
                 try
                 {
                     await ShowLoading();
+                    ListBreadcrumbs = new List<BreadcrumbModel>()
+                    {
+                        new BreadcrumbModel("Danh mục"),
+                        new BreadcrumbModel("Loại hợp đồng", isActive: true)
+                    };
+                    await NotifyBreadcrumb.InvokeAsync(ListBreadcrumbs);
                     await buildComboboxAsync();
-                    //await _progressService.SetPercent(0.4);
-                    //string errMessage = await CheckAuthMenuAsync("contractlist");
-                    //if (errMessage == "401") return; // kiểm quyền menu page danh sách
-                    //Permission = await _masterDataService.GetAccessControl(UserId, Token, ContractTypeId, 10012);
-                    //ItemSearch.fromDate = new DateTime(DateTime.Now.Year, DateTime.Now.Month, 1);
-                    //ItemSearch.toDate = DateTime.Now;
-                    //await NotifyBreadcrumb.InvokeAsync(ListBreadcrumbs);
                     await getContractTypes();
 
                 }
@@ -73,15 +68,19 @@ namespace HNOne.Web.Controllers
             ListContractType = new List<ContractTypeModel>();
             ListContractType = await _masterDataService.GetContractTypeAsync(UserId, Token);
         }
+        
         private async Task buildComboboxAsync()
         {
             try
             {
                 var getTask1 = _masterDataService.GetBranchAsync(UserId, Token);
+                var getTask2 = _masterDataService.GetEnumAsync(UserId, Token, nameof(EnumCatagory.TrangThaiNhanVien)); // ds trạng thái
                 await Task.WhenAll(
-                    getTask1
-                    );
-                ListCboBranchId = (await getTask1)?.Select(m => new ComboboxModel() { id = m.branchId, name = m.branchName })?.ToList();
+                    getTask1,
+                    getTask2
+                );
+                ListCboBranch = (await getTask1)?.Select(m => new ComboboxModel() { id = m.branchId, name = m.branchName })?.ToList();
+                ListCboStatus = (await getTask2)?.Where(m => m.rowOrder != 0).ToList();
             }
             catch (Exception ex)
             {
@@ -89,24 +88,37 @@ namespace HNOne.Web.Controllers
                 _logger.LogError(ex, "BuildComboAsync");
             }
         }
+        
         private void validateForSave(ref string errorMessage, ref string fieldName)
         {
+            if (string.IsNullOrEmpty(ContractTypeUpdate.code))
+            {
+                errorMessage = String.Format(MessageConstants.MESSAGE_STRING_REQUIRE, "Mã loại hợp đồng");
+                fieldName = "txtCode";
+                return;
+            }
             if (string.IsNullOrEmpty(ContractTypeUpdate.name))
             {
-                errorMessage = String.Format(MessageConstants.MESSAGE_COMBOBOX_REQUIRE, "Tên loại hợp đồng");
-                fieldName = nameof(ContractTypeUpdate.name);
+                errorMessage = String.Format(MessageConstants.MESSAGE_STRING_REQUIRE, "Tên loại hợp đồng");
+                fieldName = "txtName";
                 return;
             }
             if (ContractTypeUpdate.branchId < 1)
             {
                 errorMessage = String.Format(MessageConstants.MESSAGE_COMBOBOX_REQUIRE, "Chi nhánh");
-                fieldName = nameof(ContractTypeUpdate.branchId);
+                fieldName = "txtBranchId";
+                return;
+            }
+            if (string.IsNullOrEmpty(ContractTypeUpdate.statusCode))
+            {
+                errorMessage = String.Format(MessageConstants.MESSAGE_COMBOBOX_REQUIRE, "Trạng thái nhân viên");
+                fieldName = "txtStatusCode";
                 return;
             }
         }
-            #endregion
+        #endregion
 
-            #region
+        #region
         protected async Task RefreshHandler()
         {
             try
@@ -135,6 +147,7 @@ namespace HNOne.Web.Controllers
                 {
                     IsCreate = true;
                     ContractTypeUpdate = new ContractTypeModel();
+                    if (!ListCboBranch.IsNullOrEmpty()) ContractTypeUpdate.branchId = BranchId;
                 }
                 else
                 {
@@ -145,13 +158,12 @@ namespace HNOne.Web.Controllers
                     ContractTypeUpdate.branchId = pItemDetails!.branchId;
                     ContractTypeUpdate.statusCode = pItemDetails!.statusCode;
                     ContractTypeUpdate.duration = pItemDetails!.duration;
-                    ContractTypeUpdate.indefiniteDuration = pItemDetails!.indefiniteDuration;
+                    ContractTypeUpdate.isIndefiniteDuration = pItemDetails!.isIndefiniteDuration;
                     ContractTypeUpdate.numberOfDaysReduced = pItemDetails!.numberOfDaysReduced;
                     ContractTypeUpdate.isActive = pItemDetails!.isActive;
                     IsCreate = false;
                 }
                 IsShowDialog = true;
-                _EditContext = new EditContext(ContractTypeUpdate);
             }
             catch (Exception ex)
             {
