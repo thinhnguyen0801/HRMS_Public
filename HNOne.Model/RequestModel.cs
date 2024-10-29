@@ -8,6 +8,7 @@ namespace HNOne.Model
 {
     public class RequestModel
     {
+        public int employeeId { get; set; } = -1;
         public int userId { get; set; }
         public int branchId { get; set; }
         public string? token { get; set; }

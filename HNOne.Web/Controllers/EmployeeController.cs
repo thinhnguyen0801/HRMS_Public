@@ -1,8 +1,10 @@
 ﻿using HNOne.Common;
 using HNOne.Model;
+using HNOne.Model.Entities;
 using HNOne.Model.Models;
 using HNOne.Web.Commons;
 using HNOne.Web.Components.Controls;
+using HNOne.Web.Models;
 using HNOne.Web.Services.Interfaces;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.WebUtilities;
@@ -23,11 +25,19 @@ namespace HNOne.Web.Controllers
         public string? pActionType { get; set; } = nameof(EnumType.Add);
         private int pDocEntry { get; set; } = 0;
         public EmployeeModel EmployeeUpdate { get; set; } = new EmployeeModel();
-        public List<ComboboxModel>? ListCboStatus { get; set; } // cbo ds tình trạng
+        public List<EnumCatagoryModel>? ListCboStatus { get; set; } // cbo ds tình trạng
         public List<ComboboxModel>? ListCboDepartment { get; set; } // cbo ds phòng ban
         public List<ComboboxModel>? ListCboManager { get; set; } // cbo ds người quản lý
-        public List<ComboboxModel>? ListCboPosition { get; set; } // cbo ds người quản lý
-        public List<ComboboxModel>? ListCboTitle { get; set; } // cbo ds người quản lý
+        public List<ComboboxModel>? ListCboPosition { get; set; } // cbo ds chức vụ
+        public List<ComboboxModel>? ListCboTitle { get; set; } // cbo ds chức danh
+        public List<EnumCatagoryModel>? ListCboMaritalStatus { get; set; } // cbo ds chức danh
+
+        
+        private string? pPopupType { get; set; } = string.Empty; // mở popup nào
+        public bool IsShowDialogEmpSearch { get; set; }
+        public string? DepartmentIds { get; set; }
+        public string? StatusIds { get; set; } // Tình trạng nào
+        public object? EmployeeSelected { get; set; } // Nhân viên được chọn
         #endregion
 
         protected override async Task OnAfterRenderAsync(bool firstRender)
@@ -37,6 +47,7 @@ namespace HNOne.Web.Controllers
                 try
                 {
                     await ShowLoading();
+                    await initDataAsync();
                     await buildComboAsync();
                     if (pDocEntry > 0) await showVoucher();
                 }
@@ -51,8 +62,16 @@ namespace HNOne.Web.Controllers
 
         #region Private Functions
 
-        private void initDataAsync(bool isRefresh = false)
+        private async Task initDataAsync(bool isRefresh = false)
         {
+            ListBreadcrumbs = new List<BreadcrumbModel>()
+                    {
+                        new BreadcrumbModel("Nhân sự"),
+                        new BreadcrumbModel("Danh sách nhân viên", enpoint: "/danh-sach-nhan-vien"),
+                        new BreadcrumbModel("Hồ sơ nhân viên", isActive: true)
+                    };
+            await NotifyBreadcrumb.InvokeAsync(ListBreadcrumbs);
+
             var uri = _navigationManager?.ToAbsoluteUri(_navigationManager.Uri);
             if(uri != null && QueryHelpers.ParseQuery(uri.Query).Count > 0)
             {
@@ -77,15 +96,23 @@ namespace HNOne.Web.Controllers
                 var getTask1 = _masterDataService.GetDepartmentAsync(UserId, Token); // ds phòng ban
                 var getTask2 = _masterDataService.GetPositionAsync(UserId, Token); // ds chức vụ
                 var getTask3 = _masterDataService.GetTitleAsync(UserId, Token); // ds chức danh
+                var getTask4 = _masterDataService.GetEnumAsync(UserId, Token, nameof(EnumCatagory.TrangThaiNhanVien)); // ds trạng thái
+                var getTask5 = _masterDataService.GetEnumAsync(UserId, Token, nameof(EnumCatagory.TinhTrangHonNhan)); // ds trạng thái
+
                 await Task.WhenAll(
                     getTask1,
                     getTask2,
-                    getTask3
+                    getTask3,
+                    getTask4,
+                    getTask5
                 );
 
                 ListCboDepartment = (await getTask1)?.Select(m => new ComboboxModel() { id = m.id, name = m.name })?.ToList();
                 ListCboPosition = (await getTask2)?.Select(m => new ComboboxModel() { id = m.id, name = m.name })?.ToList();
                 ListCboTitle = (await getTask3)?.Select(m => new ComboboxModel() { id = m.id, name = m.name })?.ToList();
+                ListCboMaritalStatus = await getTask5;
+                ListCboStatus = (await getTask4)?.Where(m => m.rowOrder != 0).ToList();
+                if (!ListCboStatus.IsNullOrEmpty()) EmployeeUpdate.statusId = ListCboStatus![0].code;
             }
             catch (Exception ex)
             {
@@ -98,7 +125,13 @@ namespace HNOne.Web.Controllers
         {
             try
             {
-
+                RequestModel request = new RequestModel();
+                request.employeeId = pDocEntry;
+                request.userId = UserId;
+                request.branchId = BranchId;
+                request.token = Token;
+                var lstData = await _personnelService.GetEmployeeAsync(request);
+                if(!lstData.IsNullOrEmpty()) EmployeeUpdate = lstData![0];
             }
             catch (Exception ex)
             {
@@ -166,6 +199,80 @@ namespace HNOne.Web.Controllers
         #endregion
 
         #region Projected
+        /// <summary>
+        /// hiển thị các popup
+        /// </summary>
+        /// <param name="type"></param>
+        /// <returns></returns>
+        protected async Task OpenPopupHandler(string type = nameof(EmployeeSelected), string popupType = nameof(EmployeeUpdate.managerCode))
+        {
+            try
+            {
+                pPopupType = popupType;
+                switch (type)
+                {
+                    case nameof(EmployeeSelected):
+                        ListCboDepartment ??= new();
+                        DepartmentIds = string.Join(",", ListCboDepartment.Select(m => m.id));
+                        IsShowDialogEmpSearch = true;
+                        break;
+                }
+            }
+            catch (Exception ex)
+            {
+                ShowError(ex.Message);
+                _logger.LogError(ex, "OpenPopupHandler");
+            }
+            finally
+            {
+                await ShowLoading(false);
+                await InvokeAsync(StateHasChanged);
+            }
+        }
+
+        /// <summary>
+        /// chọn nhân viên
+        /// </summary>
+        /// <param name="type"></param>
+        /// <returns></returns>
+        protected async Task SelectEmployeeHandler()
+        {
+            try
+            {
+                if (EmployeeSelected == null)
+                {
+                    ShowWarning(string.Format(MessageConstants.MESSAGE_COMBOBOX_REQUIRE, "Nhân viên"));
+                    return;
+                }
+                EmployeeModel employee = (EmployeeModel)EmployeeSelected;
+                switch (pPopupType)
+                {
+                    case nameof(EmployeeUpdate.managerCode):
+                        EmployeeUpdate.managerId = employee.id;
+                        EmployeeUpdate.managerCode = employee.code;
+                        EmployeeUpdate.managerName = employee.name;
+                        IsShowDialogEmpSearch = false;
+                        break;
+                }    
+            }
+            catch (Exception ex)
+            {
+                ShowError(ex.Message);
+                _logger.LogError(ex, "SelectEmployeeHandler");
+            }
+            finally
+            {
+                await ShowLoading(false);
+                await InvokeAsync(StateHasChanged);
+            }
+        }
+
+        /// <summary>
+        /// callback nhân viên
+        /// </summary>
+        /// <param name="lstEmp"></param>
+        protected void EventCallbackEmpChangedHandler(object? lstEmp) => EmployeeSelected = lstEmp;
+
         protected async Task SaveDataHandler()
         {
             try
@@ -180,7 +287,8 @@ namespace HNOne.Web.Controllers
                     return;
                 }
                 bool isConfirm = true;
-                isConfirm = await confirm.SetConfirm(MessageConstants.MESSAGE_TITLE, MessageConstants.MESSAGE_CONFIRM_ADD);
+                errorMessage = pActionType == nameof(EnumType.Add) ? MessageConstants.MESSAGE_CONFIRM_ADD : MessageConstants.MESSAGE_CONFIRM_UPDATE;
+                isConfirm = await confirm.SetConfirm(MessageConstants.MESSAGE_TITLE, errorMessage);
                 if (!isConfirm) return;
                 await ShowLoading();
                 string processKey = pActionType == nameof(EnumType.Add) ? ProcessConstants.POST_EMPLOYEE : ProcessConstants.PUT_EMPLOYEE;

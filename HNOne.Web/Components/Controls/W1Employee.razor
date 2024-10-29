@@ -1,0 +1,124 @@
+﻿@inject ILoadingService _loadingService
+@inject IToastService _toastService
+@inject ILogger<W1Employee> _logger
+@inject IPersonnelService _personnelService;
+
+<DxGrid Data="ListEmpSearch" @ref="GridEmpSearch"
+        ShowFilterRow="true"
+        ColumnResizeMode="GridColumnResizeMode.ColumnsContainer"
+        PagerPosition="GridPagerPosition.Bottom"
+        PageSizeSelectorVisible="true"
+        PageSize="@GlobalContants.PageSize"
+        PageSizeSelectorItems="@(GlobalContants.PageSizeList)"
+        PageSizeSelectorAllRowsItemVisible="true"
+        PagerSwitchToInputBoxButtonCount="10"
+        PagerVisibleNumericButtonCount="10"
+        TextWrapEnabled="false"
+        FocusedRowEnabled="true"
+        SelectionMode="@GridSelectionMode.Single"
+        AutoExpandAllGroupRows="true"
+        AllowSelectRowByClick="true"
+        @bind-SelectedDataItem="@SelectedDataItem"
+        CssClass="h-full">
+    <ToolbarTemplate>
+        <DxToolbar ItemRenderStyleMode="@ToolbarRenderStyleMode.Plain">
+            <Items>
+                <DxToolbarItem BeginGroup="true" Alignment="ToolbarItemAlignment.Right" Tooltip="Làm mới"
+                               IconCssClass="@($"{IconClassConstants.ICON_REFRESH} {IconClassConstants.FONT_SIZE_ICON}")"
+                               Click="@ReloadDataHandler" />
+            </Items>
+        </DxToolbar>
+    </ToolbarTemplate>
+    <Columns>
+        <DxGridDataColumn FieldName="@nameof(EmployeeModel.departmentName)" Caption="Phòng ban" MinWidth="120" GroupIndex="0" />
+        <DxGridDataColumn FieldName="@nameof(EmployeeModel.code)" Caption="Mã nhân viên" MinWidth="120" />
+        <DxGridDataColumn FieldName="@nameof(EmployeeModel.name)" Caption="Họ tên" MinWidth="150" />
+        <DxGridDataColumn FieldName="@nameof(EmployeeModel.titleName)" Caption="Chức danh" MinWidth="140" />
+        <DxGridDataColumn FieldName="@nameof(EmployeeModel.gender)" Caption="Giới tính" MinWidth="100" />
+        <DxGridDataColumn FieldName="@nameof(EmployeeModel.dateOfBirth)" Caption="Ngày sinh" DisplayFormat="@GlobalContants.FORMAT_DATE" MinWidth="120" />
+        <DxGridDataColumn FieldName="@nameof(EmployeeModel.dateOfJoining)" Caption="Ngày vào làm" DisplayFormat="@GlobalContants.FORMAT_DATE" MinWidth="120" />
+        <DxGridDataColumn FieldName="@nameof(EmployeeModel.startDate)" Caption="Ngày thử việc" DisplayFormat="@GlobalContants.FORMAT_DATE" MinWidth="120" />
+        <DxGridDataColumn FieldName="@nameof(EmployeeModel.statusName)" Caption="Trạng thái" MinWidth="150" />
+        <DxGridDataColumn FieldName="@nameof(EmployeeModel.probationEndDate)" Caption="Ngày KT thử việc" DisplayFormat="@GlobalContants.FORMAT_DATE" MinWidth="130" />
+    </Columns>
+    <GroupSummary>
+        <DxGridSummaryItem DisplayText="@GlobalContants.FORMAT_GRID_DISPLAYTEXT_COUNT" SummaryType="GridSummaryItemType.Count"
+                           FieldName="@nameof(EmployeeModel.code)" ValueDisplayFormat="@GlobalContants.FORMAT_CURRENCY"
+                           FooterColumnName="@nameof(EmployeeModel.code)" />
+    </GroupSummary>
+    <TotalSummary>
+        <DxGridSummaryItem DisplayText="@GlobalContants.FORMAT_GRID_DISPLAYTEXT_COUNT" SummaryType="GridSummaryItemType.Count"
+                           FieldName="@nameof(EmployeeModel.code)" ValueDisplayFormat="@GlobalContants.FORMAT_CURRENCY"
+                           FooterColumnName="@nameof(EmployeeModel.code)" />
+    </TotalSummary>
+</DxGrid>
+@code{
+    [Parameter] public List<EmployeeModel>? ListEmpSearch { get; set; } // danh sách nhân viên
+    [Parameter] public IGrid? GridEmpSearch { get; set; } = null;
+    [Parameter] public int BranchId { get; set; }
+    [Parameter] public int UserId { get; set; }
+    [Parameter] public string? Token { get; set; }
+    [Parameter] public string? DepartmentIds { get; set; } // chuỗi department cách nhau dấu , nếu nhiều
+    [Parameter] public string? StatusIds { get; set; } // chuỗi trạng thái nhân viên cách nhau dấu , nếu nhiều
+    [Parameter] public object? SeletedItem { get; set; } = null;//thuộc tính này giúp giữ các thông tin đã selected
+    [Parameter] public EventCallback<object?> SelectedDataItemChanged { get; set; }
+
+    object? selectedDataItem;
+    public object? SelectedDataItem
+    {
+        get => selectedDataItem;
+        set
+        {
+            selectedDataItem = value;
+            SelectedDataItemChanged.InvokeAsync(value);
+            InvokeAsync(StateHasChanged);
+        }
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            await ReloadDataHandler();
+        }
+    }
+
+    protected async Task ReloadDataHandler()
+    {
+        try
+        {
+            _loadingService.ShowLoading(true);
+            await Task.Yield();
+            await getEmployeeSearch();
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "ReloadDataHandler");
+            _toastService.ShowError(ex.Message);
+        }
+        finally
+        {
+            _loadingService.ShowLoading(false);
+            await InvokeAsync(StateHasChanged);
+        }
+    }
+
+
+    private async Task getEmployeeSearch()
+    {
+        try
+        {
+            RequestModel request = new RequestModel();
+            request.userId = UserId;
+            request.branchId = BranchId;
+            request.opt = DepartmentIds;
+            request.opt1 = StatusIds;
+            ListEmpSearch = new List<EmployeeModel>();
+            ListEmpSearch = await _personnelService.GetEmployeeAsync(request);
+        }
+        catch (Exception ex)
+        {
+            throw ex;
+        }
+    }
+}

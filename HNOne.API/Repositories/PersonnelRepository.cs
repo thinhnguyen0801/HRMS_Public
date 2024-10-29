@@ -36,6 +36,8 @@ namespace HNOne.API.Repositories
             using (var connection = _dapperDbContext.CreateConnection())
             {
                 var parameters = new DynamicParameters();
+                parameters.Add("@EmployeeId", request.employeeId, DbType.Int32);
+                parameters.Add("@UserId", request.userId, DbType.Int32);
                 parameters.Add("@UserId", request.userId, DbType.Int32);
                 parameters.Add("@BranchId", request.branchId, DbType.Int32);
                 parameters.Add("@StatusId", request.opt, DbType.String);

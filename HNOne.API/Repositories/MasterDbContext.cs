@@ -15,6 +15,7 @@ namespace HNOne.API.Repositories
         public DbSet<ReasonCategories> ReasonCategories { get; set; }
         public DbSet<EnumCatagories> EnumCatagories { get; set; }
         public DbSet<Users> Users { get; set; }
+        public DbSet<FamilyRelationships> FamilyRelationships { get; set; }
 
         public MasterDbContext(DbContextOptions<MasterDbContext> options)
             : base(options)
