@@ -38,5 +38,8 @@
         public const string GET_SALARY_CATEGORY = "get-salary-category";
         public const string POST_SALARY_CATEGORY = "post-salary-category";
         public const string PUT_SALARY_CATEGORY = "put-salary-category";
+        public const string GET_SALARY_CONFIG = "get-salary-config";
+        public const string POST_SALARY_CONFIG = "post-salary-config";
+        public const string PUT_SALARY_CONFIG = "put-salary-config";
     }
 }

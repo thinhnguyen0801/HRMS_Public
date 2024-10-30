@@ -1,5 +1,6 @@
 ﻿using HNOne.Model;
 using HNOne.Model.Entities;
+using HNOne.Model.Models;
 
 namespace HNOne.API.Services.Interfaces
 {
@@ -19,8 +20,9 @@ namespace HNOne.API.Services.Interfaces
         Task<IEnumerable<EnumCatagories>> GetEnum(string enumType);
         Task<ResponseModel> UpdateContractType(string actionType, ContractTypes entity);
         Task<ResponseModel> UpdateReasonCategorie(string actionType, ReasonCategories entity);
-        Task<IEnumerable<SalaryCategories>> GetSalaryCatagory();
+        Task<IEnumerable<SalaryCategories>> GetSalaryCatagory(RequestModel request);
         Task<ResponseModel> UpdateSalaryCategory(string actionType, SalaryCategories entity);
-
+        Task<IEnumerable<SalaryConfigurationModel>> GetSalaryConfig();
+        Task<ResponseModel> UpdateSalaryConfig(string actionType, SalaryConfigurations entity);
     }
 }

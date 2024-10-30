@@ -311,7 +311,7 @@
                                 </div>
                             </div>
                             <div style="height: 350px; min-height: 350px">
-                                <DxGrid Data="ListSalaryInfoConfig" @ref="GridSalaryInfoConfig"
+                                @* <DxGrid Data="ListSalaryInfoConfig" @ref="GridSalaryInfoConfig"
                                         ShowFilterRow="false"
                                         PageSize="500"
                                         ColumnResizeMode="GridColumnResizeMode.ColumnsContainer"
@@ -331,7 +331,7 @@
                                         CssClass="h-full">
                                     <Columns>
                                         <DxGridDataColumn FieldName="@nameof(SalaryConfigurationModel.name)" Caption="Tên loại lương" MinWidth="180" DataRowEditorVisible="false" />
-                                        @* <DxGridDataColumn FieldName="@nameof(SalaryInfoConfigModel.ngachLuong)" Caption="Ngạch" MinWidth="110">
+                                        <DxGridDataColumn FieldName="@nameof(SalaryInfoConfigModel.ngachLuong)" Caption="Ngạch" MinWidth="110">
                                             <CellEditTemplate>
                                                 @{
                                                     var itemLine = (context.DataItem as SalaryInfoConfigModel)!;
@@ -363,7 +363,7 @@
                                                             ValueFieldName="@nameof(ComboboxModel.code)">
                                                 </DxComboBox>
                                             </CellEditTemplate>
-                                        </DxGridDataColumn> *@
+                                        </DxGridDataColumn>
                                         <DxGridDataColumn FieldName="@nameof(SalaryConfigurationModel.overtimeCoefficient)" Caption="Hệ số" MinWidth="70" DisplayFormat="@GlobalContants.FORMAT_NUMBER">
                                             <EditSettings>
                                                 <DxSpinEditSettings DisplayFormat="@GlobalContants.FORMAT_NUMBER" Mask="@GlobalContants.FORMAT_NUMBER" />
@@ -379,10 +379,10 @@
                                         <DxGridDataColumn FieldName="@nameof(SalaryConfigurationModel.bHYT)" Caption="BHYT" MinWidth="70" DataRowEditorVisible="false" />
                                         <DxGridDataColumn FieldName="@nameof(SalaryConfigurationModel.bHTN)" Caption="BHTN" MinWidth="70" DataRowEditorVisible="false" />
                                     </Columns>
-                                    @* <CustomValidators>
+                                    <CustomValidators>
                                         <W1CustomValidator DataItemValidating="ValidateGridSalaryInfo" />
-                                    </CustomValidators> *@
-                                </DxGrid>
+                                    </CustomValidators>
+                                </DxGrid> *@
                             </div>
                             break;
                         case 1:

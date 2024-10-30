@@ -48,6 +48,13 @@ namespace HNOne.API.Repositories
                 new EnumCatagories() {Id = Guid.Parse("6c367ce5-d19f-402e-b375-35aad3ebfdf5"), EnumType = "DanhMucThueTNCN", Code = "1", Name = "Tính lũy tiến", DateTracking = DateTime.Now, RowOrder = 2},
                 new EnumCatagories() {Id = Guid.Parse("9a258f1b-4c21-4f72-9558-4fff7161bdf7"), EnumType = "DanhMucThueTNCN", Code = "2", Name = "Tính 10%", DateTracking = DateTime.Now, RowOrder = 3},
                 new EnumCatagories() {Id = Guid.Parse("145d39d8-2358-4b8e-b73b-2f70cd4eeefd"), EnumType = "DanhMucThueTNCN", Code = "3", Name = "Tính lũy tiến không giảm trừ", DateTracking = DateTime.Now, RowOrder = 4},
+
+                // Danh mục cách tính lương phụ cấp
+                new EnumCatagories() {Id = Guid.Parse("bef9c43e-d68d-4989-a5db-95d4ac7d4f4f"), EnumType = "CachTinhLuongPhuCap", Code = "0", Name = "Tính theo số ngày công thực tế", Value="0", DateTracking = DateTime.Now, RowOrder = 1},
+                new EnumCatagories() {Id = Guid.Parse("662c6d65-75e2-4d03-8b9e-c33339040aa7"), EnumType = "CachTinhLuongPhuCap", Code = "1", Name = "Tính 25%", Value="0.25", DateTracking = DateTime.Now, RowOrder = 2},
+                new EnumCatagories() {Id = Guid.Parse("fc3cdbc3-6ec3-473c-8f0c-f67669e712c7"), EnumType = "CachTinhLuongPhuCap", Code = "2", Name = "Tính 50%", Value="0.5", DateTracking = DateTime.Now, RowOrder = 3},
+                new EnumCatagories() {Id = Guid.Parse("d7c0f9d1-4798-43c7-ba95-bdbb40cc4a6c"), EnumType = "CachTinhLuongPhuCap", Code = "3", Name = "Tính 75%", Value="0.75", DateTracking = DateTime.Now, RowOrder = 4},
+                new EnumCatagories() {Id = Guid.Parse("16ed3423-5248-414b-b000-4e2e89925e6b"), EnumType = "CachTinhLuongPhuCap", Code = "4", Name = "Tính 100%", Value="1", DateTracking = DateTime.Now, RowOrder = 5},
             };
             modelBuilder.Entity<EnumCatagories>().HasData(lstData);
         }

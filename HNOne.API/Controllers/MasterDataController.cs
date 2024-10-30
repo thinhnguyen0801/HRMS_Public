@@ -97,7 +97,10 @@ namespace HNOne.API.Controllers
                         response.data = await _masterDataService.GetEnum($"{request.opt}");
                         break;
                     case ProcessConstants.GET_SALARY_CATEGORY:
-                        response.data = await _masterDataService.GetSalaryCatagory();
+                        response.data = await _masterDataService.GetSalaryCatagory(request);
+                        break;
+                    case ProcessConstants.GET_SALARY_CONFIG:
+                        response.data = await _masterDataService.GetSalaryConfig();
                         break;
                     default:
                         response.status = StatusCodes.Status404NotFound;
@@ -169,6 +172,11 @@ namespace HNOne.API.Controllers
                     case ProcessConstants.POST_SALARY_CATEGORY:
                         var salaryCatagory = JsonConvert.DeserializeObject<SalaryCategories>($"{request.json}");
                         response = await _masterDataService.UpdateSalaryCategory(processKey, salaryCatagory!);
+                        break;
+                    case ProcessConstants.PUT_SALARY_CONFIG:
+                    case ProcessConstants.POST_SALARY_CONFIG:
+                        var salaryConfig = JsonConvert.DeserializeObject<SalaryConfigurations>($"{request.json}");
+                        response = await _masterDataService.UpdateSalaryConfig(processKey, salaryConfig!);
                         break;
                     default:
                         response.status = StatusCodes.Status404NotFound;

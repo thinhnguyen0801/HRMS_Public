@@ -46,10 +46,11 @@
                                 </CellDisplayTemplate>
                             </DxGridDataColumn>
                             <DxGridDataColumn FieldName="@nameof(SalaryCategoryModel.name)" Caption="Tên loại lương" MinWidth="170" />
-                            <DxGridDataColumn FieldName="@nameof(ContractTypeModel.isActive)" Caption="Hoạt động?" MinWidth="100" />
-                            <DxGridDataColumn FieldName="@nameof(ContractTypeModel.dateTracking)" Caption="Ngày cập nhật" MinWidth="120" DisplayFormat="@GlobalContants.FORMAT_DATE_TIME" />
-                            <DxGridDataColumn FieldName="@nameof(ContractTypeModel.userSignName)" Caption="Người tạo" MinWidth="120" />
-                            <DxGridDataColumn FieldName="@nameof(ContractTypeModel.userSign2Name)" Caption="Người cập nhật" MinWidth="120" />
+                            <DxGridDataColumn FieldName="@nameof(SalaryCategoryModel.isActive)" Caption="Hoạt động?" MinWidth="100" />
+                            <DxGridDataColumn FieldName="@nameof(SalaryCategoryModel.rowOrder)" Caption="Thứ tự" MinWidth="100" />
+                            <DxGridDataColumn FieldName="@nameof(SalaryCategoryModel.dateTracking)" Caption="Ngày cập nhật" MinWidth="120" DisplayFormat="@GlobalContants.FORMAT_DATE_TIME" />
+                            <DxGridDataColumn FieldName="@nameof(SalaryCategoryModel.userSignName)" Caption="Người tạo" MinWidth="120" />
+                            <DxGridDataColumn FieldName="@nameof(SalaryCategoryModel.userSign2Name)" Caption="Người cập nhật" MinWidth="120" />
                         </Columns>
                         <TotalSummary>
                             <DxGridSummaryItem DisplayText="@GlobalContants.FORMAT_GRID_DISPLAYTEXT_COUNT" SummaryType="GridSummaryItemType.Count"

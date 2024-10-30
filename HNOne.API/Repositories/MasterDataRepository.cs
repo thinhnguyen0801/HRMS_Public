@@ -1,9 +1,11 @@
-﻿using Dapper;
+﻿using Azure.Core;
+using Dapper;
 using HNOne.API.Constants;
 using HNOne.API.Repositories.Interfaces;
 using HNOne.Common;
 using HNOne.Model;
 using HNOne.Model.Entities;
+using HNOne.Model.Models;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Data;
@@ -79,10 +81,40 @@ namespace HNOne.API.Repositories
         /// </summary>
         /// <param name="enumType"></param>
         /// <returns></returns>
-        public async Task<IEnumerable<SalaryCategories>> GetSalaryCatagory()
+        public async Task<IEnumerable<SalaryCategories>> GetSalaryCatagory(RequestModel request)
         {
-            var results = await _dbContext.SalaryCategories.Where(m => !m.IsDelete).OrderBy(m => m.RowOrder).ToListAsync();
-            return results;
+            using (var connection = _dapperDbContext.CreateConnection())
+            {
+                string query = "select T0.* from SalaryCategories as T0 with(nolock)" +
+                    " where T0.IsDelete = '0'";
+                // thêm điều kiện
+                if (request.opt == "ACTIVE") query += " and T0.IsActive = '1'";
+                query += " order by T0.RowOrder";
+                var results = await connection.QueryAsync<SalaryCategories>(query, commandTimeout: GlobalConstants.COMMAND_TIMEOUT, commandType: CommandType.Text);
+                return results;
+            }
+        }
+
+        /// <summary>
+        /// lấy danh sách cấu hình lương
+        /// </summary>
+        /// <returns></returns>
+        public async Task<IEnumerable<SalaryConfigurationModel>> GetSalarySalaryConfig()
+        {
+            using (var connection = _dapperDbContext.CreateConnection())
+            {
+                string query = "select T0.*, T1.Code as SalaryCategoryCode" +
+                    ",T1.Name as SalaryCategoryName" +
+                    ",T2.BranchCode, T2.BranchName, T3.Name as SalaryCalculateMethodName" +
+                    " from SalaryConfigurations as T0 with(nolock) " +
+                    " inner join SalaryCategories as T1 with(nolock) on T0.SalaryCategoryId = T1.Id " +
+                    " inner join Branchs as T2 with(nolock) on T0.BranchId = T2.BranchId" +
+                    " left join EnumCatagories as T3 with(nolock) on T0.SalaryCalculateMethod = T3.Code and T3.EnumType = 'CachTinhLuongPhuCap'";
+                //var parameters = new DynamicParameters();
+                //parameters.Add("@EmployeeId", request.employeeId, DbType.Int32);
+                var results = await connection.QueryAsync<SalaryConfigurationModel>(query, commandTimeout: GlobalConstants.COMMAND_TIMEOUT, commandType: CommandType.Text);
+                return results;
+            };
         }
         #endregion 
 
@@ -531,6 +563,86 @@ namespace HNOne.API.Repositories
                 result.UpdateDate = _dateTimeHelper.GetCurrentVietnamTime();
                 result.UserSign2 = entity.UserSign2;
                 _dbContext.SalaryCategories.Attach(result);
+                _dbContext.Entry(result).State = EntityState.Modified;
+                await _dbContext.SaveChangesAsync();
+                response.message = MessageConstants.MESSAGE_UPDATE_SUCCESS;
+                return response;
+            }
+            catch (Exception) { throw; }
+        }
+
+        /// <summary>
+        /// lưu thông tin cấu hình lương
+        /// </summary>
+        /// <param name="entity"></param>
+        /// <returns></returns>
+        public async Task<ResponseModel> AddSalaryConfig(SalaryConfigurations entity)
+        {
+            ResponseModel response = new ResponseModel();
+            try
+            {
+                using (var connection = _dapperDbContext.CreateConnection())
+                {
+                    DynamicParameters parameters = new DynamicParameters();
+                    bool isResult = true;
+                    string strQuery = "select count(1) from [SalaryConfigurations] with(nolock) where SalaryCategoryId = @SalaryCategoryId and BranchId = @BranchId";
+                    isResult = await connection.ExecuteScalarAsync<bool>(strQuery, new { entity.SalaryCategoryId, entity.BranchId });
+                    if (isResult)
+                    {
+                        response.status = StatusCodes.Status409Conflict;
+                        response.message = "Thông tin cấu hình lương đã tồn tại. Vui lòng kiểm tra Loại lương và Chi nhánh!";
+                        return response;
+                    }
+                    entity.Id = await _dbContext.SalaryConfigurations.Select(m => m.Id).DefaultIfEmpty().MaxAsync() + 1;
+                    entity.DateTracking = _dateTimeHelper.GetCurrentVietnamTime();
+                    entity.CreateDate = _dateTimeHelper.GetCurrentVietnamTime();
+                    await _dbContext.SalaryConfigurations.AddAsync(entity);
+                    await _dbContext.SaveChangesAsync();
+                    response.message = MessageConstants.MESSAGE_ADD_SUCCESS;
+                    return response;
+                }
+            }
+            catch (Exception) { throw; }
+        }
+
+        /// <summary>
+        /// cập nhật thông tin cấu hình tính lương
+        /// </summary>
+        /// <param name="entity"></param>
+        /// <returns></returns>
+        public async Task<ResponseModel> UpdateSalaryConfig(SalaryConfigurations entity)
+        {
+            ResponseModel response = new ResponseModel();
+            try
+            {
+                var result = await _dbContext.SalaryConfigurations.FirstOrDefaultAsync(m => m.Id == entity.Id);
+                if (result == null)
+                {
+                    response.status = StatusCodes.Status404NotFound;
+                    response.message = MessageConstants.MESSAGE_NOT_FOUNT;
+                    return response;
+                }
+                result.IsActive = entity.IsActive;
+                result.IsPersonalIncomeTax = entity.IsPersonalIncomeTax;
+                result.TaxLimit = entity.TaxLimit;
+                result.IsSocialInsurance = entity.IsSocialInsurance;
+                result.IsHealthInsurance = entity.IsHealthInsurance;
+                result.IsAccidentInsurance = entity.IsAccidentInsurance;
+                result.IsOccupationalAccidentInsurance = entity.IsOccupationalAccidentInsurance;
+                result.IsUnionFee = entity.IsUnionFee;
+                result.IsOvertime = entity.IsOvertime;
+                result.OvertimeCoefficient = entity.OvertimeCoefficient;
+                result.IsNightShift = entity.IsNightShift;
+                result.CoefficientNightShift = entity.CoefficientNightShift;
+                result.IsAllowance = entity.IsAllowance;
+                result.IsProbationaryPeriod = entity.IsProbationaryPeriod;
+                result.SalaryDefault = entity.SalaryDefault;
+                result.SalaryCalculateMethod = entity.SalaryCalculateMethod;
+                result.IsUseOfGradeLevel = entity.IsUseOfGradeLevel;
+                result.DateTracking = _dateTimeHelper.GetCurrentVietnamTime();
+                result.UpdateDate = _dateTimeHelper.GetCurrentVietnamTime();
+                result.UserSign2 = entity.UserSign2;
+                _dbContext.SalaryConfigurations.Attach(result);
                 _dbContext.Entry(result).State = EntityState.Modified;
                 await _dbContext.SaveChangesAsync();
                 response.message = MessageConstants.MESSAGE_UPDATE_SUCCESS;

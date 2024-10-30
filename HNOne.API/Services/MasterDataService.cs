@@ -3,6 +3,7 @@ using HNOne.API.Services.Interfaces;
 using HNOne.Common;
 using HNOne.Model;
 using HNOne.Model.Entities;
+using HNOne.Model.Models;
 using static Dapper.SqlMapper;
 
 namespace HNOne.API.Services
@@ -59,8 +60,11 @@ namespace HNOne.API.Services
         /// lấy danh sách loại lương
         /// </summary>
         /// <returns></returns>
-        public async Task<IEnumerable<SalaryCategories>> GetSalaryCatagory()
-            => await _masterRepository.GetSalaryCatagory();
+        public async Task<IEnumerable<SalaryCategories>> GetSalaryCatagory(RequestModel request)
+            => await _masterRepository.GetSalaryCatagory(request);
+
+        public async Task<IEnumerable<SalaryConfigurationModel>> GetSalaryConfig()
+           => await _masterRepository.GetSalarySalaryConfig();
         #endregion
 
         #region Command
@@ -268,6 +272,37 @@ namespace HNOne.API.Services
                         break;
                     case ProcessConstants.PUT_SALARY_CATEGORY:
                         response = await _masterRepository.UpdateSalaryCategory(entity);
+                        break;
+                }
+                return response;
+            }
+            catch (Exception ex)
+            {
+                response.status = StatusCodes.Status400BadRequest;
+                response.message = ex.Message;
+            }
+            return response;
+
+        }
+
+        /// <summary>
+        /// Cập nhật thông tin cấu hình tính lương
+        /// </summary>
+        /// <param name="actionType"></param>
+        /// <param name="entity"></param>
+        /// <returns></returns>
+        public async Task<ResponseModel> UpdateSalaryConfig(string actionType, SalaryConfigurations entity)
+        {
+            ResponseModel response = new ResponseModel();
+            try
+            {
+                switch (actionType)
+                {
+                    case ProcessConstants.POST_SALARY_CONFIG:
+                        response = await _masterRepository.AddSalaryConfig(entity);
+                        break;
+                    case ProcessConstants.PUT_SALARY_CONFIG:
+                        response = await _masterRepository.UpdateSalaryConfig(entity);
                         break;
                 }
                 return response;
