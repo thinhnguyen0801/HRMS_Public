@@ -8,6 +8,7 @@
         public int branchId { get; set; }
         public string? branchCode { get; set; }
         public int userId { get; set; }
+        public int employeeId { get; set; }
         public string? employeeCode { get; set; }
         public string? employeeName { get; set; }
         public string? token { get; set; }

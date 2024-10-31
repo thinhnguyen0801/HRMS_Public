@@ -56,12 +56,14 @@ namespace HNOne.API.Controllers
                     user.userName = response.data!.userName;
                     user.employeeName = response.data!.employeeName;
                     user.employeeCode = response.data!.employeeCode;
+                    user.employeeId = response.data!.employeeId;
+                    user.isAdmin = response.data!.isAdmin;
                     // generate token
                     string accessToken = generateAccessToken(user);
                     user.token = accessToken;
                     // generate refresh token
                     string refreshToken = generateRefreshToken();
-
+                    user.refreshToken = refreshToken;
                     await _userService.UpdateRefreshToken(user.userId, refreshToken, jwtConfiguration.JwtRefreshTokenExpiryInDays);
                     response.data = user;
                 }

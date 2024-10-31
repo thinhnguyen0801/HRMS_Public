@@ -42,13 +42,15 @@ namespace HNOne.Web.Services
                         // save token
                         if (await _localStorage.ContainKeyAsync("authToken")) await _localStorage.RemoveItemAsync("authToken");
                         ResUserModel resUser = new ResUserModel();
-                        resUser.branchId = response.data!.branchId;
-                        resUser.branchCode = response.data!.branchCode;
-                        resUser.employeeCode = response.data!.employeeCode;
-                        resUser.employeeName = response.data!.employeeName;
-                        resUser.token = response.data!.token;
-                        resUser.refreshToken = response.data!.refreshToken;
-                        resUser.isAdmin = response.data!.isAdmin;
+                        resUser.userId = response.data!.userId;
+                        resUser.branchId = response.data.branchId;
+                        resUser.branchCode = response.data.branchCode;
+                        resUser.employeeId = response.data.employeeId;
+                        resUser.employeeCode = response.data.employeeCode;
+                        resUser.employeeName = response.data.employeeName;
+                        resUser.token = response.data.token;
+                        resUser.refreshToken = response.data.refreshToken;
+                        resUser.isAdmin = response.data.isAdmin;
                         string encryptUser = _encryptHelper.Encrypt(JsonConvert.SerializeObject(resUser));
                         await _localStorage.SetItemAsync("authToken", encryptUser);
                         return "";

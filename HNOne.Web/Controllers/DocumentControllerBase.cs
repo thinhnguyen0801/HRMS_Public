@@ -1,11 +1,13 @@
 ﻿using Blazored.LocalStorage;
 using Blazored.Toast.Services;
+using HNOne.Common;
 using HNOne.Web.Commons;
 using HNOne.Web.Models;
 using HNOne.Web.Services.Interfaces;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Authorization;
 using Microsoft.JSInterop;
+using Newtonsoft.Json;
 using System.Reflection;
 
 namespace HNOne.Web.Controllers
@@ -23,14 +25,16 @@ namespace HNOne.Web.Controllers
         [Inject] private AuthenticationStateProvider _authenticationStateProvider { get; init; }
         [Inject] protected ILocalStorageService _localStorageService { get; init; }
         [Inject] protected IProgressService _progressService { get; init; }
+        [Inject] protected IEncryptHelper _encryptHelper { get; init; }
 
         #region Properties
-        public int BranchId { get; set; }
-        public string BranchCode { get; set; } = "";
         public int UserId { get; set; }
-        public string IsAdmin { get; set; } = "N";
-        public string UserCode { get; set; } = string.Empty;
         public string Token { get; set; } = string.Empty;
+        public bool IsAdmin { get; set; }
+        public int BranchId { get; set; }
+        public int EmployeeId { get; set; }
+        public string? EmployeeCode { get; set; }
+        public string? EmployeeName { get; set; }
 
         [CascadingParameter]
         public EventCallback<List<BreadcrumbModel>> NotifyBreadcrumb { get; set; }
@@ -47,6 +51,16 @@ namespace HNOne.Web.Controllers
                     if (userLogin != null)
                     {
 
+                        string claimKey = userLogin.User.Claims.FirstOrDefault(m => m.Type == "JSON_USER")?.Value + "";
+                        ResUserModel? result = JsonConvert.DeserializeObject<ResUserModel>(_encryptHelper.Decrypt(claimKey));
+                        if (result == null) return; // laod lần đầu
+                        UserId = result.userId;
+                        Token = $"{result.token}";
+                        IsAdmin = result.isAdmin;
+                        BranchId = result.branchId;
+                        EmployeeId = result.employeeId;
+                        EmployeeCode = result.employeeCode;
+                        EmployeeName = result.employeeName;
                     }
                 }
                 catch (Exception ex) { _logger.LogError(ex, "OnAfterRenderAsync"); }
