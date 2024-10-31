@@ -1,10 +1,12 @@
 ﻿using HNOne.API.Configurations;
 using HNOne.API.Services.Interfaces;
+using HNOne.Common;
 using HNOne.Model;
 using HNOne.Model.Entities;
 using HNOne.Model.Models;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.IdentityModel.Tokens;
+using IdentityModelTokens = Microsoft.IdentityModel.Tokens;
+using Newtonsoft.Json;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Security.Cryptography;
@@ -90,8 +92,8 @@ namespace HNOne.API.Controllers
                 new Claim(nameof(pUser.branchId), $"{pUser.branchId}"),
             };
 
-            var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtConfiguration.JwtSecurityKey)); // key mã hóa
-            var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256); // loại mã hóa (Header)
+            var key = new IdentityModelTokens.SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtConfiguration.JwtSecurityKey)); // key mã hóa
+            var creds = new IdentityModelTokens.SigningCredentials(key, IdentityModelTokens.SecurityAlgorithms.HmacSha256); // loại mã hóa (Header)
             //var expiry = DateTime.Now.AddMinutes(Convert.ToInt32(jwtConfiguration.JwtExpiryInDays)); // hết hạn token
             var expiry = DateTime.Now.AddSeconds(15); // hết hạn token
             var token = new JwtSecurityToken(jwtConfiguration.JwtIssuer
@@ -115,6 +117,72 @@ namespace HNOne.API.Controllers
                 rng.GetBytes(randomNumber);
                 return Convert.ToBase64String(randomNumber);
             }
+        }
+
+        /// <summary>
+        /// lấy dữ liệu
+        /// </summary>
+        /// <param name="request"></param>
+        /// <returns></returns>
+        //[Authorize] // sau có token mở ra
+        [HttpPost]
+        [Route("get-data")]
+        public async Task<IActionResult> GetData([FromBody] RequestModel request)
+        {
+            ResponseModel response = new ResponseModel();
+            try
+            {
+                string? processKey = request.process?.Trim();
+                switch (processKey)
+                {
+                    case ProcessConstants.GET_USER:
+                        response.data = await _userService.GetUser(request);
+                        break;
+
+                    default:
+                        response.status = StatusCodes.Status404NotFound;
+                        response.message = $"Process Key {processKey} was not provider!!!";
+                        return Ok(response);
+                }
+                if (!(response.data is IEnumerable<object> dataList) || dataList.IsNullOrEmpty())
+                {
+                    response.status = StatusCodes.Status204NoContent;
+                    response.message = "Không tìm thấy dữ liệu!!!";
+                }
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "An error occurred while processing the request.");
+                response.status = StatusCodes.Status400BadRequest;
+                response.message = ex.Message;
+            }
+            return Ok(response);
+        }
+
+        [HttpPost]
+        [Route("post-data")]
+        public async Task<IActionResult> PostData([FromBody] RequestModel request)
+        {
+            ResponseModel response = new ResponseModel();
+            try
+            {
+                string? processKey = request.process?.Trim();
+                switch (processKey)
+                {
+                    case ProcessConstants.POST_USER:
+                    case ProcessConstants.PUT_USER:
+                        var user = JsonConvert.DeserializeObject<Users>($"{request.json}");
+                        response = await _userService.UpdateUser(processKey, user!);
+                        break;
+                }
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "An error occurred while processing the request.");
+                response.status = StatusCodes.Status400BadRequest;
+                response.message = ex.Message;
+            }
+            return Ok(response);
         }
         #endregion
 

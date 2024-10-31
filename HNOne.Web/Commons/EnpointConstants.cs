@@ -10,5 +10,6 @@
         public const string USER_LOGIN = "User/login";
         public const string USER_LOGOUT = "User/logout";
         public const string USER_POST_DATA = "User/post-data";
+        public const string USER_GET_DATA = "User/get-data";
     }
 }
