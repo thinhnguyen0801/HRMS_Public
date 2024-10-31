@@ -24,5 +24,6 @@ namespace HNOne.Web.Services.Interfaces
         Task<bool> UpdateSalaryCategoryAsync(string processKey, int userId, string token, string json);
         Task<List<SalaryConfigurationModel>?> GetSalaryConfigAsync(int userId, string token, bool isShowToast = false);
         Task<bool> UpdateSalaryConfigAsync(string processKey, int userId, string token, string json);
+        Task<string?> GetDocumentNo(int userId, string token, int branchId, string? type, string? opt = "", string? opt1 = "", string? opt2 = "");
     }
 }

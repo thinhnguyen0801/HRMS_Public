@@ -65,6 +65,17 @@ namespace HNOne.API.Services
 
         public async Task<IEnumerable<SalaryConfigurationModel>> GetSalaryConfig()
            => await _masterRepository.GetSalarySalaryConfig();
+        
+        /// <summary>
+        /// lấy mã số chứng từ
+        /// </summary>
+        /// <param name="type"></param>
+        /// <param name="opt"></param>
+        /// <param name="opt1"></param>
+        /// <param name="opt2"></param>
+        /// <returns></returns>
+        public async Task<string?> GetDocumentNo(string? type, string? opt = "", string? opt1 = "", string? opt2 = "")
+            => await _masterRepository.GetDocumentNo(type, opt, opt1, opt2);
         #endregion
 
         #region Command

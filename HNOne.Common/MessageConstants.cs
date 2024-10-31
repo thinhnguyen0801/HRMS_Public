@@ -17,5 +17,6 @@ namespace HNOne.Common
         public const string MESSAGE_NO_CHOSE_DATA = "Không có dòng nào được chọn!";
         public const string MESSAGE_STRING_REQUIRE = "Vui lòng điền {0}!";
         public const string MESSAGE_COMBOBOX_REQUIRE = "Vui lòng chọn {0}!";
+        public const string MESSAGE_DOCUMENT_NO_EMPTY = "không đánh được số chứng từ!!!";
     }
 }

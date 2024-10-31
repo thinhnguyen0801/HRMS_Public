@@ -1,4 +1,5 @@
 ﻿using Blazored.Toast.Services;
+using DevExpress.ClipboardSource.SpreadsheetML;
 using HNOne.Common;
 using HNOne.Model;
 using HNOne.Model.Entities;
@@ -737,6 +738,50 @@ namespace HNOne.Web.Services
                     _toastService.ShowError(response?.message ?? MessageConstants.MESSAGE_IT_SUPPORT);
                 }
                 return false;
+            }
+            catch (Exception) { throw; }
+        }
+    
+        /// <summary>
+        /// đánh số chứng từ
+        /// </summary>
+        /// <param name="userId"></param>
+        /// <param name="token"></param>
+        /// <param name="branchId"></param>
+        /// <param name="type"></param>
+        /// <param name="opt"></param>
+        /// <param name="opt1"></param>
+        /// <param name="opt2"></param>
+        /// <returns></returns>
+        public async Task<string?> GetDocumentNo(int userId, string token, int branchId, string? type, string? opt = "", string? opt1 = "", string? opt2 = "")
+        {
+            try
+            {
+                string voucherNo = string.Empty;
+                RequestModel request = new RequestModel();
+                request.process = ProcessConstants.GET_DOCUMENT_NO;
+                request.userId = userId;
+                request.token = token;
+                request.branchId = branchId;
+                request.type = type;
+                request.opt = opt;
+                request.opt1 = opt1;
+                request.opt2 = opt2;
+                HttpResponseMessage httpResponse = await PostAsync(EnpointConstants.MASTERDATA_GET_DATA, request);
+                var checkContent = ValidateJsonContent(httpResponse.Content);
+                if (!checkContent) _toastService.ShowInfo(MessageConstants.MESSAGE_JSON_INVALID);
+                else
+                {
+                    var response = await httpResponse.Content.ReadFromJsonAsync<ResponseModel>();
+                    if (response == null || response.status != StatusCodes.Status200OK 
+                        || string.IsNullOrEmpty($"{response.data}"))
+                    {
+                        _toastService.ShowInfo(MessageConstants.MESSAGE_DOCUMENT_NO_EMPTY);
+                        return "";
+                    }
+                    voucherNo = $"{response.data}";
+                }
+                return voucherNo;
             }
             catch (Exception) { throw; }
         }

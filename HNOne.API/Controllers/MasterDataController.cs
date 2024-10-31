@@ -102,12 +102,15 @@ namespace HNOne.API.Controllers
                     case ProcessConstants.GET_SALARY_CONFIG:
                         response.data = await _masterDataService.GetSalaryConfig();
                         break;
+                    case ProcessConstants.GET_DOCUMENT_NO:
+                        response.data = await _masterDataService.GetDocumentNo(request.type, request.opt, request.opt1, request.opt2);
+                        break;
                     default:
                         response.status = StatusCodes.Status404NotFound;
                         response.message = $"Process Key {processKey} was not provider!!!";
                         return Ok(response);
                 }
-                if(!(response.data is IEnumerable<object> dataList) || dataList.IsNullOrEmpty())
+                if((response.data is IEnumerable<object> dataList) && dataList.IsNullOrEmpty())
                 {
                     response.status = StatusCodes.Status204NoContent;
                     response.message = "Không tìm thấy dữ liệu!!!";

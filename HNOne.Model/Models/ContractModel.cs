@@ -12,6 +12,7 @@
         public DateTime? startDate { get; set; } // Ngày bắt đầu
         public DateTime? endDate { get; set; } // Ngày kết thúc
         public DateTime? dateOfSigning { get; set; } // Ngày kí
+        public DateTime? deductionDate { get; set; } // Ngày trích nộp
         public int employeeSignatureId { get; set; } // nhân viên kí
         public string? employeeSignatureCode { get; set; }
         public string? employeeSignatureName { get; set; }
@@ -28,6 +29,9 @@
         public int numberOfDaysReduced { get; set; } // số ngày giảm
         public string? decisionNo { get; set; } // số chứng từ quyết định
         public bool isActive { get; set; } // áp dụng chưa
+        public bool isCompanyDeduction { get; set; } // cty đóng trích nộp thay
+        public bool isCompanyInsurance { get; set; } // cty đóng trích nộp thay
         public int placeOfWorkId { get; set; } // nơi làm việc
+        public string? taxTypeCode { get; set; } // loại tính thuế
     }
 }

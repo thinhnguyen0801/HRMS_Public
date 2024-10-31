@@ -192,7 +192,8 @@
                                             <W1Label Value="Ngày cấp" Id="txtKiDanhGia" Styles="width: 120px" />
                                             <div style="width: calc(100% - 120px)">
                                                 <DxDateEdit @bind-Date="@EmployeeUpdate.issuanceDateCIC" DisplayFormat="@GlobalContants.FORMAT_DATE"
-                                                            Mask="@GlobalContants.FORMAT_DATE" Format="@GlobalContants.FORMAT_DATE" CssClass="w1FontSize" />
+                                                            Mask="@GlobalContants.FORMAT_DATE" Format="@GlobalContants.FORMAT_DATE" CssClass="w1FontSize"
+                                                            ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"/>
                                             </div>
                                         </div>
                                     </div>

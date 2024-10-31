@@ -116,6 +116,33 @@ namespace HNOne.API.Repositories
                 return results;
             };
         }
+        
+        /// <summary>
+        /// lấy mã chứng từ
+        /// </summary>
+        /// <param name="type"></param>
+        /// <param name="opt"></param>
+        /// <param name="opt1"></param>
+        /// <param name="opt2"></param>
+        /// <returns></returns>
+        public async Task<string?> GetDocumentNo(string? type, string? opt = "", string? opt1 = "", string? opt2 = "")
+        {
+            try
+            {
+                using (var connection = _dapperDbContext.CreateConnection())
+                {
+                    string commandText = @$"select {StoreConstants.FUNC_GET_VOUCHER}(@Type,@Opt,@Opt1,@Opt2)";
+                    DynamicParameters parameters = new DynamicParameters();
+                    parameters.Add("@Type", type, DbType.String);
+                    parameters.Add("@Opt", opt, DbType.String);
+                    parameters.Add("@Opt1", opt1, DbType.String);
+                    parameters.Add("@Opt2", opt2, DbType.String);
+                    string? voucherNo = await connection.QueryFirstOrDefaultAsync<string>(commandText, param: parameters, commandTimeout: GlobalConstants.COMMAND_TIMEOUT, commandType: CommandType.Text);
+                    return voucherNo;
+                }    
+            }
+            catch (Exception) { throw; }
+        }
         #endregion 
 
         #region Command
@@ -133,7 +160,7 @@ namespace HNOne.API.Repositories
             {
                 using (var connection = _dapperDbContext.CreateConnection())
                 {
-                    string commandText = @$"select {StoreConstants.FUNC_GET_VOUCHER}(@Type)";
+                    string commandText = @$"select {StoreConstants.FUNC_GET_VOUCHER}(@Type, '', '', '')";
                     string? voucherNo = await connection.QueryFirstOrDefaultAsync<string>(commandText, param: new { Type = GlobalConstants.TABLE_BRANCH }, commandTimeout: GlobalConstants.COMMAND_TIMEOUT, commandType: CommandType.Text);
                     if (string.IsNullOrEmpty(voucherNo))
                     {
@@ -260,7 +287,7 @@ namespace HNOne.API.Repositories
             {
                 using (var connection = _dapperDbContext.CreateConnection())
                 {
-                    string commandText = @$"select {StoreConstants.FUNC_GET_VOUCHER}(@Type)";
+                    string commandText = @$"select {StoreConstants.FUNC_GET_VOUCHER}(@Type, '', '', '')";
                     string? voucherNo = await connection.QueryFirstOrDefaultAsync<string>(commandText, param: new { Type = GlobalConstants.TABLE_POSITION }, commandTimeout: GlobalConstants.COMMAND_TIMEOUT, commandType: CommandType.Text);
                     if (string.IsNullOrEmpty(voucherNo))
                     {
@@ -329,7 +356,7 @@ namespace HNOne.API.Repositories
             {
                 using (var connection = _dapperDbContext.CreateConnection())
                 {
-                    string commandText = @$"select {StoreConstants.FUNC_GET_VOUCHER}(@Type)";
+                    string commandText = @$"select {StoreConstants.FUNC_GET_VOUCHER}(@Type, '', '', '')";
                     string? voucherNo = await connection.QueryFirstOrDefaultAsync<string>(commandText, param: new { Type = GlobalConstants.TABLE_TITLE }, commandTimeout: GlobalConstants.COMMAND_TIMEOUT, commandType: CommandType.Text);
                     if (string.IsNullOrEmpty(voucherNo))
                     {

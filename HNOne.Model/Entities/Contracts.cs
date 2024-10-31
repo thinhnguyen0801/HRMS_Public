@@ -21,10 +21,11 @@ namespace HNOne.Model.Entities
         public int BranchId { get; set; }
         public int TimesheetId { get; set; } // ID bảng công
         [MaxLength(250)]
-        public string? ContractCode { get; set; }
+        public string? ContractCode { get; set; } // số hợp đồng
         public DateTime? StartDate { get; set; } // Ngày bắt đầu
         public DateTime? EndDate { get; set; } // Ngày kết thúc
         public DateTime? DateOfSigning { get; set; } // Ngày kí
+        public DateTime? DeductionDate { get; set; } // Ngày trích nộp
         public int EmployeeSignatureId { get; set; } // nhân viên kí
         public int ContractTypeId { get; set; } // Loại hợp đồng
         public int PositionId { get; set; } // chức vụ
@@ -34,15 +35,21 @@ namespace HNOne.Model.Entities
         public string? Remark { get; set; } // ghi chú
         [MaxLength(50)]
         public string? StatusCode { get; set; } // trạng thái lấy từ enum
+        public string? TaxtTypeCode { get; set; } // loại tính thuế
         public double SalaryCoefficient { get; set; } // Hệ số lương
+        [Column(TypeName = "decimal(19, 6)")]
         public decimal TotalSalary { get; set; } // Tổng lương
+        [Column(TypeName = "decimal(19, 6)")]
         public decimal NetSalary { get; set; } // Tổng lương thực nhận
         public int NumberOfMonths { get; set; } // số tháng
         public int NumberOfDaysReduced { get; set; } // số ngày giảm
         [MaxLength(250)]
         public string? DecisionNo { get; set; } // số chứng từ quyết định
-        public bool IsActive { get; set; } // áp dụng chưa
         public int PlaceOfWorkId { get; set; } // nơi làm việc
+        public bool IsActive { get; set; } // áp dụng chưa
+        public bool IsCompanyDeduction { get; set; } // công ty đóng trích nộp thay
+        public bool IsCompanyInsurance { get; set; } // công ty đóng bảo hiểm thay
+        
         
     }
 }

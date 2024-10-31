@@ -24,5 +24,6 @@ namespace HNOne.API.Services.Interfaces
         Task<ResponseModel> UpdateSalaryCategory(string actionType, SalaryCategories entity);
         Task<IEnumerable<SalaryConfigurationModel>> GetSalaryConfig();
         Task<ResponseModel> UpdateSalaryConfig(string actionType, SalaryConfigurations entity);
+        Task<string?> GetDocumentNo(string? type, string? opt = "", string? opt1 = "", string? opt2 = "");
     }
 }

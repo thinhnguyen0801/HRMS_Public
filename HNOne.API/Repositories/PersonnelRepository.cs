@@ -6,6 +6,7 @@ using HNOne.Model;
 using HNOne.Model.Entities;
 using HNOne.Model.Models;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.VisualBasic;
 using System.Data;
 using static Dapper.SqlMapper;
 
@@ -61,7 +62,7 @@ namespace HNOne.API.Repositories
             {
                 using (var connection = _dapperDbContext.CreateConnection())
                 {
-                    string commandText = @$"select {StoreConstants.FUNC_GET_VOUCHER}(@Type)";
+                    string commandText = @$"select {StoreConstants.FUNC_GET_VOUCHER}(@Type, '', '', '')";
                     string? voucherNo = await connection.QueryFirstOrDefaultAsync<string>(commandText, param: new { Type = GlobalConstants.TABLE_EMPLOYEE }, commandTimeout: GlobalConstants.COMMAND_TIMEOUT, commandType: CommandType.Text);
                     if (string.IsNullOrEmpty(voucherNo))
                     {
@@ -69,7 +70,7 @@ namespace HNOne.API.Repositories
                         response.message = MessageConstants.MESSAGE_VOUCHER_NO_MISSING;
                         return response;
                     }
-                    entity.Id = await _dbContext.Employees.Select(m => m.BranchId).DefaultIfEmpty().MaxAsync() + 1;
+                    entity.Id = await _dbContext.Employees.Select(m => m.Id).DefaultIfEmpty().MaxAsync() + 1;
                     entity.Code = voucherNo;
                     entity.DateTracking = _dateTimeHelper.GetCurrentVietnamTime();
                     entity.CreateDate = _dateTimeHelper.GetCurrentVietnamTime();
@@ -157,6 +158,103 @@ namespace HNOne.API.Repositories
                 return response;
             }
             catch (Exception) { throw; }
+        }
+
+        /// <summary>
+        /// Thêm mới thông tin hợp đồng
+        /// </summary>
+        /// <param name="entity"></param>
+        /// <returns></returns>
+        public async Task<ResponseModel> AddContract(Contracts entity)
+        {
+            bool isTrans = false;
+            ResponseModel response = new ResponseModel();
+            try
+            {
+                using (var connection = _dapperDbContext.CreateConnection())
+                {
+                    DynamicParameters parameters = new DynamicParameters();
+                    bool isResult = true;
+                    isResult = await _dbContext.Contracts.FirstOrDefaultAsync(m => m.ContractCode == entity.ContractCode) != null;
+                    if (isResult)
+                    {
+                        response.status = StatusCodes.Status409Conflict;
+                        response.message = "Số hợp đồng đã tồn tại!";
+                        return response;
+                    }
+                    entity.Id = await _dbContext.Contracts.Select(m => m.Id).DefaultIfEmpty().MaxAsync() + 1;
+                    entity.DateTracking = _dateTimeHelper.GetCurrentVietnamTime();
+                    entity.CreateDate = _dateTimeHelper.GetCurrentVietnamTime();
+                    await _dbContext.Database.BeginTransactionAsync();
+                    isTrans = true;
+                    await _dbContext.Contracts.AddAsync(entity);
+                    // Thêm thông tin lương
+                    await _dbContext.SaveChangesAsync();
+                    await _dbContext.Database.CommitTransactionAsync();
+                    response.message = MessageConstants.MESSAGE_ADD_SUCCESS;
+                }
+                return response;
+            }
+            catch (Exception)
+            {
+                if (isTrans) await _dbContext.Database.RollbackTransactionAsync();
+                throw;
+            }
+
+        }
+
+        public async Task<ResponseModel> UpdateContract(Contracts entity)
+        {
+            bool isTrans = false;
+            ResponseModel response = new ResponseModel();
+            try
+            {
+                var data = await _dbContext.Contracts.FirstOrDefaultAsync(m => m.Id == entity.Id);
+                if (data == null)
+                {
+                    response.status = StatusCodes.Status404NotFound;
+                    response.message = MessageConstants.MESSAGE_NOT_FOUNT;
+                    return response;
+                }
+                data.EmployeeId = entity.EmployeeId;
+                data.TimesheetId = entity.TimesheetId;
+                data.StartDate = entity.StartDate;
+                data.EndDate = entity.EndDate;
+                data.DateOfSigning = entity.DateOfSigning;
+                data.DeductionDate = entity.DeductionDate;
+                data.EmployeeSignatureId = entity.EmployeeSignatureId;
+                data.PositionId = entity.PositionId;
+                data.TitleId = entity.TitleId;
+                data.Remark = entity.Remark;
+                data.StatusCode = entity.StatusCode;
+                data.TaxtTypeCode = entity.TaxtTypeCode;
+                data.SalaryCoefficient = entity.SalaryCoefficient;
+                data.TotalSalary = entity.TotalSalary;
+                data.NetSalary = entity.NetSalary;
+                data.NumberOfMonths = entity.NumberOfMonths;
+                data.NumberOfDaysReduced = entity.NumberOfDaysReduced;
+                data.DecisionNo = entity.DecisionNo;
+                data.PlaceOfWorkId = entity.PlaceOfWorkId;
+                data.IsActive = entity.IsActive;
+                data.IsCompanyDeduction = entity.IsCompanyDeduction;
+                data.IsCompanyInsurance = entity.IsCompanyInsurance;
+                data.DateTracking = _dateTimeHelper.GetCurrentVietnamTime();
+                data.UpdateDate = _dateTimeHelper.GetCurrentVietnamTime();
+                data.UserSign2 = entity.UserSign2;
+                await _dbContext.Database.BeginTransactionAsync();
+                isTrans = true;
+                _dbContext.Contracts.Attach(data);
+                _dbContext.Entry(data).State = EntityState.Modified;
+                await _dbContext.SaveChangesAsync();
+                await _dbContext.Database.CommitTransactionAsync();
+                response.message = MessageConstants.MESSAGE_UPDATE_SUCCESS;
+                return response;
+            }
+            catch (Exception)
+            {
+                if (isTrans) await _dbContext.Database.RollbackTransactionAsync();
+                throw;
+            }
         }
         #endregion
     }

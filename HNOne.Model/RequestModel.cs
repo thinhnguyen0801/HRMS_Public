@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
+﻿
 namespace HNOne.Model
 {
     public class RequestModel
@@ -15,6 +10,7 @@ namespace HNOne.Model
         public string? process { get; set; }
         public string? json { get; set; }
         public string? jsonDetail { get; set; }
+        public string? type { get; set; }
         public string? opt { get; set; }
         public string? opt1 { get; set; }
         public string? opt2 { get; set; }
