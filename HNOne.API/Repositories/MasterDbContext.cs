@@ -15,6 +15,11 @@ namespace HNOne.API.Repositories
         public DbSet<ReasonCategories> ReasonCategories { get; set; }
         public DbSet<EnumCatagories> EnumCatagories { get; set; }
         public DbSet<Users> Users { get; set; }
+        public DbSet<FamilyRelationships> FamilyRelationships { get; set; }
+        public DbSet<SalaryCategories> SalaryCategories { get; set; }
+        public DbSet<SalaryConfigurations> SalaryConfigurations { get; set; }
+        public DbSet<Contracts> Contracts { get; set; }
+        public DbSet<SalaryAdjustments> SalaryAdjustments { get; set; }
 
         public MasterDbContext(DbContextOptions<MasterDbContext> options)
             : base(options)
@@ -24,13 +29,15 @@ namespace HNOne.API.Repositories
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
-            modelBuilder.Entity<Branchs>().HasIndex(m => m.BranchCode).IsUnique(true);
-            modelBuilder.Entity<Departments>().HasIndex(m => m.Code).IsUnique(true);
-            modelBuilder.Entity<Positions>().HasIndex(m => m.Code).IsUnique(true);
-            modelBuilder.Entity<Titles>().HasIndex(m => m.Code).IsUnique(true);
-            modelBuilder.Entity<Employees>().HasIndex(m => m.Code).IsUnique(true);
-            modelBuilder.Entity<ContractTypes>().HasIndex(m => m.Code).IsUnique(true);
-            modelBuilder.Entity<Users>().HasIndex(m => m.UserName).IsUnique(true);
+            modelBuilder.Entity<Branchs>().HasIndex(m => m.BranchCode).IsUnique();
+            modelBuilder.Entity<Departments>().HasIndex(m => m.Code).IsUnique();
+            modelBuilder.Entity<Positions>().HasIndex(m => m.Code).IsUnique();
+            modelBuilder.Entity<Titles>().HasIndex(m => m.Code).IsUnique();
+            modelBuilder.Entity<Employees>().HasIndex(m => m.Code).IsUnique();
+            modelBuilder.Entity<ContractTypes>().HasIndex(m => new { m.Code, m.BranchId }).IsUnique();
+            modelBuilder.Entity<Users>().HasIndex(m => m.UserName).IsUnique();
+            modelBuilder.Entity<SalaryCategories>().HasIndex(m => m.Code).IsUnique();
+            modelBuilder.Entity<SalaryConfigurations>().HasIndex(m => new { m.SalaryCategoryId, m.BranchId }).IsUnique();
         }
 
 

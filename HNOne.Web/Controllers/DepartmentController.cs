@@ -1,11 +1,10 @@
 ﻿using DevExpress.Blazor;
 using HNOne.Common;
 using HNOne.Model;
-using HNOne.Model.Entities;
 using HNOne.Model.Models;
 using HNOne.Web.Commons;
 using HNOne.Web.Components.Controls;
-using HNOne.Web.Services;
+using HNOne.Web.Models;
 using HNOne.Web.Services.Interfaces;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Forms;
@@ -29,10 +28,10 @@ namespace HNOne.Web.Controllers
         public bool IsShowDialog { get; set; }
         public bool IsCreate { get; set; } = true;
         public W1Confirm confirm { get; set; }
-        public List<ComboboxModel>? ListCboHeadId { get; set; } // cbo ds trưởng phòng
-        public List<ComboboxModel>? ListCboManagerId { get; set; } // cbo ds giám đốc
-        public List<ComboboxModel>? ListCboAssistantManagerIds { get; set; } // cbo ds phó phòng
-        public List<ComboboxModel>? ListCboBranchId { get; set; } // cbo ds chi nhánh
+        public List<ComboboxModel>? ListCboHead { get; set; } // cbo ds trưởng phòng
+        public List<ComboboxModel>? ListCboManager { get; set; } // cbo ds giám đốc
+        public List<ComboboxModel>? ListCboAssistantManager { get; set; } // cbo ds phó phòng
+        public List<ComboboxModel>? ListCboBranch { get; set; } // cbo ds chi nhánh
 
         #endregion
 
@@ -43,14 +42,13 @@ namespace HNOne.Web.Controllers
                 try
                 {
                     await ShowLoading();
+                    ListBreadcrumbs = new List<BreadcrumbModel>()
+                    {
+                        new BreadcrumbModel("Danh mục"),
+                        new BreadcrumbModel("Phòng ban", isActive: true)
+                    };
+                    await NotifyBreadcrumb.InvokeAsync(ListBreadcrumbs);
                     await buildComboboxAsync();
-                    //await _progressService.SetPercent(0.4);
-                    //string errMessage = await CheckAuthMenuAsync("contractlist");
-                    //if (errMessage == "401") return; // kiểm quyền menu page danh sách
-                    //Permission = await _masterDataService.GetAccessControl(UserId, Token, DepartmentId, 10012);
-                    //ItemSearch.fromDate = new DateTime(DateTime.Now.Year, DateTime.Now.Month, 1);
-                    //ItemSearch.toDate = DateTime.Now;
-                    //await NotifyBreadcrumb.InvokeAsync(ListBreadcrumbs);
                     await getDepartments();
 
                 }
@@ -76,7 +74,7 @@ namespace HNOne.Web.Controllers
                 await Task.WhenAll(
                     getTask1
                     );
-                ListCboBranchId = (await getTask1)?.Select(m => new ComboboxModel() { id = m.branchId, name = m.branchName })?.ToList();
+                ListCboBranch = (await getTask1)?.Select(m => new ComboboxModel() { id = m.branchId, name = m.branchName })?.ToList();
             }
             catch (Exception ex)
             {
@@ -92,16 +90,22 @@ namespace HNOne.Web.Controllers
 
         private void validateForSave(ref string errorMessage, ref string fieldName)
         {
+            if(string.IsNullOrEmpty(DepartmentUpdate.code))
+            {
+                errorMessage = String.Format(MessageConstants.MESSAGE_STRING_REQUIRE, "Tên phòng ban");
+                fieldName = "txtCode";
+                return;
+            }
             if(string.IsNullOrEmpty(DepartmentUpdate.name))
             {
-                errorMessage = String.Format(MessageConstants.MESSAGE_COMBOBOX_REQUIRE, "Tên phòng ban");
-                fieldName = nameof(DepartmentUpdate.name);
+                errorMessage = String.Format(MessageConstants.MESSAGE_STRING_REQUIRE, "Tên phòng ban");
+                fieldName = "txtName";
                 return;
             }
             if (DepartmentUpdate.branchId < 1)
             {
                 errorMessage = String.Format(MessageConstants.MESSAGE_COMBOBOX_REQUIRE, "Chi nhánh");
-                fieldName = nameof(DepartmentUpdate.branchId);
+                fieldName = "txtBranchId";
                 return;
             }
         }
@@ -136,6 +140,7 @@ namespace HNOne.Web.Controllers
                 {
                     IsCreate = true;
                     DepartmentUpdate = new DepartmentModel();
+                    if (!ListCboBranch.IsNullOrEmpty()) DepartmentUpdate.branchId = BranchId;
                 }
                 else
                 {
@@ -172,8 +177,9 @@ namespace HNOne.Web.Controllers
                     ShowWarning(errorMessage);
                     await _jsRuntime.InvokeVoidAsync("focusInput", fieldName);
                     return;
-                }    
-                bool isConfirm = await confirm.SetConfirm(MessageConstants.MESSAGE_TITLE, MessageConstants.MESSAGE_CONFIRM_ADD);
+                }
+                errorMessage = IsCreate ? MessageConstants.MESSAGE_CONFIRM_ADD : MessageConstants.MESSAGE_CONFIRM_UPDATE;
+                bool isConfirm = await confirm.SetConfirm(MessageConstants.MESSAGE_TITLE, errorMessage);
                 if (!isConfirm) return;
                 await ShowLoading();
                 string processKey = IsCreate ? ProcessConstants.POST_DEPARTMENT : ProcessConstants.PUT_DEPARTMENT;

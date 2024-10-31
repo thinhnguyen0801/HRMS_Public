@@ -17,7 +17,8 @@ namespace HNOne.Model.Entities
         [MaxLength(250)]
         public string? Name { get; set; }
         public DateTime? DateOfBirth { get; set; }
-        public int? StatusId { get; set; } // Tình trạng
+        [MaxLength(50)]
+        public string? StatusId { get; set; } // Tình trạng. Lấy ở bảng Enum
         [MaxLength(50)]
         public string? Gender { get; set; }
         [MaxLength(1000)]

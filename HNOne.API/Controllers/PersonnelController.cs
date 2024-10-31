@@ -42,6 +42,9 @@ namespace HNOne.API.Controllers
                     case ProcessConstants.GET_EMPLOYEE:
                         response.data = await _personnelService.GetEmployee(request);
                         break;
+                    case ProcessConstants.GET_CONTRACT:
+                        response.data = await _personnelService.GetContract(request);
+                        break;
 
                     default:
                         response.status = StatusCodes.Status404NotFound;
@@ -78,6 +81,16 @@ namespace HNOne.API.Controllers
                         var employee = JsonConvert.DeserializeObject<Employees>($"{request.json}");
                         response = await _personnelService.UpdateEmployee(processKey, employee!);
                         break;
+                    case ProcessConstants.POST_CONTRACT:
+                    case ProcessConstants.PUT_CONTRACT:
+                        var contract = JsonConvert.DeserializeObject<Contracts>($"{request.json}");
+                        var lstSalaryConfig = JsonConvert.DeserializeObject<List<SalaryAdjustments>>($"{request.jsonDetail}");
+                        response = await _personnelService.UpdateContract(processKey, contract!, lstSalaryConfig);
+                        break;
+                    default:
+                        response.status = StatusCodes.Status404NotFound;
+                        response.message = $"Process Key {processKey} was not provider!!!";
+                        return Ok(response);
                 }    
             }
             catch (Exception ex)

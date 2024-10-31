@@ -2,6 +2,7 @@
 {
     public class AuditableModel
     {
+        public DateTime? createDate { get; set; }
         public int? userSign { get; set; }
         public DateTime? updateDate { get; set; }
         public int? userSign2 { get; set; }

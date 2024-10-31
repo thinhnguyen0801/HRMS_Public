@@ -1,0 +1,494 @@
+﻿using HNOne.Web.Commons;
+using HNOne.Model.Models;
+using HNOne.Model;
+using Microsoft.AspNetCore.Components;
+using HNOne.Web.Services.Interfaces;
+using HNOne.Web.Components.Controls;
+using Microsoft.JSInterop;
+using HNOne.Common;
+using DevExpress.Blazor;
+using HNOne.Web.Models;
+using Microsoft.AspNetCore.WebUtilities;
+using Newtonsoft.Json;
+
+namespace HNOne.Web.Controllers
+{
+    public class ContractDetailController : DocumentControllerBase
+    {
+        [Inject] IMasterDataService _masterDataService { get; init; }
+        [Inject] IPersonnelService _personnelService { get; init; }
+        [Inject] IEncryptHelper _encryptHelper { get; init; }
+        [Inject] IJSRuntime _jsRuntime { get; set; }
+        public W1Confirm confirm { get; set; }
+        #region Properties
+        public string? pActionType { get; set; } = nameof(EnumType.Add);
+        private int pDocEntry { get; set; } = 0;
+        public int ActiveTabIndex { get; set; } = 0;
+        public bool IsReadonlyControl { get; set; } = false;
+        public ContractModel ContractDocument { get; set; } = new ContractModel();
+        public List<SalaryConfigurationModel>? ListSalaryInfoConfig { get; set; } // danh sách thông tin lương
+        public IGrid? GridSalaryInfoConfig { get; set; }
+
+        public List<ComboboxModel>? ListCboDepartment { get; set; } // cbo ds phòng ban
+        public List<ComboboxModel>? ListCboPosition { get; set; } // cbo ds chức vụ
+        public List<ComboboxModel>? ListCboTitle { get; set; } // cbo ds chức danh
+        public List<ContractTypeModel>? ListCboContractType { get; set; } // ds cbo loại hợp đồng
+        public List<EnumCatagoryModel>? ListCboEnumTax { get; set; } // cbo ds loại tính thuế
+        public List<EnumCatagoryModel>? ListCboStatus { get; set; } // cbo ds tình trạng
+        
+        private string? pPopupType { get; set; } = string.Empty; // mở popup nào
+        public bool IsShowDialogEmpSearch { get; set; }
+        public string? DepartmentIds { get; set; }
+        public string? StatusIds { get; set; } // Tình trạng nào
+        public object? EmployeeSelected { get; set; } // Nhân viên được chọn
+        #endregion
+
+        protected override async Task OnAfterRenderAsync(bool firstRender)
+        {
+            if (firstRender)
+            {
+                try
+                {
+                    await ShowLoading();
+                    await initDataAsync();
+                    await buildComboAsync();
+                    if (pDocEntry < 1) await getSalaryConfigDefault();
+                    else
+                    {
+                        await showVoucher();
+                    }
+                }
+                catch (Exception ex)
+                {
+                    _logger.LogError(ex, "OnAfterRenderAsync");
+                    ShowError(ex.Message);
+                }
+                finally
+                {
+                    await ShowLoading(false);
+                    //await _progressService!.Done();
+                    await InvokeAsync(StateHasChanged);
+                }
+            }
+        }
+
+        #region Private Functions
+        private async Task initDataAsync(bool isRefresh = false)
+        {
+            ListBreadcrumbs = new List<BreadcrumbModel>()
+            {
+                new BreadcrumbModel("Nhân sự"),
+                new BreadcrumbModel("Danh sách hợp đồng", "danh-sach-hop-dong"),
+                new BreadcrumbModel("Chi tiết hợp đồng", isActive: true),
+            };
+            await NotifyBreadcrumb.InvokeAsync(ListBreadcrumbs);
+
+            //
+            ContractDocument.salaryCoefficient = 1.0;
+            ContractDocument.startDate = DateTime.Now;
+            ContractDocument.dateOfSigning = DateTime.Now;
+            ContractDocument.numberOfMonths = 1;
+            ContractDocument.contractNumber = 1;
+            ContractDocument.numberOfDaysReduced = 1;
+            ContractDocument.statusCode = "1"; // mặc định là chờ xử lý
+            var uri = _navigationManager?.ToAbsoluteUri(_navigationManager.Uri);
+            if (uri != null && QueryHelpers.ParseQuery(uri.Query).Count > 0)
+            {
+                string key = uri.Query.Substring(5); // bỏ ?key=
+                Dictionary<string, string> pParams = JsonConvert.DeserializeObject<Dictionary<string, string>>(_encryptHelper.Decrypt(key))!;
+                if (pParams != null && pParams.Any())
+                {
+                    if (pParams.ContainsKey("pActionType")) pActionType = Convert.ToString(pParams["pActionType"]);
+                    if (pParams.ContainsKey("pDocEntry")) pDocEntry = Convert.ToInt32(pParams["pDocEntry"]);
+                }
+            }
+            IsReadonlyControl = pActionType == nameof(EnumType.Update);
+        }
+
+        /// <summary>
+        /// lấy dữ liệu cho combobox
+        /// </summary>
+        /// <returns></returns>
+        private async Task buildComboAsync()
+        {
+            try
+            {
+                var getTask1 = _masterDataService.GetContractTypeAsync(UserId, Token); // danh sách hợp đồng
+                var getTask2 = _masterDataService.GetTitleAsync(UserId, Token); // ds chức danh
+                var getTask3 = _masterDataService.GetPositionAsync(UserId, Token); // ds chức vụ
+                var getTask4 = _masterDataService.GetEnumAsync(UserId, Token, nameof(EnumCatagory.DanhMucThueTNCN)); // ds loại tính thuế
+                var getTask5 = _masterDataService.GetEnumAsync(UserId, Token, nameof(EnumCatagory.TrangThaiHopDong)); // ds trạng thái
+                await Task.WhenAll(
+                    getTask1,
+                    getTask2,
+                    getTask3,
+                    getTask4,
+                    getTask5
+                );
+                ListCboContractType = await getTask1;
+                ListCboTitle = (await getTask2)?.Select(m => new ComboboxModel() { id = m.id, name = m.name })?.ToList();
+                ListCboPosition = (await getTask3)?.Select(m => new ComboboxModel() { id = m.id, name = m.name })?.ToList();
+                ListCboEnumTax = await getTask4;
+                ListCboStatus = await getTask5;
+            }
+            catch (Exception) { throw; }
+        }
+        
+        /// <summary>
+        /// lấy danh sách cấu hình lương mặc định
+        /// </summary>
+        /// <returns></returns>
+        private async Task getSalaryConfigDefault()
+        {
+            try
+            {
+                var lstSalaryConfig = await _masterDataService.GetSalaryConfigAsync(UserId, Token, isShowToast: false);
+                ListSalaryInfoConfig = lstSalaryConfig?.Update(m => m.amount = m.salaryDefault)?.ToList();
+                calcTotalSalary();
+            }
+            catch (Exception) { throw; }
+        }
+
+        /// <summary>
+        /// tính tiền lương
+        /// </summary>
+        private void calcTotalSalary()
+        {
+            ContractDocument.totalSalary = (ListSalaryInfoConfig?.Sum(m => m.amount) ?? 0);
+            ContractDocument.netSalary = ContractDocument.totalSalary * (decimal)ContractDocument.salaryCoefficient;
+            StateHasChanged();
+        }
+
+        private async Task<string?> getDocumentNo(string? contractType) 
+            => await _masterDataService.GetDocumentNo(UserId, Token, BranchId, GlobalContants.ENUM_CONTRACT_NO, contractType, ContractDocument.dateOfSigning.FormatDateTimeSql());
+
+        private void validateForSave(ref string errorMessage, ref string fieldName)
+        {
+            if (ContractDocument.contractTypeId < 1)
+            {
+                errorMessage = string.Format(MessageConstants.MESSAGE_COMBOBOX_REQUIRE, "Loại hợp đồng");
+                fieldName = nameof(ContractDocument.contractTypeId);
+                return;
+            }
+            if (string.IsNullOrWhiteSpace(ContractDocument.contractCode))
+            {
+                errorMessage = string.Format(MessageConstants.MESSAGE_COMBOBOX_REQUIRE, "Mã hợp đồng");
+                fieldName = nameof(ContractDocument.contractCode);
+                return;
+            }
+            if (ContractDocument.employeeId < 1)
+            {
+                errorMessage = string.Format(MessageConstants.MESSAGE_COMBOBOX_REQUIRE, "Nhân viên");
+                fieldName = nameof(ContractDocument.employeeId);
+                return;
+            }
+            if (ContractDocument.positionId < 1)
+            {
+                errorMessage = string.Format(MessageConstants.MESSAGE_COMBOBOX_REQUIRE, "Chức vụ");
+                fieldName = nameof(ContractDocument.positionId);
+                return;
+            }
+            if (ContractDocument.titleId < 1)
+            {
+                errorMessage = string.Format(MessageConstants.MESSAGE_COMBOBOX_REQUIRE, "Chức danh");
+                fieldName = nameof(ContractDocument.titleId);
+                return;
+            }
+            if (ContractDocument.startDate == null)
+            {
+                errorMessage = string.Format(MessageConstants.MESSAGE_COMBOBOX_REQUIRE, "Thời gian bắt đầu");
+                fieldName = nameof(ContractDocument.startDate);
+                return;
+            }
+            if (string.IsNullOrEmpty(ContractDocument.taxTypeCode))
+            {
+                errorMessage = string.Format(MessageConstants.MESSAGE_COMBOBOX_REQUIRE, "Loại tính thuế TNCN");
+                fieldName = nameof(ContractDocument.taxTypeCode);
+                return;
+            }
+            if (ContractDocument.deductionDate == null)
+            {
+                errorMessage = string.Format(MessageConstants.MESSAGE_COMBOBOX_REQUIRE, "Ngày bắt đầu trích nộp");
+                fieldName = nameof(ContractDocument.deductionDate);
+                return;
+            }
+            if (ContractDocument.deductionDate.Value.Day != 1)
+            {
+                errorMessage = $"[Ngày bắt đầu trích nộp] phải là ngày đầu tháng";
+                fieldName = nameof(ContractDocument.deductionDate);
+                return;
+            }
+        }
+
+        /// <summary>
+        /// Hiểm thị thông tin chi tiết
+        /// </summary>
+        /// <returns></returns>
+        private async Task showVoucher()
+        {
+            try
+            {
+                RequestModel request = new RequestModel();
+                request.documentId = pDocEntry;
+                request.userId = UserId;
+                request.branchId = BranchId;
+                request.token = Token;
+                var lstData = await _personnelService.GetContractAsync(request);
+                if (!lstData.IsNullOrEmpty())
+                {
+                    ContractDocument = lstData![0];
+                    if(!string.IsNullOrEmpty(ContractDocument.jsonDetail))
+                    {
+                        ListSalaryInfoConfig = JsonConvert.DeserializeObject<List<SalaryConfigurationModel>>(ContractDocument.jsonDetail);
+                    }    
+                }    
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+        #endregion
+
+        #region Protected Functions
+        protected async Task OpenPopupHandler(string type = nameof(EmployeeSelected), string popupType = nameof(ContractDocument.employeeCode))
+        {
+            try
+            {
+                pPopupType = popupType;
+                switch (type)
+                {
+                    case nameof(EmployeeSelected):
+                        ListCboDepartment ??= new();
+                        DepartmentIds = string.Join(",", ListCboDepartment.Select(m => m.id));
+                        IsShowDialogEmpSearch = true;
+                        break;
+                }
+            }
+            catch (Exception ex)
+            {
+                ShowError(ex.Message);
+                _logger.LogError(ex, "OpenPopupHandler");
+            }
+            finally
+            {
+                await ShowLoading(false);
+                await InvokeAsync(StateHasChanged);
+            }
+        }
+
+        /// <summary>
+        /// chọn nhân viên
+        /// </summary>
+        /// <param name="type"></param>
+        /// <returns></returns>
+        protected async Task SelectEmployeeHandler()
+        {
+            try
+            {
+                if (EmployeeSelected == null)
+                {
+                    ShowWarning(string.Format(MessageConstants.MESSAGE_COMBOBOX_REQUIRE, "Nhân viên"));
+                    return;
+                }
+                EmployeeModel employee = (EmployeeModel)EmployeeSelected;
+                switch (pPopupType)
+                {
+                    case nameof(ContractDocument.employeeCode):
+                        ContractDocument.employeeId = employee.id;
+                        ContractDocument.employeeCode = employee.code;
+                        ContractDocument.employeeName = employee.name;
+                        ContractDocument.positionId = employee.positionId;
+                        ContractDocument.titleId = employee.titleId ?? -1;
+                        IsShowDialogEmpSearch = false;
+                        break;
+                    case nameof(ContractDocument.employeeSignatureCode):
+                        ContractDocument.employeeSignatureId = employee.id;
+                        ContractDocument.employeeSignatureCode = employee.code;
+                        ContractDocument.employeeSignatureName = employee.name;
+                        IsShowDialogEmpSearch = false;
+                        break;
+                }
+            }
+            catch (Exception ex)
+            {
+                ShowError(ex.Message);
+                _logger.LogError(ex, "SelectEmployeeHandler");
+            }
+            finally
+            {
+                await ShowLoading(false);
+                await InvokeAsync(StateHasChanged);
+            }
+        }
+
+        /// <summary>
+        /// callback nhân viên
+        /// </summary>
+        /// <param name="lstEmp"></param>
+        protected void EventCallbackEmpChangedHandler(object? lstEmp) => EmployeeSelected = lstEmp;
+
+        protected async void ComboboxValueChangedHandler(object? value
+            , string controlID = nameof(ContractDocument.contractTypeId), object? gridSelected = null)
+        {
+            try
+            {
+                switch (controlID)
+                {
+                    case nameof(ContractDocument.contractTypeId):
+                        var contractType = ListCboContractType?.FirstOrDefault(m => m.id == (int?)value);
+                        if (contractType != null)
+                        {
+                            await ShowLoading();
+                            ContractDocument.contractTypeId = contractType.id;
+                            ContractDocument.contractNumber = 1;
+                            ContractDocument.numberOfMonths = contractType.duration;
+                            ContractDocument.numberOfDaysReduced = contractType.numberOfDaysReduced > 0 ? contractType.numberOfDaysReduced : 1;
+                            ContractDocument.contractCode = await getDocumentNo(contractType.code); // gọi API lấy mã hợp đồng
+                            await Task.Delay(100);
+                        }    
+                        break;
+                    default:
+                        break;
+                }    
+            }
+            catch (Exception ex)
+            {
+                ShowError(ex.Message);
+                _logger.LogError(ex, "ComboboxValueChangedHandler");
+            }
+            finally
+            {
+                await ShowLoading(false);
+                await InvokeAsync(StateHasChanged);
+            }
+        }
+
+        /// <summary>
+        /// thay đổi value cho control số
+        /// </summary>
+        /// <param name="value"></param>
+        /// <param name="controlID"></param>
+        /// <param name="isIndefiniteContract">HĐ không thời hạn ?</param>
+        protected void SpinEditValueChangedHandler(double value
+            , string controlID = nameof(ContractDocument.numberOfMonths), object? gridSelected = null)
+        {
+            try
+            {
+                switch (controlID)
+                {
+                    case nameof(ContractDocument.numberOfMonths):
+                        // kiểm xem có phải HĐ không thời hạn không
+                        bool isIndefiniteContract = ListCboContractType?
+                            .FirstOrDefault(m => m.id == ContractDocument.contractTypeId)?.isIndefiniteDuration ?? false;
+                        ContractDocument.numberOfMonths = value;
+                        ContractDocument.endDate = null;
+                        if (!isIndefiniteContract && ContractDocument.startDate != null)
+                        {
+                            ContractDocument.endDate = ContractDocument.startDate.Value
+                                .AddMonths((int)ContractDocument.numberOfMonths)
+                                .AddDays(-1 * ContractDocument.numberOfDaysReduced);
+                        }
+                        StateHasChanged();
+                        break;
+
+                    case nameof(ContractDocument.salaryCoefficient):
+                        ContractDocument.salaryCoefficient = value;
+                        calcTotalSalary();
+                        break;
+                }
+            }
+            catch (Exception ex)
+            {
+                ShowError(ex.Message);
+                _logger.LogError(ex, "SpinEditValueChangeHandler");
+            }
+        }
+
+        protected void GridSalaryInfoConfigEditSavingHandler(GridEditModelSavingEventArgs e)
+        {
+            var itemEdit = (SalaryConfigurationModel)e.EditModel;
+            var itemFind = ListSalaryInfoConfig?.FirstOrDefault(m => m.id == itemEdit.id);
+            if (itemFind == null) return;
+            itemFind.amount = itemEdit.amount;
+            calcTotalSalary();
+        }
+
+        /// <summary>
+        /// làm mới mã hợp đồng
+        /// </summary>
+        /// <returns></returns>
+        protected async Task RefreshContractNoHandler()
+        {
+            try
+            {
+                var contractType = ListCboContractType?.FirstOrDefault(m => m.id == ContractDocument.contractTypeId);
+                if (contractType == null)
+                {
+                    ShowWarning(string.Format(MessageConstants.MESSAGE_COMBOBOX_REQUIRE, "Loại hợp đồng"));
+                    await _jsRuntime.InvokeVoidAsync("focusInput", nameof(ContractDocument.contractTypeId));
+                    return;
+                }   
+                await ShowLoading();
+                ContractDocument.contractCode = await getDocumentNo(contractType.code); // gọi API lấy mã hợp đồng
+            }
+            catch (Exception ex)
+            {
+                ShowError(ex.Message);
+                _logger.LogError(ex, "OpenPopupHandler");
+            }
+            finally
+            {
+                await Task.Delay(100);
+                await ShowLoading(false);
+                await InvokeAsync(StateHasChanged);
+            }
+        }
+        
+        /// <summary>
+        /// lưu thông tin hợp đồng
+        /// </summary>
+        /// <returns></returns>
+        protected async Task SaveDataHandler()
+        {
+            try
+            {
+                string errorMessage = string.Empty;
+                string fieldName = string.Empty; // trả ra trường nào cần validate
+                validateForSave(ref errorMessage, ref fieldName);
+                if (!string.IsNullOrEmpty(errorMessage))
+                {
+                    ShowWarning(errorMessage);
+                    await _jsRuntime.InvokeVoidAsync("focusInput", fieldName);
+                    return;
+                }
+                bool isConfirm = true;
+                errorMessage = pActionType == nameof(EnumType.Add) ? MessageConstants.MESSAGE_CONFIRM_ADD : MessageConstants.MESSAGE_CONFIRM_UPDATE;
+                if (!isConfirm) return;
+                await ShowLoading();
+                string processKey = pActionType == nameof(EnumType.Add) ? ProcessConstants.POST_CONTRACT : ProcessConstants.PUT_CONTRACT;
+                ContractDocument.branchId = BranchId;
+                ContractDocument.userSign = UserId;
+                ContractDocument.userSign2 = UserId;
+                string json = JsonConvert.SerializeObject(ContractDocument);
+                string jsonDetail = JsonConvert.SerializeObject(ListSalaryInfoConfig);
+                isConfirm = await _personnelService.UpdateContractAsync(processKey, UserId, Token, BranchId, json, jsonDetail);
+                if (isConfirm)
+                {
+                    //await showVoucher();
+                }
+            }
+            catch (Exception ex)
+            {
+                ShowError(ex.Message);
+                _logger.LogError(ex, "SaveDataHandler");
+            }
+            finally
+            {
+                await ShowLoading(false);
+                await InvokeAsync(StateHasChanged);
+            }
+        }
+        #endregion
+    }
+}

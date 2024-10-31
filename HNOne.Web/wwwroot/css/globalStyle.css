@@ -117,7 +117,9 @@
     height: 80px;
 }
 
-
+.dxbl-listbox{
+    font-size: 12px !important;
+}
 /*back to top button*/
 #btn-back-to-top {
     display: inline-block;

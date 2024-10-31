@@ -20,5 +20,10 @@ namespace HNOne.Web.Services.Interfaces
         Task<List<EnumCatagoryModel>?> GetEnumAsync(int userId, string token, string? enumType, bool isShowToast = false);
         Task<bool> UpdateContractTypeAsync(string processKey, int userId, string token, string json);
         Task<bool> UpdateReasonCategorieAsync(string processKey, int userId, string token, string json);
+        Task<List<SalaryCategoryModel>?> GetSalaryCatagoryAsync(int userId, string token, string condition = "", bool isShowToast = false);
+        Task<bool> UpdateSalaryCategoryAsync(string processKey, int userId, string token, string json);
+        Task<List<SalaryConfigurationModel>?> GetSalaryConfigAsync(int userId, string token, bool isShowToast = false);
+        Task<bool> UpdateSalaryConfigAsync(string processKey, int userId, string token, string json);
+        Task<string?> GetDocumentNo(int userId, string token, int branchId, string? type, string? opt = "", string? opt1 = "", string? opt2 = "");
     }
 }

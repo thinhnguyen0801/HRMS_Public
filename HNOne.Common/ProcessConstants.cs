@@ -34,5 +34,17 @@
         public const string GET_REASONCATEGORIE = "get-reasoncategorie";
         public const string POST_REASONCATEGORIE = "post-reasoncategorie";
         public const string PUT_REASONCATEGORIE = "put-reasoncategorie";
+
+        public const string GET_SALARY_CATEGORY = "get-salary-category";
+        public const string POST_SALARY_CATEGORY = "post-salary-category";
+        public const string PUT_SALARY_CATEGORY = "put-salary-category";
+        public const string GET_SALARY_CONFIG = "get-salary-config";
+        public const string POST_SALARY_CONFIG = "post-salary-config";
+        public const string PUT_SALARY_CONFIG = "put-salary-config";
+        public const string GET_DOCUMENT_NO = "get-document-no";
+
+        public const string GET_CONTRACT = "get-contract";
+        public const string POST_CONTRACT = "post-contract";
+        public const string PUT_CONTRACT = "put-contract";
     }
 }

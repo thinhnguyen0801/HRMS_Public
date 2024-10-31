@@ -8,5 +8,7 @@ namespace HNOne.API.Services.Interfaces
     {
         Task<IEnumerable<EmployeeModel>> GetEmployee(RequestModel request);
         Task<ResponseModel> UpdateEmployee(string actionType, Employees entity);
+        Task<ResponseModel> UpdateContract(string actionType, Contracts entity, IEnumerable<SalaryAdjustments>? lstSalaryConfig);
+        Task<IEnumerable<ContractModel>> GetContract(RequestModel request);
     }
 }

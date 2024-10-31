@@ -4,6 +4,7 @@ using HNOne.Model;
 using HNOne.Model.Models;
 using HNOne.Web.Commons;
 using HNOne.Web.Components.Controls;
+using HNOne.Web.Models;
 using HNOne.Web.Services;
 using HNOne.Web.Services.Interfaces;
 using Microsoft.AspNetCore.Components;
@@ -17,6 +18,7 @@ namespace HNOne.Web.Controllers
     {
         [Inject] IMasterDataService _masterDataService { get; init; }
         [Inject] IJSRuntime _jsRuntime { get; set; }
+        public W1Confirm confirm { get; set; }
 
         #region Properties
         public List<PositionModel>? ListPosition { get; set; }
@@ -26,8 +28,8 @@ namespace HNOne.Web.Controllers
         public EditContext? _EditContext { get; set; }
         public bool IsShowDialog { get; set; }
         public bool IsCreate { get; set; } = true;
-        public W1Confirm confirm { get; set; }
-        public List<ComboboxModel>? ListCboBranchId { get; set; } // cbo ds chi nhánh
+        public List<ComboboxModel>? ListCboBranch { get; set; } // cbo ds chi nhánh
+        public List<EnumCatagoryModel>? ListCboLevel { get; set; } // cbo ds trạng thái nhân viên
 
         #endregion
 
@@ -38,13 +40,13 @@ namespace HNOne.Web.Controllers
                 try
                 {
                     await ShowLoading();
+                    ListBreadcrumbs = new List<BreadcrumbModel>()
+                    {
+                        new BreadcrumbModel("Danh mục"),
+                        new BreadcrumbModel("Chức vụ", isActive: true)
+                    };
+                    await NotifyBreadcrumb.InvokeAsync(ListBreadcrumbs);
                     await buildComboboxAsync();
-                    //string errMessage = await CheckAuthMenuAsync("contractlist");
-                    //if (errMessage == "401") return; // kiểm quyền menu page danh sách
-                    //Permission = await _masterDataService.GetAccessControl(UserId, Token, PositionId, 10012);
-                    //ItemSearch.fromDate = new DateTime(DateTime.Now.Year, DateTime.Now.Month, 1);
-                    //ItemSearch.toDate = DateTime.Now;
-                    //await NotifyBreadcrumb.InvokeAsync(ListBreadcrumbs);
                     await getPositions();
 
                 }
@@ -67,41 +69,45 @@ namespace HNOne.Web.Controllers
             ListPosition = new List<PositionModel>();
             ListPosition = await _masterDataService.GetPositionAsync(UserId, Token);
         }
+
         private async Task buildComboboxAsync()
         {
             try
             {
                 var getTask1 = _masterDataService.GetBranchAsync(UserId, Token);
+                var getTask2 = _masterDataService.GetEnumAsync(UserId, Token, nameof(EnumCatagory.CapDoNhanVien)); // cấp độ nhân viên
                 await Task.WhenAll(
-                    getTask1
-                    );
-                ListCboBranchId = (await getTask1)?.Select(m => new ComboboxModel() { id = m.branchId, name = m.branchName })?.ToList();
+                    getTask1,
+                    getTask2
+                );
+                ListCboBranch = (await getTask1)?.Select(m => new ComboboxModel() { id = m.branchId, name = m.branchName })?.ToList();
+                ListCboLevel = await getTask2;
             }
             catch (Exception ex)
             {
                 ShowError(ex.Message);
                 _logger.LogError(ex, "BuildComboAsync");
             }
-
         }
+
         private void validateForSave(ref string errorMessage, ref string fieldName)
         {
             if (string.IsNullOrEmpty(PositionUpdate.name))
             {
                 errorMessage = String.Format(MessageConstants.MESSAGE_COMBOBOX_REQUIRE, "Tên chức vụ");
-                fieldName = nameof(PositionUpdate.name);
+                fieldName = "txtName";
                 return;
             }
             if (PositionUpdate.branchId < 1)
             {
                 errorMessage = String.Format(MessageConstants.MESSAGE_COMBOBOX_REQUIRE, "Chi nhánh");
-                fieldName = nameof(PositionUpdate.branchId);
+                fieldName = "txtBranchId";
                 return;
             }
             if (string.IsNullOrEmpty(PositionUpdate.levelCode))
             {
                 errorMessage = String.Format(MessageConstants.MESSAGE_COMBOBOX_REQUIRE, "Cấp độ");
-                fieldName = nameof(PositionUpdate.levelCode);
+                fieldName = "txtLevelCode";
                 return;
             }
         }
@@ -171,7 +177,8 @@ namespace HNOne.Web.Controllers
                     await _jsRuntime.InvokeVoidAsync("focusInput", fieldName);
                     return;
                 }
-                bool isConfirm = await confirm.SetConfirm(MessageConstants.MESSAGE_TITLE, MessageConstants.MESSAGE_CONFIRM_ADD);
+                errorMessage = IsCreate ? MessageConstants.MESSAGE_CONFIRM_ADD : MessageConstants.MESSAGE_CONFIRM_UPDATE;
+                bool isConfirm = await confirm.SetConfirm(MessageConstants.MESSAGE_TITLE, errorMessage);
                 if (!isConfirm) return;
                 await ShowLoading();
                 string processKey = IsCreate ? ProcessConstants.POST_POSITION : ProcessConstants.PUT_POSITION;
