@@ -7,6 +7,7 @@ using HNOne.Model.Entities;
 using HNOne.Model.Models;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.VisualBasic;
+using Newtonsoft.Json;
 using System.Data;
 using static Dapper.SqlMapper;
 
@@ -64,8 +65,19 @@ namespace HNOne.API.Repositories
                 parameters.Add("@StatusIds", request.opt, DbType.String);
                 parameters.Add("@FromDate", request.fromDate, DbType.Date);
                 parameters.Add("@ToDate", request.toDate, DbType.Date);
-                var lstResult = await connection.QueryAsync<ContractModel>(StoreConstants.STORE_H1_CONTRACT_SELECT, param: parameters, commandTimeout: GlobalConstants.COMMAND_TIMEOUT, commandType: CommandType.StoredProcedure);
-                return lstResult;
+                IEnumerable<ContractModel>? lstResult = null;
+                var dtResult = await connection.QueryMultipleAsync(StoreConstants.STORE_H1_CONTRACT_SELECT, param: parameters, commandTimeout: GlobalConstants.COMMAND_TIMEOUT, commandType: CommandType.StoredProcedure);
+                if(dtResult != null)
+                {
+                    lstResult = dtResult.Read<ContractModel>();
+                    if(request.documentId > 0)
+                    {
+                        var lstSalaryConfig = dtResult.Read<SalaryConfigurationModel>();
+                        string jsonDetail = JsonConvert.SerializeObject(lstSalaryConfig);
+                        lstResult = lstResult.Update(m => m.jsonDetail = jsonDetail);
+                    }    
+                }    
+                return lstResult ?? new List<ContractModel>();
             }    
         }
         #endregion
@@ -259,7 +271,7 @@ namespace HNOne.API.Repositories
                 data.TitleId = entity.TitleId;
                 data.Remark = entity.Remark;
                 data.StatusCode = entity.StatusCode;
-                data.TaxtTypeCode = entity.TaxtTypeCode;
+                data.TaxTypeCode = entity.TaxTypeCode;
                 data.SalaryCoefficient = entity.SalaryCoefficient;
                 data.TotalSalary = entity.TotalSalary;
                 data.NetSalary = entity.NetSalary;

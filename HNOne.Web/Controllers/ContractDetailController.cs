@@ -52,7 +52,11 @@ namespace HNOne.Web.Controllers
                     await ShowLoading();
                     await initDataAsync();
                     await buildComboAsync();
-                    if (ContractDocument.id < 1) await getSalaryConfigDefault();
+                    if (pDocEntry < 1) await getSalaryConfigDefault();
+                    else
+                    {
+                        await showVoucher();
+                    }
                 }
                 catch (Exception ex)
                 {
@@ -213,6 +217,35 @@ namespace HNOne.Web.Controllers
                 errorMessage = $"[Ngày bắt đầu trích nộp] phải là ngày đầu tháng";
                 fieldName = nameof(ContractDocument.deductionDate);
                 return;
+            }
+        }
+
+        /// <summary>
+        /// Hiểm thị thông tin chi tiết
+        /// </summary>
+        /// <returns></returns>
+        private async Task showVoucher()
+        {
+            try
+            {
+                RequestModel request = new RequestModel();
+                request.documentId = pDocEntry;
+                request.userId = UserId;
+                request.branchId = BranchId;
+                request.token = Token;
+                var lstData = await _personnelService.GetContractAsync(request);
+                if (!lstData.IsNullOrEmpty())
+                {
+                    ContractDocument = lstData![0];
+                    if(!string.IsNullOrEmpty(ContractDocument.jsonDetail))
+                    {
+                        ListSalaryInfoConfig = JsonConvert.DeserializeObject<List<SalaryConfigurationModel>>(ContractDocument.jsonDetail);
+                    }    
+                }    
+            }
+            catch (Exception ex)
+            {
+                throw ex;
             }
         }
         #endregion

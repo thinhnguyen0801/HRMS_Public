@@ -35,7 +35,8 @@ namespace HNOne.Model.Entities
         public string? Remark { get; set; } // ghi chú
         [MaxLength(50)]
         public string? StatusCode { get; set; } // trạng thái lấy từ enum
-        public string? TaxtTypeCode { get; set; } // loại tính thuế
+        [MaxLength(50)]
+        public string? TaxTypeCode { get; set; } // loại tính thuế
         public double SalaryCoefficient { get; set; } // Hệ số lương
         [Column(TypeName = "decimal(19, 6)")]
         public decimal TotalSalary { get; set; } // Tổng lương

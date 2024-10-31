@@ -6,11 +6,12 @@
     <div class="card p-1">
         <DxToolbar ItemRenderStyleMode="@ToolbarRenderStyleMode.Contained">
             <Items>
-                <DxToolbarItem Text="Làm mới" BeginGroup="true" IconCssClass="@($"{IconClassConstants.ICON_REFRESH}")"
-                               Alignment="@ToolbarItemAlignment.Right" />
+                
                 <DxToolbarItem Text="Lưu" BeginGroup="true" IconCssClass="@($"{IconClassConstants.ICON_UPDATE}")"
                                Alignment="@ToolbarItemAlignment.Right" Click="@SaveDataHandler" />
                 <DxToolbarItem Text="Hủy" BeginGroup="true" IconCssClass="@($"{IconClassConstants.ICON_DELETE}")"
+                               Alignment="@ToolbarItemAlignment.Right" />
+                <DxToolbarItem Text="Làm mới" BeginGroup="true" IconCssClass="@($"{IconClassConstants.ICON_REFRESH}")"
                                Alignment="@ToolbarItemAlignment.Right" />
             </Items>
         </DxToolbar>

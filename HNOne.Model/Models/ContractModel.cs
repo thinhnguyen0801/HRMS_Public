@@ -37,5 +37,6 @@
         public string? taxTypeCode { get; set; } // loại tính thuế
         public string? departmentName { get; set; } // tên phòng ban
         public string? link { get; set; }
+        public string? jsonDetail { get; set; } // danh sách cấu hình tính lương
     }
 }
