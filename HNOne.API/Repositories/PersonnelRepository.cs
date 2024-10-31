@@ -165,7 +165,7 @@ namespace HNOne.API.Repositories
         /// </summary>
         /// <param name="entity"></param>
         /// <returns></returns>
-        public async Task<ResponseModel> AddContract(Contracts entity)
+        public async Task<ResponseModel> AddContract(Contracts entity, IEnumerable<SalaryAdjustments>? lstSalaryConfig)
         {
             bool isTrans = false;
             ResponseModel response = new ResponseModel();
@@ -189,6 +189,16 @@ namespace HNOne.API.Repositories
                     isTrans = true;
                     await _dbContext.Contracts.AddAsync(entity);
                     // Thêm thông tin lương
+                    if (!lstSalaryConfig.IsNullOrEmpty())
+                    {
+                        lstSalaryConfig = lstSalaryConfig!.Update(m =>
+                        {
+                            m.ContractId = entity.Id;
+                            m.BranchId = entity.BranchId;
+                            m.EmployeeId = entity.EmployeeId;
+                        });
+                        await _dbContext.SalaryAdjustments.AddRangeAsync(lstSalaryConfig!);
+                    }    
                     await _dbContext.SaveChangesAsync();
                     await _dbContext.Database.CommitTransactionAsync();
                     response.message = MessageConstants.MESSAGE_ADD_SUCCESS;
@@ -203,7 +213,7 @@ namespace HNOne.API.Repositories
 
         }
 
-        public async Task<ResponseModel> UpdateContract(Contracts entity)
+        public async Task<ResponseModel> UpdateContract(Contracts entity, IEnumerable<SalaryAdjustments>? lstSalaryConfig)
         {
             bool isTrans = false;
             ResponseModel response = new ResponseModel();
@@ -245,6 +255,21 @@ namespace HNOne.API.Repositories
                 isTrans = true;
                 _dbContext.Contracts.Attach(data);
                 _dbContext.Entry(data).State = EntityState.Modified;
+                // Nếu có điều chỉnh lương
+                if (!lstSalaryConfig.IsNullOrEmpty())
+                {
+                    foreach(var item in lstSalaryConfig!)
+                    {
+                        var dataSalary = await _dbContext.SalaryAdjustments.FirstOrDefaultAsync(m => m.Id == item.Id);
+                        if (dataSalary == null) continue;
+                        dataSalary.BranchId = entity.BranchId;
+                        dataSalary.EmployeeId = entity.EmployeeId;
+                        dataSalary.Amount = item.Amount;
+                        dataSalary.SalaryCoefficient = item.SalaryCoefficient;
+                        _dbContext.SalaryAdjustments.Attach(item);
+                        _dbContext.Entry(data).State = EntityState.Modified;
+                    }    
+                }
                 await _dbContext.SaveChangesAsync();
                 await _dbContext.Database.CommitTransactionAsync();
                 response.message = MessageConstants.MESSAGE_UPDATE_SUCCESS;

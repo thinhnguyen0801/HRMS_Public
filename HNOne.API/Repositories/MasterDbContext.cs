@@ -19,6 +19,7 @@ namespace HNOne.API.Repositories
         public DbSet<SalaryCategories> SalaryCategories { get; set; }
         public DbSet<SalaryConfigurations> SalaryConfigurations { get; set; }
         public DbSet<Contracts> Contracts { get; set; }
+        public DbSet<SalaryAdjustments> SalaryAdjustments { get; set; }
 
         public MasterDbContext(DbContextOptions<MasterDbContext> options)
             : base(options)
