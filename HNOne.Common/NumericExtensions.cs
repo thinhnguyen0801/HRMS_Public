@@ -15,4 +15,12 @@ namespace HNOne.Common
             throw new ArgumentException("Unsupported type");
         }
     }
+    public static class DateTimeExtensions
+    {
+        public static string FormatDateTimeSql(this DateTime? value)
+        {
+            value ??= DateTime.Now;
+            return string.Format("{0:yyy-MM-dd}", value);
+        }
+    }
 }

@@ -27,13 +27,13 @@
                             <DxToolbarItem Text="Làm mới" BeginGroup="true" IconCssClass="@($"{IconClassConstants.ICON_REFRESH}")"
                                            Alignment="@ToolbarItemAlignment.Right" Click="@RefreshHandler" />
                             <DxToolbarItem Text="Thêm mới" BeginGroup="true" IconCssClass="@($"{IconClassConstants.ICON_ADD}")"
-                                           Alignment="@ToolbarItemAlignment.Right" />
+                                           Alignment="@ToolbarItemAlignment.Right" Click="@RedirectPageDetailHandler" />
                             <DxToolbarItem Text="Xóa" BeginGroup="true" IconCssClass="@($"{IconClassConstants.ICON_DELETE}")"
                                            Alignment="@ToolbarItemAlignment.Right" />
                         </Items>
                     </DxToolbar>
                 </div>
-                <div class="card-body p-1" style="height: calc(100vh - 185px); min-height: 350px">
+                <div class="card-body p-1" style="height: calc(100vh - 195px); min-height: 350px">
                     <DxGrid Data="ListEmployee" @ref="GridEmployee"
                             ShowFilterRow="true"
                             ColumnResizeMode="GridColumnResizeMode.ColumnsContainer"

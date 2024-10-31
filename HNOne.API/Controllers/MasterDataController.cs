@@ -96,12 +96,21 @@ namespace HNOne.API.Controllers
                     case ProcessConstants.GET_ENUM:
                         response.data = await _masterDataService.GetEnum($"{request.opt}");
                         break;
+                    case ProcessConstants.GET_SALARY_CATEGORY:
+                        response.data = await _masterDataService.GetSalaryCatagory(request);
+                        break;
+                    case ProcessConstants.GET_SALARY_CONFIG:
+                        response.data = await _masterDataService.GetSalaryConfig();
+                        break;
+                    case ProcessConstants.GET_DOCUMENT_NO:
+                        response.data = await _masterDataService.GetDocumentNo(request.type, request.opt, request.opt1, request.opt2);
+                        break;
                     default:
                         response.status = StatusCodes.Status404NotFound;
                         response.message = $"Process Key {processKey} was not provider!!!";
                         return Ok(response);
                 }
-                if(!(response.data is IEnumerable<object> dataList) || dataList.IsNullOrEmpty())
+                if((response.data is IEnumerable<object> dataList) && dataList.IsNullOrEmpty())
                 {
                     response.status = StatusCodes.Status204NoContent;
                     response.message = "Không tìm thấy dữ liệu!!!";
@@ -161,6 +170,16 @@ namespace HNOne.API.Controllers
                     case ProcessConstants.POST_REASONCATEGORIE:
                         var reasonCategorie = JsonConvert.DeserializeObject<ReasonCategories>($"{request.json}");
                         response = await _masterDataService.UpdateReasonCategorie(processKey, reasonCategorie!);
+                        break;
+                    case ProcessConstants.PUT_SALARY_CATEGORY:
+                    case ProcessConstants.POST_SALARY_CATEGORY:
+                        var salaryCatagory = JsonConvert.DeserializeObject<SalaryCategories>($"{request.json}");
+                        response = await _masterDataService.UpdateSalaryCategory(processKey, salaryCatagory!);
+                        break;
+                    case ProcessConstants.PUT_SALARY_CONFIG:
+                    case ProcessConstants.POST_SALARY_CONFIG:
+                        var salaryConfig = JsonConvert.DeserializeObject<SalaryConfigurations>($"{request.json}");
+                        response = await _masterDataService.UpdateSalaryConfig(processKey, salaryConfig!);
                         break;
                     default:
                         response.status = StatusCodes.Status404NotFound;

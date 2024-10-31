@@ -4,7 +4,7 @@ using HNOne.Model;
 using HNOne.Model.Models;
 using HNOne.Web.Commons;
 using HNOne.Web.Components.Controls;
-using HNOne.Web.Services;
+using HNOne.Web.Models;
 using HNOne.Web.Services.Interfaces;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Forms;
@@ -13,55 +13,53 @@ using Newtonsoft.Json;
 
 namespace HNOne.Web.Controllers
 {
-        public class TitleController : DocumentControllerBase
-        {
-            [Inject] IMasterDataService _masterDataService { get; init; }
-            [Inject] IJSRuntime _jsRuntime { get; set; }
+    public class TitleController : DocumentControllerBase
+    {
+        [Inject] IMasterDataService _masterDataService { get; init; }
+        [Inject] IJSRuntime _jsRuntime { get; set; }
+        public W1Confirm confirm { get; set; }
 
         #region Properties
         public List<TitleModel>? ListTitle { get; set; }
-            public IGrid? GridTitle { get; set; }
-            public IReadOnlyList<object>? SelectedTitles { get; set; } = null;
-            public TitleModel TitleUpdate { get; set; } = new TitleModel();
-            public EditContext? _EditContext { get; set; }
-            public bool IsShowDialog { get; set; }
-            public bool IsCreate { get; set; } = true;
-            public W1Confirm confirm { get; set; }
-            public List<ComboboxModel>? ListCboBranchId { get; set; } // cbo ds chi nhánh
-            public List<ComboboxModel>? ListCboDepartmentId { get; set; } // cbo ds phòng ban
+        public IGrid? GridTitle { get; set; }
+        public IReadOnlyList<object>? SelectedTitles { get; set; } = null;
+        public TitleModel TitleUpdate { get; set; } = new TitleModel();
+        public bool IsShowDialog { get; set; }
+        public bool IsCreate { get; set; } = true;
+        public List<ComboboxModel>? ListCboBranch { get; set; } // cbo ds chi nhánh
+        public List<ComboboxModel>? ListCboDepartment { get; set; } // cbo ds phòng ban
 
         #endregion
 
         protected override async Task OnAfterRenderAsync(bool firstRender)
+        {
+            if (firstRender)
             {
-                if (firstRender)
+                try
                 {
-                    try
+                    await ShowLoading();
+                    ListBreadcrumbs = new List<BreadcrumbModel>()
                     {
-                        await ShowLoading();
-                        await buildComboboxAsync();
-                        //await _progressService.SetPercent(0.4);
-                        //string errMessage = await CheckAuthMenuAsync("contractlist");
-                        //if (errMessage == "401") return; // kiểm quyền menu page danh sách
-                        //Permission = await _masterDataService.GetAccessControl(UserId, Token, TitleId, 10012);
-                        //ItemSearch.fromDate = new DateTime(DateTime.Now.Year, DateTime.Now.Month, 1);
-                        //ItemSearch.toDate = DateTime.Now;
-                        //await NotifyBreadcrumb.InvokeAsync(ListBreadcrumbs);
-                        await getTitles();
+                        new BreadcrumbModel("Danh mục"),
+                        new BreadcrumbModel("Chức danh", isActive: true)
+                    };
+                    await NotifyBreadcrumb.InvokeAsync(ListBreadcrumbs);
+                    await buildComboboxAsync();
+                    await getTitles();
 
-                    }
-                    catch (Exception ex)
-                    {
-                        _logger.LogError(ex, "OnAfterRenderAsync");
-                        ShowError(ex.Message);
-                    }
-                    finally
-                    {
-                        await ShowLoading(false);
-                        await InvokeAsync(StateHasChanged);
-                    }
+                }
+                catch (Exception ex)
+                {
+                    _logger.LogError(ex, "OnAfterRenderAsync");
+                    ShowError(ex.Message);
+                }
+                finally
+                {
+                    await ShowLoading(false);
+                    await InvokeAsync(StateHasChanged);
                 }
             }
+        }
 
         #region Private Functions
         private async Task getTitles()
@@ -75,12 +73,12 @@ namespace HNOne.Web.Controllers
             {
                 var getTask1 = _masterDataService.GetBranchAsync(UserId, Token);
                 var getTask2 = _masterDataService.GetDepartmentAsync(UserId, Token);
-            await Task.WhenAll(
-                    getTask1,
-                    getTask2
-                    );
-                ListCboBranchId = (await getTask1)?.Select(m => new ComboboxModel() { id = m.branchId, name = m.branchName })?.ToList();
-                ListCboDepartmentId = (await getTask2)?.Select(m => new ComboboxModel() { id = m.id, name = m.name })?.ToList();
+                await Task.WhenAll(
+                        getTask1,
+                        getTask2
+                        );
+                ListCboBranch = (await getTask1)?.Select(m => new ComboboxModel() { id = m.branchId, name = m.branchName })?.ToList();
+                ListCboDepartment = (await getTask2)?.Select(m => new ComboboxModel() { id = m.id, name = m.name })?.ToList();
             }
             catch (Exception ex)
             {
@@ -92,20 +90,20 @@ namespace HNOne.Web.Controllers
         {
             if (string.IsNullOrEmpty(TitleUpdate.name))
             {
-                errorMessage = String.Format(MessageConstants.MESSAGE_COMBOBOX_REQUIRE, "Tên chức danh");
-                fieldName = nameof(TitleUpdate.name);
+                errorMessage = string.Format(MessageConstants.MESSAGE_STRING_REQUIRE, "Tên chức danh");
+                fieldName = "txtName";
                 return;
             }
             if (TitleUpdate.branchId < 1)
             {
-                errorMessage = String.Format(MessageConstants.MESSAGE_COMBOBOX_REQUIRE, "Chi nhánh");
-                fieldName = nameof(TitleUpdate.branchId);
+                errorMessage = string.Format(MessageConstants.MESSAGE_COMBOBOX_REQUIRE, "Chi nhánh");
+                fieldName = "txtBranchId";
                 return;
             }
             if (TitleUpdate.departmentId < 1)
             {
-                errorMessage = String.Format(MessageConstants.MESSAGE_COMBOBOX_REQUIRE, "Phòng ban");
-                fieldName = nameof(TitleUpdate.departmentId);
+                errorMessage = string.Format(MessageConstants.MESSAGE_COMBOBOX_REQUIRE, "Phòng ban");
+                fieldName = "txtDepartmentId";
                 return;
             }
         }
@@ -150,10 +148,9 @@ namespace HNOne.Web.Controllers
                     TitleUpdate.isActive = pItemDetails!.isActive;
                     TitleUpdate.branchId = pItemDetails!.branchId;
                     TitleUpdate.departmentId = pItemDetails!.departmentId;
-                IsCreate = false;
+                    IsCreate = false;
                 }
                 IsShowDialog = true;
-                _EditContext = new EditContext(TitleUpdate);
             }
             catch (Exception ex)
             {
@@ -235,5 +232,5 @@ namespace HNOne.Web.Controllers
             }
         }
         #endregion
-        }
+    }
 }

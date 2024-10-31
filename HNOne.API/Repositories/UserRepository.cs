@@ -53,7 +53,7 @@ namespace HNOne.API.Repositories
                         return response;
                     }
                     // Kiểm tra đăng nhập đúng chi nhánh không?
-                    strQuery = "select count(1) from [Users] with(nolock) where UserName = @UserName and charindex(','+ BranchIds+',',','+@BranchId+',') > 0";
+                    strQuery = "select count(1) from [Users] with(nolock) where UserName = @UserName and charindex(','+ @BranchId +',',','+ BranchIds +',') > 0";
                     parameters = new DynamicParameters();
                     parameters.Add("@UserName", userName, DbType.String);
                     parameters.Add("@BranchId", request.branchId, DbType.String);

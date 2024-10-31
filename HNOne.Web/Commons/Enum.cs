@@ -9,6 +9,11 @@
 
     public enum EnumCatagory
     {
-        TrangThaiNhanVien
+        TrangThaiNhanVien,
+        TinhTrangHonNhan,
+        CapDoNhanVien,
+        DanhMucThueTNCN,
+        CachTinhLuongPhuCap,
+        TrangThaiHopDong
     }
 }

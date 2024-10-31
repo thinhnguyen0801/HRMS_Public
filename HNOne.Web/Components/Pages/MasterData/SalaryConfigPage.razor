@@ -1,0 +1,351 @@
+﻿@page "/cau-hinh-tinh-luong"
+@inherits Controllers.SalaryConfigController
+
+<PageTitle>Cấu hình thông tin lương</PageTitle>
+<div class="h-content-filter">
+    <div class="row row-gap-2">
+        <div class="col-12">
+            <div class="card w1FontSize">
+                <div class="card-header p-1">
+                    <DxToolbar ItemRenderStyleMode="@ToolbarRenderStyleMode.Contained">
+                        <Items>
+                            <DxToolbarItem Text="Làm mới" BeginGroup="true" IconCssClass="@($"{IconClassConstants.ICON_REFRESH}")"
+                                           Alignment="@ToolbarItemAlignment.Right" Click="@(()=> RefreshHandler())" />
+                            <DxToolbarItem Text="Thêm mới" BeginGroup="true" IconCssClass="@($"{IconClassConstants.ICON_ADD}")"
+                                           Alignment="@ToolbarItemAlignment.Right" Click="@(()=> OnOpenDialogHandler())" />
+
+                            <DxToolbarItem Text="Xóa" BeginGroup="true" IconCssClass="@($"{IconClassConstants.ICON_DELETE}")"
+                                           Alignment="@ToolbarItemAlignment.Right" />
+                        </Items>
+                    </DxToolbar>
+                </div>
+
+                <div class="card-body p-1" style="height: calc(100vh - 160px); min-height: 350px">
+                    <DxGrid Data="ListSalaryConfig" @ref="GridSalaryConfig"
+                            ShowFilterRow="true"
+                            ColumnResizeMode="GridColumnResizeMode.ColumnsContainer"
+                            PagerPosition="GridPagerPosition.Bottom"
+                            PageSizeSelectorVisible="true"
+                            PageSize="@GlobalContants.PageSize"
+                            PageSizeSelectorItems="@(GlobalContants.PageSizeList)"
+                            PageSizeSelectorAllRowsItemVisible="true"
+                            PagerSwitchToInputBoxButtonCount="10"
+                            PagerVisibleNumericButtonCount="10"
+                            TextWrapEnabled="false"
+                            FocusedRowEnabled="true"
+                            SelectionMode="@GridSelectionMode.Multiple"
+                            @bind-SelectedDataItems="@SelectedSalaries"
+                            KeyFieldName="@nameof(SalaryConfigurationModel.id)"
+                            CssClass="h-full">
+                        <Columns>
+                            <DxGridSelectionColumn Width="45px" />
+                            <DxGridDataColumn FieldName="@nameof(SalaryConfigurationModel.salaryCategoryName)" Caption="Tên loại lương" MinWidth="190">
+                                <CellDisplayTemplate>
+                                    @{
+                                        <a @onclick="@(() => OnOpenDialogHandler(EnumType.Update, (context.DataItem as SalaryConfigurationModel)))">@context.Value</a>
+                                    }
+                                </CellDisplayTemplate>
+                            </DxGridDataColumn>
+                            <DxGridDataColumn FieldName="@nameof(SalaryConfigurationModel.branchName)" Caption="Chi nhánh" MinWidth="160" />
+                            <DxGridDataColumn FieldName="@nameof(SalaryConfigurationModel.isActive)" Caption="Đã áp dụng?" MinWidth="100" />
+                            <DxGridDataColumn FieldName="@nameof(SalaryConfigurationModel.isPersonalIncomeTax)" Caption="Thuế TNCN" MinWidth="90" />
+                            <DxGridDataColumn FieldName="@nameof(SalaryConfigurationModel.taxLimit)" Caption="Giới hạn chịu thuế" MinWidth="130" DisplayFormat="@GlobalContants.FORMAT_CURRENCY" />
+                            <DxGridDataColumn FieldName="@nameof(SalaryConfigurationModel.isSocialInsurance)" Caption="BHXH" MinWidth="80" />
+                            <DxGridDataColumn FieldName="@nameof(SalaryConfigurationModel.isHealthInsurance)" Caption="BHYT" MinWidth="80" />
+                            <DxGridDataColumn FieldName="@nameof(SalaryConfigurationModel.isAccidentInsurance)" Caption="BHTN" MinWidth="80" />
+                            <DxGridDataColumn FieldName="@nameof(SalaryConfigurationModel.isOccupationalAccidentInsurance)" Caption="BHTNLD" MinWidth="80" />
+                            <DxGridDataColumn FieldName="@nameof(SalaryConfigurationModel.isUnionFee)" Caption="Phí công đoàn" MinWidth="110" />
+                            <DxGridDataColumn FieldName="@nameof(SalaryConfigurationModel.isProbationaryPeriod)" Caption="Thử việc" MinWidth="80" />
+                            <DxGridDataColumn FieldName="@nameof(SalaryConfigurationModel.isOvertime)" Caption="Tăng ca" MinWidth="80" />
+                            <DxGridDataColumn FieldName="@nameof(SalaryConfigurationModel.overtimeCoefficient)" Caption="H/số tăng ca" MinWidth="100" DisplayFormat="@GlobalContants.FORMAT_NUMBER" />
+                            <DxGridDataColumn FieldName="@nameof(SalaryConfigurationModel.coefficientNightShift)" Caption="H/số tăng ca đêm" MinWidth="115" DisplayFormat="@GlobalContants.FORMAT_NUMBER" />
+                            <DxGridDataColumn FieldName="@nameof(SalaryConfigurationModel.isAllowance)" Caption="Phụ cấp" MinWidth="90" />
+                            <DxGridDataColumn FieldName="@nameof(SalaryConfigurationModel.salaryDefault)" Caption="Lương mặc định" MinWidth="110" DisplayFormat="@GlobalContants.FORMAT_CURRENCY" />
+                            <DxGridDataColumn FieldName="@nameof(SalaryConfigurationModel.SalaryCalculateMethodName)" Caption="Cách tính lương" MinWidth="110" />
+                            <DxGridDataColumn FieldName="@nameof(SalaryConfigurationModel.isUseOfGradeLevel)" Caption="Dùng ngạch bậc?" MinWidth="110" />
+                            <DxGridDataColumn FieldName="@nameof(SalaryConfigurationModel.dateTracking)" Caption="Ngày cập nhật" MinWidth="120" DisplayFormat="@GlobalContants.FORMAT_DATE_TIME" />
+                            <DxGridDataColumn FieldName="@nameof(SalaryConfigurationModel.userSignName)" Caption="Người tạo" MinWidth="120" />
+                            <DxGridDataColumn FieldName="@nameof(SalaryConfigurationModel.userSign2Name)" Caption="Người cập nhật" MinWidth="120" />
+                        </Columns>
+                        <TotalSummary>
+                            <DxGridSummaryItem DisplayText="@GlobalContants.FORMAT_GRID_DISPLAYTEXT_COUNT" SummaryType="GridSummaryItemType.Count"
+                                               FieldName="@nameof(SalaryCategoryModel.code)" ValueDisplayFormat="@GlobalContants.FORMAT_CURRENCY"
+                                               FooterColumnName="@nameof(SalaryCategoryModel.code)" />
+                        </TotalSummary>
+                    </DxGrid>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<W1Popup @bind-IsOpenModal="@IsShowDialog"
+         Width="70%" TextBtnAccept="Cập nhật"
+         HeaderText="@(IsCreate ? "Thêm mới thông tin cấu hình" : $"Cập nhật thông tin cấu hình")"
+         HandleClickAccept="@SaveDataHandler">
+    <div class="row row-gap-2">
+        <div class="col-sm-12">
+            <div class="d-flex ">
+                <W1Label Value="Loại lương" Styles="width: 110px" IsRequired="true" />
+                <div style="width: calc(100% - 110px)">
+                    <div class="row row-gap-2">
+                        <div class="col-md-8 col-sm-12">
+                            <DxComboBox Data="@ListCboSalaryCatagory"
+                                        @bind-Value="@EntityUpdate.salaryCategoryId"
+                                        FilteringMode="DataGridFilteringMode.Contains"
+                                        TextFieldName="@nameof(ComboboxModel.name)"
+                                        ValueFieldName="@nameof(ComboboxModel.id)"
+                                        ReadOnly="@(!IsCreate)"
+                                        CssClass="w1FontSize"
+                                        Id="txtSalaryCategoryId">
+                            </DxComboBox>
+                        </div>
+                        <div class="col-md-4 col-sm-12">
+                            <DxCheckBox CssClass="w-100 w1FontSize"
+                                        SizeMode="@SizeMode.Small"
+                                        @bind-Checked="@EntityUpdate.isActive"
+                                        LabelPosition="@LabelPosition.Right">
+                                Hiệu lực?
+                            </DxCheckBox>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-sm-12">
+            <div class="d-flex ">
+                <W1Label Value="Chi nhánh" Styles="width: 110px" IsRequired="true" />
+                <div style="width: calc(100% - 110px)">
+                    <div class="row row-gap-2">
+                        <div class="col-md-8 col-sm-12">
+                            <DxComboBox Data="@ListCboBranch"
+                                        @bind-Value="@EntityUpdate.branchId"
+                                        FilteringMode="DataGridFilteringMode.Contains"
+                                        TextFieldName="@nameof(ComboboxModel.name)"
+                                        Id="txtBranchId"
+                                        CssClass="w1FontSize"
+                                        ValueFieldName="@nameof(ComboboxModel.id)">
+                            </DxComboBox>
+                        </div>
+                        <div class="col-md-4 col-sm-12">
+                            <DxCheckBox CssClass="w-100 w1FontSize"
+                                        SizeMode="@SizeMode.Small"
+                                        @bind-Checked="@EntityUpdate.isUseOfGradeLevel"
+                                        LabelPosition="@LabelPosition.Right">
+                                Sử dụng ngạch bậc?
+                            </DxCheckBox>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-sm-12">
+            <div class="d-flex ">
+                <W1Label Value="Số tiền mặc định" Styles="width: 110px" />
+                <div style="width: calc(100% - 110px)">
+                    <div class="row row-gap-2">
+                        <div class="col-md-8 col-sm-12">
+                            <DxSpinEdit @bind-Value="@EntityUpdate.salaryDefault" InputCssClass="text-end" ShowSpinButtons="true" MinValue="0" Increment="1"
+                                        DisplayFormat="@GlobalContants.FORMAT_CURRENCY" Mask="@GlobalContants.FORMAT_CURRENCY" CssClass="w1FontSize" />
+                        </div>
+                        <div class="col-md-4 col-sm-12"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="grid gap-1 row-gap-2 mt-2">
+        <div class="g-col-md-6 g-col-sm-12 g-col-12">
+            <div class="card">
+                <div class="card-header py-1 px-2 w1FontSize text-center">
+                    <span>Trích nộp</span>
+                </div>
+                <div class="card-body p-1">
+                    <table class="table w1FontSize">
+                        <tbody class="w1FontSize">
+                            <tr>
+                                <td class="text-start p-1">
+                                    <DxCheckBox CssClass="w-100 w1FontSize"
+                                                SizeMode="@SizeMode.Small"
+                                                @bind-Checked="@EntityUpdate.isSocialInsurance"
+                                                LabelPosition="@LabelPosition.Right">
+                                        Tính BHXH
+                                    </DxCheckBox>
+                                </td>
+                                <td class="text-start p-1">
+                                    <DxCheckBox CssClass="w-100 w1FontSize"
+                                                SizeMode="@SizeMode.Small"
+                                                @bind-Checked="@EntityUpdate.isHealthInsurance"
+                                                LabelPosition="@LabelPosition.Right">
+                                        Tính BHYT
+                                    </DxCheckBox>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td class="text-start p-1">
+                                    <DxCheckBox CssClass="w-100 w1FontSize"
+                                                SizeMode="@SizeMode.Small"
+                                                @bind-Checked="@EntityUpdate.isAccidentInsurance"
+                                                LabelPosition="@LabelPosition.Right">
+                                        Tính BHTN
+                                    </DxCheckBox>
+                                </td>
+                                <td class="text-start p-1">
+                                    <DxCheckBox CssClass="w-100 w1FontSize"
+                                                SizeMode="@SizeMode.Small"
+                                                @bind-Checked="@EntityUpdate.isOccupationalAccidentInsurance"
+                                                LabelPosition="@LabelPosition.Right">
+                                        Tính BHTNLD
+                                    </DxCheckBox>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td class="text-start p-1" colspan="2">
+                                    <DxCheckBox CssClass="w-100 w1FontSize"
+                                                SizeMode="@SizeMode.Small"
+                                                @bind-Checked="@EntityUpdate.isUnionFee"
+                                                LabelPosition="@LabelPosition.Right">
+                                        Phí công đoàn
+                                    </DxCheckBox>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+        <div class="g-col-md-6 g-col-sm-12 g-col-12">
+            <div class="card">
+                <div class="card-header py-1 px-2 w1FontSize text-center">
+                    <span>Tính lương</span>
+                </div>
+                <div class="card-body p-1">
+                    <table class="table w1FontSize">
+                        <tbody class="w1FontSize">
+                            <tr>
+                                <td class="text-start p-1" style="width: 120px">
+                                    <DxCheckBox CssClass="w-100 w1FontSize"
+                                                SizeMode="@SizeMode.Small"
+                                                @bind-Checked="@EntityUpdate.isAllowance"
+                                                LabelPosition="@LabelPosition.Right">
+                                        Phụ cấp
+                                    </DxCheckBox>
+                                </td>
+                                <td class="text-start p-1">
+                                    <div class="d-flex ">
+                                        <W1Label Value="Công thức tính" Styles="width: 110px" />
+                                        <div style="width: calc(100% - 110px)">
+                                            <DxComboBox Data="@ListCboFormula"
+                                                        @bind-Value="@EntityUpdate.salaryCalculateMethod"
+                                                        FilteringMode="DataGridFilteringMode.Contains"
+                                                        TextFieldName="@nameof(ComboboxModel.name)"
+                                                        Id="txtSalaryCalculateMethod"
+                                                        CssClass="w1FontSize"
+                                                        ValueFieldName="@nameof(ComboboxModel.code)">
+                                            </DxComboBox>
+                                        </div>
+                                    </div>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td class="text-start p-1" style="width: 120px">
+                                    <DxCheckBox CssClass="w-100 w1FontSize"
+                                                SizeMode="@SizeMode.Small"
+                                                @bind-Checked="@EntityUpdate.isOvertime"
+                                                LabelPosition="@LabelPosition.Right">
+                                        Tăng ca
+                                    </DxCheckBox>
+                                </td>
+                                <td class="text-start p-1">
+                                    <div class="d-flex ">
+                                        <W1Label Value="Hệ số tăng ca" Styles="width: 110px" />
+                                        <div style="width: calc(100% - 110px)">
+                                            <DxSpinEdit @bind-Value="@EntityUpdate.overtimeCoefficient" InputCssClass="text-end" ShowSpinButtons="true" MinValue="0.0" Increment="1"
+                                                        DisplayFormat="@GlobalContants.FORMAT_CURRENCY" Mask="@GlobalContants.FORMAT_CURRENCY" CssClass="w1FontSize" />
+                                        </div>
+                                    </div>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td class="text-start p-1" style="width: 120px">
+                                    <DxCheckBox CssClass="w-100 w1FontSize"
+                                                SizeMode="@SizeMode.Small"
+                                                @bind-Checked="@EntityUpdate.isNightShift"
+                                                LabelPosition="@LabelPosition.Right">
+                                        Ca đêm
+                                    </DxCheckBox>
+                                </td>
+                                <td class="text-start p-1">
+                                    <div class="d-flex ">
+                                        <W1Label Value="Hệ số ca đêm" Styles="width: 110px" />
+                                        <div style="width: calc(100% - 110px)">
+                                            <DxSpinEdit @bind-Value="@EntityUpdate.coefficientNightShift" InputCssClass="text-end" ShowSpinButtons="true" MinValue="0.0" Increment="1"
+                                                        DisplayFormat="@GlobalContants.FORMAT_CURRENCY" Mask="@GlobalContants.FORMAT_CURRENCY" CssClass="w1FontSize" />
+                                        </div>
+                                    </div>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+        <div class="g-col-md-6 g-col-sm-12 g-col-12">
+            <div class="card">
+                <div class="card-header py-1 px-2 w1FontSize text-center">
+                    <span>Hợp đồng</span>
+                </div>
+                <div class="card-body p-1">
+                    <table class="table w1FontSize">
+                        <tbody class="w1FontSize">
+                            <tr>
+                                <td class="text-start p-1">
+                                    <DxCheckBox CssClass="w-100 w1FontSize"
+                                                SizeMode="@SizeMode.Small"
+                                                @bind-Checked="@EntityUpdate.isProbationaryPeriod"
+                                                LabelPosition="@LabelPosition.Right">
+                                        Thử việc
+                                    </DxCheckBox>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+        <div class="g-col-md-6 g-col-sm-12 g-col-12">
+            <div class="card">
+                <div class="card-header py-1 px-2 w1FontSize text-center">
+                    <span>Tính thuế</span>
+                </div>
+                <div class="card-body p-1">
+                    <table class="table w1FontSize">
+                        <tbody class="w1FontSize">
+                            <tr>
+                                <td class="text-start p-1" style="width: 120px">
+                                    <DxCheckBox CssClass="w-100 w1FontSize"
+                                                SizeMode="@SizeMode.Small"
+                                                @bind-Checked="@EntityUpdate.isPersonalIncomeTax"
+                                                LabelPosition="@LabelPosition.Right">
+                                        Thuế TNCN
+                                    </DxCheckBox>
+                                </td>
+                                <td class="text-start p-1">
+                                    <div class="d-flex ">
+                                        <W1Label Value="Giới hạn thuế" Styles="width: 110px" />
+                                        <div style="width: calc(100% - 110px)">
+                                            <DxSpinEdit @bind-Value="@EntityUpdate.taxLimit" InputCssClass="text-end" ShowSpinButtons="true" MinValue="0" Increment="1"
+                                                        DisplayFormat="@GlobalContants.FORMAT_CURRENCY" Mask="@GlobalContants.FORMAT_CURRENCY" CssClass="w1FontSize" />
+                                        </div>
+                                    </div>
+
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</W1Popup>
+<W1Confirm @ref="confirm" />

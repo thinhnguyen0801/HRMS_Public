@@ -20,7 +20,7 @@
                         </Items>
                     </DxToolbar>
                 </div>
-                <div class="card-body p-1" style="height: calc(100vh - 150px); min-height: 350px">
+                <div class="card-body p-1" style="height: calc(100vh - 160px); min-height: 350px">
                     <DxGrid Data="ListBranch" @ref="GridBranch"
                             ShowFilterRow="true"
                             ColumnResizeMode="GridColumnResizeMode.ColumnsContainer"
@@ -49,7 +49,7 @@
                             <DxGridDataColumn FieldName="@nameof(BranchModel.branchName)" Caption="Tên chi nhánh" MinWidth="170" />
                             <DxGridDataColumn FieldName="@nameof(BranchModel.phoneNumber)" Caption="Số điện thoại" MinWidth="170" />
                             <DxGridDataColumn FieldName="@nameof(BranchModel.address)" Caption="Địa chỉ" MinWidth="210" />
-                            <DxGridDataColumn FieldName="@nameof(BranchModel.createDate)" Caption="Ngày cập nhật" MinWidth="120" DisplayFormat="@GlobalContants.FORMAT_DATE_TIME" />
+                            <DxGridDataColumn FieldName="@nameof(BranchModel.dateTracking)" Caption="Ngày cập nhật" MinWidth="120" DisplayFormat="@GlobalContants.FORMAT_DATE_TIME" />
                             <DxGridDataColumn FieldName="@nameof(BranchModel.userSignName)" Caption="Người tạo" MinWidth="120" />
                             <DxGridDataColumn FieldName="@nameof(BranchModel.userSign2Name)" Caption="Người cập nhật" MinWidth="120" />
                         </Columns>
@@ -67,7 +67,7 @@
 
 <W1Popup @bind-IsOpenModal="@IsShowDialog"
          Width="65%" TextBtnAccept="Cập nhật"
-         HeaderText= "Thêm mới chi nhánh"
+         HeaderText="@(IsCreate ? "Thêm mới chi nhánh" : $"Cập nhật chi nhánh [{BranchUpdate.branchCode}]")"
          HandleClickAccept="@SaveDataHandler">
     <div class="row row-gap-2">
         <div class="col-sm-12">

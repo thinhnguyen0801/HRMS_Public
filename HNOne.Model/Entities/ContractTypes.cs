@@ -16,9 +16,10 @@ namespace HNOne.Model.Entities
         [MaxLength(500)]
         public string? Remark { get; set; }
         public int BranchId { get; set; }
-        public string? StatusCode { get; set; } //trạng thái nhân viên
-        public int Duration { get; set; } // thời hạn
-        public int IndefiniteDuration { get; set; } // thời hạn không xác định
+        [MaxLength(50)]
+        public string? StatusCode { get; set; } //trạng thái nhân viên bên bảng enum
+        public double Duration { get; set; } // thời hạn
+        public bool IsIndefiniteDuration { get; set; } // thời hạn không xác định
         public int NumberOfDaysReduced { get; set; } // số ngày cho phép giảm
         public bool IsActive { get; set; }
     }

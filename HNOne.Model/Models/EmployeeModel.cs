@@ -12,7 +12,7 @@ namespace HNOne.Model.Models
         public string? code { get; set; }
         public string? name { get; set; }
         public DateTime? dateOfBirth { get; set; }
-        public int? statusId { get; set; } // Tình trạng
+        public string? statusId { get; set; } // Tình trạng
         public string? gender { get; set; }
         public string? cIC { get; set; } // số căn cước
         public DateTime? issuanceDateCIC { get; set; } // Ngày cấp CCCD
@@ -54,6 +54,8 @@ namespace HNOne.Model.Models
         public int positionId { get; set; } // chức vụ
         public int? titleId { get; set; } // chức danh
         public int? managerId { get; set; } // Người quản lý
+        public string? managerCode { get; set; } // Người quản lý
+        public string? managerName { get; set; } // Người quản lý
         public int? userSign { get; set; }
         public DateTime? updateDate { get; set; }
         public int? userSign2 { get; set; }

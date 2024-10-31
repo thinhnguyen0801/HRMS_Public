@@ -1,5 +1,6 @@
 ﻿using HNOne.Model;
 using HNOne.Model.Entities;
+using HNOne.Model.Models;
 
 namespace HNOne.API.Repositories.Interfaces
 {
@@ -25,5 +26,12 @@ namespace HNOne.API.Repositories.Interfaces
         Task<IEnumerable<ReasonCategories>> GetReasonCategorie(RequestModel request);
         Task<ResponseModel> AddReasonCategorie(ReasonCategories entity);
         Task<ResponseModel> UpdateReasonCategorie(ReasonCategories entity);
+        Task<IEnumerable<SalaryCategories>> GetSalaryCatagory(RequestModel request);
+        Task<ResponseModel> AddSalaryCategory(SalaryCategories entity);
+        Task<ResponseModel> UpdateSalaryCategory(SalaryCategories entity);
+        Task<IEnumerable<SalaryConfigurationModel>> GetSalarySalaryConfig();
+        Task<ResponseModel> UpdateSalaryConfig(SalaryConfigurations entity);
+        Task<ResponseModel> AddSalaryConfig(SalaryConfigurations entity);
+        Task<string?> GetDocumentNo(string? type, string? opt = "", string? opt1 = "", string? opt2 = "");
     }
 }

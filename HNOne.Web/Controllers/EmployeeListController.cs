@@ -92,6 +92,7 @@ namespace HNOne.Web.Controllers
         }
         #endregion
 
+        #region Protected Functions
         protected async Task RefreshHandler()
         {
             try
@@ -111,5 +112,22 @@ namespace HNOne.Web.Controllers
                 await InvokeAsync(StateHasChanged);
             }
         }
+
+        protected void RedirectPageDetailHandler()
+        {
+            try
+            {
+                Dictionary<string, string> pParams = new Dictionary<string, string>
+                {
+                    { "pActionType", nameof(EnumType.Add) },
+                    { "pDocEntry", "-1" },
+                };
+                string key = _encryptHelper.Encrypt(JsonConvert.SerializeObject(pParams)); // mã hóa key
+                _navigationManager.NavigateTo($"/ho-so-nhan-vien?key={key}");
+            }
+            catch { }
+        }
+        #endregion
+
     }
 }
