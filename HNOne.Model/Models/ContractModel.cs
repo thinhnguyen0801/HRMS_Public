@@ -1,6 +1,6 @@
 ﻿namespace HNOne.Model.Models
 {
-    public class ContractModel
+    public class ContractModel : AuditableModel
     {
         public int id { get; set; }
         public int employeeId { get; set; }
@@ -17,11 +17,13 @@
         public string? employeeSignatureCode { get; set; }
         public string? employeeSignatureName { get; set; }
         public int contractTypeId { get; set; } // Loại hợp đồng
+        public string? contractTypeName { get; set; } // Loại hợp đồng
         public int positionId { get; set; } // chức vụ
         public int titleId { get; set; } // chức danh
         public int contractNumber { get; set; } // kí lần thứ mấy rồi
         public string? remark { get; set; } // ghi chú
         public string? statusCode { get; set; } // trạng thái lấy từ enum
+        public string? statusName { get; set; } // trạng thái lấy từ enum
         public double salaryCoefficient { get; set; } // Hệ số lương
         public decimal totalSalary { get; set; } // Tổng lương
         public decimal netSalary { get; set; } // Tổng lương thực nhận
@@ -33,5 +35,7 @@
         public bool isCompanyInsurance { get; set; } // cty đóng trích nộp thay
         public int placeOfWorkId { get; set; } // nơi làm việc
         public string? taxTypeCode { get; set; } // loại tính thuế
+        public string? departmentName { get; set; } // tên phòng ban
+        public string? link { get; set; }
     }
 }

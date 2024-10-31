@@ -55,6 +55,11 @@ namespace HNOne.API.Repositories
                 new EnumCatagories() {Id = Guid.Parse("fc3cdbc3-6ec3-473c-8f0c-f67669e712c7"), EnumType = "CachTinhLuongPhuCap", Code = "2", Name = "Tính 50%", Value="0.5", DateTracking = DateTime.Now, RowOrder = 3},
                 new EnumCatagories() {Id = Guid.Parse("d7c0f9d1-4798-43c7-ba95-bdbb40cc4a6c"), EnumType = "CachTinhLuongPhuCap", Code = "3", Name = "Tính 75%", Value="0.75", DateTracking = DateTime.Now, RowOrder = 4},
                 new EnumCatagories() {Id = Guid.Parse("16ed3423-5248-414b-b000-4e2e89925e6b"), EnumType = "CachTinhLuongPhuCap", Code = "4", Name = "Tính 100%", Value="1", DateTracking = DateTime.Now, RowOrder = 5},
+
+                // Trạng thái hợp đồng
+                new EnumCatagories() {Id = Guid.Parse("b244df87-5a65-426f-8d47-3de9b06c69a9"), EnumType = "TrangThaiHopDong", Code = "1", Name = "Chờ xử lý", DateTracking = DateTime.Now, RowOrder = 1},
+                new EnumCatagories() {Id = Guid.Parse("804bda70-cfe7-4958-9d94-c7f89b5b75c3"), EnumType = "TrangThaiHopDong", Code = "2", Name = "Chờ duyệt", DateTracking = DateTime.Now, RowOrder = 2},
+                new EnumCatagories() {Id = Guid.Parse("03ecd069-3080-4d44-a51c-cd3afd53668e"), EnumType = "TrangThaiHopDong", Code = "3", Name = "Đã duyệt", DateTracking = DateTime.Now, RowOrder = 3},
             };
             modelBuilder.Entity<EnumCatagories>().HasData(lstData);
         }

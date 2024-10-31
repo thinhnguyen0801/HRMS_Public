@@ -13,6 +13,7 @@
         TinhTrangHonNhan,
         CapDoNhanVien,
         DanhMucThueTNCN,
-        CachTinhLuongPhuCap
+        CachTinhLuongPhuCap,
+        TrangThaiHopDong
     }
 }

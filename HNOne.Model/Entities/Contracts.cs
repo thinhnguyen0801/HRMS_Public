@@ -41,7 +41,7 @@ namespace HNOne.Model.Entities
         public decimal TotalSalary { get; set; } // Tổng lương
         [Column(TypeName = "decimal(19, 6)")]
         public decimal NetSalary { get; set; } // Tổng lương thực nhận
-        public int NumberOfMonths { get; set; } // số tháng
+        public double NumberOfMonths { get; set; } // số tháng
         public int NumberOfDaysReduced { get; set; } // số ngày giảm
         [MaxLength(250)]
         public string? DecisionNo { get; set; } // số chứng từ quyết định

@@ -11,5 +11,6 @@ namespace HNOne.API.Repositories.Interfaces
         Task<ResponseModel> UpdateEmployee(Employees entity);
         Task<ResponseModel> AddContract(Contracts entity, IEnumerable<SalaryAdjustments>? lstSalaryConfig);
         Task<ResponseModel> UpdateContract(Contracts entity, IEnumerable<SalaryAdjustments>? lstSalaryConfig);
+        Task<IEnumerable<ContractModel>> GetContract(RequestModel request);
     }
 }

@@ -39,7 +39,6 @@ namespace HNOne.API.Repositories
                 var parameters = new DynamicParameters();
                 parameters.Add("@EmployeeId", request.employeeId, DbType.Int32);
                 parameters.Add("@UserId", request.userId, DbType.Int32);
-                parameters.Add("@UserId", request.userId, DbType.Int32);
                 parameters.Add("@BranchId", request.branchId, DbType.Int32);
                 parameters.Add("@StatusId", request.opt, DbType.String);
                 var lstResult = await connection.QueryAsync<EmployeeModel>(StoreConstants.STORE_H1_EMPLOYEE_SELECT, param: parameters, commandTimeout: GlobalConstants.COMMAND_TIMEOUT, commandType: CommandType.StoredProcedure);
@@ -47,6 +46,28 @@ namespace HNOne.API.Repositories
             }; 
         }
 
+        /// <summary>
+        /// lấy danh sách hợp đồng
+        /// </summary>
+        /// <param name="request"></param>
+        /// <returns></returns>
+        public async Task<IEnumerable<ContractModel>> GetContract(RequestModel request)
+        {
+            using (var connection = _dapperDbContext.CreateConnection())
+            {
+                request.fromDate ??= new DateTime(2000, 01, 01);
+                request.toDate ??= DateTime.Now.AddMonths(1);
+                var parameters = new DynamicParameters();
+                parameters.Add("@ContractId", request.documentId, DbType.Int32);
+                parameters.Add("@UserId", request.userId, DbType.Int32);
+                parameters.Add("@BranchId", request.branchId, DbType.Int32);
+                parameters.Add("@StatusIds", request.opt, DbType.String);
+                parameters.Add("@FromDate", request.fromDate, DbType.Date);
+                parameters.Add("@ToDate", request.toDate, DbType.Date);
+                var lstResult = await connection.QueryAsync<ContractModel>(StoreConstants.STORE_H1_CONTRACT_SELECT, param: parameters, commandTimeout: GlobalConstants.COMMAND_TIMEOUT, commandType: CommandType.StoredProcedure);
+                return lstResult;
+            }    
+        }
         #endregion
 
         #region Command
@@ -193,6 +214,7 @@ namespace HNOne.API.Repositories
                     {
                         lstSalaryConfig = lstSalaryConfig!.Update(m =>
                         {
+                            m.Id = 0;
                             m.ContractId = entity.Id;
                             m.BranchId = entity.BranchId;
                             m.EmployeeId = entity.EmployeeId;

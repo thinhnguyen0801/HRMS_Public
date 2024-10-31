@@ -23,6 +23,14 @@ namespace HNOne.API.Services
         /// <returns></returns>
         public async Task<IEnumerable<EmployeeModel>> GetEmployee(RequestModel request)
             => await _personnelRepository.GetEmployee(request);
+
+        /// <summary>
+        /// lấy danh sách hợp đồng
+        /// </summary>
+        /// <param name="request"></param>
+        /// <returns></returns>
+        public async Task<IEnumerable<ContractModel>> GetContract(RequestModel request)
+            => await _personnelRepository.GetContract(request);
         #endregion
 
         #region Command
@@ -38,6 +46,37 @@ namespace HNOne.API.Services
                         break;
                     case ProcessConstants.PUT_EMPLOYEE:
                         response = await _personnelRepository.UpdateEmployee(entity);
+                        break;
+                }
+                return response;
+            }
+            catch (Exception ex)
+            {
+                response.status = StatusCodes.Status400BadRequest;
+                response.message = ex.Message;
+            }
+            return response;
+        }
+
+        /// <summary>
+        /// cập nhật thông tin hợp đồng
+        /// </summary>
+        /// <param name="actionType"></param>
+        /// <param name="entity"></param>
+        /// <param name="lstSalaryConfig"></param>
+        /// <returns></returns>
+        public async Task<ResponseModel> UpdateContract(string actionType, Contracts entity, IEnumerable<SalaryAdjustments>? lstSalaryConfig)
+        {
+            ResponseModel response = new ResponseModel();
+            try
+            {
+                switch (actionType)
+                {
+                    case ProcessConstants.POST_CONTRACT:
+                        response = await _personnelRepository.AddContract(entity, lstSalaryConfig);
+                        break;
+                    case ProcessConstants.PUT_CONTRACT:
+                        response = await _personnelRepository.UpdateContract(entity, lstSalaryConfig);
                         break;
                 }
                 return response;

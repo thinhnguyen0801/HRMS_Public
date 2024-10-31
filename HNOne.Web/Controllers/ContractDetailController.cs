@@ -10,9 +10,6 @@ using DevExpress.Blazor;
 using HNOne.Web.Models;
 using Microsoft.AspNetCore.WebUtilities;
 using Newtonsoft.Json;
-using static DevExpress.ReportServer.Printing.RemoteDocumentSource;
-using Newtonsoft.Json.Linq;
-using HNOne.Model.Entities;
 
 namespace HNOne.Web.Controllers
 {
@@ -29,14 +26,16 @@ namespace HNOne.Web.Controllers
         public int ActiveTabIndex { get; set; } = 0;
         public bool IsReadonlyControl { get; set; } = false;
         public ContractModel ContractDocument { get; set; } = new ContractModel();
+        public List<SalaryConfigurationModel>? ListSalaryInfoConfig { get; set; } // danh sách thông tin lương
+        public IGrid? GridSalaryInfoConfig { get; set; }
+
         public List<ComboboxModel>? ListCboDepartment { get; set; } // cbo ds phòng ban
         public List<ComboboxModel>? ListCboPosition { get; set; } // cbo ds chức vụ
         public List<ComboboxModel>? ListCboTitle { get; set; } // cbo ds chức danh
         public List<ContractTypeModel>? ListCboContractType { get; set; } // ds cbo loại hợp đồng
         public List<EnumCatagoryModel>? ListCboEnumTax { get; set; } // cbo ds loại tính thuế
-        public List<SalaryConfigurationModel>? ListSalaryInfoConfig { get; set; } // danh sách thông tin lương
-        public IGrid? GridSalaryInfoConfig { get; set; }
-
+        public List<EnumCatagoryModel>? ListCboStatus { get; set; } // cbo ds tình trạng
+        
         private string? pPopupType { get; set; } = string.Empty; // mở popup nào
         public bool IsShowDialogEmpSearch { get; set; }
         public string? DepartmentIds { get; set; }
@@ -87,6 +86,7 @@ namespace HNOne.Web.Controllers
             ContractDocument.numberOfMonths = 1;
             ContractDocument.contractNumber = 1;
             ContractDocument.numberOfDaysReduced = 1;
+            ContractDocument.statusCode = "1"; // mặc định là chờ xử lý
             var uri = _navigationManager?.ToAbsoluteUri(_navigationManager.Uri);
             if (uri != null && QueryHelpers.ParseQuery(uri.Query).Count > 0)
             {
@@ -113,16 +113,19 @@ namespace HNOne.Web.Controllers
                 var getTask2 = _masterDataService.GetTitleAsync(UserId, Token); // ds chức danh
                 var getTask3 = _masterDataService.GetPositionAsync(UserId, Token); // ds chức vụ
                 var getTask4 = _masterDataService.GetEnumAsync(UserId, Token, nameof(EnumCatagory.DanhMucThueTNCN)); // ds loại tính thuế
+                var getTask5 = _masterDataService.GetEnumAsync(UserId, Token, nameof(EnumCatagory.TrangThaiHopDong)); // ds trạng thái
                 await Task.WhenAll(
                     getTask1,
                     getTask2,
                     getTask3,
-                    getTask4
+                    getTask4,
+                    getTask5
                 );
                 ListCboContractType = await getTask1;
                 ListCboTitle = (await getTask2)?.Select(m => new ComboboxModel() { id = m.id, name = m.name })?.ToList();
                 ListCboPosition = (await getTask3)?.Select(m => new ComboboxModel() { id = m.id, name = m.name })?.ToList();
                 ListCboEnumTax = await getTask4;
+                ListCboStatus = await getTask5;
             }
             catch (Exception) { throw; }
         }
@@ -154,6 +157,64 @@ namespace HNOne.Web.Controllers
 
         private async Task<string?> getDocumentNo(string? contractType) 
             => await _masterDataService.GetDocumentNo(UserId, Token, BranchId, GlobalContants.ENUM_CONTRACT_NO, contractType, ContractDocument.dateOfSigning.FormatDateTimeSql());
+
+        private void validateForSave(ref string errorMessage, ref string fieldName)
+        {
+            if (ContractDocument.contractTypeId < 1)
+            {
+                errorMessage = string.Format(MessageConstants.MESSAGE_COMBOBOX_REQUIRE, "Loại hợp đồng");
+                fieldName = nameof(ContractDocument.contractTypeId);
+                return;
+            }
+            if (string.IsNullOrWhiteSpace(ContractDocument.contractCode))
+            {
+                errorMessage = string.Format(MessageConstants.MESSAGE_COMBOBOX_REQUIRE, "Mã hợp đồng");
+                fieldName = nameof(ContractDocument.contractCode);
+                return;
+            }
+            if (ContractDocument.employeeId < 1)
+            {
+                errorMessage = string.Format(MessageConstants.MESSAGE_COMBOBOX_REQUIRE, "Nhân viên");
+                fieldName = nameof(ContractDocument.employeeId);
+                return;
+            }
+            if (ContractDocument.positionId < 1)
+            {
+                errorMessage = string.Format(MessageConstants.MESSAGE_COMBOBOX_REQUIRE, "Chức vụ");
+                fieldName = nameof(ContractDocument.positionId);
+                return;
+            }
+            if (ContractDocument.titleId < 1)
+            {
+                errorMessage = string.Format(MessageConstants.MESSAGE_COMBOBOX_REQUIRE, "Chức danh");
+                fieldName = nameof(ContractDocument.titleId);
+                return;
+            }
+            if (ContractDocument.startDate == null)
+            {
+                errorMessage = string.Format(MessageConstants.MESSAGE_COMBOBOX_REQUIRE, "Thời gian bắt đầu");
+                fieldName = nameof(ContractDocument.startDate);
+                return;
+            }
+            if (string.IsNullOrEmpty(ContractDocument.taxTypeCode))
+            {
+                errorMessage = string.Format(MessageConstants.MESSAGE_COMBOBOX_REQUIRE, "Loại tính thuế TNCN");
+                fieldName = nameof(ContractDocument.taxTypeCode);
+                return;
+            }
+            if (ContractDocument.deductionDate == null)
+            {
+                errorMessage = string.Format(MessageConstants.MESSAGE_COMBOBOX_REQUIRE, "Ngày bắt đầu trích nộp");
+                fieldName = nameof(ContractDocument.deductionDate);
+                return;
+            }
+            if (ContractDocument.deductionDate.Value.Day != 1)
+            {
+                errorMessage = $"[Ngày bắt đầu trích nộp] phải là ngày đầu tháng";
+                fieldName = nameof(ContractDocument.deductionDate);
+                return;
+            }
+        }
         #endregion
 
         #region Protected Functions
@@ -298,10 +359,10 @@ namespace HNOne.Web.Controllers
                         StateHasChanged();
                         break;
 
-                    //case nameof(ContractDocument.co):
-                    //    ContractDocument.heSoLuong = value;
-                    //    calcTotalSalary();
-                    //    break;
+                    case nameof(ContractDocument.salaryCoefficient):
+                        ContractDocument.salaryCoefficient = value;
+                        calcTotalSalary();
+                        break;
                 }
             }
             catch (Exception ex)
@@ -346,6 +407,51 @@ namespace HNOne.Web.Controllers
             finally
             {
                 await Task.Delay(100);
+                await ShowLoading(false);
+                await InvokeAsync(StateHasChanged);
+            }
+        }
+        
+        /// <summary>
+        /// lưu thông tin hợp đồng
+        /// </summary>
+        /// <returns></returns>
+        protected async Task SaveDataHandler()
+        {
+            try
+            {
+                string errorMessage = string.Empty;
+                string fieldName = string.Empty; // trả ra trường nào cần validate
+                validateForSave(ref errorMessage, ref fieldName);
+                if (!string.IsNullOrEmpty(errorMessage))
+                {
+                    ShowWarning(errorMessage);
+                    await _jsRuntime.InvokeVoidAsync("focusInput", fieldName);
+                    return;
+                }
+                bool isConfirm = true;
+                errorMessage = pActionType == nameof(EnumType.Add) ? MessageConstants.MESSAGE_CONFIRM_ADD : MessageConstants.MESSAGE_CONFIRM_UPDATE;
+                if (!isConfirm) return;
+                await ShowLoading();
+                string processKey = pActionType == nameof(EnumType.Add) ? ProcessConstants.POST_CONTRACT : ProcessConstants.PUT_CONTRACT;
+                ContractDocument.branchId = BranchId;
+                ContractDocument.userSign = UserId;
+                ContractDocument.userSign2 = UserId;
+                string json = JsonConvert.SerializeObject(ContractDocument);
+                string jsonDetail = JsonConvert.SerializeObject(ListSalaryInfoConfig);
+                isConfirm = await _personnelService.UpdateContractAsync(processKey, UserId, Token, BranchId, json, jsonDetail);
+                if (isConfirm)
+                {
+                    //await showVoucher();
+                }
+            }
+            catch (Exception ex)
+            {
+                ShowError(ex.Message);
+                _logger.LogError(ex, "SaveDataHandler");
+            }
+            finally
+            {
                 await ShowLoading(false);
                 await InvokeAsync(StateHasChanged);
             }
