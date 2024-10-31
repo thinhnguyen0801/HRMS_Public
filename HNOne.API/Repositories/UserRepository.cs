@@ -1,8 +1,10 @@
 ﻿using Azure;
 using Dapper;
+using HNOne.API.Constants;
 using HNOne.API.Repositories.Interfaces;
 using HNOne.Common;
 using HNOne.Model;
+using HNOne.Model.Entities;
 using HNOne.Model.Models;
 using Microsoft.EntityFrameworkCore;
 using System.Data;
@@ -117,5 +119,98 @@ namespace HNOne.API.Repositories
             }
             catch(Exception) { throw; }
         }
+
+        /// <summary>
+        /// lấy danh sách tài khoản
+        /// </summary>
+        /// <param name="request"></param>
+        /// <returns></returns>
+        public async Task<IEnumerable<UserModel>> GetUser(RequestModel request)
+        {
+            using (var connection = _dapperDbContext.CreateConnection())
+            {
+                DynamicParameters parameters = new DynamicParameters();
+                string strQuery = "select T0.*, T1.BranchCode as BranchCode, T1.BranchName as BranchName, T2.Id as EmployeeCode, T2.[Name] as EmployeeName  " +
+                                    "from Users as T0 with(nolock) " +
+                                   "inner join Branchs as T1 with(nolock) on T0.BranchId = T1.BranchId " +
+                                    "left join Employees as T2 with(nolock) on T0.EmployeeId = T2.Id";
+                parameters = new DynamicParameters();
+                var result = await connection.QueryAsync<UserModel>(strQuery, parameters, commandTimeout: 500, commandType: CommandType.Text);
+                return result;
+            }
+;
+        }
+
+        #region Command
+        /// <summary>
+        /// Thêm mới tài khoản mới
+        /// </summary>
+        /// <param name="entity"></param>
+        /// <returns></returns>
+        public async Task<ResponseModel> AddUser(Users entity)
+        {
+            ResponseModel response = new ResponseModel();
+            try
+            {
+                using (var connection = _dapperDbContext.CreateConnection())
+                {
+                    entity.UserId = await _dbContext.Users.Select(m => m.UserId).DefaultIfEmpty().MaxAsync() + 1;
+                    entity.Password = _encryptHelper.Encrypt(entity.Password);
+                    //entity.RefreshToken = generateRefreshToken();
+                    entity.DateTracking = _dateTimeHelper.GetCurrentVietnamTime();
+                    entity.CreateDate = _dateTimeHelper.GetCurrentVietnamTime();
+                    await _dbContext.Users.AddAsync(entity);
+                    await _dbContext.SaveChangesAsync();
+                    response.message = MessageConstants.MESSAGE_ADD_SUCCESS;
+                }
+                return response;
+            }
+            catch (Exception) { throw; }
+
+        }
+
+        /// <summary>
+        /// cập nhật tài khoản
+        /// </summary>
+        /// <param name="entity"></param>
+        /// <returns></returns>
+        public async Task<ResponseModel> UpdateUser(Users entity)
+        {
+            ResponseModel response = new ResponseModel();
+            try
+            {
+                
+
+                var data = await _dbContext.Users.FirstOrDefaultAsync(m => m.UserId == entity.UserId);
+                if (data == null)
+                {
+                    response.status = StatusCodes.Status404NotFound;
+                    response.message = MessageConstants.MESSAGE_NOT_FOUNT;
+                    return response;
+                }
+
+
+
+                data.UserName = entity.UserName;
+                data.Password = _encryptHelper.Encrypt(entity.Password);
+                data.BranchId = entity.BranchId;
+                data.EmployeeId = entity.EmployeeId;
+                data.DepartmentIds = entity.DepartmentIds;
+                data.BranchIds = entity.BranchIds;
+                data.IsActive = entity.IsActive;
+                data.IsAdmin = entity.IsAdmin;
+                data.PerGroupId = entity.PerGroupId;
+                data.DateTracking = _dateTimeHelper.GetCurrentVietnamTime();
+                data.UpdateDate = _dateTimeHelper.GetCurrentVietnamTime();
+                data.UserSign2 = entity.UserSign2;
+                _dbContext.Users.Attach(data);
+                _dbContext.Entry(data).State = EntityState.Modified;
+                await _dbContext.SaveChangesAsync();
+                response.message = MessageConstants.MESSAGE_UPDATE_SUCCESS;
+                return response;
+            }
+            catch (Exception) { throw; }
+        }
+        #endregion
     }
 }

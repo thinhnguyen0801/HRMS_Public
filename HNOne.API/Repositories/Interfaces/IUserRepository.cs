@@ -8,5 +8,8 @@ namespace HNOne.API.Repositories.Interfaces
     {
         Task<ResponseModel<UserModel>> Login(LoginRequestModel request);
         Task UpdateRefreshToken(int userId, string token, int refreshTokenExpiryTime);
+        Task<IEnumerable<UserModel>> GetUser(RequestModel request);
+        Task<ResponseModel> AddUser(Users entity);
+        Task<ResponseModel> UpdateUser(Users entity);
     }
 }

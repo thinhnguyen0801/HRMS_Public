@@ -60,5 +60,62 @@ namespace HNOne.Web.Services
             }
             catch (Exception){ throw; }
         }
+        public async Task<List<UserModel>?> GetUserAsync(RequestModel request)
+        {
+            try
+            {
+                List<UserModel>? data = null;
+                request.process = ProcessConstants.GET_USER;
+                HttpResponseMessage httpResponse = await PostAsync(EnpointConstants.USER_GET_DATA, request);
+                var checkContent = ValidateJsonContent(httpResponse.Content);
+                if (!checkContent) _toastService.ShowInfo(MessageConstants.MESSAGE_JSON_INVALID);
+                else
+                {
+                    var response = await httpResponse.Content.ReadFromJsonAsync<ResCliModel<UserModel>>();
+                    if (response == null || response.status != StatusCodes.Status200OK)
+                    {
+                        _toastService.ShowWarning(response?.message ?? MessageConstants.MESSAGE_IT_SUPPORT);
+                        return data;
+                    }
+                    data = response.data?.ToList();
+                }
+                return data;
+            }
+            catch (Exception) { throw; }
+        }
+
+        public async Task<bool> UpdateUserAsync(string processKey, int userId, string token, string json)
+        {
+            try
+            {
+                RequestModel request = new RequestModel();
+                request.process = processKey;
+                request.userId = userId;
+                request.token = token;
+                request.json = json;
+                HttpResponseMessage httpResponse = await PostAsync(EnpointConstants.USER_POST_DATA, request);
+                if (httpResponse.StatusCode == System.Net.HttpStatusCode.Unauthorized)
+                {
+                    _toastService.ShowInfo(MessageConstants.MESSAGE_LOGIN_EXPIRED);
+                    return false;
+                }
+                var checkContent = ValidateJsonContent(httpResponse.Content);
+                if (!checkContent) _toastService.ShowError(MessageConstants.MESSAGE_JSON_INVALID);
+                else
+                {
+                    var content = await httpResponse.Content.ReadAsStringAsync();
+                    ResponseModel response = JsonConvert.DeserializeObject<ResponseModel>(content)!;
+                    if (httpResponse.IsSuccessStatusCode
+                        && response?.status == StatusCodes.Status200OK)
+                    {
+                        _toastService.ShowSuccess(response.message);
+                        return true;
+                    }
+                    _toastService.ShowError(response?.message ?? MessageConstants.MESSAGE_IT_SUPPORT);
+                }
+                return true;
+            }
+            catch (Exception) { throw; }
+        }
     }
 }

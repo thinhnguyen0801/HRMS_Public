@@ -12,6 +12,7 @@
         public const string TABLE_EMPLOYEE = "Employees";
         public const string TABLE_CONTRACTTYPE = "ContractTypes";
         public const string TABLE_REASONCATEGORIER = "ReasonCategories";
+        public const string TABLE_USER = "Users";
         #endregion
     }
 }

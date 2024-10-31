@@ -6,6 +6,7 @@ namespace HNOne.Model.Models
         public int userId { get; set; }
         public string? userName { get; set; }
         public string? password { get; set; }
+        public string? rePassword { get; set; }
         public string? defaultPassword { get; set; } // mật khẩu mặt định
         public string? refreshToken { get; set; }
         public DateTime? refreshTokenExpiryTime { get; set; } // thời hạn hết token
@@ -21,6 +22,8 @@ namespace HNOne.Model.Models
         public string? branchCode { get; set; }
         public string? branchName { get; set; }
         public string? token { get; set; }
+        public DateTime? createDate { get; set; }
+        public string? link { get; set; }
 
     }
 }

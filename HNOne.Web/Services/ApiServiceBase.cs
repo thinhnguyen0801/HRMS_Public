@@ -16,7 +16,7 @@ namespace HNOne.Web.Services
             _logger = logger;
             _factory = factory;
             _httpClient = factory.CreateClient("api");
-            _httpClient.DefaultRequestHeaders.Add("TokenKey", "");
+            //_httpClient.DefaultRequestHeaders.Add("TokenKey", "");
         }
 
         /// <summary>

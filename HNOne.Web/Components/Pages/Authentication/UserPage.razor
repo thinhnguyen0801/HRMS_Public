@@ -1,0 +1,207 @@
+﻿@page "/tai-khoan"
+@inherits Controllers.UserController
+
+<PageTitle>Tài khoản</PageTitle>
+
+<div class="h-content-filter">
+    <div class="row row-gap-2">
+        <div class="col-12">
+            <div class="card w1FontSize">
+                <div class="card-header p-1">
+                    <DxToolbar ItemRenderStyleMode="@ToolbarRenderStyleMode.Contained">
+                        <Items>
+                            <DxToolbarItem Text="Làm mới" BeginGroup="true" IconCssClass="@($"{IconClassConstants.ICON_REFRESH}")"
+                                           Alignment="@ToolbarItemAlignment.Right" Click="@(()=> RefreshHandler())" />
+                            <DxToolbarItem Text="Thêm mới" BeginGroup="true" IconCssClass="@($"{IconClassConstants.ICON_ADD}")"
+                                           Alignment="@ToolbarItemAlignment.Right" Click="@(()=> OnOpenDialogHandler())" />
+
+                            <DxToolbarItem Text="Xóa" BeginGroup="true" IconCssClass="@($"{IconClassConstants.ICON_DELETE}")"
+                                           Alignment="@ToolbarItemAlignment.Right" Click="@(()=> DeleteDataHandler())" />
+                        </Items>
+                    </DxToolbar>
+                </div>
+                <div class="card-body p-1" style="height: calc(100vh - 150px); min-height: 350px">
+                    <DxGrid Data="ListUser" @ref="GridUser"
+                            ShowFilterRow="true"
+                            ColumnResizeMode="GridColumnResizeMode.ColumnsContainer"
+                            PagerPosition="GridPagerPosition.Bottom"
+                            PageSizeSelectorVisible="true"
+                            PageSize="@GlobalContants.PageSize"
+                            PageSizeSelectorItems="@(GlobalContants.PageSizeList)"
+                            PageSizeSelectorAllRowsItemVisible="true"
+                            PagerSwitchToInputBoxButtonCount="10"
+                            PagerVisibleNumericButtonCount="10"
+                            TextWrapEnabled="false"
+                            FocusedRowEnabled="true"
+                            SelectionMode="@GridSelectionMode.Multiple"
+                            @bind-SelectedDataItems="@SelectedUsers"
+                            KeyFieldName="@nameof(UserModel.userName)"
+                            CssClass="h-full">
+                        <Columns>
+                            <DxGridSelectionColumn Width="45px" />
+                            <DxGridDataColumn FieldName="@nameof(UserModel.userName)" Caption="Tài khoản" MinWidth="170">
+                                <CellDisplayTemplate>
+                                    @{
+                                        <a @onclick="@(() => OnOpenDialogHandler(EnumType.Update, (context.DataItem as UserModel)))">@context.Value</a>
+                                    }
+                                </CellDisplayTemplate>
+                            </DxGridDataColumn>/>
+                            <DxGridDataColumn FieldName="@nameof(UserModel.branchName)" Caption="Chi nhánh" MinWidth="210" />
+                            <DxGridDataColumn FieldName="@nameof(UserModel.employeeName)" Caption="Nhân viên liên kết" MinWidth="210" />
+                            <DxGridDataColumn FieldName="@nameof(UserModel.branchIds)" Caption="Dánh sách chi nhánh được phép sử dụng" MinWidth="210" />
+                            <DxGridDataColumn FieldName="@nameof(UserModel.departmentIds)" Caption="danh sách phòng ban sử dụng" MinWidth="210" />
+                            <DxGridDataColumn FieldName="@nameof(UserModel.isActive)" Caption="Active" MinWidth="210" />
+                            <DxGridDataColumn FieldName="@nameof(UserModel.isAdmin)" Caption="Admin" MinWidth="210" />
+                            <DxGridDataColumn FieldName="@nameof(UserModel.createDate)" Caption="Ngày cập nhật" MinWidth="120" DisplayFormat="@GlobalContants.FORMAT_DATE_TIME" />
+                            <DxGridDataColumn FieldName="@nameof(UserModel.userSignName)" Caption="Người tạo" MinWidth="120" />
+                            <DxGridDataColumn FieldName="@nameof(UserModel.userSign2Name)" Caption="Người cập nhật" MinWidth="120" />
+                        </Columns>
+                        <TotalSummary>
+                            <DxGridSummaryItem DisplayText="@GlobalContants.FORMAT_GRID_DISPLAYTEXT_COUNT" SummaryType="GridSummaryItemType.Count"
+                                               FieldName="@nameof(UserModel.userName)" ValueDisplayFormat="@GlobalContants.FORMAT_CURRENCY"
+                                               FooterColumnName="@nameof(UserModel.userName)" />
+                        </TotalSummary>
+                    </DxGrid>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<W1Popup @bind-IsOpenModal="@IsShowDialog"
+         Width="65%" TextBtnAccept="Cập nhật"
+         HeaderText="Thêm mới danh mục lý do"
+         HandleClickAccept="@SaveDataHandler">
+    <div class="row row-gap-2">
+        <div class="col-sm-12">
+            <div class="d-flex align-items-center">
+                <W1Label Value="Tài khoản" Id="bacLuong" Styles="width: 180px" IsRequired="true" />
+                <div style="width: calc(100% - 110px)">
+                    <DxTextBox @bind-Text="@UserUpdate.userName" CssClass="w1FontSize" style="padding-left: 1%"></DxTextBox>
+                </div>
+            </div>
+        </div>
+        <div class="col-sm-12">
+            <div class="d-flex align-items-center">
+                <W1Label Value="Mật khẩu" Id="bacLuong" Styles="width: 180px" IsRequired="true" />
+                <div style="width: calc(100% - 110px); position: relative;">
+                    <InputText @bind-Value="UserUpdate.password"
+                               type="@(!IsShowPassword ? "password" : "text")"
+                               class="form-control"
+                               CssClass="w1FontSize"
+                               style="width: 100%; height: 85%;" />
+                    <DxButton IconCssClass="@(IsShowPassword ? "fa-regular fa-eye" : "fa-regular fa-eye-slash")"
+                              style="position: absolute; right: 1px; top: 50%; transform: translateY(-50%);
+                             z-index: 10; background: transparent; border-right: 0px 5px;border-color: #ced4da; padding: 5px;
+                             height: 100%; display: flex; align-items: center; cursor: pointer; color: black;"
+                              Tooltip="Hiển thị mật khẩu" Click="@(() => IsShowPassword = !IsShowPassword)" />
+                </div>
+            </div>
+        </div>
+        <div class="col-sm-12">
+            <div class="d-flex align-items-center">
+                <W1Label Value="Nhập lại mật khẩu" Id="bacLuong" Styles="width: 180px" IsRequired="true" />
+                <div style="width: calc(100% - 110px); position: relative;">
+                    <InputText @bind-Value="UserUpdate.rePassword"
+                               type="@(!IsShowRepassword ? "password" : "text")"
+                               class="form-control"
+                               CssClass="w1FontSize"
+                               style="width: 100%; height: 85%;" />
+                    <DxButton IconCssClass="@(IsShowRepassword ? "fa-regular fa-eye" : "fa-regular fa-eye-slash")"
+                              style="position: absolute; right: 1px; top: 50%; transform: translateY(-50%);
+                             z-index: 10; background: transparent; border-right: 0px 5px;border-color: #ced4da; padding: 5px;
+                             height: 100%; display: flex; align-items: center; cursor: pointer; color: black;"
+                              Tooltip="Hiển thị mật khẩu" Click="@(() => IsShowRepassword = !IsShowRepassword)" />
+                </div>
+            </div>
+        </div>
+        <div class="col-sm-12">
+            <div class="d-flex align-items-center">
+                <W1Label Value="Chi nhánh" Id="bacLuong" Styles="width: 180px" IsRequired="true" />
+                <div style="width: calc(100% - 110px)">
+                    <DxComboBox Data="@ListCboBranchId"
+                                @bind-Value="@UserUpdate.branchId"
+                                style="padding-left: 1%"
+                                FilteringMode="DataGridFilteringMode.Contains"
+                                TextFieldName="@nameof(ComboboxModel.name)"
+                                ValueFieldName="@nameof(ComboboxModel.id)" CssClass="w1FontSize">
+                    </DxComboBox>
+                </div>
+            </div>
+        </div>
+        <div class="col-sm-12">
+            <div class="d-flex align-items-center">
+                <W1Label Value="Nhân viên liên kết" Id="bacLuong" Styles="width: 180px" IsRequired="true" />
+                <div style="width: calc(100% - 110px)">
+                    <DxComboBox Data="@ListEmployee"
+                                @bind-Value="@UserUpdate.employeeId"
+                                style="padding-left: 1%"
+                                FilteringMode="DataGridFilteringMode.Contains"
+                                TextFieldName="@nameof(ComboboxModel.name)"
+                                ValueFieldName="@nameof(ComboboxModel.id)" CssClass="w1FontSize">
+                    </DxComboBox>
+                </div>
+            </div>
+        </div>
+        <div class="col-sm-12">
+            <div class="d-flex align-items-center">
+                <W1Label Value="Danh sách chi nhánh sử dụng" Id="bacLuong" Styles="width: 180px" />
+                <div style="width: calc(100% - 110px)">
+                    <DxComboBox Data="@ListCboBranchId"
+                                @bind-Value="@UserUpdate.branchIds"
+                                style="padding-left: 1%"
+                                FilteringMode="DataGridFilteringMode.Contains"
+                                TextFieldName="@nameof(ComboboxModel.name)"
+                                ValueFieldName="@nameof(ComboboxModel.id)" CssClass="w1FontSize">
+                    </DxComboBox>
+                </div>
+            </div>
+        </div>
+        <div class="col-sm-12">
+            <div class="d-flex align-items-center">
+                <W1Label Value="Danh sách phòng ban sử dụng" Id="bacLuong" Styles="width: 180px" />
+                <div style="width: calc(100% - 110px)">
+                    <DxComboBox Data="@ListCboDepartmentId"
+                                @bind-Value="@UserUpdate.departmentIds"
+                                style="padding-left: 1%"
+                                FilteringMode="DataGridFilteringMode.Contains"
+                                TextFieldName="@nameof(ComboboxModel.name)"
+                                ValueFieldName="@nameof(ComboboxModel.id)" CssClass="w1FontSize">
+                    </DxComboBox>
+                </div>
+            </div>
+        </div>
+        <div class="col-sm-12">
+            <div class="d-flex align-items-center">
+                <W1Label Value="Active" Id="bacLuong" Styles="width: 180px" />
+                <div style="width: calc(100% - 110px)">
+                    <DxCheckBox @bind-Checked="@UserUpdate.isActive" CssClass="w1FontSize"></DxCheckBox>
+                </div>
+            </div>
+        </div>
+        <div class="col-sm-12">
+            <div class="d-flex align-items-center">
+                <W1Label Value="Admin" Id="bacLuong" Styles="width: 180px" />
+                <div style="width: calc(100% - 110px)">
+                    <DxCheckBox @bind-Checked="@UserUpdate.isAdmin" CssClass="w1FontSize"></DxCheckBox>
+                </div>
+            </div>
+        </div>
+        <div class="col-sm-12">
+            <div class="d-flex align-items-center">
+                <W1Label Value="Quyền nhóm" Id="bacLuong" Styles="width: 180px" />
+                <div style="width: calc(100% - 110px)">
+                    <DxComboBox Data="@ListPerGroupId"
+                                @bind-Value="@UserUpdate.perGroupId"
+                                style="padding-left: 1%"
+                                FilteringMode="DataGridFilteringMode.Contains"
+                                TextFieldName="@nameof(ComboboxModel.name)"
+                                ValueFieldName="@nameof(ComboboxModel.id)" CssClass="w1FontSize">
+                    </DxComboBox>
+                </div>
+            </div>
+        </div>
+    </div>
+</W1Popup>
+
+<W1Confirm @ref="confirm" />

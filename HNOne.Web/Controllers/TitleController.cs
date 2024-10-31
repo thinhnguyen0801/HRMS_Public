@@ -74,7 +74,8 @@ namespace HNOne.Web.Controllers
                 var getTask1 = _masterDataService.GetBranchAsync(UserId, Token);
                 var getTask2 = _masterDataService.GetDepartmentAsync(UserId, Token);
                 await Task.WhenAll(
-                        getTask1
+                        getTask1,
+                        getTask2
                         );
                 ListCboBranch = (await getTask1)?.Select(m => new ComboboxModel() { id = m.branchId, name = m.branchName })?.ToList();
                 ListCboDepartment = (await getTask2)?.Select(m => new ComboboxModel() { id = m.id, name = m.name })?.ToList();
