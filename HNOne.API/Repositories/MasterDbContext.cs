@@ -24,6 +24,8 @@ namespace HNOne.API.Repositories
         public DbSet<Provinces> Provinces { get; set; }
         public DbSet<Districts> Districts { get; set; }
         public DbSet<Wards> Wards { get; set; }
+        public DbSet<WorkHistories> WorkHistories { get; set; }
+        public DbSet<Insurances> Insurances { get; set; }
 
         public MasterDbContext(DbContextOptions<MasterDbContext> options)
             : base(options)
