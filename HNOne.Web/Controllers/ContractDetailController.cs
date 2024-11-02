@@ -40,6 +40,7 @@ namespace HNOne.Web.Controllers
         public string? DepartmentIds { get; set; }
         public string? StatusIds { get; set; } // Tình trạng nào
         public object? EmployeeSelected { get; set; } // Nhân viên được chọn
+        public bool firstRender = true;
         #endregion
 
         protected override async Task OnAfterRenderAsync(bool firstRender)
@@ -49,6 +50,7 @@ namespace HNOne.Web.Controllers
             {
                 try
                 {
+                    this.firstRender = firstRender;
                     await ShowLoading();
                     await initDataAsync();
                     await buildComboAsync();
@@ -65,6 +67,7 @@ namespace HNOne.Web.Controllers
                 }
                 finally
                 {
+                    this.firstRender = false;
                     await ShowLoading(false);
                     //await _progressService!.Done();
                     await InvokeAsync(StateHasChanged);
@@ -249,6 +252,21 @@ namespace HNOne.Web.Controllers
                 throw ex;
             }
         }
+        
+        /// <summary>
+        /// cập nhật ngày kết thúc
+        /// </summary>
+        private void calcEndDate()
+        {
+            ContractDocument.endDate = null;
+            if(ContractDocument.startDate != null)
+            {
+                ContractDocument.endDate = ContractDocument.startDate.Value
+                                .AddMonths((int)ContractDocument.numberOfMonths)
+                                .AddDays(-1 * ContractDocument.numberOfDaysReduced);
+            }    
+
+        }
         #endregion
 
         #region Protected Functions
@@ -329,11 +347,12 @@ namespace HNOne.Web.Controllers
         /// <param name="lstEmp"></param>
         protected void EventCallbackEmpChangedHandler(object? lstEmp) => EmployeeSelected = lstEmp;
 
-        protected async void ComboboxValueChangedHandler(object? value
+        protected async Task ComboboxValueChangedHandler(object? value
             , string controlID = nameof(ContractDocument.contractTypeId), object? gridSelected = null)
         {
             try
             {
+                if (firstRender) return;
                 switch (controlID)
                 {
                     case nameof(ContractDocument.contractTypeId):
@@ -347,6 +366,7 @@ namespace HNOne.Web.Controllers
                             ContractDocument.numberOfDaysReduced = contractType.numberOfDaysReduced > 0 ? contractType.numberOfDaysReduced : 1;
                             ContractDocument.contractCode = await getDocumentNo(contractType.code); // gọi API lấy mã hợp đồng
                             await Task.Delay(100);
+                            calcEndDate();
                         }    
                         break;
                     default:
@@ -376,20 +396,19 @@ namespace HNOne.Web.Controllers
         {
             try
             {
+                if (firstRender) return;
                 switch (controlID)
                 {
                     case nameof(ContractDocument.numberOfMonths):
-                        // kiểm xem có phải HĐ không thời hạn không
-                        bool isIndefiniteContract = ListCboContractType?
-                            .FirstOrDefault(m => m.id == ContractDocument.contractTypeId)?.isIndefiniteDuration ?? false;
                         ContractDocument.numberOfMonths = value;
-                        ContractDocument.endDate = null;
-                        if (!isIndefiniteContract && ContractDocument.startDate != null)
-                        {
-                            ContractDocument.endDate = ContractDocument.startDate.Value
-                                .AddMonths((int)ContractDocument.numberOfMonths)
-                                .AddDays(-1 * ContractDocument.numberOfDaysReduced);
-                        }
+                        Task.Yield();
+                        calcEndDate();
+                        StateHasChanged();
+                        break;
+                    case nameof(ContractDocument.numberOfDaysReduced):
+                        ContractDocument.numberOfDaysReduced = (int)value;
+                        Task.Yield();
+                        calcEndDate();
                         StateHasChanged();
                         break;
 
@@ -398,6 +417,36 @@ namespace HNOne.Web.Controllers
                         calcTotalSalary();
                         break;
                 }
+            }
+            catch (Exception ex)
+            {
+                ShowError(ex.Message);
+                _logger.LogError(ex, "SpinEditValueChangeHandler");
+            }
+        }
+
+        /// <summary>
+        /// thay đổi thông tin DateEdit
+        /// </summary>
+        /// <param name="value"></param>
+        /// <param name="controlID"></param>
+        /// <param name="gridSelected"></param>
+        protected void DateEditValueChangedHandler(object? value
+            , string controlID = nameof(ContractDocument.startDate), object? gridSelected = null)
+        {
+            try
+            {
+                if (firstRender) return;
+                switch (controlID)
+                {
+                    case nameof(ContractDocument.startDate):
+                        ContractDocument.endDate = null;
+                        ContractDocument.startDate = (DateTime?)value;
+                        Task.Yield();
+                        calcEndDate();
+                        StateHasChanged();
+                        break;
+                }    
             }
             catch (Exception ex)
             {
@@ -465,6 +514,7 @@ namespace HNOne.Web.Controllers
                 }
                 bool isConfirm = true;
                 errorMessage = pActionType == nameof(EnumType.Add) ? MessageConstants.MESSAGE_CONFIRM_ADD : MessageConstants.MESSAGE_CONFIRM_UPDATE;
+                isConfirm = await confirm.SetConfirm(MessageConstants.MESSAGE_TITLE, errorMessage);
                 if (!isConfirm) return;
                 await ShowLoading();
                 string processKey = pActionType == nameof(EnumType.Add) ? ProcessConstants.POST_CONTRACT : ProcessConstants.PUT_CONTRACT;
@@ -473,10 +523,12 @@ namespace HNOne.Web.Controllers
                 ContractDocument.userSign2 = UserId;
                 string json = JsonConvert.SerializeObject(ContractDocument);
                 string jsonDetail = JsonConvert.SerializeObject(ListSalaryInfoConfig);
-                isConfirm = await _personnelService.UpdateContractAsync(processKey, UserId, Token, BranchId, json, jsonDetail);
-                if (isConfirm)
+                int result = await _personnelService.UpdateContractAsync(processKey, UserId, Token, BranchId, json, jsonDetail);
+                if (result > 0)
                 {
-                    //await showVoucher();
+                    pActionType = nameof(EnumType.Update);
+                    pDocEntry = result;
+                    await showVoucher();
                 }
             }
             catch (Exception ex)

@@ -84,7 +84,7 @@ namespace HNOne.Web.Services
         /// <param name="json"></param>
         /// <param name="jsonDetail"></param>
         /// <returns></returns>
-        public async Task<bool> UpdateContractAsync(string processKey, int userId, string token, int branchId, string json, string jsonDetail)
+        public async Task<int> UpdateContractAsync(string processKey, int userId, string token, int branchId, string json, string jsonDetail)
         {
             try
             {
@@ -99,7 +99,7 @@ namespace HNOne.Web.Services
                 if (httpResponse.StatusCode == System.Net.HttpStatusCode.Unauthorized)
                 {
                     _toastService.ShowInfo(MessageConstants.MESSAGE_LOGIN_EXPIRED);
-                    return false;
+                    return -1;
                 }
                 var checkContent = ValidateJsonContent(httpResponse.Content);
                 if (!checkContent) _toastService.ShowError(MessageConstants.MESSAGE_JSON_INVALID);
@@ -111,16 +111,17 @@ namespace HNOne.Web.Services
                         && response?.status == StatusCodes.Status200OK)
                     {
                         _toastService.ShowSuccess(response.message);
-                        return true;
+                        int.TryParse(response.data?.ToString(), out int result);
+                        return result;
                     }
                     if (response?.status == StatusCodes.Status409Conflict)
                     {
                         _toastService.ShowInfo(response?.message ?? MessageConstants.MESSAGE_IT_SUPPORT);
-                        return false;
+                        return -1;
                     }
                     _toastService.ShowError(response?.message ?? MessageConstants.MESSAGE_IT_SUPPORT);
                 }
-                return false;
+                return -1;
             }
             catch (Exception) { throw; }
         }

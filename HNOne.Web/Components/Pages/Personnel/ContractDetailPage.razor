@@ -49,31 +49,34 @@
                                             </div>
                                         </div>
                                     </div>
-                                    <div class="col-md-6 col-sm-12">
+                                    <div class="col-md-4 col-sm-12">
                                         <div class="d-flex ">
                                             <W1Label Value="Mã hợp đồng" Styles="width: 120px" IsRequired="true" />
                                             <div style="width: calc(100% - 120px)">
-                                                <div class="grid gap-1 row-gap-2">
-                                                    <div class="g-col-md-8 g-col-sm-12 g-col-12">
-                                                        <DxTextBox @bind-Text="@ContractDocument.contractCode" CssClass="w1FontSize" Id="contractCode">
-                                                            <Buttons>
-                                                                <DxEditorButton style="width: 29px" CssClass="w1FontSize" IconCssClass="fa-solid fa-arrows-rotate" Tooltip="Làm mới mã hợp đồng"
-                                                                                Click="@RefreshContractNoHandler" />
-                                                            </Buttons>
-                                                        </DxTextBox>
-                                                    </div>
-                                                    <div class="g-col-md-4 g-col-sm-12 g-col-12">
-                                                        <DxComboBox Data="@ListCboStatus"
-                                                                    @bind-Value="@ContractDocument.statusCode"
-                                                                    FilteringMode="DataGridFilteringMode.Contains"
-                                                                    TextFieldName="@nameof(ComboboxModel.name)"
-                                                                    ValueFieldName="@nameof(ComboboxModel.code)" 
-                                                                    ReadOnly="true"
-                                                                    CssClass="w1FontSize">
-                                                        </DxComboBox>
-                                                    </div>
-                                                </div>
-                                                
+                                                <DxTextBox @bind-Text="@ContractDocument.contractCode" CssClass="w1FontSize" Id="contractCode">
+                                                    <Buttons>
+                                                        <DxEditorButton style="width: 29px" CssClass="w1FontSize" 
+                                                            IconCssClass="@IconClassConstants.ICON_REFRESH" 
+                                                            Tooltip="Làm mới mã hợp đồng"
+                                                            Click="@RefreshContractNoHandler" />
+                                                    </Buttons>
+                                                </DxTextBox>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="col-md-2 col-sm-12">
+                                        <div class="d-flex">
+                                            <W1Label Value="Tình trạng" Styles="width: 80px" />
+                                            <div style="width: calc(100% - 80px)">
+                                                <DxComboBox Data="@ListCboStatus"
+                                                            @bind-Value="@ContractDocument.statusCode"
+                                                            FilteringMode="DataGridFilteringMode.Contains"
+                                                            TextFieldName="@nameof(ComboboxModel.name)"
+                                                            ValueFieldName="@nameof(ComboboxModel.code)"
+                                                            ReadOnly="true"
+                                                            CssClass="w1FontSize">
+                                                </DxComboBox>
                                             </div>
                                         </div>
                                     </div>
@@ -115,7 +118,9 @@
                                         <div class="d-flex">
                                             <W1Label Value="Số ngày giảm" Id="soThang" Styles="width: 80px" />
                                             <div style="width: calc(100% - 80px)">
-                                                <DxSpinEdit @bind-Value="@ContractDocument.numberOfDaysReduced" MinValue="1" Increment="1"
+                                                <DxSpinEdit Value="@ContractDocument.numberOfDaysReduced" 
+                                                            ValueChanged="@((int value) => SpinEditValueChangedHandler((double)value, controlID: nameof(ContractDocument.numberOfDaysReduced)))"
+                                                            MinValue="0" Increment="1"
                                                             InputCssClass="text-end" ShowSpinButtons="true" CssClass="w1FontSize" />
                                             </div>
                                         </div>
@@ -209,12 +214,16 @@
                                             <div style="width: calc(100% - 120px)">
                                                 <div class="grid gap-1 row-gap-2">
                                                     <div class="g-col-md-6 g-col-sm-12 g-col-12">
-                                                        <DxDateEdit @bind-Date="@ContractDocument.startDate" CssClass="w1FontSize" Id="startDate"
-                                                                    Mask="@GlobalContants.FORMAT_DATE" Format="@GlobalContants.FORMAT_DATE" DisplayFormat="@GlobalContants.FORMAT_DATE" />
+                                                        <DxDateEdit Date="@ContractDocument.startDate" 
+                                                                    DateChanged="@((DateTime? date)=>DateEditValueChangedHandler(date, controlID: nameof(ContractDocument.startDate)))"
+                                                                    CssClass="w1FontSize" Id="startDate"
+                                                                    Mask="@GlobalContants.FORMAT_DATE" Format="@GlobalContants.FORMAT_DATE" 
+                                                                    DisplayFormat="@GlobalContants.FORMAT_DATE" />
                                                     </div>
                                                     <div class="g-col-md-6 g-col-sm-12 g-col-12">
                                                         <DxDateEdit @bind-Date="@ContractDocument.endDate" CssClass="w1FontSize" Id="endDate"
-                                                                    Mask="@GlobalContants.FORMAT_DATE" Format="@GlobalContants.FORMAT_DATE" DisplayFormat="@GlobalContants.FORMAT_DATE" ReadOnly="true" />
+                                                                    Mask="@GlobalContants.FORMAT_DATE" Format="@GlobalContants.FORMAT_DATE" 
+                                                                    DisplayFormat="@GlobalContants.FORMAT_DATE" ReadOnly="true" />
                                                     </div>
                                                 </div>
                                             </div>

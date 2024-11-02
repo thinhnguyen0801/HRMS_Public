@@ -240,6 +240,7 @@ namespace HNOne.API.Repositories
                     await _dbContext.SaveChangesAsync();
                     await _dbContext.Database.CommitTransactionAsync();
                     response.message = MessageConstants.MESSAGE_ADD_SUCCESS;
+                    response.data = entity.Id; // nhã ra mã số hợp đồng
                 }
                 return response;
             }
@@ -315,6 +316,7 @@ namespace HNOne.API.Repositories
                 await _dbContext.SaveChangesAsync();
                 await _dbContext.Database.CommitTransactionAsync();
                 response.message = MessageConstants.MESSAGE_UPDATE_SUCCESS;
+                response.data = data.Id;
                 return response;
             }
             catch (Exception)
