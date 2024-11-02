@@ -24,7 +24,7 @@ namespace HNOne.Model.Entities
         [MaxLength(1000)]
         public string? PlaceOfBirth { get; set; } // Nơi sinh
         [MaxLength(1000)]
-        public string? PlaceOfOrigin { get; set; } // Quê quán
+        public string? PlaceOfOrigin { get; set; } // Quê quán 
         [MaxLength(1000)]
         public string? TemporaryAddress { get; set; } // địa chỉ tạm trú
         [MaxLength(1000)]

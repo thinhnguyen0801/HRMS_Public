@@ -20,6 +20,10 @@ namespace HNOne.API.Repositories
         public DbSet<SalaryConfigurations> SalaryConfigurations { get; set; }
         public DbSet<Contracts> Contracts { get; set; }
         public DbSet<SalaryAdjustments> SalaryAdjustments { get; set; }
+        public DbSet<Countries> Countries { get; set; }
+        public DbSet<Provinces> Provinces { get; set; }
+        public DbSet<Districts> Districts { get; set; }
+        public DbSet<Wards> Wards { get; set; }
 
         public MasterDbContext(DbContextOptions<MasterDbContext> options)
             : base(options)
