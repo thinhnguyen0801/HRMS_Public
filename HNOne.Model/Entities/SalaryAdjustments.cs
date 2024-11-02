@@ -7,7 +7,7 @@ namespace HNOne.Model.Entities
     /// Bảng điều chỉnh lương
     /// </summary>
     [Table("SalaryAdjustments")]
-    public class SalaryAdjustments : Auditable
+    public sealed class SalaryAdjustments : Auditable
     {
         [Key]
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)] // Không tự tăng
@@ -25,5 +25,6 @@ namespace HNOne.Model.Entities
         public bool IsOccupationalAccidentInsurance { get; set; } // BHTNLD
         public bool IsUnionFee { get; set; } // phí công đoàn
         public bool IsProbationaryPeriod { get; set; } // là thử việc. tính theo %
+        public int ContractAppendixId { get; set; } // ID phụ lục hợp đồng
     }
 }
