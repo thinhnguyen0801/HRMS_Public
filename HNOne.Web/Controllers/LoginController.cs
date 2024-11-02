@@ -38,7 +38,7 @@ namespace HNOne.Web.Controllers
                     var lstBranch = await _masterDataService.GetBranchAsync(1, "");
                     await _progressService.SetPercent(0.6);
                     ListBranch = lstBranch?.Select(m => new ComboboxModel() { id = m.branchId, code = m.branchId.ToString(), name = m.branchName })?.ToList();
-                    
+                    LoginRequest.branchId = ListBranch?.FirstOrDefault()?.code;
                 }
                 catch (Exception ex)
                 {

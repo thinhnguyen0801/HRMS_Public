@@ -66,8 +66,13 @@ namespace HNOne.API.Repositories
                     }
 
                     // Kiểm tra đúng password chưa
-                    strQuery = "Select * from [Users] with(nolock) where UserName = @UserName "
-                    + "and (Password = @Password or DefaultPassword = @Password)";
+                    strQuery = "Select T0.UserId, T0.UserName, T0.EmployeeId, T0.DepartmentIds, T0.BranchIds, T0.IsAdmin, T0.IsActive, T0.IsDelete" +
+                        " , T1.BranchId, T1.BranchCode, T1.BranchName" +
+                        " , T2.[Code] EmployeeCode,T2.[Name] EmployeeName" +
+                        " from [Users] as T0 with(nolock)" +
+                        " inner join Employees as T2 with(nolock) on T0.EmployeeId = T2.Id" +
+                        " cross apply (select T00.BranchId, T00.BranchCode, T00.BranchName from Branchs as T00 with(nolock) where T00.BranchId = @BranchId ) as T1" +
+                        " where UserName = @UserName and (T0.Password = @Password or T0.DefaultPassword = @Password)";
                     parameters = new DynamicParameters();
                     parameters.Add("@UserName", userName, DbType.String);
                     parameters.Add("@Password", request.password, DbType.String);
@@ -130,10 +135,11 @@ namespace HNOne.API.Repositories
             using (var connection = _dapperDbContext.CreateConnection())
             {
                 DynamicParameters parameters = new DynamicParameters();
-                string strQuery = "select T0.*, T1.BranchCode as BranchCode, T1.BranchName as BranchName, T2.Id as EmployeeCode, T2.[Name] as EmployeeName  " +
-                                    "from Users as T0 with(nolock) " +
-                                   "inner join Branchs as T1 with(nolock) on T0.BranchId = T1.BranchId " +
-                                    "left join Employees as T2 with(nolock) on T0.EmployeeId = T2.Id";
+                string strQuery = "select T0.*" +
+                    " ,T1.BranchCode as BranchCode, T1.BranchName as BranchName, T2.Id as EmployeeCode, T2.[Name] as EmployeeName" +
+                    " from Users as T0 with(nolock) " +
+                    " inner join Branchs as T1 with(nolock) on T0.BranchId = T1.BranchId " +
+                    " left join Employees as T2 with(nolock) on T0.EmployeeId = T2.Id";
                 parameters = new DynamicParameters();
                 var result = await connection.QueryAsync<UserModel>(strQuery, parameters, commandTimeout: 500, commandType: CommandType.Text);
                 return result;

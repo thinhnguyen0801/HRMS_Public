@@ -22,8 +22,6 @@ namespace HNOne.Model.Models
         public string? branchCode { get; set; }
         public string? branchName { get; set; }
         public string? token { get; set; }
-        public DateTime? createDate { get; set; }
-        public string? link { get; set; }
 
     }
 }

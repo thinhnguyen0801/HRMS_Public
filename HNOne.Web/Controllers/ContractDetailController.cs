@@ -17,7 +17,6 @@ namespace HNOne.Web.Controllers
     {
         [Inject] IMasterDataService _masterDataService { get; init; }
         [Inject] IPersonnelService _personnelService { get; init; }
-        [Inject] IEncryptHelper _encryptHelper { get; init; }
         [Inject] IJSRuntime _jsRuntime { get; set; }
         public W1Confirm confirm { get; set; }
         #region Properties
@@ -45,6 +44,7 @@ namespace HNOne.Web.Controllers
 
         protected override async Task OnAfterRenderAsync(bool firstRender)
         {
+            await base.OnAfterRenderAsync(firstRender);
             if (firstRender)
             {
                 try
@@ -240,6 +240,7 @@ namespace HNOne.Web.Controllers
                     if(!string.IsNullOrEmpty(ContractDocument.jsonDetail))
                     {
                         ListSalaryInfoConfig = JsonConvert.DeserializeObject<List<SalaryConfigurationModel>>(ContractDocument.jsonDetail);
+                        GridSalaryInfoConfig?.Reload();
                     }    
                 }    
             }
