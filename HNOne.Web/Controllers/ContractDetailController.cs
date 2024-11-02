@@ -240,6 +240,7 @@ namespace HNOne.Web.Controllers
                     if(!string.IsNullOrEmpty(ContractDocument.jsonDetail))
                     {
                         ListSalaryInfoConfig = JsonConvert.DeserializeObject<List<SalaryConfigurationModel>>(ContractDocument.jsonDetail);
+                        GridSalaryInfoConfig?.Reload();
                     }    
                 }    
             }

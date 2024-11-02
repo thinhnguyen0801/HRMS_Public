@@ -206,6 +206,7 @@ namespace HNOne.API.Repositories
             {
                 using (var connection = _dapperDbContext.CreateConnection())
                 {
+                    DateTime dateTimeNow = _dateTimeHelper.GetCurrentVietnamTime();
                     DynamicParameters parameters = new DynamicParameters();
                     bool isResult = true;
                     isResult = await _dbContext.Contracts.FirstOrDefaultAsync(m => m.ContractCode == entity.ContractCode) != null;
@@ -216,8 +217,8 @@ namespace HNOne.API.Repositories
                         return response;
                     }
                     entity.Id = await _dbContext.Contracts.Select(m => m.Id).DefaultIfEmpty().MaxAsync() + 1;
-                    entity.DateTracking = _dateTimeHelper.GetCurrentVietnamTime();
-                    entity.CreateDate = _dateTimeHelper.GetCurrentVietnamTime();
+                    entity.DateTracking = dateTimeNow;
+                    entity.CreateDate = dateTimeNow;
                     await _dbContext.Database.BeginTransactionAsync();
                     isTrans = true;
                     await _dbContext.Contracts.AddAsync(entity);
@@ -230,6 +231,9 @@ namespace HNOne.API.Repositories
                             m.ContractId = entity.Id;
                             m.BranchId = entity.BranchId;
                             m.EmployeeId = entity.EmployeeId;
+                            m.UpdateDate = null;
+                            m.CreateDate = dateTimeNow;
+                            m.DateTracking = dateTimeNow;
                         });
                         await _dbContext.SalaryAdjustments.AddRangeAsync(lstSalaryConfig!);
                     }    
@@ -260,6 +264,7 @@ namespace HNOne.API.Repositories
                     response.message = MessageConstants.MESSAGE_NOT_FOUNT;
                     return response;
                 }
+                DateTime dateTimeNow = _dateTimeHelper.GetCurrentVietnamTime();
                 data.EmployeeId = entity.EmployeeId;
                 data.TimesheetId = entity.TimesheetId;
                 data.StartDate = entity.StartDate;
@@ -282,8 +287,8 @@ namespace HNOne.API.Repositories
                 data.IsActive = entity.IsActive;
                 data.IsCompanyDeduction = entity.IsCompanyDeduction;
                 data.IsCompanyInsurance = entity.IsCompanyInsurance;
-                data.DateTracking = _dateTimeHelper.GetCurrentVietnamTime();
-                data.UpdateDate = _dateTimeHelper.GetCurrentVietnamTime();
+                data.DateTracking = dateTimeNow;
+                data.UpdateDate = dateTimeNow;
                 data.UserSign2 = entity.UserSign2;
                 await _dbContext.Database.BeginTransactionAsync();
                 isTrans = true;
@@ -300,8 +305,11 @@ namespace HNOne.API.Repositories
                         dataSalary.EmployeeId = entity.EmployeeId;
                         dataSalary.Amount = item.Amount;
                         dataSalary.SalaryCoefficient = item.SalaryCoefficient;
-                        _dbContext.SalaryAdjustments.Attach(item);
-                        _dbContext.Entry(data).State = EntityState.Modified;
+                        dataSalary.DateTracking = dateTimeNow;
+                        dataSalary.UpdateDate = dateTimeNow;
+                        dataSalary.UserSign2 = entity.UserSign2;
+                        _dbContext.SalaryAdjustments.Attach(dataSalary);
+                        _dbContext.Entry(dataSalary).State = EntityState.Modified;
                     }    
                 }
                 await _dbContext.SaveChangesAsync();
