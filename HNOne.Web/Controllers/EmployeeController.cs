@@ -13,7 +13,7 @@ using Newtonsoft.Json;
 
 namespace HNOne.Web.Controllers
 {
-    public class EmployeeController : DocumentControllerBase
+    public partial class EmployeeController : DocumentControllerBase
     {
         [Inject] IMasterDataService _masterDataService { get; init; }
         [Inject] IPersonnelService _personnelService { get; init; }
@@ -24,14 +24,16 @@ namespace HNOne.Web.Controllers
         #region Properties
         public string? pActionType { get; set; } = nameof(EnumType.Add);
         private int pDocEntry { get; set; } = 0;
+        public int ActiveTabIndex { get; set; } = 0;
         public EmployeeModel EmployeeUpdate { get; set; } = new EmployeeModel();
         public List<EnumCatagoryModel>? ListCboStatus { get; set; } // cbo ds tình trạng
         public List<ComboboxModel>? ListCboDepartment { get; set; } // cbo ds phòng ban
         public List<ComboboxModel>? ListCboPosition { get; set; } // cbo ds chức vụ
         public List<ComboboxModel>? ListCboTitle { get; set; } // cbo ds chức danh
         public List<EnumCatagoryModel>? ListCboMaritalStatus { get; set; } // cbo ds chức danh
+        public List<EnumCatagoryModel>? ListCboProvince { get; set; } // cbo ds tỉnh thành
 
-        
+
         private string? pPopupType { get; set; } = string.Empty; // mở popup nào
         public bool IsShowDialogEmpSearch { get; set; }
         public string? DepartmentIds { get; set; }
@@ -41,6 +43,7 @@ namespace HNOne.Web.Controllers
 
         protected override async Task OnAfterRenderAsync(bool firstRender)
         {
+            await base.OnAfterRenderAsync(firstRender);
             if(firstRender)
             {
                 try
@@ -176,16 +179,16 @@ namespace HNOne.Web.Controllers
                 fieldName = nameof(EmployeeUpdate.cIC);
                 return;
             }
-            if (EmployeeUpdate.dateOfJoining == null)
-            {
-                errorMessage = string.Format(MessageConstants.MESSAGE_STRING_REQUIRE, "Ngày vào công ty");
-                fieldName = nameof(EmployeeUpdate.dateOfJoining);
-                return;
-            }
-            if (EmployeeUpdate.startDate == null)
+            //if (EmployeeUpdate.dateOfJoining == null)
+            //{
+            //    errorMessage = string.Format(MessageConstants.MESSAGE_STRING_REQUIRE, "Ngày vào công ty");
+            //    fieldName = nameof(EmployeeUpdate.dateOfJoining);
+            //    return;
+            //}
+            if (EmployeeUpdate.probationStartDate == null)
             {
                 errorMessage = string.Format(MessageConstants.MESSAGE_STRING_REQUIRE, "Ngày thử việc");
-                fieldName = nameof(EmployeeUpdate.startDate);
+                fieldName = nameof(EmployeeUpdate.probationStartDate);
                 return;
             }
             if (EmployeeUpdate.probationEndDate == null)

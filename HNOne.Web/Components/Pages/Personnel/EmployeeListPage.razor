@@ -51,8 +51,8 @@
                             CssClass="h-full">
                         <Columns>
                             <DxGridSelectionColumn Width="35px" />
-                            <DxGridDataColumn FieldName="@nameof(EmployeeModel.departmentCode)" Caption="Mã phòng ban" Width="100%" MinWidth="120" GroupIndex="0" />
-                            <DxGridDataColumn FieldName="@nameof(EmployeeModel.departmentName)" Caption="Tên phòng ban" Width="100%" MinWidth="170" />
+                            <DxGridDataColumn FieldName="@nameof(EmployeeModel.departmentCode)" Caption="Mã phòng ban" MinWidth="120" GroupIndex="0" />
+                            <DxGridDataColumn FieldName="@nameof(EmployeeModel.departmentName)" Caption="Tên phòng ban" MinWidth="170" />
                             <DxGridDataColumn FieldName="@nameof(EmployeeModel.code)" Caption="Mã nhân viên" MinWidth="150">
                                 <CellDisplayTemplate>
                                     @{
@@ -62,7 +62,7 @@
                             </DxGridDataColumn>
                             <DxGridDataColumn FieldName="@nameof(EmployeeModel.name)" Caption="Tên nhân viên" MinWidth="170" />
                             <DxGridDataColumn FieldName="@nameof(EmployeeModel.positionName)" Caption="Chức vụ" MinWidth="170" />
-                            <DxGridDataColumn FieldName="@nameof(EmployeeModel.titleName)" Caption="Chức danh" MinWidth="170" />
+                            <DxGridDataColumn FieldName="@nameof(EmployeeModel.titleName)" Caption="Chức danh" MinWidth="190" />
                             <DxGridDataColumn FieldName="@nameof(EmployeeModel.statusName)" Caption="Trạng thái" MinWidth="170" />
                             <DxGridDataColumn FieldName="@nameof(EmployeeModel.dateTracking)" Caption="Ngày cập nhật" MinWidth="120" DisplayFormat="@GlobalContants.FORMAT_DATE_TIME" />
                             <DxGridDataColumn FieldName="@nameof(EmployeeModel.userSignName)" Caption="Người tạo" MinWidth="120" />
