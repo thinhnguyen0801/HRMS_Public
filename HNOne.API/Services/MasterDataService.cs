@@ -23,8 +23,8 @@ namespace HNOne.API.Services
         /// <summary>
         /// lấy danh sách menu
         /// </summary>
-        public async Task<IEnumerable<Menus>> GetMenu()
-            => await _masterRepository.GetMenu();
+        public async Task<IEnumerable<MenuModel>> GetMenu(RequestModel request)
+            => await _masterRepository.GetMenu(request);
 
 
         /// <summary>

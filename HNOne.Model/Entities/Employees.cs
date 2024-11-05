@@ -211,7 +211,8 @@ namespace HNOne.Model.Entities
         public string? BankBranch { get; set; } // chi nhánh ngân hàng
         [MaxLength(250)]
         public string? Beneficiary { get; set; } // người thụ hưởng
-        public int? ManagerId { get; set; } // Người quản lý
+        public int? ManagerId { get; set; } // Người quản lý trực tiếp
+        public int? ManagerId2 { get; set; } // Người quản lý gián tiếp
         
         
     }

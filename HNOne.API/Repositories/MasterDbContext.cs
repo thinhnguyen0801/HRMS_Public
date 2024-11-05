@@ -26,6 +26,8 @@ namespace HNOne.API.Repositories
         public DbSet<Wards> Wards { get; set; }
         public DbSet<WorkHistories> WorkHistories { get; set; }
         public DbSet<Insurances> Insurances { get; set; }
+        public DbSet<PermissionGroups> PermissionGroups { get; set; }
+        public DbSet<EventConfigurations> EventConfigurations { get; set; }
 
         public MasterDbContext(DbContextOptions<MasterDbContext> options)
             : base(options)
@@ -43,7 +45,9 @@ namespace HNOne.API.Repositories
             modelBuilder.Entity<ContractTypes>().HasIndex(m => new { m.Code, m.BranchId }).IsUnique();
             modelBuilder.Entity<Users>().HasIndex(m => m.UserName).IsUnique();
             modelBuilder.Entity<SalaryCategories>().HasIndex(m => m.Code).IsUnique();
+            modelBuilder.Entity<PermissionGroups>().HasIndex(m => m.Code).IsUnique();
             modelBuilder.Entity<SalaryConfigurations>().HasIndex(m => new { m.SalaryCategoryId, m.BranchId }).IsUnique();
+            modelBuilder.Entity<EventConfigurations>().HasIndex(m => m.ActionKey).IsUnique();
         }
 
 

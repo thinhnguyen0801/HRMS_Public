@@ -7,6 +7,7 @@ using HNOne.Model;
 using HNOne.Model.Entities;
 using HNOne.Model.Models;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using System.Data;
 using System.Net;
 using static Dapper.SqlMapper;
@@ -147,6 +148,23 @@ namespace HNOne.API.Repositories
 ;
         }
 
+        /// <summary>
+        /// lấy danh sách Model
+        /// </summary>
+        /// <param name="request"></param>
+        /// <returns></returns>
+        public async Task<IEnumerable<PermissionGroupModel>> GetPermissionGroup(RequestModel request)
+        {
+            using (var connection = _dapperDbContext.CreateConnection())
+            {
+                string strQuery = "select T0.*" +
+                    " from PermissionGroups as T0 with(nolock)" +
+                    " where IsDelete = 0";
+                var result = await connection.QueryAsync<PermissionGroupModel>(strQuery, commandTimeout: 500, commandType: CommandType.Text);
+                return result;
+            }    
+        }
+
         #region Command
         /// <summary>
         /// Thêm mới tài khoản mới
@@ -210,6 +228,73 @@ namespace HNOne.API.Repositories
                 data.UpdateDate = _dateTimeHelper.GetCurrentVietnamTime();
                 data.UserSign2 = entity.UserSign2;
                 _dbContext.Users.Attach(data);
+                _dbContext.Entry(data).State = EntityState.Modified;
+                await _dbContext.SaveChangesAsync();
+                response.message = MessageConstants.MESSAGE_UPDATE_SUCCESS;
+                return response;
+            }
+            catch (Exception) { throw; }
+        }
+
+        /// <summary>
+        /// Thêm mới thông tin nhóm quyền
+        /// </summary>
+        /// <param name="entity"></param>
+        /// <returns></returns>
+        public async Task<ResponseModel> AddPermissionGroup(PermissionGroups entity)
+        {
+            ResponseModel response = new ResponseModel();
+            try
+            {
+                using (var connection = _dapperDbContext.CreateConnection())
+                {
+                    DateTime currentDate = _dateTimeHelper.GetCurrentVietnamTime();
+                    string commandText = @$"select {StoreConstants.FUNC_GET_VOUCHER}(@Type, '', '', '')";
+                    string? voucherNo = await connection.QueryFirstOrDefaultAsync<string>(commandText, param: new { Type = GlobalConstants.TABLE_PERMISSION_GROUP }, commandTimeout: GlobalConstants.COMMAND_TIMEOUT, commandType: CommandType.Text);
+                    if (string.IsNullOrEmpty(voucherNo))
+                    {
+                        response.status = StatusCodes.Status204NoContent;
+                        response.message = MessageConstants.MESSAGE_VOUCHER_NO_MISSING;
+                        return response;
+                    }
+                    entity.Id = await _dbContext.PermissionGroups.Select(m => m.Id).DefaultIfEmpty().MaxAsync() + 1;
+                    entity.Code = voucherNo;
+                    entity.DateTracking = currentDate;
+                    entity.CreateDate = currentDate;
+                    await _dbContext.PermissionGroups.AddAsync(entity);
+                    await _dbContext.SaveChangesAsync();
+                    response.message = MessageConstants.MESSAGE_ADD_SUCCESS;
+                }
+                return response;
+            }
+            catch (Exception) { throw; }
+
+        }
+
+        /// <summary>
+        /// cập nhật thông tin nhóm quyền
+        /// </summary>
+        /// <param name="entity"></param>
+        /// <returns></returns>
+        public async Task<ResponseModel> UpdatePermissionGroup(PermissionGroups entity)
+        {
+            ResponseModel response = new ResponseModel();
+            try
+            {
+                var data = await _dbContext.PermissionGroups.FirstOrDefaultAsync(m => m.Id == entity.Id);
+                if (data == null)
+                {
+                    response.status = StatusCodes.Status404NotFound;
+                    response.message = MessageConstants.MESSAGE_NOT_FOUNT;
+                    return response;
+                }
+                data.Name = entity.Name;
+                data.IsActive = entity.IsActive;
+                data.Remark = entity.Remark;
+                data.DateTracking = _dateTimeHelper.GetCurrentVietnamTime();
+                data.UpdateDate = _dateTimeHelper.GetCurrentVietnamTime();
+                data.UserSign2 = entity.UserSign2;
+                _dbContext.PermissionGroups.Attach(data);
                 _dbContext.Entry(data).State = EntityState.Modified;
                 await _dbContext.SaveChangesAsync();
                 response.message = MessageConstants.MESSAGE_UPDATE_SUCCESS;

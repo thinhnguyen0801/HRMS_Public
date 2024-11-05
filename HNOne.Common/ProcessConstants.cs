@@ -46,12 +46,13 @@
         public const string GET_CONTRACT = "get-contract";
         public const string POST_CONTRACT = "post-contract";
         public const string PUT_CONTRACT = "put-contract";
-
+        public const string GET_PER_GROUP = "get-per_group";
+        public const string POST_PER_GROUP = "post-per_group";
+        public const string PUT_PER_GROUP = "put-per_group";
+        public const string DELETE_PER_GROUP = "delete-per_group";
         public const string GET_FAMILYRELATIONSHIP = "get-familyrelationship";
         public const string POST_FAMILYRELATIONSHIP = "post-familyrelationship";
         public const string PUT_FAMILYRELATIONSHIP = "put-familyrelationship";
-
         public const string GET_LOCATION = "get-location";
-
     }
 }

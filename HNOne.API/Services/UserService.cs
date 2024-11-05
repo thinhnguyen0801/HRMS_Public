@@ -24,6 +24,10 @@ namespace HNOne.API.Services
             => await _userRepository.UpdateRefreshToken(userId, token, refreshTokenExpiryTime);
         public async Task<IEnumerable<UserModel>> GetUser(RequestModel request)
             => await _userRepository.GetUser(request);
+
+        public async Task<IEnumerable<PermissionGroupModel>> GetPermissionGroup(RequestModel request)
+            => await _userRepository.GetPermissionGroup(request);
+
         #region Command
         public async Task<ResponseModel> UpdateUser(string actionType, Users entity)
         {
@@ -37,6 +41,36 @@ namespace HNOne.API.Services
                         break;
                     case ProcessConstants.PUT_USER:
                         response = await _userRepository.UpdateUser(entity);
+                        break;
+                }
+                return response;
+            }
+            catch (Exception ex)
+            {
+                response.status = StatusCodes.Status400BadRequest;
+                response.message = ex.Message;
+            }
+            return response;
+        }
+
+        /// <summary>
+        /// cập nhật thông tin nhóm quyền
+        /// </summary>
+        /// <param name="actionType"></param>
+        /// <param name="entity"></param>
+        /// <returns></returns>
+        public async Task<ResponseModel> UpdatePermissionGroup(string actionType, PermissionGroups entity)
+        {
+            ResponseModel response = new ResponseModel();
+            try
+            {
+                switch (actionType)
+                {
+                    case ProcessConstants.POST_PER_GROUP:
+                        response = await _userRepository.AddPermissionGroup(entity);
+                        break;
+                    case ProcessConstants.PUT_PER_GROUP:
+                        response = await _userRepository.UpdatePermissionGroup(entity);
                         break;
                 }
                 return response;

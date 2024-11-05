@@ -1,0 +1,184 @@
+﻿@page "/nhom-quyen"
+@inherits Controllers.PermissionGroupController
+
+<PageTitle>Nhóm quyền</PageTitle>
+
+<div class="h-content-filter">
+    <div class="grid gap-1 row-gap-1">
+        <div class="g-col-md-4 g-col-sm-12 g-col-12">
+            <div class="card w1FontSize">
+                <div class="card-header p-1">
+                    <DxToolbar ItemRenderStyleMode="@ToolbarRenderStyleMode.Contained">
+                        <Items>
+                            <DxToolbarItem Text="Làm mới" BeginGroup="true" IconCssClass="@($"{IconClassConstants.ICON_REFRESH}")" CssClass="w1FontSize"
+                                           Alignment="@ToolbarItemAlignment.Right" Click="@(()=> RefreshHandler())" />
+                            <DxToolbarItem Text="Thêm mới" BeginGroup="true" IconCssClass="@($"{IconClassConstants.ICON_ADD}")" CssClass="w1FontSize"
+                                           Alignment="@ToolbarItemAlignment.Right" Click="@(()=> OnOpenDialogHandler())" />
+                            <DxToolbarItem Text="Xóa" BeginGroup="true" IconCssClass="@($"{IconClassConstants.ICON_DELETE}")" CssClass="w1FontSize"
+                                           Alignment="@ToolbarItemAlignment.Right" Click="@(()=> DeleteDataHandler())" />
+                        </Items>
+                    </DxToolbar>
+                </div>
+                <div class="card-body p-1" style="height: calc(100vh - 160px); min-height: 350px">
+                    <DxGrid Data="ListData" @ref="GridData"
+                            ShowFilterRow="true"
+                            ColumnResizeMode="GridColumnResizeMode.ColumnsContainer"
+                            PagerPosition="GridPagerPosition.Bottom"
+                            PageSizeSelectorVisible="true"
+                            PageSize="@GlobalContants.PageSize"
+                            PageSizeSelectorItems="@(GlobalContants.PageSizeList)"
+                            PageSizeSelectorAllRowsItemVisible="true"
+                            PagerSwitchToInputBoxButtonCount="10"
+                            PagerVisibleNumericButtonCount="10"
+                            TextWrapEnabled="false"
+                            FocusedRowEnabled="true"
+                            SelectionMode="@GridSelectionMode.Multiple"
+                            @bind-SelectedDataItems="@SelectedItems"
+                            KeyFieldName="@nameof(PermissionGroupModel.id)"
+                            CssClass="h-full">
+                        <Columns>
+                            <DxGridSelectionColumn Width="45px" />
+                            <DxGridDataColumn FieldName="@nameof(PermissionGroupModel.code)" Caption="Mã" MinWidth="120">
+                                <CellDisplayTemplate>
+                                    @{
+                                        <a @onclick="@(() => OnOpenDialogHandler(EnumType.Update, (context.DataItem as PermissionGroupModel)))">@context.Value</a>
+                                    }
+                                </CellDisplayTemplate>
+                            </DxGridDataColumn>
+                            <DxGridDataColumn FieldName="@nameof(PermissionGroupModel.name)" Caption="Tên nhóm" MinWidth="170" />
+                            <DxGridDataColumn FieldName="@nameof(ContractTypeModel.isActive)" Caption="Hoạt động?" MinWidth="100" />
+                            <DxGridDataColumn FieldName="@nameof(PermissionGroupModel.remark)" Caption="Ghi chú" MinWidth="210" />
+                            <DxGridDataColumn FieldName="@nameof(PermissionGroupModel.dateTracking)" Caption="Ngày cập nhật" MinWidth="120" DisplayFormat="@GlobalContants.FORMAT_DATE_TIME" />
+                            <DxGridDataColumn FieldName="@nameof(PermissionGroupModel.userSignName)" Caption="Người tạo" MinWidth="120" />
+                            <DxGridDataColumn FieldName="@nameof(PermissionGroupModel.userSign2Name)" Caption="Người cập nhật" MinWidth="120" />
+                        </Columns>
+                        <TotalSummary>
+                            <DxGridSummaryItem DisplayText="@GlobalContants.FORMAT_GRID_DISPLAYTEXT_COUNT" SummaryType="GridSummaryItemType.Count"
+                                               FieldName="@nameof(PermissionGroupModel.code)" ValueDisplayFormat="@GlobalContants.FORMAT_CURRENCY"
+                                               FooterColumnName="@nameof(PermissionGroupModel.code)" />
+                        </TotalSummary>
+                    </DxGrid>
+                </div>
+            </div>
+        </div>
+        <div class="g-col-md-8 g-col-sm-12 g-col-12">
+            <div class="card w1FontSize">
+                <div class="card-header p-1">
+                    <DxToolbar ItemRenderStyleMode="@ToolbarRenderStyleMode.Contained">
+                        <Items>
+                            <DxToolbarItem Text="Lưu" BeginGroup="true" IconCssClass="@($"{IconClassConstants.ICON_UPDATE}")" CssClass="w1FontSize"
+                                           Alignment="@ToolbarItemAlignment.Right" Click="@(()=> OnOpenDialogHandler())" />
+                        </Items>
+                    </DxToolbar>
+                </div>
+                <div class="card-body p-1" style="height: calc(100vh - 160px); min-height: 350px">
+                    <DxGrid Data="ListMenuAuth" @ref="GridMenuAuth"
+                            ShowFilterRow="true"
+                            ColumnResizeMode="GridColumnResizeMode.ColumnsContainer"
+                            PagerPosition="GridPagerPosition.Bottom"
+                            PageSizeSelectorVisible="false"
+                            PageSize="100000"
+                            PageSizeSelectorAllRowsItemVisible="false"
+                            PagerSwitchToInputBoxButtonCount="10"
+                            PagerVisibleNumericButtonCount="10"
+                            TextWrapEnabled="false"
+                            FocusedRowEnabled="true"
+                            SelectionMode="@GridSelectionMode.Single"
+                            KeyFieldName="@nameof(MenuModel.menuID)"
+                            KeyboardNavigationEnabled="true"
+                            AutoExpandAllGroupRows="true"
+                            AllowSelectRowByClick="true"
+                            CssClass="h-full">
+                        <Columns>
+                            <DxGridDataColumn FieldName="@nameof(MenuModel.parentName)" Caption="Nhóm menu" MinWidth="110" GroupIndex="0" DataRowEditorVisible="false" />
+                            <DxGridDataColumn FieldName="@nameof(MenuModel.menuName)" Caption="Chức năng" MinWidth="150" GroupIndex="0" DataRowEditorVisible="false" />
+                            @* <DxGridDataColumn Caption="Quyền chức năng" MinWidth="270">
+                                <CellEditTemplate>
+                                    @{
+                                        var lstEvent = (context.DataItem as MenuModel)!.listEvent;
+                                        @if (lstEvent != null && lstEvent.Any())
+                                        {
+                                            @foreach(var item in lstEvent)
+                                            {
+                                                <div style="width: 120px">
+                                                    <DxCheckBox CssClass="w-full w1FontSize"
+                                                                SizeMode="@SizeMode.Small"
+                                                                @bind-Checked="@item.isCheck"
+                                                                LabelPosition="@LabelPosition.Right">
+                                                        @item.actionName
+                                                    </DxCheckBox>
+                                                </div>
+                                            }
+                                        }
+                                    }
+                                </CellEditTemplate>
+                            </DxGridDataColumn> *@
+                            <DxGridDataColumn FieldName="@nameof(MenuModel.isFull)" Caption="Toàn quyền" MinWidth="100" />
+                            <DxGridDataColumn FieldName="@nameof(MenuModel.isFull)" Caption="Toàn quyền" MinWidth="100" />
+                            <DxGridDataColumn FieldName="@nameof(MenuModel.isFull)" Caption="Toàn quyền" MinWidth="100" />
+                            <DxGridDataColumn FieldName="@nameof(MenuModel.isFull)" Caption="Toàn quyền" MinWidth="100" />
+                            <DxGridDataColumn FieldName="@nameof(MenuModel.isFull)" Caption="Toàn quyền" MinWidth="100" />
+                            <DxGridDataColumn FieldName="@nameof(MenuModel.isFull)" Caption="Toàn quyền" MinWidth="100" />
+                            <DxGridDataColumn FieldName="@nameof(MenuModel.isFull)" Caption="Toàn quyền" MinWidth="100" />
+                            <DxGridDataColumn FieldName="@nameof(MenuModel.isFull)" Caption="Toàn quyền" MinWidth="100" />
+                            <DxGridDataColumn FieldName="@nameof(MenuModel.isFull)" Caption="Toàn quyền" MinWidth="100" />
+                            <DxGridDataColumn FieldName="@nameof(MenuModel.isFull)" Caption="Toàn quyền" MinWidth="100" />
+                        </Columns>
+                        <TotalSummary>
+                            <DxGridSummaryItem DisplayText="@GlobalContants.FORMAT_GRID_DISPLAYTEXT_COUNT" SummaryType="GridSummaryItemType.Count"
+                                               FieldName="@nameof(MenuModel.menuName)" ValueDisplayFormat="@GlobalContants.FORMAT_CURRENCY"
+                                               FooterColumnName="@nameof(MenuModel.menuName)" />
+                        </TotalSummary>
+                    </DxGrid>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<W1Popup @bind-IsOpenModal="@IsShowDialog"
+         Width="60%" TextBtnAccept="Cập nhật"
+         HeaderText="@(IsCreate ? "Thêm mới nhóm quyền" : $"Cập nhật nhóm quyền [{DataUpdate.code}]")"
+         HandleClickAccept="@SaveDataHandler">
+    <div class="row row-gap-2 w1FontSize">
+        <div class="col-sm-12">
+            <div class="d-flex ">
+                <W1Label Value="Mã nhóm" Id="bacLuong" Styles="width: 120px" />
+                <div style="width: calc(100% - 120px)">
+                    <div class="row row-gap-2">
+                        <div class="col-md-8 col-sm-12">
+                            <DxTextBox @bind-Text="@DataUpdate.code" CssClass="w1FontSize" ReadOnly="true"></DxTextBox>
+                        </div>
+                        <div class="col-md-4 col-sm-12">
+                            <DxCheckBox CssClass="w-100 w1FontSize"
+                                        SizeMode="@SizeMode.Small"
+                                        @bind-Checked="@DataUpdate.isActive"
+                                        LabelPosition="@LabelPosition.Right">
+                                Hoạt động?
+                            </DxCheckBox>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+        <div class="col-sm-12">
+            <div class="d-flex ">
+                <W1Label Value="Tên nhóm quyền" Id="bacLuong" Styles="width: 120px" IsRequired="true" />
+                <div style="width: calc(100% - 120px)">
+                    <DxTextBox @bind-Text="@DataUpdate.name" CssClass="w1FontSize" Id="txtName"></DxTextBox>
+                </div>
+            </div>
+        </div>
+        <div class="col-sm-12">
+            <div class="d-flex ">
+                <W1Label Value="Ghi chú" Styles="width: 120px" />
+                <div style="width: calc(100% - 120px)">
+                    <DxMemo @bind-Text="@DataUpdate.remark" CssClass="w1FontSize" BindValueMode="@BindValueMode.OnInput" Rows="2" />
+                </div>
+            </div>
+        </div>
+    </div>
+</W1Popup>
+
+<W1Confirm @ref="confirm" />

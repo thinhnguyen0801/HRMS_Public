@@ -10,6 +10,7 @@ namespace HNOne.API.Services.Interfaces
         Task UpdateRefreshToken(int userId, string token, int refreshTokenExpiryTime);
         Task<IEnumerable<UserModel>> GetUser(RequestModel request);
         Task<ResponseModel> UpdateUser(string actionType, Users entity);
-
+        Task<IEnumerable<PermissionGroupModel>> GetPermissionGroup(RequestModel request);
+        Task<ResponseModel> UpdatePermissionGroup(string actionType, PermissionGroups entity);
     }
 }

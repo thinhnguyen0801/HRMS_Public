@@ -24,5 +24,6 @@ namespace HNOne.Model.Entities
         public bool IsVisible { get; set; }
         public int OrdinalNumber { get; set; }
         public string? Breadcrumb { get; set; } // đường đẫn
+        public bool IsAuthen { get; set; } // check vô cột phân quyền
     }
 }
