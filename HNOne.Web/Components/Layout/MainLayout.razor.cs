@@ -1,6 +1,6 @@
 ﻿using Blazored.Toast.Services;
 using HNOne.Model;
-using HNOne.Model.Entities;
+using HNOne.Model.Models;
 using HNOne.Web.Models;
 using HNOne.Web.Services.Interfaces;
 using Microsoft.AspNetCore.Components;
@@ -9,7 +9,6 @@ using Microsoft.JSInterop;
 using HNOne.Web.Commons;
 using Newtonsoft.Json;
 using HNOne.Common;
-using static DevExpress.Data.Helpers.FindSearchRichParser;
 using Blazored.LocalStorage;
 
 namespace HNOne.Web.Components.Layout
@@ -26,7 +25,7 @@ namespace HNOne.Web.Components.Layout
 
         #region Properties
         public List<BreadcrumbModel>? ListBreadcrumbs { get; set; }
-        public List<Menus> ListMenus { get; set; } = new List<Menus>();
+        public List<MenuModel> ListMenus { get; set; } = new List<MenuModel>();
         public int UserId { get; set; }
         public string Token { get; set; } = string.Empty;
         public string UserCode { get; set; } = string.Empty;

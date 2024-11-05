@@ -7,6 +7,7 @@ using HNOne.Model.Entities;
 using HNOne.Model.Models;
 using HNOne.Web.Commons;
 using HNOne.Web.Components.Controls;
+using HNOne.Web.Models;
 using HNOne.Web.Services;
 using HNOne.Web.Services.Interfaces;
 using Microsoft.AspNetCore.Components;
@@ -49,19 +50,18 @@ namespace HNOne.Web.Controllers
 
         protected override async Task OnAfterRenderAsync(bool firstRender)
         {
+            await base.OnAfterRenderAsync(firstRender);
             if (firstRender)
             {
                 try
                 {
                     await ShowLoading();
+                    ListBreadcrumbs = new List<BreadcrumbModel>()
+                    {
+                        new BreadcrumbModel("Hệ thống"),
+                        new BreadcrumbModel("Tài khoản", isActive: true)
+                    };
                     await buildComboAsync();
-                    //await _progressService.SetPercent(0.4);
-                    //string errMessage = await CheckAuthMenuAsync("contractlist");
-                    //if (errMessage == "401") return; // kiểm quyền menu page danh sách
-                    //Permission = await _masterDataService.GetAccessControl(UserId, Token, UserId, 10012);
-                    //ItemSearch.fromDate = new DateTime(DateTime.Now.Year, DateTime.Now.Month, 1);
-                    //ItemSearch.toDate = DateTime.Now;
-                    //await NotifyBreadcrumb.InvokeAsync(ListBreadcrumbs);
                     await getUsers();
 
                 }
@@ -73,7 +73,6 @@ namespace HNOne.Web.Controllers
                 finally
                 {
                     await ShowLoading(false);
-                    //await _progressService!.Done();
                     await InvokeAsync(StateHasChanged);
                 }
             }

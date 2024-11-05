@@ -140,6 +140,9 @@ namespace HNOne.API.Controllers
                     case ProcessConstants.GET_USER:
                         response.data = await _userService.GetUser(request);
                         break;
+                    case ProcessConstants.GET_PER_GROUP:
+                        response.data = await _userService.GetPermissionGroup(request);
+                        break;
 
                     default:
                         response.status = StatusCodes.Status404NotFound;
@@ -176,6 +179,15 @@ namespace HNOne.API.Controllers
                         var user = JsonConvert.DeserializeObject<Users>($"{request.json}");
                         response = await _userService.UpdateUser(processKey, user!);
                         break;
+                    case ProcessConstants.POST_PER_GROUP:
+                    case ProcessConstants.PUT_PER_GROUP:
+                        var perGroup = JsonConvert.DeserializeObject<PermissionGroups>($"{request.json}");
+                        response = await _userService.UpdatePermissionGroup(processKey, perGroup!);
+                        break;
+                    default:
+                        response.status = StatusCodes.Status404NotFound;
+                        response.message = $"Process Key {processKey} was not provider!!!";
+                        return Ok(response);
                 }
             }
             catch (Exception ex)

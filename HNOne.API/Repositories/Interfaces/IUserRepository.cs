@@ -11,5 +11,8 @@ namespace HNOne.API.Repositories.Interfaces
         Task<IEnumerable<UserModel>> GetUser(RequestModel request);
         Task<ResponseModel> AddUser(Users entity);
         Task<ResponseModel> UpdateUser(Users entity);
+        Task<IEnumerable<PermissionGroupModel>> GetPermissionGroup(RequestModel request);
+        Task<ResponseModel> AddPermissionGroup(PermissionGroups entity);
+        Task<ResponseModel> UpdatePermissionGroup(PermissionGroups entity);
     }
 }

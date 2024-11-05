@@ -13,6 +13,7 @@
         public const string TABLE_CONTRACTTYPE = "ContractTypes";
         public const string TABLE_REASONCATEGORIER = "ReasonCategories";
         public const string TABLE_USER = "Users";
+        public const string TABLE_PERMISSION_GROUP = "PermissionGroups";
         #endregion
     }
 }

@@ -76,7 +76,7 @@ namespace HNOne.API.Controllers
                 switch (processKey)
                 {
                     case ProcessConstants.GET_MENU:
-                        response.data = await _masterDataService.GetMenu();
+                        response.data = await _masterDataService.GetMenu(request);
                         break;
                     case ProcessConstants.GET_DEPARTMENT:
                         response.data = await _masterDataService.GetDepartment(request);

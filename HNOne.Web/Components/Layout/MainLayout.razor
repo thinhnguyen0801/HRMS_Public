@@ -114,40 +114,40 @@
                             <ul class="navbar-nav">
                                 @foreach (var item in ListMenus)
                                 {
-                                    @if (item.Level == 0)
+                                    @if (item.level == 0)
                                     {
-                                        var lstMenuLevel2 = ListMenus.Where(m => m.ParentID == item.MenuID && m.Level == 1).ToList();
+                                        var lstMenuLevel2 = ListMenus.Where(m => m.parentID == item.menuID && m.level == 1).ToList();
                                         if (lstMenuLevel2.Any())
                                         {
                                             <li class="nav-item dropdown">
-                                                <a class="nav-link dropdown-toggle" href="#@item.MenuID" data-bs-toggle="dropdown" data-bs-auto-close="outside" role="button" aria-expanded="false">
-                                                    @if (!string.IsNullOrEmpty(item.Icon))
+                                                <a class="nav-link dropdown-toggle" href="#@item.menuID" data-bs-toggle="dropdown" data-bs-auto-close="outside" role="button" aria-expanded="false">
+                                                    @if (!string.IsNullOrEmpty(item.icon))
                                                     {
                                                         <span class="nav-link-icon d-md-none d-lg-inline-block">
-                                                            @((MarkupString)$"{item.Icon}")
+                                                            @((MarkupString)$"{item.icon}")
                                                         </span>
                                                     }
                                                     <span class="nav-link-title">
-                                                        @item.MenuName
+                                                        @item.menuName
                                                     </span>
                                                 </a>
                                                 <div class="dropdown-menu">
                                                     @foreach (var item1 in lstMenuLevel2)
                                                     {
-                                                        var lstLevel3 = ListMenus.Where(m => m.ParentID == item1.MenuID && m.Level == 2).ToList();
+                                                        var lstLevel3 = ListMenus.Where(m => m.parentID == item1.menuID && m.level == 2).ToList();
                                                         if (lstLevel3.Any())
                                                         {
                                                             <div class="dropdown-menu-columns">
                                                                 <div class="dropdown-menu-column">
                                                                     <div class="dropend">
-                                                                        <a class="dropdown-item dropdown-toggle" href="#@item1.MenuID" data-bs-toggle="dropdown" data-bs-auto-close="outside" role="button" aria-expanded="false">
-                                                                            @item1.MenuName
+                                                                        <a class="dropdown-item dropdown-toggle" href="#@item1.menuID" data-bs-toggle="dropdown" data-bs-auto-close="outside" role="button" aria-expanded="false">
+                                                                            @item1.menuName
                                                                         </a>
                                                                         <div class="dropdown-menu">
                                                                             @foreach (var item2 in lstLevel3)
                                                                             {
-                                                                                <a href="@item2.Link" class="dropdown-item" @onclick="@CloseMenuHandler">
-                                                                                    @item2.MenuName
+                                                                                <a href="@item2.link" class="dropdown-item" @onclick="@CloseMenuHandler">
+                                                                                    @item2.menuName
                                                                                 </a>
                                                                             }
                                                                         </div>
@@ -157,8 +157,8 @@
                                                         }
                                                         else
                                                         {
-                                                            <a class="dropdown-item" href="@item1.Link" @onclick="@CloseMenuHandler">
-                                                                @item1.MenuName
+                                                            <a class="dropdown-item" href="@item1.link" @onclick="@CloseMenuHandler">
+                                                                @item1.menuName
                                                             </a>
                                                         }
 
@@ -169,15 +169,15 @@
                                         else
                                         {
                                             <li class="nav-item">
-                                                <a class="nav-link" href="@item.Link">
-                                                    @if (!string.IsNullOrEmpty(item.Icon))
+                                                <a class="nav-link" href="@item.link">
+                                                    @if (!string.IsNullOrEmpty(item.icon))
                                                     {
                                                         <span class="nav-link-icon d-md-none d-lg-inline-block">
-                                                            @((MarkupString)$"{item.Icon}")
+                                                            @((MarkupString)$"{item.icon}")
                                                         </span>
                                                     }
                                                     <span class="nav-link-title">
-                                                        @item.MenuName
+                                                        @item.menuName
                                                     </span>
                                                 </a>
                                             </li>

@@ -6,7 +6,7 @@ namespace HNOne.API.Repositories.Interfaces
 {
     public interface IMasterDataRepository
     {
-        Task<IEnumerable<Menus>> GetMenu();
+        Task<IEnumerable<MenuModel>> GetMenu(RequestModel request);
         Task<IEnumerable<Branchs>> GetBranch();
         Task<IEnumerable<Departments>> GetDepartment(RequestModel request);
         Task<IEnumerable<Titles>> GetTitle(RequestModel request);

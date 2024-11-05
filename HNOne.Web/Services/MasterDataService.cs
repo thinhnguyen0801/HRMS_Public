@@ -24,19 +24,19 @@ namespace HNOne.Web.Services
         /// </summary>
         /// <param name="request"></param>
         /// <returns></returns>
-        public async Task<List<Menus>?> GetMenuAsync(RequestModel request)
+        public async Task<List<MenuModel>?> GetMenuAsync(RequestModel request)
         {
             
             try
             {
-                List<Menus>? data = null;
+                List<MenuModel>? data = null;
                 request.process = ProcessConstants.GET_MENU;
                 HttpResponseMessage httpResponse = await PostAsync(EnpointConstants.MASTERDATA_GET_DATA, request);
                 var checkContent = ValidateJsonContent(httpResponse.Content);
                 if (!checkContent) _toastService.ShowInfo(MessageConstants.MESSAGE_JSON_INVALID);
                 else
                 {
-                    var response = await httpResponse.Content.ReadFromJsonAsync<ResCliModel<Menus>>();
+                    var response = await httpResponse.Content.ReadFromJsonAsync<ResCliModel<MenuModel>>();
                     if (response == null || response.status != StatusCodes.Status200OK)
                     {
                         _toastService.ShowWarning(response?.message ?? MessageConstants.MESSAGE_IT_SUPPORT);

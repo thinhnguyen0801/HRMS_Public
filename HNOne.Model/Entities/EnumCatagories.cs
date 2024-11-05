@@ -25,7 +25,8 @@ namespace HNOne.Model.Entities
         public string? Value2 { get; set; } // config nếu có 2
         public int? UserSign { get; set; }
         public DateTime? DateTracking { get; set; }
-        public int RowOrder { get; set; }
+        public int RowOrder { get; set; } // sắp xếp
+        public bool IsAllowEditing { get; set; } // cho phép chỉnh sửa
 
     }
 }

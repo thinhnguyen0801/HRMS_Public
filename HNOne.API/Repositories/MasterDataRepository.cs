@@ -33,10 +33,39 @@ namespace HNOne.API.Repositories
             return lstBranch;
         }
 
-        public async Task<IEnumerable<Menus>> GetMenu()
+        public async Task<IEnumerable<MenuModel>> GetMenu(RequestModel request)
         {
-            var lstMenus = await _dbContext.Menus.Where(m => m.IsVisible).ToListAsync();
-            return lstMenus;
+            using (var connection = _dapperDbContext.CreateConnection())
+            {
+                List<MenuModel> lstMenu = new List<MenuModel>();
+                var parameters = new DynamicParameters();
+                parameters.Add("@UserId", request.userId, DbType.Int32);
+                parameters.Add("@BranchId", request.branchId, DbType.Int32);
+                parameters.Add("@Type", request.type, DbType.String);
+                var result = await connection.QueryAsync<MenuModel>(StoreConstants.STORE_H1_MENU_SELECT, param: parameters, commandTimeout: GlobalConstants.COMMAND_TIMEOUT, commandType: CommandType.StoredProcedure);
+                if (string.Equals(request.type, "AUTHENTICATION", StringComparison.OrdinalIgnoreCase))
+                {
+                    var groupBy = result.GroupBy(m => m.menuID);
+                    foreach(var group in groupBy)
+                    {
+                        var header = group.First();
+                        MenuModel menuModel = new MenuModel();
+                        menuModel.menuID = group.Key;
+                        menuModel.menuName = header.menuName;
+                        menuModel.parentID = header.parentID;
+                        menuModel.parentName = header.parentName;
+                        menuModel.level = header.level;
+                        menuModel.ordinalNumber = header.ordinalNumber;
+                        menuModel.listEvent = group.Select(m => new EventConfigModel() { actionKey = m.actionKey, actionName = m.actionName }).ToList();
+                        lstMenu.Add(menuModel);
+                    }    
+                }
+                else
+                {
+                    lstMenu = result?.ToList() ?? new List<MenuModel>();
+                }
+                return lstMenu;
+            };
         }
 
         public async Task<IEnumerable<Departments>> GetDepartment(RequestModel request)
