@@ -8,6 +8,7 @@ using HNOne.Model.Entities;
 using HNOne.Model.Models;
 using Microsoft.EntityFrameworkCore;
 using System;
+using System.Collections.Generic;
 using System.Data;
 
 namespace HNOne.API.Repositories
@@ -171,6 +172,29 @@ namespace HNOne.API.Repositories
                 }    
             }
             catch (Exception) { throw; }
+        }
+
+        /// <summary>
+        /// Lấy danh sách Quốc gia, Tỉnh thành, Quận/Huyện, Xã/Phường
+        /// </summary>
+        /// <param name="type"></param>
+        /// <param name="opt"></param>
+        /// <param name="opt1"></param>
+        /// <param name="opt2"></param>
+        /// <returns></returns>
+        public async Task<IEnumerable<ComboboxModel?>> GetLocationData(string? type, string? opt = "", string? opt1 = "", string? opt2 = "")
+        {
+            using (var connection = _dapperDbContext.CreateConnection())
+            {
+                var parameters = new DynamicParameters();
+                parameters.Add("@CountryId", opt, DbType.String);
+                parameters.Add("@ProvinceId", opt1, DbType.String);
+                parameters.Add("@DistrictId", opt2, DbType.String);
+                parameters.Add("@Type", type, DbType.String);
+                IEnumerable<ComboboxModel> dt  = await connection.QueryAsync<ComboboxModel>(StoreConstants.STORE_H1_LOCATIONDATA_SELECT, param: parameters, commandTimeout: GlobalConstants.COMMAND_TIMEOUT, commandType: CommandType.StoredProcedure);
+                return dt;
+
+            };
         }
         #endregion 
 

@@ -43,7 +43,8 @@ namespace HNOne.Model.Models
         public int departmentId { get; set; } // phòng ban
         public int positionId { get; set; } // chức vụ
         public int? titleId { get; set; } // chức danh
-        public int? managerId { get; set; } // Người quản lý
+        public int? managerId { get; set; } // Người quản lý trực tiếp
+        public int? managerId2 { get; set; } // Người quản lý gián tiếp
         public string? managerCode { get; set; } // Người quản lý
         public string? managerName { get; set; } // Người quản lý
         public int? userSign { get; set; }

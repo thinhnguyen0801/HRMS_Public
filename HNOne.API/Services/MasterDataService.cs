@@ -76,6 +76,17 @@ namespace HNOne.API.Services
         /// <returns></returns>
         public async Task<string?> GetDocumentNo(string? type, string? opt = "", string? opt1 = "", string? opt2 = "")
             => await _masterRepository.GetDocumentNo(type, opt, opt1, opt2);
+
+        /// <summary>
+        /// Lấy danh sách Quốc gia, Tỉnh thành, Quận/Huyện, Xã/Phường
+        /// </summary>
+        /// <param name="type"></param>
+        /// <param name="opt"></param>
+        /// <param name="opt1"></param>
+        /// <param name="opt2"></param>
+        /// <returns></returns>
+        public async Task<IEnumerable<ComboboxModel?>> GetLocationData(string? type, string? opt = "", string? opt1 = "", string? opt2 = "")
+            => await _masterRepository.GetLocationData(type, opt, opt1, opt2);
         #endregion
 
         #region Command

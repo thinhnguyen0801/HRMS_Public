@@ -16,4 +16,12 @@
         CachTinhLuongPhuCap,
         TrangThaiHopDong
     }
+
+    public enum EnumLocation
+    {
+        County,
+        Province,
+        District,
+        Ward
+    }
 }

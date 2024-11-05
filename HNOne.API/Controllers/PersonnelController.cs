@@ -45,6 +45,9 @@ namespace HNOne.API.Controllers
                     case ProcessConstants.GET_CONTRACT:
                         response.data = await _personnelService.GetContract(request);
                         break;
+                    case ProcessConstants.GET_FAMILYRELATIONSHIP:
+                        response.data = await _personnelService.GetFamilyRelationship(request.employeeId);
+                        break;
 
                     default:
                         response.status = StatusCodes.Status404NotFound;
@@ -86,6 +89,11 @@ namespace HNOne.API.Controllers
                         var contract = JsonConvert.DeserializeObject<Contracts>($"{request.json}");
                         var lstSalaryConfig = JsonConvert.DeserializeObject<List<SalaryAdjustments>>($"{request.jsonDetail}");
                         response = await _personnelService.UpdateContract(processKey, contract!, lstSalaryConfig);
+                        break;
+                    case ProcessConstants.POST_FAMILYRELATIONSHIP:
+                    case ProcessConstants.PUT_FAMILYRELATIONSHIP:
+                        var familyRelationship = JsonConvert.DeserializeObject<FamilyRelationships>($"{request.json}");
+                        response = await _personnelService.UpdateFamilyRelationship(processKey, familyRelationship!);
                         break;
                     default:
                         response.status = StatusCodes.Status404NotFound;
