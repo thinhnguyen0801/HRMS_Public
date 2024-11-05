@@ -797,7 +797,7 @@ namespace HNOne.Web.Services
         /// <param name="opt1"></param>
         /// <param name="opt2"></param>
         /// <returns></returns>
-        public async Task<List<ComboboxModel?>> GetLocationData(int userId, string token, int branchId, string? type, string? opt = "", string? opt1 = "", string? opt2 = "")
+        public async Task<List<ComboboxModel>?> GetLocationAsync(int userId, string token, string? type, string? opt = "", string? opt1 = "", string? opt2 = "")
         {
             try
             {

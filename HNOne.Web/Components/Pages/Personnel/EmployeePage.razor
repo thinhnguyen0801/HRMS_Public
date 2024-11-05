@@ -26,11 +26,11 @@
     <div class="card p-1 mt-1">
         <DxToolbar ItemRenderStyleMode="@ToolbarRenderStyleMode.Contained">
             <Items>
-                <DxToolbarItem Text="Làm mới" BeginGroup="true" IconCssClass="@($"{IconClassConstants.ICON_REFRESH}")"
+                <DxToolbarItem Text="Làm mới" BeginGroup="true" IconCssClass="@($"{IconClassConstants.ICON_REFRESH}")" CssClass="w1FontSize"
                                Alignment="@ToolbarItemAlignment.Right" />
-                <DxToolbarItem Text="Lưu" BeginGroup="true" IconCssClass="@($"{IconClassConstants.ICON_ADD}")"
+                <DxToolbarItem Text="Lưu" BeginGroup="true" IconCssClass="@($"{IconClassConstants.ICON_ADD}")" CssClass="w1FontSize"
                                Alignment="@ToolbarItemAlignment.Right" Click="@SaveDataHandler" />
-                <DxToolbarItem Text="Xóa" BeginGroup="true" IconCssClass="@($"{IconClassConstants.ICON_DELETE}")"
+                <DxToolbarItem Text="Xóa" BeginGroup="true" IconCssClass="@($"{IconClassConstants.ICON_DELETE}")" CssClass="w1FontSize"
                                Alignment="@ToolbarItemAlignment.Right" />
             </Items>
         </DxToolbar>
@@ -114,14 +114,7 @@
                                                     </div>
                                                 </div>
                                             </div>
-                                            <div class="col-md-6 col-sm-12">
-                                                <div class="d-flex ">
-                                                    <W1Label Value="MST cá nhân" Id="txtKiDanhGia" Styles="width: 120px" />
-                                                    <div style="width: calc(100% - 120px)">
-                                                        <DxTextBox @bind-Text="@EmployeeUpdate.taxNumber" CssClass="w1FontSize"></DxTextBox>
-                                                    </div>
-                                                </div>
-                                            </div>
+                                            
                                             <div class="col-md-6 col-sm-12">
                                                 <div class="d-flex ">
                                                     <W1Label Value="Phòng ban" Styles="width: 120px" IsRequired="true" />
@@ -164,6 +157,46 @@
                                             </div>
                                             <div class="col-md-6 col-sm-12">
                                                 <div class="d-flex ">
+                                                    <W1Label Value="Quản lý trực tiếp" Id="txtKiDanhGia" Styles="width: 120px" />
+                                                    <div style="width: calc(100% - 120px)">
+                                                        <div class="grid gap-1 row-gap-2">
+                                                            <div class="g-col-md-4 g-col-sm-12 g-col-12">
+                                                                <DxTextBox @bind-Text="@EmployeeUpdate.managerCode" ReadOnly="true" CssClass="w1FontSize" ClearButtonDisplayMode="@DataEditorClearButtonDisplayMode.Auto" />
+                                                            </div>
+                                                            <div class="g-col-md-8 g-col-sm-12 g-col-12">
+                                                                <DxTextBox @bind-Text="@EmployeeUpdate.managerName" CssClass="w1FontSize" ReadOnly="true">
+                                                                    <Buttons>
+                                                                        <DxEditorButton style="width: 29px" CssClass="w1FontSize" IconCssClass="fas fa-search" Tooltip="Tìm kiếm nhân viên"
+                                                                                        Click="@(async () => await OpenPopupHandler(nameof(EmployeeSelected), nameof(EmployeeUpdate.managerCode)))" />
+                                                                    </Buttons>
+                                                                </DxTextBox>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="col-md-6 col-sm-12">
+                                                <div class="d-flex ">
+                                                    <W1Label Value="Quản lý gián tiếp" Id="txtKiDanhGia" Styles="width: 120px" />
+                                                    <div style="width: calc(100% - 120px)">
+                                                        <div class="grid gap-1 row-gap-2">
+                                                            <div class="g-col-md-4 g-col-sm-12 g-col-12">
+                                                                <DxTextBox @bind-Text="@EmployeeUpdate.managerCode2" ReadOnly="true" CssClass="w1FontSize" ClearButtonDisplayMode="@DataEditorClearButtonDisplayMode.Auto" />
+                                                            </div>
+                                                            <div class="g-col-md-8 g-col-sm-12 g-col-12">
+                                                                <DxTextBox @bind-Text="@EmployeeUpdate.managerName2" CssClass="w1FontSize" ReadOnly="true">
+                                                                    <Buttons>
+                                                                        <DxEditorButton style="width: 29px" CssClass="w1FontSize" IconCssClass="fas fa-search" Tooltip="Tìm kiếm nhân viên"
+                                                                                        Click="@(async () => await OpenPopupHandler(nameof(EmployeeSelected), nameof(EmployeeUpdate.managerCode2)))" />
+                                                                    </Buttons>
+                                                                </DxTextBox>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="col-md-6 col-sm-12">
+                                                <div class="d-flex ">
                                                     <W1Label Value="Dân tộc" Id="txtKiDanhGia" Styles="width: 120px" />
                                                     <div style="width: calc(100% - 120px)">
                                                         <DxTextBox @bind-Text="@EmployeeUpdate.ethnicity" CssClass="w1FontSize"></DxTextBox>
@@ -196,6 +229,14 @@
                                                                     TextFieldName="@nameof(ComboboxModel.name)"
                                                                     ValueFieldName="@nameof(ComboboxModel.code)" CssClass="w1FontSize">
                                                         </DxComboBox>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="col-md-6 col-sm-12">
+                                                <div class="d-flex ">
+                                                    <W1Label Value="MST cá nhân" Id="txtKiDanhGia" Styles="width: 120px" />
+                                                    <div style="width: calc(100% - 120px)">
+                                                        <DxTextBox @bind-Text="@EmployeeUpdate.taxNumber" CssClass="w1FontSize"></DxTextBox>
                                                     </div>
                                                 </div>
                                             </div>
@@ -450,10 +491,11 @@
                                         <div class="d-flex ">
                                             <W1Label Value="Quốc gia" Styles="width: 120px" />
                                             <div style="width: calc(100% - 120px)">
-                                                <DxComboBox Data="@ListCboCountry1"
+                                                <DxComboBox Data="@ListCboCountry"
                                                             FilteringMode="DataGridFilteringMode.Contains"
-                                                            ValueChanged="@((string value)=> country1Changed(value))"
                                                             Value="@EmployeeUpdate.countryCode1"
+                                                            ValueChanged="@((string? countryCode1) => ComboboxValueChangedHandler(countryCode1, controlID: nameof(EmployeeUpdate.countryCode1)))"
+                                                            ClearButtonDisplayMode="@DataEditorClearButtonDisplayMode.Auto"
                                                             TextFieldName="@nameof(ComboboxModel.name)"
                                                             ValueFieldName="@nameof(ComboboxModel.code)" CssClass="w1FontSize">
                                                 </DxComboBox>
@@ -466,8 +508,9 @@
                                             <div style="width: calc(100% - 120px)">
                                                 <DxComboBox Data="@ListCboProvince1"
                                                             FilteringMode="DataGridFilteringMode.Contains"
-                                                            ValueChanged="@((string value)=> province1Changed(value))"
                                                             Value="@EmployeeUpdate.provinceCode1"
+                                                            ValueChanged="@((string? provinceCode1) => ComboboxValueChangedHandler(provinceCode1, controlID: nameof(EmployeeUpdate.provinceCode1)))"
+                                                            ClearButtonDisplayMode="@DataEditorClearButtonDisplayMode.Auto"
                                                             TextFieldName="@nameof(ComboboxModel.name)"
                                                             ValueFieldName="@nameof(ComboboxModel.code)" CssClass="w1FontSize">
                                                 </DxComboBox>
@@ -480,8 +523,9 @@
                                             <div style="width: calc(100% - 120px)">
                                                 <DxComboBox Data="@ListCboDistrict1"
                                                             FilteringMode="DataGridFilteringMode.Contains"
-                                                            ValueChanged="@((string value)=> district1Changed(value))"
                                                             Value="@EmployeeUpdate.districtCode1"
+                                                            ValueChanged="@((string? districtCode1) => ComboboxValueChangedHandler(districtCode1, controlID: nameof(EmployeeUpdate.districtCode1)))"
+                                                            ClearButtonDisplayMode="@DataEditorClearButtonDisplayMode.Auto"
                                                             TextFieldName="@nameof(ComboboxModel.name)"
                                                             ValueFieldName="@nameof(ComboboxModel.code)" CssClass="w1FontSize">
                                                 </DxComboBox>
@@ -494,8 +538,8 @@
                                             <div style="width: calc(100% - 120px)">
                                                 <DxComboBox Data="@ListCboWard1"
                                                             FilteringMode="DataGridFilteringMode.Contains"
-                                                            ValueChanged="@((string value)=> wardCode1Changed(value))"
-                                                            Value="@EmployeeUpdate.wardCode1"
+                                                            @bind-Value="@EmployeeUpdate.wardCode1"
+                                                            ClearButtonDisplayMode="@DataEditorClearButtonDisplayMode.Auto"
                                                             TextFieldName="@nameof(ComboboxModel.name)"
                                                             ValueFieldName="@nameof(ComboboxModel.code)" CssClass="w1FontSize">
                                                 </DxComboBox>
@@ -506,8 +550,7 @@
                                         <div class="d-flex ">
                                             <W1Label Value="Số nhà" Styles="width: 120px" />
                                             <div style="width: calc(100% - 120px)">
-                                                <DxTextBox TextChanged="@((string value) => HouseNumber1Changed(value))"
-                                                          Text="@EmployeeUpdate.houseNumber1" CssClass="w1FontSize"></DxTextBox>
+                                                <DxTextBox @bind-Text="@EmployeeUpdate.houseNumber1" CssClass="w1FontSize"></DxTextBox>
                                             </div>
                                         </div>
                                     </div>
@@ -566,7 +609,8 @@
                                             <div style="width: calc(100% - 120px)">
                                                 <DxCheckBox CssClass="w-100 w1FontSize"
                                                             SizeMode="@SizeMode.Small"
-                                                            CheckedChanged="@((bool value) => CheckedChanged(value))"
+                                                            Checked="@EmployeeUpdate.isEqualsHousehold"
+                                                            CheckedChanged="@((bool value) => EqualsHouseholdCheckedChangedHandler(value))"
                                                             LabelPosition="@LabelPosition.Right">
                                                     Giống hộ khẩu thường trú?
                                                 </DxCheckBox>
@@ -577,10 +621,11 @@
                                         <div class="d-flex ">
                                             <W1Label Value="Quốc gia" Styles="width: 120px" />
                                             <div style="width: calc(100% - 120px)">
-                                                <DxComboBox Data="@ListCboCountry2"
+                                                <DxComboBox Data="@ListCboCountry"
                                                             FilteringMode="DataGridFilteringMode.Contains"
-                                                            ValueChanged="@((string value)=> country2Changed(value))"
                                                             Value="@EmployeeUpdate.countryCode2"
+                                                            ValueChanged="@((string? countryCode2) => ComboboxValueChangedHandler(countryCode2, controlID: nameof(EmployeeUpdate.countryCode2)))"
+                                                            ClearButtonDisplayMode="@DataEditorClearButtonDisplayMode.Auto"
                                                             TextFieldName="@nameof(ComboboxModel.name)"
                                                             ValueFieldName="@nameof(ComboboxModel.code)" CssClass="w1FontSize">
                                                 </DxComboBox>
@@ -593,8 +638,9 @@
                                             <div style="width: calc(100% - 120px)">
                                                 <DxComboBox Data="@ListCboProvince2"
                                                             FilteringMode="DataGridFilteringMode.Contains"
-                                                            ValueChanged="@((string value)=> province2Changed(value))"
                                                             Value="@EmployeeUpdate.provinceCode2"
+                                                            ValueChanged="@((string? provinceCode2) => ComboboxValueChangedHandler(provinceCode2, controlID: nameof(EmployeeUpdate.provinceCode2)))"
+                                                            ClearButtonDisplayMode="@DataEditorClearButtonDisplayMode.Auto"
                                                             TextFieldName="@nameof(ComboboxModel.name)"
                                                             ValueFieldName="@nameof(ComboboxModel.code)" CssClass="w1FontSize">
                                                 </DxComboBox>
@@ -607,8 +653,9 @@
                                             <div style="width: calc(100% - 120px)">
                                                 <DxComboBox Data="@ListCboDistrict2"
                                                             FilteringMode="DataGridFilteringMode.Contains"
-                                                            ValueChanged="@((string value)=> district2Changed(value))"
                                                             Value="@EmployeeUpdate.districtCode2"
+                                                            ValueChanged="@((string? districtCode2) => ComboboxValueChangedHandler(districtCode2, controlID: nameof(EmployeeUpdate.districtCode2)))"
+                                                            ClearButtonDisplayMode="@DataEditorClearButtonDisplayMode.Auto"
                                                             TextFieldName="@nameof(ComboboxModel.name)"
                                                             ValueFieldName="@nameof(ComboboxModel.code)" CssClass="w1FontSize">
                                                 </DxComboBox>
@@ -620,10 +667,9 @@
                                             <W1Label Value="Phường xã" Styles="width: 120px" />
                                             <div style="width: calc(100% - 120px)">
                                                 <DxComboBox Data="@ListCboWard2"
-                                                         
                                                             FilteringMode="DataGridFilteringMode.Contains"
-                                                            ValueChanged="@((string value)=> wardCode2Changed(value))"
-                                                            Value="@EmployeeUpdate.wardCode2"
+                                                            @bind-Value="@EmployeeUpdate.wardCode2"
+                                                            ClearButtonDisplayMode="@DataEditorClearButtonDisplayMode.Auto"
                                                             TextFieldName="@nameof(ComboboxModel.name)"
                                                             ValueFieldName="@nameof(ComboboxModel.code)" CssClass="w1FontSize">
                                                 </DxComboBox>
@@ -634,8 +680,7 @@
                                         <div class="d-flex ">
                                             <W1Label Value="Số nhà/Đường phố" Styles="width: 120px" />
                                             <div style="width: calc(100% - 120px)">
-                                                <DxTextBox TextChanged="@((string value) => HouseNumber2Changed(value))"
-                                                          Text="@EmployeeUpdate.houseNumber2"  CssClass="w1FontSize"></DxTextBox>
+                                                <DxTextBox @bind-Text="@EmployeeUpdate.houseNumber2"  CssClass="w1FontSize"></DxTextBox>
                                             </div>
                                         </div>
                                     </div>
@@ -684,7 +729,7 @@
                                         <div class="d-flex ">
                                             <W1Label Value="Quan hệ" Id="txtKiDanhGia" Styles="width: 120px" />
                                             <div style="width: calc(100% - 120px)">
-                                                <DxComboBox Data="@ListCboMaritalStatus"
+                                                <DxComboBox Data="@ListCboRelationship"
                                                             @bind-Value="@EmployeeUpdate.relationship"
                                                             FilteringMode="DataGridFilteringMode.Contains"
                                                             TextFieldName="@nameof(ComboboxModel.name)"
@@ -733,8 +778,6 @@
             </div>
         </div>
     </div>
-
-    
 
     @* Thông tin công việc  *@
     <div class="card card-lg mt-1" style="padding: 5px">
@@ -821,86 +864,25 @@
         </div>
     </div>
 
-    @* Quan hệ gia đình  *@
-    <div class="card card-lg mt-1" style="padding: 5px">
-        <div class="row row-gap-2">
-            <div class="col-12">
-                <div class="accordion" id="accordion-7">
-                    <div class="accordion-item" style="border: none">
-                        <span class="accordion-header" id="heading-1">
-                            <button class="accordion-button " style="padding-top: 1px; padding-bottom: 1px;padding-left: 5px;"
-                                    type="button" data-bs-toggle="collapse" data-bs-target="#collapse-7" aria-expanded="true">
-                                <h4 class="mb-0 w1FontSize">Quan hệ gia đình</h4>
-                            </button>
-                        </span>
-                        <div style="border-bottom: 1px solid var(--tblr-border-color); margin-top: 2px"></div>
-                        <div id="collapse-7" class="accordion-collapse collapse show" data-bs-parent="#accordion-7">
-                            <div class="accordion-body p-2">
-                                <div class="row row-gap-2">
-                                   
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
 
-    @* Lịch sử công tác  *@
-    <div class="card card-lg mt-1" style="padding: 5px">
-        <div class="row row-gap-2">
-            <div class="col-12">
-                <div class="accordion" id="accordion-9">
-                    <div class="accordion-item" style="border: none">
-                        <span class="accordion-header" id="heading-1">
-                            <button class="accordion-button " style="padding-top: 1px; padding-bottom: 1px;padding-left: 5px;"
-                                    type="button" data-bs-toggle="collapse" data-bs-target="#collapse-9" aria-expanded="true">
-                                <h4 class="mb-0 w1FontSize">Lịch sử công tác</h4>
-                            </button>
-                        </span>
-                        <div style="border-bottom: 1px solid var(--tblr-border-color); margin-top: 2px"></div>
-                        <div id="collapse-9" class="accordion-collapse collapse show" data-bs-parent="#accordion-9">
-                            <div class="accordion-body p-2">
-                                <div class="row row-gap-2">
-                                    <div class="col-md-12 col-sm-12">
-                                        <DxGrid Data="ListInsurance" @ref="GridInsurance"
-                                                ShowFilterRow="false"
-                                                PageSize="500"
-                                                ColumnResizeMode="GridColumnResizeMode.ColumnsContainer"
-                                                PagerPosition="GridPagerPosition.Bottom"
-                                                PageSizeSelectorVisible="false"
-                                                PageSizeSelectorAllRowsItemVisible="false"
-                                                PagerSwitchToInputBoxButtonCount="10"
-                                                PagerVisibleNumericButtonCount="10"
-                                                TextWrapEnabled="false"
-                                                KeyFieldName="@nameof(InsuranceModel.id)"
-                                                ValidationEnabled="true"
-                                                EditMode="GridEditMode.EditCell"
-                                                KeyboardNavigationEnabled="true"
-                                                AllowSelectRowByClick="true"
-                                                FocusedRowEnabled="true"
-                                                SelectionMode="GridSelectionMode.Single"
-                                                CssClass="h-full">
-                                            <ToolbarTemplate>
-                                                <DxToolbar ItemRenderStyleMode="@ToolbarRenderStyleMode.Plain">
-                                                    <Items>
-                                                        <DxToolbarItem IconCssClass="@IconClassConstants.ICON_ADD" BeginGroup="true" Alignment="@ToolbarItemAlignment.Right" />
-                                                        <DxToolbarItem IconCssClass="@IconClassConstants.ICON_DELETE" BeginGroup="true" Alignment="@ToolbarItemAlignment.Right" />
-                                                        <DxToolbarItem IconCssClass="@IconClassConstants.ICON_REFRESH" BeginGroup="true" Alignment="@ToolbarItemAlignment.Right" />
-                                                    </Items>
-                                                </DxToolbar>
-                                            </ToolbarTemplate>
-                                            <Columns>
-                                                <DxGridDataColumn FieldName="@nameof(InsuranceModel.startDate)" Caption="Từ ngày" MinWidth="110" DisplayFormat="@GlobalContants.FORMAT_DATE" />
-                                                <DxGridDataColumn FieldName="@nameof(InsuranceModel.endDate)" Caption="Đến ngày" MinWidth="110" DisplayFormat="@GlobalContants.FORMAT_DATE" />
-                                                <DxGridDataColumn FieldName="@nameof(InsuranceModel.insuranceNo)" Caption="Vị trí công việc" MinWidth="140" />
-                                                <DxGridDataColumn FieldName="@nameof(InsuranceModel.insuranceTypeName)" Caption="Cấp" MinWidth="80" />
-                                                <DxGridDataColumn FieldName="@nameof(InsuranceModel.addressNo)" Caption="Bậc" MinWidth="80" />
-                                                <DxGridDataColumn FieldName="@nameof(InsuranceModel.address)" Caption="Đơn vị công tác" MinWidth="140" />
-                                                <DxGridDataColumn FieldName="@nameof(InsuranceModel.zipCode)" Caption="Ghi chú" MinWidth="170" />
-                                            </Columns>
-                                        </DxGrid>
+    @if(pActionType == nameof(EnumType.Update))
+    {
+        @* Quan hệ gia đình  *@
+        <div class="card card-lg mt-1" style="padding: 5px">
+            <div class="row row-gap-2">
+                <div class="col-12">
+                    <div class="accordion" id="accordion-7">
+                        <div class="accordion-item" style="border: none">
+                            <span class="accordion-header" id="heading-1">
+                                <button class="accordion-button " style="padding-top: 1px; padding-bottom: 1px;padding-left: 5px;"
+                                        type="button" data-bs-toggle="collapse" data-bs-target="#collapse-7" aria-expanded="true">
+                                    <h4 class="mb-0 w1FontSize">Quan hệ gia đình</h4>
+                                </button>
+                            </span>
+                            <div style="border-bottom: 1px solid var(--tblr-border-color); margin-top: 2px"></div>
+                            <div id="collapse-7" class="accordion-collapse collapse show" data-bs-parent="#accordion-7">
+                                <div class="accordion-body p-2">
+                                    <div class="row row-gap-2">
                                     </div>
                                 </div>
                             </div>
@@ -909,62 +891,62 @@
                 </div>
             </div>
         </div>
-    </div>
 
-    @* Thông tin bảo hiểm  *@
-    <div class="card card-lg mt-1" style="padding: 5px">
-        <div class="row row-gap-2">
-            <div class="col-12">
-                <div class="accordion" id="accordion-10">
-                    <div class="accordion-item" style="border: none">
-                        <span class="accordion-header" id="heading-1">
-                            <button class="accordion-button " style="padding-top: 1px; padding-bottom: 1px;padding-left: 5px;"
-                                    type="button" data-bs-toggle="collapse" data-bs-target="#collapse-10" aria-expanded="true">
-                                <h4 class="mb-0 w1FontSize">Thông tin bảo hiểm</h4>
-                            </button>
-                        </span>
-                        <div style="border-bottom: 1px solid var(--tblr-border-color); margin-top: 2px"></div>
-                        <div id="collapse-10" class="accordion-collapse collapse show" data-bs-parent="#accordion-10">
-                            <div class="accordion-body p-2">
-                                <div class="row row-gap-2">
-                                    <div class="col-md-12 col-sm-12">
-                                        <DxGrid Data="ListInsurance" @ref="GridInsurance"
-                                                ShowFilterRow="false"
-                                                PageSize="500"
-                                                ColumnResizeMode="GridColumnResizeMode.ColumnsContainer"
-                                                PagerPosition="GridPagerPosition.Bottom"
-                                                PageSizeSelectorVisible="false"
-                                                PageSizeSelectorAllRowsItemVisible="false"
-                                                PagerSwitchToInputBoxButtonCount="10"
-                                                PagerVisibleNumericButtonCount="10"
-                                                TextWrapEnabled="false"
-                                                KeyFieldName="@nameof(InsuranceModel.id)"
-                                                ValidationEnabled="true"
-                                                EditMode="GridEditMode.EditCell"
-                                                KeyboardNavigationEnabled="true"
-                                                AllowSelectRowByClick="true"
-                                                FocusedRowEnabled="true"
-                                                SelectionMode="GridSelectionMode.Single"
-                                                CssClass="h-full">
-                                            <ToolbarTemplate>
-                                                <DxToolbar ItemRenderStyleMode="@ToolbarRenderStyleMode.Plain">
-                                                    <Items>
-                                                        <DxToolbarItem IconCssClass="@IconClassConstants.ICON_ADD" BeginGroup="true" Alignment="@ToolbarItemAlignment.Right" />
-                                                        <DxToolbarItem IconCssClass="@IconClassConstants.ICON_DELETE" BeginGroup="true" Alignment="@ToolbarItemAlignment.Right" />
-                                                        <DxToolbarItem IconCssClass="@IconClassConstants.ICON_REFRESH" BeginGroup="true" Alignment="@ToolbarItemAlignment.Right" />
-                                                    </Items>
-                                                </DxToolbar>
-                                            </ToolbarTemplate>
-                                            <Columns>
-                                                <DxGridDataColumn FieldName="@nameof(InsuranceModel.insuranceNo)" Caption="Sổ bảo hiểm" MinWidth="140" />
-                                                <DxGridDataColumn FieldName="@nameof(InsuranceModel.insuranceTypeName)" Caption="Loại bảo hiểm" MinWidth="110" />
-                                                <DxGridDataColumn FieldName="@nameof(InsuranceModel.addressNo)" Caption="Mã đăng ký" MinWidth="110" />
-                                                <DxGridDataColumn FieldName="@nameof(InsuranceModel.address)" Caption="Nơi đăng ký KCB" MinWidth="170" />
-                                                <DxGridDataColumn FieldName="@nameof(InsuranceModel.startDate)" Caption="Ngày cấp" MinWidth="110" DisplayFormat="@GlobalContants.FORMAT_DATE" />
-                                                <DxGridDataColumn FieldName="@nameof(InsuranceModel.endDate)" Caption="Ngày hết hạn" MinWidth="110" DisplayFormat="@GlobalContants.FORMAT_DATE" />
-                                                <DxGridDataColumn FieldName="@nameof(InsuranceModel.zipCode)" Caption="Mã tỉnh cấp" MinWidth="110" />
-                                            </Columns>
-                                        </DxGrid>
+        @* Lịch sử công tác  *@
+        <div class="card card-lg mt-1" style="padding: 5px">
+            <div class="row row-gap-2">
+                <div class="col-12">
+                    <div class="accordion" id="accordion-9">
+                        <div class="accordion-item" style="border: none">
+                            <span class="accordion-header" id="heading-1">
+                                <button class="accordion-button " style="padding-top: 1px; padding-bottom: 1px;padding-left: 5px;"
+                                        type="button" data-bs-toggle="collapse" data-bs-target="#collapse-9" aria-expanded="true">
+                                    <h4 class="mb-0 w1FontSize">Lịch sử công tác</h4>
+                                </button>
+                            </span>
+                            <div style="border-bottom: 1px solid var(--tblr-border-color); margin-top: 2px"></div>
+                            <div id="collapse-9" class="accordion-collapse collapse show" data-bs-parent="#accordion-9">
+                                <div class="accordion-body p-2">
+                                    <div class="row row-gap-2">
+                                        <div class="col-md-12 col-sm-12">
+                                            <DxGrid Data="ListInsurance" @ref="GridInsurance"
+                                                    ShowFilterRow="false"
+                                                    PageSize="500"
+                                                    ColumnResizeMode="GridColumnResizeMode.ColumnsContainer"
+                                                    PagerPosition="GridPagerPosition.Bottom"
+                                                    PageSizeSelectorVisible="false"
+                                                    PageSizeSelectorAllRowsItemVisible="false"
+                                                    PagerSwitchToInputBoxButtonCount="10"
+                                                    PagerVisibleNumericButtonCount="10"
+                                                    TextWrapEnabled="false"
+                                                    KeyFieldName="@nameof(InsuranceModel.id)"
+                                                    ValidationEnabled="true"
+                                                    EditMode="GridEditMode.EditCell"
+                                                    KeyboardNavigationEnabled="true"
+                                                    AllowSelectRowByClick="true"
+                                                    FocusedRowEnabled="true"
+                                                    SelectionMode="GridSelectionMode.Single"
+                                                    CssClass="h-full">
+                                                <ToolbarTemplate>
+                                                    <DxToolbar ItemRenderStyleMode="@ToolbarRenderStyleMode.Plain">
+                                                        <Items>
+                                                            <DxToolbarItem IconCssClass="@IconClassConstants.ICON_ADD" BeginGroup="true" Alignment="@ToolbarItemAlignment.Right" />
+                                                            <DxToolbarItem IconCssClass="@IconClassConstants.ICON_DELETE" BeginGroup="true" Alignment="@ToolbarItemAlignment.Right" />
+                                                            <DxToolbarItem IconCssClass="@IconClassConstants.ICON_REFRESH" BeginGroup="true" Alignment="@ToolbarItemAlignment.Right" />
+                                                        </Items>
+                                                    </DxToolbar>
+                                                </ToolbarTemplate>
+                                                <Columns>
+                                                    <DxGridDataColumn FieldName="@nameof(InsuranceModel.startDate)" Caption="Từ ngày" MinWidth="110" DisplayFormat="@GlobalContants.FORMAT_DATE" />
+                                                    <DxGridDataColumn FieldName="@nameof(InsuranceModel.endDate)" Caption="Đến ngày" MinWidth="110" DisplayFormat="@GlobalContants.FORMAT_DATE" />
+                                                    <DxGridDataColumn FieldName="@nameof(InsuranceModel.insuranceNo)" Caption="Vị trí công việc" MinWidth="140" />
+                                                    <DxGridDataColumn FieldName="@nameof(InsuranceModel.insuranceTypeName)" Caption="Cấp" MinWidth="80" />
+                                                    <DxGridDataColumn FieldName="@nameof(InsuranceModel.addressNo)" Caption="Bậc" MinWidth="80" />
+                                                    <DxGridDataColumn FieldName="@nameof(InsuranceModel.address)" Caption="Đơn vị công tác" MinWidth="140" />
+                                                    <DxGridDataColumn FieldName="@nameof(InsuranceModel.zipCode)" Caption="Ghi chú" MinWidth="170" />
+                                                </Columns>
+                                            </DxGrid>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
@@ -973,25 +955,63 @@
                 </div>
             </div>
         </div>
-    </div>
 
-    @* Danh sách hợp đồng  *@
-    <div class="card card-lg mt-1" style="padding: 5px">
-        <div class="row row-gap-2">
-            <div class="col-12">
-                <div class="accordion" id="accordion-11">
-                    <div class="accordion-item" style="border: none">
-                        <span class="accordion-header" id="heading-1">
-                            <button class="accordion-button " style="padding-top: 1px; padding-bottom: 1px;padding-left: 5px;"
-                                    type="button" data-bs-toggle="collapse" data-bs-target="#collapse-11" aria-expanded="true">
-                                <h4 class="mb-0 w1FontSize">Danh sách hợp đồng</h4>
-                            </button>
-                        </span>
-                        <div style="border-bottom: 1px solid var(--tblr-border-color); margin-top: 2px"></div>
-                        <div id="collapse-11" class="accordion-collapse collapse show" data-bs-parent="#accordion-11">
-                            <div class="accordion-body p-2">
-                                <div class="row row-gap-2">
-
+        @* Thông tin bảo hiểm  *@
+        <div class="card card-lg mt-1" style="padding: 5px">
+            <div class="row row-gap-2">
+                <div class="col-12">
+                    <div class="accordion" id="accordion-10">
+                        <div class="accordion-item" style="border: none">
+                            <span class="accordion-header" id="heading-1">
+                                <button class="accordion-button " style="padding-top: 1px; padding-bottom: 1px;padding-left: 5px;"
+                                        type="button" data-bs-toggle="collapse" data-bs-target="#collapse-10" aria-expanded="true">
+                                    <h4 class="mb-0 w1FontSize">Thông tin bảo hiểm</h4>
+                                </button>
+                            </span>
+                            <div style="border-bottom: 1px solid var(--tblr-border-color); margin-top: 2px"></div>
+                            <div id="collapse-10" class="accordion-collapse collapse show" data-bs-parent="#accordion-10">
+                                <div class="accordion-body p-2">
+                                    <div class="row row-gap-2">
+                                        <div class="col-md-12 col-sm-12">
+                                            <DxGrid Data="ListInsurance" @ref="GridInsurance"
+                                                    ShowFilterRow="false"
+                                                    PageSize="500"
+                                                    ColumnResizeMode="GridColumnResizeMode.ColumnsContainer"
+                                                    PagerPosition="GridPagerPosition.Bottom"
+                                                    PageSizeSelectorVisible="false"
+                                                    PageSizeSelectorAllRowsItemVisible="false"
+                                                    PagerSwitchToInputBoxButtonCount="10"
+                                                    PagerVisibleNumericButtonCount="10"
+                                                    TextWrapEnabled="false"
+                                                    KeyFieldName="@nameof(InsuranceModel.id)"
+                                                    ValidationEnabled="true"
+                                                    EditMode="GridEditMode.EditCell"
+                                                    KeyboardNavigationEnabled="true"
+                                                    AllowSelectRowByClick="true"
+                                                    FocusedRowEnabled="true"
+                                                    SelectionMode="GridSelectionMode.Single"
+                                                    CssClass="h-full">
+                                                <ToolbarTemplate>
+                                                    <DxToolbar ItemRenderStyleMode="@ToolbarRenderStyleMode.Plain">
+                                                        <Items>
+                                                            <DxToolbarItem IconCssClass="@IconClassConstants.ICON_ADD" BeginGroup="true" Alignment="@ToolbarItemAlignment.Right" />
+                                                            <DxToolbarItem IconCssClass="@IconClassConstants.ICON_DELETE" BeginGroup="true" Alignment="@ToolbarItemAlignment.Right" />
+                                                            <DxToolbarItem IconCssClass="@IconClassConstants.ICON_REFRESH" BeginGroup="true" Alignment="@ToolbarItemAlignment.Right" />
+                                                        </Items>
+                                                    </DxToolbar>
+                                                </ToolbarTemplate>
+                                                <Columns>
+                                                    <DxGridDataColumn FieldName="@nameof(InsuranceModel.insuranceNo)" Caption="Sổ bảo hiểm" MinWidth="140" />
+                                                    <DxGridDataColumn FieldName="@nameof(InsuranceModel.insuranceTypeName)" Caption="Loại bảo hiểm" MinWidth="110" />
+                                                    <DxGridDataColumn FieldName="@nameof(InsuranceModel.addressNo)" Caption="Mã đăng ký" MinWidth="110" />
+                                                    <DxGridDataColumn FieldName="@nameof(InsuranceModel.address)" Caption="Nơi đăng ký KCB" MinWidth="170" />
+                                                    <DxGridDataColumn FieldName="@nameof(InsuranceModel.startDate)" Caption="Ngày cấp" MinWidth="110" DisplayFormat="@GlobalContants.FORMAT_DATE" />
+                                                    <DxGridDataColumn FieldName="@nameof(InsuranceModel.endDate)" Caption="Ngày hết hạn" MinWidth="110" DisplayFormat="@GlobalContants.FORMAT_DATE" />
+                                                    <DxGridDataColumn FieldName="@nameof(InsuranceModel.zipCode)" Caption="Mã tỉnh cấp" MinWidth="110" />
+                                                </Columns>
+                                            </DxGrid>
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -999,24 +1019,24 @@
                 </div>
             </div>
         </div>
-    </div>
 
-    @* Danh sách quyết định  *@
-    <div class="card card-lg mt-1" style="padding: 5px">
-        <div class="row row-gap-2">
-            <div class="col-12">
-                <div class="accordion" id="accordion-7">
-                    <div class="accordion-item" style="border: none">
-                        <span class="accordion-header" id="heading-1">
-                            <button class="accordion-button " style="padding-top: 1px; padding-bottom: 1px;padding-left: 5px;"
-                                    type="button" data-bs-toggle="collapse" data-bs-target="#collapse-7" aria-expanded="true">
-                                <h4 class="mb-0 w1FontSize">Danh sách quyết định</h4>
-                            </button>
-                        </span>
-                        <div style="border-bottom: 1px solid var(--tblr-border-color); margin-top: 2px"></div>
-                        <div id="collapse-7" class="accordion-collapse collapse show" data-bs-parent="#accordion-7">
-                            <div class="accordion-body p-2">
-                                <div class="row row-gap-2">
+        @* Danh sách hợp đồng  *@
+        <div class="card card-lg mt-1" style="padding: 5px">
+            <div class="row row-gap-2">
+                <div class="col-12">
+                    <div class="accordion" id="accordion-11">
+                        <div class="accordion-item" style="border: none">
+                            <span class="accordion-header" id="heading-1">
+                                <button class="accordion-button " style="padding-top: 1px; padding-bottom: 1px;padding-left: 5px;"
+                                        type="button" data-bs-toggle="collapse" data-bs-target="#collapse-11" aria-expanded="true">
+                                    <h4 class="mb-0 w1FontSize">Danh sách hợp đồng</h4>
+                                </button>
+                            </span>
+                            <div style="border-bottom: 1px solid var(--tblr-border-color); margin-top: 2px"></div>
+                            <div id="collapse-11" class="accordion-collapse collapse show" data-bs-parent="#accordion-11">
+                                <div class="accordion-body p-2">
+                                    <div class="row row-gap-2">
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -1024,7 +1044,33 @@
                 </div>
             </div>
         </div>
-    </div>
+
+        @* Danh sách quyết định  *@
+        <div class="card card-lg mt-1" style="padding: 5px">
+            <div class="row row-gap-2">
+                <div class="col-12">
+                    <div class="accordion" id="accordion-7">
+                        <div class="accordion-item" style="border: none">
+                            <span class="accordion-header" id="heading-1">
+                                <button class="accordion-button " style="padding-top: 1px; padding-bottom: 1px;padding-left: 5px;"
+                                        type="button" data-bs-toggle="collapse" data-bs-target="#collapse-7" aria-expanded="true">
+                                    <h4 class="mb-0 w1FontSize">Danh sách quyết định</h4>
+                                </button>
+                            </span>
+                            <div style="border-bottom: 1px solid var(--tblr-border-color); margin-top: 2px"></div>
+                            <div id="collapse-7" class="accordion-collapse collapse show" data-bs-parent="#accordion-7">
+                                <div class="accordion-body p-2">
+                                    <div class="row row-gap-2">
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    }
+    
 
 </div>
 

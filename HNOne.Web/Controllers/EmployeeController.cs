@@ -10,6 +10,8 @@ using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.WebUtilities;
 using Microsoft.JSInterop;
 using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
+using System.Threading.Tasks;
 
 namespace HNOne.Web.Controllers
 {
@@ -25,7 +27,7 @@ namespace HNOne.Web.Controllers
         public string? pActionType { get; set; } = nameof(EnumType.Add);
         private int pDocEntry { get; set; } = 0;
         public int ActiveTabIndex { get; set; } = 0;
-
+        public bool firstRender = true;
         public string AddressStr = "{0}, {1}, {2}, {3}, {4}";
 
         public EmployeeModel EmployeeUpdate { get; set; } = new EmployeeModel();
@@ -33,17 +35,15 @@ namespace HNOne.Web.Controllers
         public List<ComboboxModel>? ListCboDepartment { get; set; } // cbo ds phòng ban
         public List<ComboboxModel>? ListCboPosition { get; set; } // cbo ds chức vụ
         public List<ComboboxModel>? ListCboTitle { get; set; } // cbo ds chức danh
-        public List<EnumCatagoryModel>? ListCboMaritalStatus { get; set; } // cbo ds chức danh
+        public List<EnumCatagoryModel>? ListCboMaritalStatus { get; set; } // cbo ds tình trạng hộn nhân
+        public List<EnumCatagoryModel>? ListCboRelationship { get; set; } // cbo ds quan hệ
+        public List<ComboboxModel>? ListCboCountry { get; set; } // cbo quốc gia
+        public List<ComboboxModel>? ListCboProvince { get; set; } // cbo ds tỉnh thành trong thông tin liên hệ
 
-        public List<ComboboxModel>? ListCboProvince { get; set; } // cbo ds tỉnh thành 
-
-
-        public List<ComboboxModel>? ListCboCountry1 { get; set; } // cbo ds quốc gia
         public List<ComboboxModel>? ListCboProvince1 { get; set; } // cbo ds tỉnh thành 
         public List<ComboboxModel>? ListCboDistrict1 { get; set; } // cbo ds quận huyện 
         public List<ComboboxModel>? ListCboWard1 { get; set; } // cbo ds phường xã 
 
-        public List<ComboboxModel>? ListCboCountry2 { get; set; } // cbo ds quốc gia
         public List<ComboboxModel>? ListCboProvince2 { get; set; } // cbo ds tỉnh thành 
         public List<ComboboxModel>? ListCboDistrict2 { get; set; } // cbo ds quận huyện 
         public List<ComboboxModel>? ListCboWard2 { get; set; } // cbo ds phường xã 
@@ -56,8 +56,6 @@ namespace HNOne.Web.Controllers
         public object? EmployeeSelected { get; set; } // Nhân viên được chọn
         #endregion
 
-
-
         protected override async Task OnAfterRenderAsync(bool firstRender)
         {
             await base.OnAfterRenderAsync(firstRender);
@@ -65,14 +63,20 @@ namespace HNOne.Web.Controllers
             {
                 try
                 {
+                    this.firstRender = firstRender;
                     await ShowLoading();
                     await initDataAsync();
                     await buildComboAsync();
                     if (pDocEntry > 0) await showVoucher();
                 }
-                catch (Exception) { }
+                catch (Exception ex)
+                {
+                    _logger.LogError(ex, "OnAfterRenderAsync");
+                    ShowError(ex.Message);
+                }
                 finally
                 {
+                    this.firstRender = false;
                     await ShowLoading(false);
                     await InvokeAsync(StateHasChanged);
                 }
@@ -116,22 +120,10 @@ namespace HNOne.Web.Controllers
                 var getTask2 = _masterDataService.GetPositionAsync(UserId, Token); // ds chức vụ
                 var getTask3 = _masterDataService.GetTitleAsync(UserId, Token); // ds chức danh
                 var getTask4 = _masterDataService.GetEnumAsync(UserId, Token, nameof(EnumCatagory.TrangThaiNhanVien)); // ds trạng thái
-                var getTask5 = _masterDataService.GetEnumAsync(UserId, Token, nameof(EnumCatagory.TinhTrangHonNhan)); // ds trạng thái
-
-                //thường trú
-                var getTask6 = _masterDataService.GetLocationData(UserId, Token, BranchId, nameof(EnumLocation.County)); // ds Quốc gia
-                var getTask7 = _masterDataService.GetLocationData(UserId, Token, BranchId, nameof(EnumLocation.Province)); // ds tỉnh thành
-                var getTask8 = _masterDataService.GetLocationData(UserId, Token, BranchId, nameof(EnumLocation.District), EmployeeUpdate.provinceCode1); // ds quận huyện thường trú
-                var getTask9 = _masterDataService.GetLocationData(UserId, Token, BranchId, nameof(EnumLocation.Ward), EmployeeUpdate.provinceCode1, EmployeeUpdate.districtCode1); // ds xã phường thường trú
-
-                // hiện nay
-                var getTask10 = _masterDataService.GetLocationData(UserId, Token, BranchId, nameof(EnumLocation.County)); // ds Quốc gia
-                var getTask11 = _masterDataService.GetLocationData(UserId, Token, BranchId, nameof(EnumLocation.Province)); // ds tỉnh thành
-                var getTask12 = _masterDataService.GetLocationData(UserId, Token, BranchId, nameof(EnumLocation.District), EmployeeUpdate.provinceCode2); // ds quận huyện thường trú
-                var getTask13 = _masterDataService.GetLocationData(UserId, Token, BranchId, nameof(EnumLocation.Ward), EmployeeUpdate.provinceCode2, EmployeeUpdate.districtCode2); // ds xã phường thường trú
-
-                var getTask14 = _masterDataService.GetLocationData(UserId, Token, BranchId, nameof(EnumLocation.Province)); // ds tỉnh thành
-
+                var getTask5 = _masterDataService.GetEnumAsync(UserId, Token, nameof(EnumCatagory.TinhTrangHonNhan)); // ds tình trạng hôn nhân
+                var getTask6 = _masterDataService.GetLocationAsync(UserId, Token, nameof(EnumCatagory.County)); // ds trạng thái
+                var getTask7 = _masterDataService.GetEnumAsync(UserId, Token, nameof(EnumCatagory.QuanHeGiaDinh)); // ds quan hệ gia đình
+                var getTask8 = _masterDataService.GetLocationAsync(UserId, Token, nameof(EnumCatagory.Province), "VN");
                 await Task.WhenAll(
                     getTask1,
                     getTask2,
@@ -140,13 +132,7 @@ namespace HNOne.Web.Controllers
                     getTask5,
                     getTask6,
                     getTask7,
-                    getTask8,
-                    getTask9,
-                    getTask10,
-                    getTask11,
-                    getTask12,
-                    getTask13,
-                    getTask14
+                    getTask8
                 );
 
                 ListCboDepartment = (await getTask1)?.Select(m => new ComboboxModel() { id = m.id, name = m.name })?.ToList();
@@ -154,20 +140,10 @@ namespace HNOne.Web.Controllers
                 ListCboTitle = (await getTask3)?.Select(m => new ComboboxModel() { id = m.id, name = m.name })?.ToList();
                 ListCboMaritalStatus = await getTask5;
                 ListCboStatus = (await getTask4)?.Where(m => m.rowOrder != 0).ToList();
-
-                ListCboProvince = (await getTask14)?.Select(m => new ComboboxModel() { code = m.code, name = m.name })?.ToList();
-
-                ListCboCountry1 = (await getTask6)?.Select(m => new ComboboxModel() { code = m.code, name = m.name })?.ToList();
-                ListCboProvince1 = (await getTask7)?.Select(m => new ComboboxModel() { code = m.code, name = m.name })?.ToList();
-                ListCboDistrict1 = (await getTask8)?.Select(m => new ComboboxModel() { code = m.code, name = m.name })?.ToList();
-                ListCboWard1 = (await getTask9)?.Select(m => new ComboboxModel() { code = m.code, name = m.name })?.ToList();
-
-                ListCboCountry2 = (await getTask10)?.Select(m => new ComboboxModel() { code = m.code, name = m.name })?.ToList();
-                ListCboProvince2 = (await getTask11)?.Select(m => new ComboboxModel() { code = m.code, name = m.name })?.ToList();
-                ListCboDistrict2 = (await getTask12)?.Select(m => new ComboboxModel() { code = m.code, name = m.name })?.ToList();
-                ListCboWard2 = (await getTask13)?.Select(m => new ComboboxModel() { code = m.code, name = m.name })?.ToList();
-
                 if (!ListCboStatus.IsNullOrEmpty()) EmployeeUpdate.statusId = ListCboStatus![0].code;
+                ListCboCountry = await getTask6;
+                ListCboRelationship = await getTask7;
+                ListCboProvince = await getTask8;
             }
             catch (Exception ex)
             {
@@ -186,12 +162,38 @@ namespace HNOne.Web.Controllers
                 request.branchId = BranchId;
                 request.token = Token;
                 var lstData = await _personnelService.GetEmployeeAsync(request);
-                if(!lstData.IsNullOrEmpty()) EmployeeUpdate = lstData![0];
+                if (!lstData.IsNullOrEmpty())
+                {
+                    EmployeeUpdate = lstData![0];
+                    List<Task> lstTask = new List<Task>();
+                    // nếu có chọn quốc tịch
+                    if (!string.IsNullOrEmpty(EmployeeUpdate.countryCode1))
+                        lstTask.Add(getProvince(EmployeeUpdate.countryCode1).ContinueWith(t => ListCboProvince1 = t.Result));
+
+                    // nếu có chọn tỉnh thành
+                    if (!string.IsNullOrEmpty(EmployeeUpdate.provinceCode1))
+                        lstTask.Add(getDistrict(EmployeeUpdate.provinceCode1).ContinueWith(t => ListCboDistrict1 = t.Result));
+
+                    // nếu có chọn quận huyện
+                    if (!string.IsNullOrEmpty(EmployeeUpdate.districtCode1))
+                        lstTask.Add(getWard($"{EmployeeUpdate.provinceCode1}", EmployeeUpdate.districtCode1).ContinueWith(t => ListCboWard1 = t.Result));
+
+                    // nếu có chọn quốc tịch
+                    if (!string.IsNullOrEmpty(EmployeeUpdate.countryCode2))
+                        lstTask.Add(getProvince(EmployeeUpdate.countryCode2).ContinueWith(t => ListCboProvince2 = t.Result));
+
+                    // nếu có chọn tỉnh thành
+                    if (!string.IsNullOrEmpty(EmployeeUpdate.provinceCode2))
+                        lstTask.Add(getDistrict(EmployeeUpdate.provinceCode2).ContinueWith(t => ListCboDistrict2 = t.Result));
+
+                    // nếu có chọn quận huyện
+                    if (!string.IsNullOrEmpty(EmployeeUpdate.districtCode2))
+                        lstTask.Add(getWard($"{EmployeeUpdate.provinceCode2}", EmployeeUpdate.districtCode2).ContinueWith(t => ListCboWard2 = t.Result));
+
+                    await Task.WhenAll(lstTask);
+                }
             }
-            catch (Exception ex)
-            {
-                throw ex;
-            }
+            catch (Exception) { throw; }
         }
 
         private void validateForSave(ref string errorMessage, ref string fieldName)
@@ -253,44 +255,18 @@ namespace HNOne.Web.Controllers
         }
 
         /// <summary>
-        /// Lấy địa chỉ hiện nay
+        /// lấy danh sách tỉnh thành
         /// </summary>
-        private void getAddressStrNow()
-        {
-            EmployeeUpdate.countryName2 = ListCboCountry1?.FirstOrDefault(country => country.code == EmployeeUpdate?.countryCode2)?.name;
-            EmployeeUpdate.provinceName2 = ListCboProvince1.FirstOrDefault(province => province.code == EmployeeUpdate.provinceCode2)?.name;
-            EmployeeUpdate.districtName2 = ListCboDistrict1.FirstOrDefault(district => district.code == EmployeeUpdate.districtCode2)?.name;
-            EmployeeUpdate.wardName2 = ListCboWard1.FirstOrDefault(ward => ward.code == EmployeeUpdate.wardCode2)?.name;
+        /// <param name="countryCode"></param>
+        /// <returns></returns>
+        private async Task<List<ComboboxModel>?> getProvince(string countryCode)
+            => await _masterDataService.GetLocationAsync(UserId, Token, nameof(EnumCatagory.Province), countryCode);
 
-            EmployeeUpdate.temporaryAddress = (string.IsNullOrEmpty(EmployeeUpdate.houseNumber2) ? "" : ", " + EmployeeUpdate.houseNumber2) +
-                                              (string.IsNullOrEmpty(EmployeeUpdate.wardName2) ? "" : ", " + EmployeeUpdate.wardName2) +
-                                              (string.IsNullOrEmpty(EmployeeUpdate.districtName2) ? "" : ", " + EmployeeUpdate.districtName2) +
-                                              (string.IsNullOrEmpty(EmployeeUpdate.provinceName2) ? "" : ", " + EmployeeUpdate.provinceName2) +
-                                              (string.IsNullOrEmpty(EmployeeUpdate.countryName2) ? "" : ", " + EmployeeUpdate.countryName2);
-            // Loại bỏ dấu phẩy thừa nếu có phần tử rỗng
-            EmployeeUpdate.temporaryAddress = EmployeeUpdate.temporaryAddress.Trim().TrimStart(',');
-            EmployeeUpdate.temporaryAddress = EmployeeUpdate.temporaryAddress.Trim().TrimEnd(',');
-        }
+        private async Task<List<ComboboxModel>?> getDistrict(string provinceCode)
+            => await _masterDataService.GetLocationAsync(UserId, Token, nameof(EnumCatagory.District), opt1: provinceCode);
 
-        /// <summary>
-        /// lấy địa chỉ tạm trú
-        /// </summary>
-        private void getAddressStrTemporary()
-        {
-            EmployeeUpdate.countryName1 = ListCboCountry2?.FirstOrDefault(country => country.code == EmployeeUpdate?.countryCode1)?.name;
-            EmployeeUpdate.provinceName1 = ListCboProvince2.FirstOrDefault(province => province.code == EmployeeUpdate.provinceCode1)?.name;
-            EmployeeUpdate.districtName1 = ListCboDistrict2.FirstOrDefault(district => district.code == EmployeeUpdate.districtCode1)?.name;
-            EmployeeUpdate.wardName1 = ListCboWard2.FirstOrDefault(ward => ward.code == EmployeeUpdate.wardCode1)?.name;
-
-            EmployeeUpdate.placeOfResidence = (string.IsNullOrEmpty(EmployeeUpdate.houseNumber1) ? "" : ", " + EmployeeUpdate.houseNumber1) +
-                                              (string.IsNullOrEmpty(EmployeeUpdate.wardName1) ? "" : ", " + EmployeeUpdate.wardName1) +
-                                              (string.IsNullOrEmpty(EmployeeUpdate.districtName1) ? "" : ", " + EmployeeUpdate.districtName1) +
-                                              (string.IsNullOrEmpty(EmployeeUpdate.provinceName1) ? "" : ", " + EmployeeUpdate.provinceName1) +
-                                              (string.IsNullOrEmpty(EmployeeUpdate.countryName1) ? "" : ", " + EmployeeUpdate.countryName1);
-            // Loại bỏ dấu phẩy thừa nếu có phần tử rỗng
-            EmployeeUpdate.placeOfResidence = EmployeeUpdate.placeOfResidence.Trim().TrimStart(',');
-            EmployeeUpdate.placeOfResidence = EmployeeUpdate.placeOfResidence.Trim().TrimEnd(',');
-        }
+        private async Task<List<ComboboxModel>?> getWard(string provinceCode, string districtCode)
+            => await _masterDataService.GetLocationAsync(UserId, Token, nameof(EnumCatagory.Ward), opt1: provinceCode, opt2: districtCode);
         #endregion
 
         #region Projected
@@ -348,6 +324,12 @@ namespace HNOne.Web.Controllers
                         EmployeeUpdate.managerName = employee.name;
                         IsShowDialogEmpSearch = false;
                         break;
+                    case nameof(EmployeeUpdate.managerCode2):
+                        EmployeeUpdate.managerId2 = employee.id;
+                        EmployeeUpdate.managerCode2 = employee.code;
+                        EmployeeUpdate.managerName2 = employee.name;
+                        IsShowDialogEmpSearch = false;
+                        break;
                 }    
             }
             catch (Exception ex)
@@ -368,6 +350,10 @@ namespace HNOne.Web.Controllers
         /// <param name="lstEmp"></param>
         protected void EventCallbackEmpChangedHandler(object? lstEmp) => EmployeeSelected = lstEmp;
 
+        /// <summary>
+        /// Lưu thông tin nhân viên
+        /// </summary>
+        /// <returns></returns>
         protected async Task SaveDataHandler()
         {
             try
@@ -387,6 +373,38 @@ namespace HNOne.Web.Controllers
                 if (!isConfirm) return;
                 await ShowLoading();
                 string processKey = pActionType == nameof(EnumType.Add) ? ProcessConstants.POST_EMPLOYEE : ProcessConstants.PUT_EMPLOYEE;
+                if (!string.IsNullOrEmpty(EmployeeUpdate.provinceCode))
+                    EmployeeUpdate.provinceName = ListCboProvince?.FirstOrDefault(m => m.code == EmployeeUpdate.provinceCode)?.name;
+                // Lấy tên thông tin hộ khẩu thường trú
+                if (!string.IsNullOrEmpty(EmployeeUpdate.countryCode1))
+                    EmployeeUpdate.countryName1 = ListCboCountry?.FirstOrDefault(m => m.code == EmployeeUpdate.countryCode1)?.name;
+                if (!string.IsNullOrEmpty(EmployeeUpdate.provinceCode1))
+                    EmployeeUpdate.provinceName1 = ListCboProvince1?.FirstOrDefault(m => m.code == EmployeeUpdate.provinceCode1)?.name;
+                if (!string.IsNullOrEmpty(EmployeeUpdate.districtCode1))
+                    EmployeeUpdate.districtName1 = ListCboDistrict1?.FirstOrDefault(m => m.code == EmployeeUpdate.districtCode1)?.name;
+                if (!string.IsNullOrEmpty(EmployeeUpdate.wardCode1))
+                    EmployeeUpdate.wardName1 = ListCboDistrict1?.FirstOrDefault(m => m.code == EmployeeUpdate.wardCode1)?.name;
+
+                // Lấy tên thông tin Chỗ ở hiện nay
+                if (!string.IsNullOrEmpty(EmployeeUpdate.countryCode2))
+                    EmployeeUpdate.countryName2 = ListCboCountry?.FirstOrDefault(m => m.code == EmployeeUpdate.countryCode2)?.name;
+                if (!string.IsNullOrEmpty(EmployeeUpdate.provinceCode2))
+                    EmployeeUpdate.provinceName2 = ListCboProvince2?.FirstOrDefault(m => m.code == EmployeeUpdate.provinceCode2)?.name;
+                if (!string.IsNullOrEmpty(EmployeeUpdate.districtCode2))
+                    EmployeeUpdate.districtName2 = ListCboDistrict2?.FirstOrDefault(m => m.code == EmployeeUpdate.districtCode2)?.name;
+                if (!string.IsNullOrEmpty(EmployeeUpdate.wardCode2))
+                    EmployeeUpdate.wardName2 = ListCboDistrict2?.FirstOrDefault(m => m.code == EmployeeUpdate.wardCode2)?.name;
+
+                EmployeeUpdate.placeOfResidence = $"{EmployeeUpdate.houseNumber1?.Trim()} " +
+                    $"{EmployeeUpdate.wardName1?.Trim()} {EmployeeUpdate.districtName1?.Trim()} " +
+                    $"{EmployeeUpdate.provinceName1?.Trim()} {EmployeeUpdate.countryName1?.Trim()}";
+                EmployeeUpdate.placeOfResidence = EmployeeUpdate.placeOfResidence?.Trim();
+
+                EmployeeUpdate.temporaryAddress = $"{EmployeeUpdate.houseNumber2?.Trim()} " +
+                    $"{EmployeeUpdate.wardName2?.Trim()} {EmployeeUpdate.districtName2?.Trim()} " +
+                    $"{EmployeeUpdate.provinceName2?.Trim()} {EmployeeUpdate.countryName2?.Trim()}";
+                EmployeeUpdate.temporaryAddress = EmployeeUpdate.temporaryAddress?.Trim();
+
                 EmployeeUpdate.branchId = BranchId;
                 EmployeeUpdate.userSign = UserId;
                 EmployeeUpdate.userSign2 = UserId;
@@ -409,123 +427,118 @@ namespace HNOne.Web.Controllers
             }
         }
 
-
-        /// <summary>
-        /// Quốc gia (chỗ ở thường trú)
-        /// </summary>
-        /// <param name="value"></param>
-        protected void country1Changed(string value)
+        protected async Task ComboboxValueChangedHandler(object? value
+            , string controlID = nameof(EmployeeUpdate.countryCode1))
         {
-            EmployeeUpdate.countryCode1 = value;
-            getAddressStrTemporary();
-        }
-        /// <summary>
-        /// Tỉnh thành (chỗ ở thường trú)
-        /// </summary>
-        /// <param name="value"></param>
-        protected async void province1Changed(string value)
-        {
-            EmployeeUpdate.provinceCode1 = value;
-            var getTask8 = _masterDataService.GetLocationData(UserId, Token, BranchId, nameof(EnumLocation.District), EmployeeUpdate.countryCode1,EmployeeUpdate.provinceCode1);
-            await Task.WhenAll(
-                    getTask8
-                );
-
-            ListCboDistrict1 = await getTask8;
-
-            getAddressStrTemporary();
-        }
-        /// <summary>
-        /// Quận huyện (chỗ ở thường trú)
-        /// </summary>
-        /// <param name="value"></param>
-        protected void district1Changed(string value)
-        {
-            EmployeeUpdate.districtCode1 = value;
-            getAddressStrTemporary();
-        }
-        /// <summary>
-        /// Xã phường (chỗ ở thường trú)
-        /// </summary>
-        /// <param name="value"></param>
-        protected void wardCode1Changed(string value)
-        {
-            EmployeeUpdate.wardCode1 = value;
-            getAddressStrTemporary();
-        }
-        /// <summary>
-        /// Số nhà đường phố (chỗ ở thường trú)
-        /// </summary>
-        /// <param name="value"></param>
-        protected void HouseNumber1Changed(string value)
-        {
-            EmployeeUpdate.houseNumber1 = value;
-            getAddressStrTemporary();
-        }
-        protected void CheckedChanged(bool value) // button Giống hộ khẩu thường trú?
-        {
-            if(value)
+            try
             {
+                if (firstRender) return;
+                switch (controlID)
+                {
+                    // chọn dữ liệu ở Hộ khẩu thường trú
+                    case nameof(EmployeeUpdate.countryCode1):
+                        await ShowLoading();
+                        await Task.Delay(75);
+                        ListCboProvince1 = await getProvince($"{value}");
+                        ListCboDistrict1 = new List<ComboboxModel>();
+                        ListCboWard1 = new List<ComboboxModel>();
+                        EmployeeUpdate.countryCode1 = $"{value}";
+                        EmployeeUpdate.provinceCode1 = string.Empty;
+                        EmployeeUpdate.districtCode1 = string.Empty;
+                        EmployeeUpdate.wardCode1 = string.Empty;
+                        EmployeeUpdate.placeOfResidence = string.Empty;
+                        break;
+                    case nameof(EmployeeUpdate.provinceCode1):
+                        await ShowLoading();
+                        await Task.Delay(75);
+                        ListCboDistrict1 = await getDistrict($"{value}");
+                        ListCboWard1 = new List<ComboboxModel>();
+                        EmployeeUpdate.provinceCode1 = $"{value}";
+                        EmployeeUpdate.districtCode1 = string.Empty;
+                        EmployeeUpdate.wardCode1 = string.Empty;
+                        EmployeeUpdate.placeOfResidence = string.Empty;
+                        break;
+                    case nameof(EmployeeUpdate.districtCode1):
+                        await ShowLoading();
+                        await Task.Delay(75);
+                        ListCboWard1 = await getWard($"{EmployeeUpdate.provinceCode1}", $"{value}");
+                        EmployeeUpdate.districtCode1 = $"{value}";
+                        EmployeeUpdate.wardCode1 = string.Empty;
+                        EmployeeUpdate.placeOfResidence = string.Empty;
+                        break;
+                    // Chỗ ở hiện nay
+                    case nameof(EmployeeUpdate.countryCode2):
+                        await ShowLoading();
+                        await Task.Delay(75);
+                        ListCboProvince2 = await getProvince($"{value}");
+                        ListCboDistrict2 = new List<ComboboxModel>();
+                        ListCboWard2 = new List<ComboboxModel>();
+                        EmployeeUpdate.countryCode2 = $"{value}";
+                        EmployeeUpdate.provinceCode2 = string.Empty;
+                        EmployeeUpdate.districtCode2 = string.Empty;
+                        EmployeeUpdate.wardCode2 = string.Empty;
+                        EmployeeUpdate.temporaryAddress = string.Empty;
+                        break;
+                    case nameof(EmployeeUpdate.provinceCode2):
+                        await ShowLoading();
+                        await Task.Delay(75);
+                        ListCboDistrict2 = await getDistrict($"{value}");
+                        ListCboWard2 = new List<ComboboxModel>();
+                        EmployeeUpdate.provinceCode2 = $"{value}";
+                        EmployeeUpdate.districtCode2 = string.Empty;
+                        EmployeeUpdate.wardCode2 = string.Empty;
+                        EmployeeUpdate.temporaryAddress = string.Empty;
+                        break;
+                    case nameof(EmployeeUpdate.districtCode2):
+                        await ShowLoading();
+                        await Task.Delay(75);
+                        ListCboWard2 = await getWard($"{EmployeeUpdate.provinceCode1}", $"{value}");
+                        EmployeeUpdate.districtCode2 = $"{value}";
+                        EmployeeUpdate.wardCode2 = string.Empty;
+                        EmployeeUpdate.temporaryAddress = string.Empty;
+                        break;
+                    default:
+                        break;
+                }
+            }
+            catch (Exception ex)
+            {
+                ShowError(ex.Message);
+                _logger.LogError(ex, "ComboboxValueChangedHandler");
+            }
+            finally
+            {
+                await ShowLoading(false);
+                await InvokeAsync(StateHasChanged);
+            }
+        }
+
+        /// <summary>
+        /// check giống hộ khẩu thường trú
+        /// </summary>
+        /// <param name="value"></param>
+        /// <returns></returns>
+        protected void EqualsHouseholdCheckedChangedHandler(bool value)
+        {
+            try
+            {
+                EmployeeUpdate.isEqualsHousehold = value;
+                ListCboProvince2 = ListCboProvince1;
+                ListCboDistrict2 = ListCboDistrict1;
+                ListCboWard2 = ListCboWard1;
                 EmployeeUpdate.countryCode2 = EmployeeUpdate.countryCode1;
                 EmployeeUpdate.provinceCode2 = EmployeeUpdate.provinceCode1;
                 EmployeeUpdate.districtCode2 = EmployeeUpdate.districtCode1;
                 EmployeeUpdate.wardCode2 = EmployeeUpdate.wardCode1;
                 EmployeeUpdate.houseNumber2 = EmployeeUpdate.houseNumber1;
+                EmployeeUpdate.temporaryAddress = EmployeeUpdate.placeOfResidence;
+                StateHasChanged();
             }
-            else if (!value)
+            catch (Exception ex)
             {
-                EmployeeUpdate.countryCode2 = null;
-                EmployeeUpdate.provinceCode2 = null;
-                EmployeeUpdate.districtCode2 = null;
-                EmployeeUpdate.wardCode2 = null;
-                EmployeeUpdate.houseNumber2 = null;
+                ShowError(ex.Message);
+                _logger.LogError(ex, "EqualsHouseholdCheckedChangedHandler");
             }
-            getAddressStrNow();
-        }
-        /// <summary>
-        /// Quốc gia (chỗ ở hiện nay)
-        /// </summary>
-        /// <param name="value"></param>
-        protected void country2Changed(string value)
-        {
-            EmployeeUpdate.countryCode2 = value;
-            getAddressStrNow();
-        }
-        /// <summary>
-        /// Tỉnh thành (chỗ ở hiện nay)
-        /// </summary>
-        /// <param name="value"></param>
-        protected void province2Changed(string value)
-        {
-            EmployeeUpdate.provinceCode2 = value;
-            getAddressStrNow();
-        }
-        /// <summary>
-        /// Quận huyện (chỗ ở hiện nay)
-        /// </summary>
-        /// <param name="value"></param>
-        protected void district2Changed(string value)
-        {
-            EmployeeUpdate.districtCode2 = value;
-            getAddressStrNow();
-        }
-        /// <summary>
-        /// Xã phường (chỗ ở hiện nay)
-        /// </summary>
-        /// <param name="value"></param>
-        protected void wardCode2Changed(string value) 
-        {
-            EmployeeUpdate.wardCode2 = value;
-            getAddressStrNow();
-        }
-        /// <summary>
-        /// Số nhà đường phố (chỗ ở hiện nay)
-        /// </summary>
-        /// <param name="value"></param>
-        protected void HouseNumber2Changed(string value) 
-        {
-            EmployeeUpdate.houseNumber2 = value;
-            getAddressStrNow();
         }
         #endregion
     }

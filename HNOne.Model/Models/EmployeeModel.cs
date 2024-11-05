@@ -44,9 +44,11 @@ namespace HNOne.Model.Models
         public int positionId { get; set; } // chức vụ
         public int? titleId { get; set; } // chức danh
         public int? managerId { get; set; } // Người quản lý trực tiếp
-        public int? managerId2 { get; set; } // Người quản lý gián tiếp
         public string? managerCode { get; set; } // Người quản lý
         public string? managerName { get; set; } // Người quản lý
+        public int? managerId2 { get; set; } // Người quản lý gián tiếp
+        public string? managerCode2 { get; set; } // Người quản lý
+        public string? managerName2 { get; set; } // Người quản lý
         public int? userSign { get; set; }
         public DateTime? updateDate { get; set; }
         public int? userSign2 { get; set; }
@@ -114,7 +116,7 @@ namespace HNOne.Model.Models
         public string? wardName2 { get; set; } // Tên xã phường
         public string? houseNumber2 { get; set; } // số nhà/ đường/ thôn xóm
         public string? temporaryAddress { get; set; } // địa chỉ tạm trú (Chỗ ở hiện tại)
-        public bool isNum { get; set; }
+        public bool isEqualsHousehold { get; set; } // Giống như hộ khẩu
         #endregion
 
         #region Liên hệ khẩn cấp

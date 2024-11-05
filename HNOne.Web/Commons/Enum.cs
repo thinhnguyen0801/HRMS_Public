@@ -14,14 +14,11 @@
         CapDoNhanVien,
         DanhMucThueTNCN,
         CachTinhLuongPhuCap,
-        TrangThaiHopDong
-    }
-
-    public enum EnumLocation
-    {
+        TrangThaiHopDong,
         County,
         Province,
         District,
-        Ward
+        Ward,
+        QuanHeGiaDinh
     }
 }
