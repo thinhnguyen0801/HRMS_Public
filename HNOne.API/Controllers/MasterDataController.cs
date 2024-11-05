@@ -105,6 +105,9 @@ namespace HNOne.API.Controllers
                     case ProcessConstants.GET_DOCUMENT_NO:
                         response.data = await _masterDataService.GetDocumentNo(request.type, request.opt, request.opt1, request.opt2);
                         break;
+                    case ProcessConstants.GET_LOCATION:
+                        response.data = await _masterDataService.GetLocationData(request.type, request.opt, request.opt1, request.opt2);
+                        break;
                     default:
                         response.status = StatusCodes.Status404NotFound;
                         response.message = $"Process Key {processKey} was not provider!!!";

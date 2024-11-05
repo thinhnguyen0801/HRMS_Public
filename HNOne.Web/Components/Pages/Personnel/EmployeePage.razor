@@ -450,9 +450,10 @@
                                         <div class="d-flex ">
                                             <W1Label Value="Quốc gia" Styles="width: 120px" />
                                             <div style="width: calc(100% - 120px)">
-                                                <DxComboBox Data="@ListCboProvince"
-                                                            @bind-Value="@EmployeeUpdate.countryCode1"
+                                                <DxComboBox Data="@ListCboCountry1"
                                                             FilteringMode="DataGridFilteringMode.Contains"
+                                                            ValueChanged="@((string value)=> country1Changed(value))"
+                                                            Value="@EmployeeUpdate.countryCode1"
                                                             TextFieldName="@nameof(ComboboxModel.name)"
                                                             ValueFieldName="@nameof(ComboboxModel.code)" CssClass="w1FontSize">
                                                 </DxComboBox>
@@ -463,9 +464,10 @@
                                         <div class="d-flex ">
                                             <W1Label Value="Tỉnh thành" Styles="width: 120px" />
                                             <div style="width: calc(100% - 120px)">
-                                                <DxComboBox Data="@ListCboProvince"
-                                                            @bind-Value="@EmployeeUpdate.provinceCode1"
+                                                <DxComboBox Data="@ListCboProvince1"
                                                             FilteringMode="DataGridFilteringMode.Contains"
+                                                            ValueChanged="@((string value)=> province1Changed(value))"
+                                                            Value="@EmployeeUpdate.provinceCode1"
                                                             TextFieldName="@nameof(ComboboxModel.name)"
                                                             ValueFieldName="@nameof(ComboboxModel.code)" CssClass="w1FontSize">
                                                 </DxComboBox>
@@ -476,9 +478,10 @@
                                         <div class="d-flex ">
                                             <W1Label Value="Quận huyện" Styles="width: 120px" />
                                             <div style="width: calc(100% - 120px)">
-                                                <DxComboBox Data="@ListCboProvince"
-                                                            @bind-Value="@EmployeeUpdate.districtCode1"
+                                                <DxComboBox Data="@ListCboDistrict1"
                                                             FilteringMode="DataGridFilteringMode.Contains"
+                                                            ValueChanged="@((string value)=> district1Changed(value))"
+                                                            Value="@EmployeeUpdate.districtCode1"
                                                             TextFieldName="@nameof(ComboboxModel.name)"
                                                             ValueFieldName="@nameof(ComboboxModel.code)" CssClass="w1FontSize">
                                                 </DxComboBox>
@@ -489,9 +492,10 @@
                                         <div class="d-flex ">
                                             <W1Label Value="Phường xã" Styles="width: 120px" />
                                             <div style="width: calc(100% - 120px)">
-                                                <DxComboBox Data="@ListCboProvince"
-                                                            @bind-Value="@EmployeeUpdate.wardCode1"
+                                                <DxComboBox Data="@ListCboWard1"
                                                             FilteringMode="DataGridFilteringMode.Contains"
+                                                            ValueChanged="@((string value)=> wardCode1Changed(value))"
+                                                            Value="@EmployeeUpdate.wardCode1"
                                                             TextFieldName="@nameof(ComboboxModel.name)"
                                                             ValueFieldName="@nameof(ComboboxModel.code)" CssClass="w1FontSize">
                                                 </DxComboBox>
@@ -502,7 +506,8 @@
                                         <div class="d-flex ">
                                             <W1Label Value="Số nhà" Styles="width: 120px" />
                                             <div style="width: calc(100% - 120px)">
-                                                <DxTextBox @bind-Text="@EmployeeUpdate.houseNumber1" CssClass="w1FontSize"></DxTextBox>
+                                                <DxTextBox TextChanged="@((string value) => HouseNumber1Changed(value))"
+                                                          Text="@EmployeeUpdate.houseNumber1" CssClass="w1FontSize"></DxTextBox>
                                             </div>
                                         </div>
                                     </div>
@@ -510,7 +515,7 @@
                                         <div class="d-flex ">
                                             <W1Label Value="Địa chỉ" Styles="width: 120px" />
                                             <div style="width: calc(100% - 120px)">
-                                                <DxTextBox @bind-Text="@EmployeeUpdate.placeOfResidence" CssClass="w1FontSize" ReadOnly="true"></DxTextBox>
+                                                <DxTextBox  @bind-Text="@EmployeeUpdate.placeOfResidence" CssClass="w1FontSize" ReadOnly="true"></DxTextBox>
                                             </div>
                                         </div>
                                     </div>
@@ -561,7 +566,7 @@
                                             <div style="width: calc(100% - 120px)">
                                                 <DxCheckBox CssClass="w-100 w1FontSize"
                                                             SizeMode="@SizeMode.Small"
-                                                            @bind-Checked="@EmployeeUpdate.isNum"
+                                                            CheckedChanged="@((bool value) => CheckedChanged(value))"
                                                             LabelPosition="@LabelPosition.Right">
                                                     Giống hộ khẩu thường trú?
                                                 </DxCheckBox>
@@ -572,9 +577,10 @@
                                         <div class="d-flex ">
                                             <W1Label Value="Quốc gia" Styles="width: 120px" />
                                             <div style="width: calc(100% - 120px)">
-                                                <DxComboBox Data="@ListCboProvince"
-                                                            @bind-Value="@EmployeeUpdate.countryCode2"
+                                                <DxComboBox Data="@ListCboCountry2"
                                                             FilteringMode="DataGridFilteringMode.Contains"
+                                                            ValueChanged="@((string value)=> country2Changed(value))"
+                                                            Value="@EmployeeUpdate.countryCode2"
                                                             TextFieldName="@nameof(ComboboxModel.name)"
                                                             ValueFieldName="@nameof(ComboboxModel.code)" CssClass="w1FontSize">
                                                 </DxComboBox>
@@ -585,9 +591,10 @@
                                         <div class="d-flex ">
                                             <W1Label Value="Tỉnh thành" Styles="width: 120px" />
                                             <div style="width: calc(100% - 120px)">
-                                                <DxComboBox Data="@ListCboProvince"
-                                                            @bind-Value="@EmployeeUpdate.provinceCode2"
+                                                <DxComboBox Data="@ListCboProvince2"
                                                             FilteringMode="DataGridFilteringMode.Contains"
+                                                            ValueChanged="@((string value)=> province2Changed(value))"
+                                                            Value="@EmployeeUpdate.provinceCode2"
                                                             TextFieldName="@nameof(ComboboxModel.name)"
                                                             ValueFieldName="@nameof(ComboboxModel.code)" CssClass="w1FontSize">
                                                 </DxComboBox>
@@ -598,9 +605,10 @@
                                         <div class="d-flex ">
                                             <W1Label Value="Quận huyện" Styles="width: 120px" />
                                             <div style="width: calc(100% - 120px)">
-                                                <DxComboBox Data="@ListCboProvince"
-                                                            @bind-Value="@EmployeeUpdate.districtCode2"
+                                                <DxComboBox Data="@ListCboDistrict2"
                                                             FilteringMode="DataGridFilteringMode.Contains"
+                                                            ValueChanged="@((string value)=> district2Changed(value))"
+                                                            Value="@EmployeeUpdate.districtCode2"
                                                             TextFieldName="@nameof(ComboboxModel.name)"
                                                             ValueFieldName="@nameof(ComboboxModel.code)" CssClass="w1FontSize">
                                                 </DxComboBox>
@@ -611,9 +619,11 @@
                                         <div class="d-flex ">
                                             <W1Label Value="Phường xã" Styles="width: 120px" />
                                             <div style="width: calc(100% - 120px)">
-                                                <DxComboBox Data="@ListCboProvince"
-                                                            @bind-Value="@EmployeeUpdate.wardCode2"
+                                                <DxComboBox Data="@ListCboWard2"
+                                                         
                                                             FilteringMode="DataGridFilteringMode.Contains"
+                                                            ValueChanged="@((string value)=> wardCode2Changed(value))"
+                                                            Value="@EmployeeUpdate.wardCode2"
                                                             TextFieldName="@nameof(ComboboxModel.name)"
                                                             ValueFieldName="@nameof(ComboboxModel.code)" CssClass="w1FontSize">
                                                 </DxComboBox>
@@ -624,7 +634,8 @@
                                         <div class="d-flex ">
                                             <W1Label Value="Số nhà/Đường phố" Styles="width: 120px" />
                                             <div style="width: calc(100% - 120px)">
-                                                <DxTextBox @bind-Text="@EmployeeUpdate.houseNumber1" CssClass="w1FontSize"></DxTextBox>
+                                                <DxTextBox TextChanged="@((string value) => HouseNumber2Changed(value))"
+                                                          Text="@EmployeeUpdate.houseNumber2"  CssClass="w1FontSize"></DxTextBox>
                                             </div>
                                         </div>
                                     </div>
@@ -632,7 +643,7 @@
                                         <div class="d-flex ">
                                             <W1Label Value="Địa chỉ" Styles="width: 120px" />
                                             <div style="width: calc(100% - 120px)">
-                                                <DxTextBox @bind-Text="@EmployeeUpdate.placeOfResidence" CssClass="w1FontSize" ReadOnly="true"></DxTextBox>
+                                                <DxTextBox @bind-Text="@EmployeeUpdate.temporaryAddress" CssClass="w1FontSize" ReadOnly="true"></DxTextBox>
                                             </div>
                                         </div>
                                     </div>
@@ -826,6 +837,7 @@
                         <div id="collapse-7" class="accordion-collapse collapse show" data-bs-parent="#accordion-7">
                             <div class="accordion-body p-2">
                                 <div class="row row-gap-2">
+                                   
                                 </div>
                             </div>
                         </div>

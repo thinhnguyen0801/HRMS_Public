@@ -31,7 +31,15 @@ namespace HNOne.API.Services
         /// <returns></returns>
         public async Task<IEnumerable<ContractModel>> GetContract(RequestModel request)
             => await _personnelRepository.GetContract(request);
+        /// <summary>
+        /// lấy danh sách quan hệ gia đình
+        /// </summary>
+        /// <param name="request"></param>
+        /// <returns></returns>
+        public async Task<IEnumerable<FamilyRelationships>> GetFamilyRelationship(int employeeId)
+            => await _personnelRepository.GetFamilyRelationship(employeeId);
         #endregion
+
 
         #region Command
         public async Task<ResponseModel> UpdateEmployee(string actionType, Employees entity)
@@ -77,6 +85,37 @@ namespace HNOne.API.Services
                         break;
                     case ProcessConstants.PUT_CONTRACT:
                         response = await _personnelRepository.UpdateContract(entity, lstSalaryConfig);
+                        break;
+                }
+                return response;
+            }
+            catch (Exception ex)
+            {
+                response.status = StatusCodes.Status400BadRequest;
+                response.message = ex.Message;
+            }
+            return response;
+        }
+
+        /// <summary>
+        /// cập nhật thông tin mối quan hệ gia đình
+        /// </summary>
+        /// <param name="actionType"></param>
+        /// <param name="entity"></param>
+        /// <param name="lstSalaryConfig"></param>
+        /// <returns></returns>
+        public async Task<ResponseModel> UpdateFamilyRelationship(string actionType, FamilyRelationships entity)
+        {
+            ResponseModel response = new ResponseModel();
+            try
+            {
+                switch (actionType)
+                {
+                    case ProcessConstants.POST_FAMILYRELATIONSHIP:
+                        response = await _personnelRepository.AddFamilyRelationship(entity);
+                        break;
+                    case ProcessConstants.PUT_FAMILYRELATIONSHIP:
+                        response = await _personnelRepository.UpdateFamilyRelationship(entity);
                         break;
                 }
                 return response;

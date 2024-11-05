@@ -785,5 +785,50 @@ namespace HNOne.Web.Services
             }
             catch (Exception) { throw; }
         }
+
+        /// <summary>
+        /// Lấy danh sách Quốc gia, Tỉnh thành, Quận/Huyện, Xã/Phường
+        /// </summary>
+        /// <param name="userId"></param>
+        /// <param name="token"></param>
+        /// <param name="branchId"></param>
+        /// <param name="type"></param>
+        /// <param name="opt"></param>
+        /// <param name="opt1"></param>
+        /// <param name="opt2"></param>
+        /// <returns></returns>
+        public async Task<List<ComboboxModel?>> GetLocationData(int userId, string token, int branchId, string? type, string? opt = "", string? opt1 = "", string? opt2 = "")
+        {
+            try
+            {
+                List<ComboboxModel>? data = null;
+                RequestModel request = new RequestModel();
+                request.process = ProcessConstants.GET_LOCATION;
+                request.userId = userId;
+                request.token = token;
+                request.type = type;
+                request.opt = opt;
+                request.opt1 = opt1;
+                request.opt2 = opt2;
+                HttpResponseMessage httpResponse = await PostAsync(EnpointConstants.MASTERDATA_GET_DATA, request);
+                var checkContent = ValidateJsonContent(httpResponse.Content);
+                if (!checkContent) _toastService.ShowInfo(MessageConstants.MESSAGE_JSON_INVALID);
+                else
+                {
+                    var response = await httpResponse.Content.ReadFromJsonAsync<ResCliModel<ComboboxModel>>();
+                    if (response == null || response.status != StatusCodes.Status200OK)
+                    {
+                        return data;
+                    }
+                    data = response.data?.ToList();
+                }
+                return data;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "GetLocationAsync");
+                throw;
+            }
+        }
     }
 }

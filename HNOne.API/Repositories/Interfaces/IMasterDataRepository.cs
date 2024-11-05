@@ -33,5 +33,6 @@ namespace HNOne.API.Repositories.Interfaces
         Task<ResponseModel> UpdateSalaryConfig(SalaryConfigurations entity);
         Task<ResponseModel> AddSalaryConfig(SalaryConfigurations entity);
         Task<string?> GetDocumentNo(string? type, string? opt = "", string? opt1 = "", string? opt2 = "");
+        Task<IEnumerable<ComboboxModel?>> GetLocationData(string? type, string? opt = "", string? opt1 = "", string? opt2 = "");
     }
 }

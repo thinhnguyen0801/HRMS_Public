@@ -80,6 +80,17 @@ namespace HNOne.API.Repositories
                 return lstResult ?? new List<ContractModel>();
             }    
         }
+
+        /// <summary>
+        /// lấy danh sách mối quan hệ gia đình
+        /// </summary>
+        /// <param name="enumType"></param>
+        /// <returns></returns>
+        public async Task<IEnumerable<FamilyRelationships>> GetFamilyRelationship(int employeeId)
+        {
+            var lstFamilyRelationship = await _dbContext.FamilyRelationships.Where(m => m.EmployeeId == employeeId).ToListAsync();
+            return lstFamilyRelationship;
+        }
         #endregion
 
         #region Command
@@ -184,6 +195,43 @@ namespace HNOne.API.Repositories
                 data.DateTracking = _dateTimeHelper.GetCurrentVietnamTime();
                 data.UpdateDate = _dateTimeHelper.GetCurrentVietnamTime();
                 data.UserSign2 = entity.UserSign2;
+                data.PassportNumber = entity.PassportNumber;
+                data.IssueDatePassport = entity.IssueDatePassport;
+                data.PlaceOfIssuePassport = entity.PlaceOfIssuePassport;
+                data.ExpiryDatePassport = entity.ExpiryDatePassport;
+                data.LevelOfEducationId2 = entity.LevelOfEducationId2;
+                data.EducationalInstitution2 = entity.EducationalInstitution2;
+                data.GraduationYear = entity.GraduationYear;
+                data.Ranking1 = entity.Ranking1;
+                data.Phone3 = entity.Phone3;
+                data.Phone4 = entity.Phone4;
+                data.Email3 = entity.Email3;
+                data.ProvinceCode = entity.ProvinceCode;
+                data.PlaceOfBirth = entity.PlaceOfBirth;
+                data.CountryCode1 = entity.CountryCode1;
+                data.ProvinceCode1 = entity.ProvinceCode1;
+                data.DistrictCode1 = entity.DistrictCode1;
+                data.WardCode1 = entity.WardCode1;
+                data.HouseNumber1 = entity.HouseNumber1;
+                data.PlaceOfResidence = entity.PlaceOfResidence;
+                data.HouseholdRegistrationNumber = entity.HouseholdRegistrationNumber;
+                data.HouseholdNumber = entity.HouseholdNumber;
+                data.CountryCode2 = entity.CountryCode2;
+                data.ProvinceCode2 = entity.ProvinceCode2;
+                data.DistrictCode2 = entity.DistrictCode2;
+                data.WardCode2 = entity.WardCode2;
+                data.HouseNumber2 = entity.HouseNumber2;
+                data.TemporaryAddress = entity.TemporaryAddress;
+                data.FullName1 = entity.FullName1;
+                data.Relationship = entity.Relationship;
+                data.Phone5 = entity.Phone5;
+                data.Phone6 = entity.Phone6;
+                data.Email4 = entity.Email4;
+                data.ContactAddress = entity.ContactAddress;
+                data.LevelCode = entity.LevelCode;
+                data.GradeCode = entity.GradeCode;
+                data.TraineeDate = entity.TraineeDate;
+                data.ProbationStartDate = entity.ProbationStartDate;
                 _dbContext.Employees.Attach(data);
                 _dbContext.Entry(data).State = EntityState.Modified;
                 await _dbContext.SaveChangesAsync();
@@ -324,6 +372,76 @@ namespace HNOne.API.Repositories
                 if (isTrans) await _dbContext.Database.RollbackTransactionAsync();
                 throw;
             }
+        }
+
+        /// <summary>
+        /// Thêm quan hệ gia đình
+        /// </summary>
+        /// <param name="process"></param>
+        /// <param name="entity"></param>
+        /// <returns></returns>
+        public async Task<ResponseModel> AddFamilyRelationship(FamilyRelationships entity)
+        {
+            ResponseModel response = new ResponseModel();
+            try
+            {
+                using (var connection = _dapperDbContext.CreateConnection())
+                {
+                    
+                    entity.Id = await _dbContext.FamilyRelationships.Select(m => m.Id).DefaultIfEmpty().MaxAsync() + 1;
+                    entity.DateTracking = _dateTimeHelper.GetCurrentVietnamTime();
+                    entity.CreateDate = _dateTimeHelper.GetCurrentVietnamTime();
+                    await _dbContext.FamilyRelationships.AddAsync(entity);
+                    await _dbContext.SaveChangesAsync();
+                    response.message = MessageConstants.MESSAGE_ADD_SUCCESS;
+                }
+                return response;
+            }
+            catch (Exception) { throw; }
+        }
+
+        /// <summary>
+        /// Cập nhật quan hệ gia đình
+        /// </summary>
+        /// <param name="process"></param>
+        /// <param name="entity"></param>
+        /// <returns></returns>
+        public async Task<ResponseModel> UpdateFamilyRelationship(FamilyRelationships entity)
+        {
+            ResponseModel response = new ResponseModel();
+            try
+            {
+                var data = await _dbContext.FamilyRelationships.FirstOrDefaultAsync(m => m.Id == entity.Id);
+                if (data == null)
+                {
+                    response.status = StatusCodes.Status404NotFound;
+                    response.message = MessageConstants.MESSAGE_NOT_FOUNT;
+                    return response;
+                }
+                data.Name = entity.Name;
+                data.EmployeeId = entity.EmployeeId;
+                data.Name = entity.Name;
+                data.RelationshipId = entity.RelationshipId;
+                data.DateOfBirth = entity.DateOfBirth;
+                data.PlaceOfBirth = entity.PlaceOfBirth;
+                data.Occupation = entity.Occupation;
+                data.PlaceOfOrigin = entity.PlaceOfOrigin;
+                data.TemporaryAddress = entity.TemporaryAddress;
+                data.ContactAddress = entity.ContactAddress;
+                data.PhoneNumber = entity.PhoneNumber;
+                data.CIC = entity.CIC;
+                data.IssuanceDateCIC = entity.IssuanceDateCIC;
+                data.Remark = entity.Remark;
+                data.DateTracking = _dateTimeHelper.GetCurrentVietnamTime();
+                data.UpdateDate = _dateTimeHelper.GetCurrentVietnamTime();
+                data.UserSign2 = entity.UserSign2;
+                _dbContext.FamilyRelationships.Attach(data);
+                _dbContext.Entry(data).State = EntityState.Modified;
+                await _dbContext.SaveChangesAsync();
+                response.message = MessageConstants.MESSAGE_UPDATE_SUCCESS;
+                return response;
+            }
+            catch (Exception) { throw; }
         }
         #endregion
     }
