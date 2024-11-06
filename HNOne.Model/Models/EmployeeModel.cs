@@ -39,10 +39,7 @@ namespace HNOne.Model.Models
         public string? bankBranch { get; set; } // chi nhánh ngân hàng
         public string? beneficiary { get; set; } // người thụ hưởng
         public string? remark { get; set; } // ghi chú
-        public int branchId { get; set; } // ID chi nhánh
-        public int departmentId { get; set; } // phòng ban
-        public int positionId { get; set; } // chức vụ
-        public int? titleId { get; set; } // chức danh
+        
         public int? managerId { get; set; } // Người quản lý trực tiếp
         public string? managerCode { get; set; } // Người quản lý
         public string? managerName { get; set; } // Người quản lý
@@ -129,6 +126,12 @@ namespace HNOne.Model.Models
         #endregion
 
         #region Thông tin công việc
+        public int? attendanceSheetId { get; set; } // id bảng công
+        public string? attendanceSheetCode { get; set; } // mã chấm công
+        public int branchId { get; set; } // ID chi nhánh
+        public int departmentId { get; set; } // phòng ban
+        public int positionId { get; set; } // chức vụ
+        public int? titleId { get; set; } // chức danh
         public DateTime? traineeDate { get; set; } // Ngày tập sự
         public DateTime? probationStartDate { get; set; } // ngày thử việc
         public DateTime? probationEndDate { get; set; } // ngày kết thúc thử việcs

@@ -40,7 +40,7 @@ namespace HNOne.Web.Services
             catch (Exception) { throw; }
         }
 
-        public async Task<bool> UpdateEmployeeAsync(string processKey, int userId, string token, string json)
+        public async Task<int> UpdateEmployeeAsync(string processKey, int userId, string token, string json)
         {
             try
             {
@@ -53,7 +53,7 @@ namespace HNOne.Web.Services
                 if (httpResponse.StatusCode == System.Net.HttpStatusCode.Unauthorized)
                 {
                     _toastService.ShowInfo(MessageConstants.MESSAGE_LOGIN_EXPIRED);
-                    return false;
+                    return -1;
                 }
                 var checkContent = ValidateJsonContent(httpResponse.Content);
                 if (!checkContent) _toastService.ShowError(MessageConstants.MESSAGE_JSON_INVALID);
@@ -65,11 +65,17 @@ namespace HNOne.Web.Services
                         && response?.status == StatusCodes.Status200OK)
                     {
                         _toastService.ShowSuccess(response.message);
-                        return true;
+                        int.TryParse(response.data?.ToString(), out int result);
+                        return result;
+                    }
+                    if (response?.status == StatusCodes.Status409Conflict)
+                    {
+                        _toastService.ShowInfo(response?.message ?? MessageConstants.MESSAGE_IT_SUPPORT);
+                        return -1;
                     }
                     _toastService.ShowError(response?.message ?? MessageConstants.MESSAGE_IT_SUPPORT);
                 }
-                return false;
+                return -1;
             }
             catch (Exception) { throw; }
         }

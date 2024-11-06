@@ -179,6 +179,8 @@ namespace HNOne.Model.Entities
 
         #region Thông tin công việc
         public int? AttendanceSheetId { get; set; } // ID bảng công
+        [MaxLength(250)]
+        public string? AttendanceSheetCode { get; set; } // ID bảng công
         public int PositionId { get; set; } // chức vụ/vị trí
         public int? TitleId { get; set; } // chức danh
         [MaxLength(50)]

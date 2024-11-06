@@ -121,6 +121,7 @@ namespace HNOne.API.Repositories
                     await _dbContext.Employees.AddAsync(entity);
                     await _dbContext.SaveChangesAsync();
                     response.message = MessageConstants.MESSAGE_ADD_SUCCESS;
+                    response.data = entity.Id;
                 }
                 return response;
             }
@@ -237,10 +238,12 @@ namespace HNOne.API.Repositories
                 data.TraineeDate = entity.TraineeDate;
                 data.ProbationStartDate = entity.ProbationStartDate;
                 data.ManagerId2 = entity.ManagerId2;
+                data.AttendanceSheetCode = entity.AttendanceSheetCode;
                 _dbContext.Employees.Attach(data);
                 _dbContext.Entry(data).State = EntityState.Modified;
                 await _dbContext.SaveChangesAsync();
                 response.message = MessageConstants.MESSAGE_UPDATE_SUCCESS;
+                response.data = entity.Id;
                 return response;
             }
             catch (Exception) { throw; }
@@ -448,6 +451,7 @@ namespace HNOne.API.Repositories
             }
             catch (Exception) { throw; }
         }
+        
         #endregion
     }
 }

@@ -149,7 +149,7 @@ namespace HNOne.API.Controllers
                         response.message = $"Process Key {processKey} was not provider!!!";
                         return Ok(response);
                 }
-                if (!(response.data is IEnumerable<object> dataList) || dataList.IsNullOrEmpty())
+                if ((response.data is IEnumerable<object> dataList) && dataList.IsNullOrEmpty())
                 {
                     response.status = StatusCodes.Status204NoContent;
                     response.message = "Không tìm thấy dữ liệu!!!";

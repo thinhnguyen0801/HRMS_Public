@@ -409,9 +409,11 @@ namespace HNOne.Web.Controllers
                 EmployeeUpdate.userSign = UserId;
                 EmployeeUpdate.userSign2 = UserId;
                 string content = JsonConvert.SerializeObject(EmployeeUpdate);
-                isConfirm = await _personnelService.UpdateEmployeeAsync(processKey, UserId, Token, content);
-                if (isConfirm)
+                int result = await _personnelService.UpdateEmployeeAsync(processKey, UserId, Token, content);
+                if (result > 0)
                 {
+                    pActionType = nameof(EnumType.Update);
+                    pDocEntry = result;
                     await showVoucher();
                 }
             }
