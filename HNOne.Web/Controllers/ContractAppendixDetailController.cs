@@ -24,10 +24,12 @@ namespace HNOne.Web.Controllers
         public string? pActionType { get; set; } = nameof(EnumType.Add);
         private int pDocEntry { get; set; } = 0;
         public bool IsReadonlyControl { get; set; } = false;
+        public bool firstRender = true;
         public ContractAppendixModel ContractDocument { get; set; } = new ContractAppendixModel();
         public List<SalaryConfigurationModel>? ListSalaryInfoConfig { get; set; } // danh sách thông tin lương
         public IGrid? GridSalaryInfoConfig { get; set; }
 
+        public List<ComboboxModel>? ListCboContract { get; set; } // cbo ds hợp hợp đồng của nhân viên
         public List<ComboboxModel>? ListCboDepartment { get; set; } // cbo ds phòng ban
         public List<ComboboxModel>? ListCboPosition { get; set; } // cbo ds chức vụ
         public List<ComboboxModel>? ListCboTitle { get; set; } // cbo ds chức danh
@@ -48,12 +50,13 @@ namespace HNOne.Web.Controllers
             {
                 try
                 {
+                    this.firstRender = firstRender;
                     await ShowLoading();
                     await initDataAsync();
                     await buildComboAsync();
                     if(pDocEntry > 0)
                     {
-                        //await showVoucher();
+                        await showVoucher();
                     }    
                 }
                 catch (Exception ex)
@@ -63,6 +66,7 @@ namespace HNOne.Web.Controllers
                 }
                 finally
                 {
+                    this.firstRender = false;
                     await ShowLoading(false);
                     await InvokeAsync(StateHasChanged);
                 }
@@ -162,6 +166,77 @@ namespace HNOne.Web.Controllers
             }
         }
 
+        private void validateForSalaryAdjustment(ref string errorMessage, ref string fieldName)
+        {
+            if (string.IsNullOrEmpty(ContractDocument.employeeCode))
+            {
+                errorMessage = string.Format(MessageConstants.MESSAGE_COMBOBOX_REQUIRE, "Nhân viên");
+                fieldName = nameof(ContractDocument.employeeCode);
+                return;
+            }
+            if (string.IsNullOrEmpty(ContractDocument.contractCode))
+            {
+                errorMessage = string.Format(MessageConstants.MESSAGE_COMBOBOX_REQUIRE, "Hợp đồng");
+                fieldName = nameof(ContractDocument.contractCode);
+                return;
+            }
+            if (string.IsNullOrEmpty(ContractDocument.employeeSignatureCode))
+            {
+                errorMessage = string.Format(MessageConstants.MESSAGE_COMBOBOX_REQUIRE, "Người ký");
+                fieldName = nameof(ContractDocument.employeeSignatureCode);
+                return;
+            }
+        }
+
+        private void validateForSave(ref string errorMessage, ref string fieldName)
+        {
+            validateForSalaryAdjustment(ref errorMessage, ref fieldName);
+            if(string.IsNullOrEmpty(errorMessage) 
+                && ContractDocument.isSalaryAdjustment)
+            {
+                if (ListSalaryInfoConfig.IsNullOrEmpty())
+                {
+                    errorMessage = "Không tìm thấy thông tin cấu hình lương. Vui lòng làm mới lại trang!!!";
+                    fieldName = "gridSalary";
+                    return;
+                }
+                if (string.IsNullOrEmpty(ContractDocument.taxTypeCode))
+                {
+                    errorMessage = string.Format(MessageConstants.MESSAGE_COMBOBOX_REQUIRE, "Loại tính thuế TNCN");
+                    fieldName = nameof(ContractDocument.taxTypeCode);
+                    return;
+                }
+                if (ContractDocument.deductionDate == null)
+                {
+                    errorMessage = string.Format(MessageConstants.MESSAGE_COMBOBOX_REQUIRE, "Ngày bắt đầu trích nộp");
+                    fieldName = nameof(ContractDocument.deductionDate);
+                    return;
+                }
+                if (ContractDocument.deductionDate.Value.Day != 1)
+                {
+                    errorMessage = $"[Ngày bắt đầu trích nộp] phải là ngày đầu tháng";
+                    fieldName = nameof(ContractDocument.deductionDate);
+                    return;
+                }
+            }    
+        }
+
+        /// <summary>
+        /// lấy danh sách hợp đồng của nhân viên được chọn
+        /// </summary>
+        /// <returns></returns>
+        private async Task getContractByEmpId(int emloyeeId)
+        {
+            RequestModel request = new RequestModel();
+            request.userId = UserId;
+            request.token = Token;
+            request.branchId = BranchId;
+            request.type = ProcessConstants.GET_COMBO_TYPE_CONTRACT_BY_EMPLOYEEID;
+            request.opt = emloyeeId.ToString();
+            ListCboContract = new List<ComboboxModel>();
+            ListCboContract = await _masterDataService.GetMasterDataAsync<ComboboxModel>(request);
+        }
+
         #endregion
 
         #region Protected Functions
@@ -209,6 +284,10 @@ namespace HNOne.Web.Controllers
                 switch (pPopupType)
                 {
                     case nameof(ContractDocument.employeeCode):
+                        // lấy danh sách hợp đồng theo nhân viên
+                        await ShowLoading();
+                        await Task.Delay(75);
+                        await getContractByEmpId(employee.id); // lấy hợp đồng
                         ContractDocument.employeeId = employee.id;
                         ContractDocument.employeeCode = employee.code;
                         ContractDocument.employeeName = employee.name;
@@ -243,9 +322,150 @@ namespace HNOne.Web.Controllers
         /// <param name="lstEmp"></param>
         protected void EventCallbackEmpChangedHandler(object? lstEmp) => EmployeeSelected = lstEmp;
 
+        /// <summary>
+        /// lưu thông tin phụ lục hợp đồng
+        /// </summary>
+        /// <returns></returns>
         protected async Task SaveDataHandler()
         {
+            try
+            {
+                string errorMessage = string.Empty;
+                string fieldName = string.Empty; // trả ra trường nào cần validate
+                validateForSave(ref errorMessage, ref fieldName);
+                if (!string.IsNullOrEmpty(errorMessage))
+                {
+                    ShowWarning(errorMessage);
+                    await _jsRuntime.InvokeVoidAsync("focusInput", fieldName);
+                    return;
+                }
+                bool isConfirm = true;
+                errorMessage = pActionType == nameof(EnumType.Add) ? MessageConstants.MESSAGE_CONFIRM_ADD : MessageConstants.MESSAGE_CONFIRM_UPDATE;
+                isConfirm = await confirm.SetConfirm(MessageConstants.MESSAGE_TITLE, errorMessage);
+                if (!isConfirm) return;
+                await ShowLoading();
+                string processKey = pActionType == nameof(EnumType.Add) ? ProcessConstants.POST_CONTRACT_APPENDIX : ProcessConstants.PUT_CONTRACT_APPENDIX;
+                int contractId = ListCboContract?.FirstOrDefault(m => m.code == ContractDocument.contractCode)?.id ?? -1;
+                ContractDocument.contractId = contractId;
+                ContractDocument.branchId = BranchId;
+                ContractDocument.userSign = UserId;
+                ContractDocument.userSign2 = UserId;
+                string json = JsonConvert.SerializeObject(ContractDocument);
+                string jsonDetail = string.Empty;
+                if (ContractDocument.isSalaryAdjustment) jsonDetail = JsonConvert.SerializeObject(ListSalaryInfoConfig);
+                int result = await _personnelService.UpdateContractAsync(processKey, UserId, Token, BranchId, json, jsonDetail);
+                if (result > 0)
+                {
+                    pActionType = nameof(EnumType.Update);
+                    pDocEntry = result;
+                    await showVoucher();
+                }
+            }
+            catch (Exception ex)
+            {
+                ShowError(ex.Message);
+                _logger.LogError(ex, "SaveDataHandler");
+            }
+            finally
+            {
+                await ShowLoading(false);
+                await InvokeAsync(StateHasChanged);
+            }
+        }
 
+        /// <summary>
+        /// check điều chỉnh lương
+        /// </summary>
+        /// <param name="value"></param>
+        /// <returns></returns>
+        protected async Task SalaryAdjustmentCheckedChangedHandler(bool value)
+        {
+            try
+            {
+                if (firstRender) return;
+                if (!value)
+                {
+                    ContractDocument.isSalaryAdjustment = value;
+                    return;
+                }
+                string errorMessage = string.Empty;
+                string fieldName = string.Empty; // trả ra trường nào cần validate
+                validateForSalaryAdjustment(ref errorMessage, ref fieldName);
+                if (!string.IsNullOrEmpty(errorMessage))
+                {
+                    ShowWarning(errorMessage);
+                    await _jsRuntime.InvokeVoidAsync("focusInput", fieldName);
+                    return;
+                }
+                await ShowLoading();
+                await Task.Delay(75);
+                ContractDocument.salaryCoefficient = 0;
+                ContractDocument.totalSalary = 0;
+                ContractDocument.netSalary = 0;
+                ContractDocument.isSalaryAdjustment = value;
+                int contractId = ListCboContract?.FirstOrDefault(m => m.code == ContractDocument.contractCode)?.id ?? -1;
+                RequestModel request = new RequestModel();
+                request.userId = UserId;
+                request.token = Token;
+                request.branchId = BranchId;
+                request.type = ProcessConstants.GET_COMBO_TYPE_SALARY_ADJUSTMENT_BY_CONTRACT;
+                request.opt = contractId.ToString();
+                ListSalaryInfoConfig = new List<SalaryConfigurationModel>();
+                ListSalaryInfoConfig = await _masterDataService.GetMasterDataAsync<SalaryConfigurationModel>(request, isShowToast: true);
+                if(!ListSalaryInfoConfig.IsNullOrEmpty())
+                {
+                    ContractDocument.salaryCoefficient = ListSalaryInfoConfig![0].overtimeCoefficient;
+                    calcTotalSalary();
+                }    
+            }
+            catch (Exception ex)
+            {
+                ShowError(ex.Message);
+                _logger.LogError(ex, "SalaryAdjustmentCheckedChangedHandler");
+            }
+            finally
+            {
+                await ShowLoading(false);
+                await InvokeAsync(StateHasChanged);
+            }
+        }
+
+        protected async Task ComboboxValueChangedHandler(object? value
+            , string controlID = nameof(ContractDocument.contractCode))
+        {
+            try
+            {
+                if (firstRender) return;
+                switch (controlID)
+                {
+                    case nameof(ContractDocument.contractCode):
+                        ContractDocument.contractCode = value?.ToString();
+                        ListSalaryInfoConfig = new List<SalaryConfigurationModel>();
+                        ContractDocument.isSalaryAdjustment = false;
+                        break;
+                    default:
+                        break;
+                }    
+            }
+            catch (Exception ex)
+            {
+                ShowError(ex.Message);
+                _logger.LogError(ex, "ComboboxValueChangedHandler");
+            }
+            finally
+            {
+                await ShowLoading(false);
+                await InvokeAsync(StateHasChanged);
+            }
+        }
+
+        protected void GridSalaryInfoConfigEditSavingHandler(GridEditModelSavingEventArgs e)
+        {
+            var itemEdit = (SalaryConfigurationModel)e.EditModel;
+            var itemFind = ListSalaryInfoConfig?.FirstOrDefault(m => m.id == itemEdit.id);
+            if (itemFind == null) return;
+            itemFind.amount = itemEdit.amount;
+            calcTotalSalary();
         }
         #endregion
     }

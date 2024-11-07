@@ -1,6 +1,7 @@
 ﻿using HNOne.Model;
 using HNOne.Model.Entities;
 using HNOne.Model.Models;
+using System.Data;
 
 namespace HNOne.API.Services.Interfaces
 {
@@ -26,5 +27,6 @@ namespace HNOne.API.Services.Interfaces
         Task<ResponseModel> UpdateSalaryConfig(string actionType, SalaryConfigurations entity);
         Task<string?> GetDocumentNo(string? type, string? opt = "", string? opt1 = "", string? opt2 = "");
         Task<IEnumerable<ComboboxModel?>> GetLocationData(string? type, string? opt = "", string? opt1 = "", string? opt2 = "");
+        Task<IEnumerable<dynamic>?> GetMasterData(RequestModel request);
     }
 }

@@ -57,5 +57,14 @@
         public const string GET_INSURANCE = "get-insurance";
         public const string POST_INSURANCE = "post-insurance";
         public const string PUT_INSURANCE = "put-insurance";
+        public const string GET_COMBO_MASTER_DATA = "get-combo-master-data";
+        public const string GET_CONTRACT_APPENDIX = "get-contract-appendix";
+        public const string POST_CONTRACT_APPENDIX = "post-contract-appendix";
+        public const string PUT_CONTRACT_APPENDIX = "put-contract-appendix";
+
+        #region Loại dưới store
+        public const string GET_COMBO_TYPE_CONTRACT_BY_EMPLOYEEID = "CONTRACT_BY_EMPLOYEEID";
+        public const string GET_COMBO_TYPE_SALARY_ADJUSTMENT_BY_CONTRACT = "SALARY_ADJUSTMENT_BY_CONTRACT";
+        #endregion
     }
 }

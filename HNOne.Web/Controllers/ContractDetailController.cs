@@ -167,6 +167,12 @@ namespace HNOne.Web.Controllers
 
         private void validateForSave(ref string errorMessage, ref string fieldName)
         {
+            if(ListSalaryInfoConfig.IsNullOrEmpty())
+            {
+                errorMessage = "Không tìm thấy thông tin cấu hình lương. Vui lòng làm mới lại trang!!!";
+                fieldName = "gridSalary";
+                return;
+            }    
             if (ContractDocument.contractTypeId < 1)
             {
                 errorMessage = string.Format(MessageConstants.MESSAGE_COMBOBOX_REQUIRE, "Loại hợp đồng");

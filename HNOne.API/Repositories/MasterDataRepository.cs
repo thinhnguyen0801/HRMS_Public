@@ -7,8 +7,6 @@ using HNOne.Model;
 using HNOne.Model.Entities;
 using HNOne.Model.Models;
 using Microsoft.EntityFrameworkCore;
-using System;
-using System.Collections.Generic;
 using System.Data;
 
 namespace HNOne.API.Repositories
@@ -208,6 +206,29 @@ namespace HNOne.API.Repositories
                 return dt;
 
             };
+        }
+        
+        /// <summary>
+        /// lấy danh mục master data
+        /// </summary>
+        /// <param name="request"></param>
+        /// <returns></returns>
+        public async Task<IEnumerable<dynamic>?> GetMasterData(RequestModel request)
+        {
+            using (var connection = _dapperDbContext.CreateConnection())
+            {
+                var parameters = new DynamicParameters();
+                parameters.Add("@UserId", request.userId, DbType.Int32);
+                parameters.Add("@BranchId", request.branchId, DbType.Int32);
+                parameters.Add("@Type", request.type, DbType.String);
+                parameters.Add("@Opt", $"{request.opt}", DbType.String);
+                parameters.Add("@Opt1", $"{request.opt1}", DbType.String);
+                parameters.Add("@Opt2", $"{request.opt2}", DbType.String);
+                parameters.Add("@Opt3", $"{request.opt3}", DbType.String);
+                var results = await connection.QueryAsync(StoreConstants.STORE_H1_MASTER_DATA_SELECT, parameters
+                    , commandTimeout: GlobalConstants.COMMAND_TIMEOUT, commandType: CommandType.StoredProcedure);
+                return results;
+            }    
         }
         #endregion 
 

@@ -318,6 +318,7 @@ namespace HNOne.API.Repositories
                         {
                             m.Id = 0;
                             m.ContractId = entity.Id;
+                            m.ContractAppendixId = -1;
                             m.BranchId = entity.BranchId;
                             m.EmployeeId = entity.EmployeeId;
                             m.UpdateDate = null;
@@ -341,6 +342,12 @@ namespace HNOne.API.Repositories
 
         }
 
+        /// <summary>
+        /// cập nhật thông tin phụ lục hợp đồng
+        /// </summary>
+        /// <param name="entity"></param>
+        /// <param name="lstSalaryConfig"></param>
+        /// <returns></returns>
         public async Task<ResponseModel> UpdateContract(Contracts entity, IEnumerable<SalaryAdjustments>? lstSalaryConfig)
         {
             bool isTrans = false;
@@ -401,6 +408,142 @@ namespace HNOne.API.Repositories
                         _dbContext.SalaryAdjustments.Attach(dataSalary);
                         _dbContext.Entry(dataSalary).State = EntityState.Modified;
                     }    
+                }
+                await _dbContext.SaveChangesAsync();
+                await _dbContext.Database.CommitTransactionAsync();
+                response.message = MessageConstants.MESSAGE_UPDATE_SUCCESS;
+                response.data = data.Id;
+                return response;
+            }
+            catch (Exception)
+            {
+                if (isTrans) await _dbContext.Database.RollbackTransactionAsync();
+                throw;
+            }
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="entity"></param>
+        /// <param name="lstSalaryConfig"></param>
+        /// <returns></returns>
+        public async Task<ResponseModel> AddContractAppendix(ContractAppendices entity, IEnumerable<SalaryAdjustments>? lstSalaryConfig)
+        {
+            bool isTrans = false;
+            ResponseModel response = new ResponseModel();
+            try
+            {
+                using (var connection = _dapperDbContext.CreateConnection())
+                {
+                    DateTime dateTimeNow = _dateTimeHelper.GetCurrentVietnamTime();
+                    DynamicParameters parameters = new DynamicParameters();
+                    bool isResult = true;
+                    isResult = await _dbContext.ContractAppendices.FirstOrDefaultAsync(m => m.ContractCode == entity.ContractCode && m.ContractAppendixCode == entity.ContractAppendixCode) != null;
+                    if (isResult)
+                    {
+                        response.status = StatusCodes.Status409Conflict;
+                        response.message = "Số phụ lục hợp đồng đã tồn tại!";
+                        return response;
+                    }
+                    entity.Id = await _dbContext.ContractAppendices.Select(m => m.Id).DefaultIfEmpty().MaxAsync() + 1;
+                    entity.DateTracking = dateTimeNow;
+                    entity.CreateDate = dateTimeNow;
+                    await _dbContext.Database.BeginTransactionAsync();
+                    isTrans = true;
+                    await _dbContext.ContractAppendices.AddAsync(entity);
+                    // Thêm thông tin lương
+                    if (!lstSalaryConfig.IsNullOrEmpty())
+                    {
+                        lstSalaryConfig = lstSalaryConfig!.Update(m =>
+                        {
+                            m.Id = 0;
+                            m.ContractId = entity.ContractId;
+                            m.ContractAppendixId = entity.Id;
+                            m.BranchId = entity.BranchId;
+                            m.EmployeeId = entity.EmployeeId;
+                            m.UpdateDate = null;
+                            m.CreateDate = dateTimeNow;
+                            m.DateTracking = dateTimeNow;
+                        });
+                        await _dbContext.SalaryAdjustments.AddRangeAsync(lstSalaryConfig!);
+                    }
+                    await _dbContext.SaveChangesAsync();
+                    await _dbContext.Database.CommitTransactionAsync();
+                    response.message = MessageConstants.MESSAGE_ADD_SUCCESS;
+                    response.data = entity.Id; // nhã ra mã số phụ lục hợp đồng
+                }
+                return response;
+            }
+            catch (Exception)
+            {
+                if (isTrans) await _dbContext.Database.RollbackTransactionAsync();
+                throw;
+            }
+
+        }
+
+        public async Task<ResponseModel> UpdateContractAppendix(ContractAppendices entity, IEnumerable<SalaryAdjustments>? lstSalaryConfig)
+        {
+            bool isTrans = false;
+            ResponseModel response = new ResponseModel();
+            try
+            {
+                var data = await _dbContext.ContractAppendices.FirstOrDefaultAsync(m => m.Id == entity.Id);
+                if (data == null)
+                {
+                    response.status = StatusCodes.Status404NotFound;
+                    response.message = MessageConstants.MESSAGE_NOT_FOUNT;
+                    return response;
+                }
+                DateTime dateTimeNow = _dateTimeHelper.GetCurrentVietnamTime();
+                data.EmployeeId = entity.EmployeeId;
+                data.TimesheetId = entity.TimesheetId;
+                data.DateOfSigning = entity.DateOfSigning;
+                data.EffectiveDate = entity.EffectiveDate;
+                data.DeductionDate = entity.DeductionDate;
+                data.EmployeeSignatureId = entity.EmployeeSignatureId;
+                data.DepartmentId = entity.DepartmentId;
+                data.PositionId = entity.PositionId;
+                data.TitleId = entity.TitleId;
+                data.Remark = entity.Remark;
+                data.ContractNumber = entity.ContractNumber;
+                data.StatusCode = entity.StatusCode;
+                data.AuthorizationLetter = entity.AuthorizationLetter;
+                data.IsSalaryAdjustment = entity.IsSalaryAdjustment;
+                data.TaxTypeCode = entity.TaxTypeCode;
+                data.SalaryCoefficient = entity.SalaryCoefficient;
+                data.TotalSalary = entity.TotalSalary;
+                data.NetSalary = entity.NetSalary;
+                data.DecisionNo = entity.DecisionNo;
+                data.PlaceOfWorkId = entity.PlaceOfWorkId;
+                data.IsActive = entity.IsActive;
+                data.IsCompanyDeduction = entity.IsCompanyDeduction;
+                data.IsCompanyInsurance = entity.IsCompanyInsurance;
+                data.DateTracking = dateTimeNow;
+                data.UpdateDate = dateTimeNow;
+                data.UserSign2 = entity.UserSign2;
+                await _dbContext.Database.BeginTransactionAsync();
+                isTrans = true;
+                _dbContext.ContractAppendices.Attach(data);
+                _dbContext.Entry(data).State = EntityState.Modified;
+                // Nếu có điều chỉnh lương
+                if (!lstSalaryConfig.IsNullOrEmpty())
+                {
+                    foreach (var item in lstSalaryConfig!)
+                    {
+                        var dataSalary = await _dbContext.SalaryAdjustments.FirstOrDefaultAsync(m => m.Id == item.Id);
+                        if (dataSalary == null) continue;
+                        dataSalary.BranchId = entity.BranchId;
+                        dataSalary.EmployeeId = entity.EmployeeId;
+                        dataSalary.Amount = item.Amount;
+                        dataSalary.SalaryCoefficient = item.SalaryCoefficient;
+                        dataSalary.DateTracking = dateTimeNow;
+                        dataSalary.UpdateDate = dateTimeNow;
+                        dataSalary.UserSign2 = entity.UserSign2;
+                        _dbContext.SalaryAdjustments.Attach(dataSalary);
+                        _dbContext.Entry(dataSalary).State = EntityState.Modified;
+                    }
                 }
                 await _dbContext.SaveChangesAsync();
                 await _dbContext.Database.CommitTransactionAsync();

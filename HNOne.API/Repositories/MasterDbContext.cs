@@ -28,6 +28,7 @@ namespace HNOne.API.Repositories
         public DbSet<Insurances> Insurances { get; set; }
         public DbSet<PermissionGroups> PermissionGroups { get; set; }
         public DbSet<EventConfigurations> EventConfigurations { get; set; }
+        public DbSet<ContractAppendices> ContractAppendices { get; set; }
 
         public MasterDbContext(DbContextOptions<MasterDbContext> options)
             : base(options)

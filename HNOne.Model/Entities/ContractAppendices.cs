@@ -8,7 +8,7 @@ namespace HNOne.Model.Entities
     /// Bảng phụ lục hợp đồng
     /// </summary>
     [Table("ContractAppendices")]
-    public sealed class ContractAppendices
+    public sealed class ContractAppendices : Auditable
     {
         [Key]
         [DatabaseGenerated(DatabaseGeneratedOption.None)] // Không tự tăng
@@ -19,11 +19,13 @@ namespace HNOne.Model.Entities
         public int TimesheetId { get; set; } // ID bảng công
         [MaxLength(250)]
         public string? ContractCode { get; set; } // số hợp đồng
+        [MaxLength(250)]
+        public string? ContractAppendixCode { get; set; } // số phụ lục hợp đồng
         public DateTime? DateOfSigning { get; set; } // Ngày kí
         public DateTime? EffectiveDate { get; set; } // Ngày áp dụng phụ lục
         public DateTime? DeductionDate { get; set; } // Ngày trích nộp
         public int EmployeeSignatureId { get; set; } // nhân viên kí
-        public int DepartmentId { get; set; } // chức vụ
+        public int DepartmentId { get; set; } // phòng ban
         public int PositionId { get; set; } // chức vụ
         public int TitleId { get; set; } // chức danh
         public int PlaceOfWorkId { get; set; } // nơi làm việc

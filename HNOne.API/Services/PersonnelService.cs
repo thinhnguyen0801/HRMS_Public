@@ -145,6 +145,37 @@ namespace HNOne.API.Services
         /// <returns></returns>
         public async Task<ResponseModel> UpdateInsurance(string actionType, Insurances entity)
             => await _personnelRepository.UpdateInsurance(actionType, entity);
+
+        /// <summary>
+        /// cập nhật thông tin hợp đồng
+        /// </summary>
+        /// <param name="actionType"></param>
+        /// <param name="entity"></param>
+        /// <param name="lstSalaryConfig"></param>
+        /// <returns></returns>
+        public async Task<ResponseModel> UpdateContractAppendix(string actionType, ContractAppendices entity, IEnumerable<SalaryAdjustments>? lstSalaryConfig)
+        {
+            ResponseModel response = new ResponseModel();
+            try
+            {
+                switch (actionType)
+                {
+                    case ProcessConstants.POST_CONTRACT_APPENDIX:
+                        response = await _personnelRepository.AddContractAppendix(entity, lstSalaryConfig);
+                        break;
+                    case ProcessConstants.PUT_CONTRACT_APPENDIX:
+                        response = await _personnelRepository.UpdateContractAppendix(entity, lstSalaryConfig);
+                        break;
+                }
+                return response;
+            }
+            catch (Exception ex)
+            {
+                response.status = StatusCodes.Status400BadRequest;
+                response.message = ex.Message;
+            }
+            return response;
+        }
         #endregion
     }
 }

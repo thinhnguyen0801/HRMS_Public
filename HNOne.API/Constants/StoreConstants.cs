@@ -7,5 +7,6 @@
         public const string STORE_H1_CONTRACT_SELECT = "[dbo].[H1_CONTRACT_SELECT]";
         public const string STORE_H1_MENU_SELECT = "[dbo].[H1_MENU_SELECT]";
         public const string STORE_H1_LOCATIONDATA_SELECT = "[dbo].[H1_LOCATIONDATA_SELECT]";
+        public const string STORE_H1_MASTER_DATA_SELECT = "[dbo].[H1_MASTER_DATA_SELECT]";
     }
 }

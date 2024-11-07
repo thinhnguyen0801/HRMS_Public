@@ -690,7 +690,7 @@ namespace HNOne.Web.Services
             catch (Exception ex)
             {
                 _logger.LogError(ex, "GetSalaryCatagoryAsync");
-                throw ex;
+                throw;
             }
         }
 
@@ -827,6 +827,40 @@ namespace HNOne.Web.Services
             catch (Exception ex)
             {
                 _logger.LogError(ex, "GetLocationAsync");
+                throw;
+            }
+        }
+
+        /// <summary>
+        /// lấy danh sách com dưới sql server
+        /// </summary>
+        /// <param name="request"></param>
+        /// <returns></returns>
+        public async Task<List<T>?> GetMasterDataAsync<T>(RequestModel request, bool isShowToast = false) where T : class
+        {
+
+            try
+            {
+                List<T>? data = null;
+                request.process = ProcessConstants.GET_COMBO_MASTER_DATA;
+                HttpResponseMessage httpResponse = await PostAsync(EnpointConstants.MASTERDATA_GET_DATA, request);
+                var checkContent = ValidateJsonContent(httpResponse.Content);
+                if (!checkContent) _toastService.ShowInfo(MessageConstants.MESSAGE_JSON_INVALID);
+                else
+                {
+                    var response = await httpResponse.Content.ReadFromJsonAsync<ResCliModel<T>>();
+                    if (response == null || response.status != StatusCodes.Status200OK)
+                    {
+                        if (isShowToast) _toastService.ShowWarning(response?.message ?? MessageConstants.MESSAGE_IT_SUPPORT);
+                        return data;
+                    }
+                    data = response.data?.ToList();
+                }
+                return data;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "GetMenuAsync");
                 throw;
             }
         }

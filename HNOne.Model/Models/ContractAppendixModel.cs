@@ -1,14 +1,11 @@
 ﻿
 
-using System.ComponentModel.DataAnnotations.Schema;
-using System.ComponentModel.DataAnnotations;
-
 namespace HNOne.Model.Models
 {
     /// <summary>
     /// Model dành cho phụ lục hợp đồng
     /// </summary>
-    public class ContractAppendixModel
+    public class ContractAppendixModel : AuditableModel
     {
         public int id { get; set; }
         public int contractId { get; set; } // hợp đồng
@@ -18,6 +15,7 @@ namespace HNOne.Model.Models
         public int branchId { get; set; }
         public int timesheetId { get; set; } // ID bảng công
         public string? contractCode { get; set; } // số hợp đồng
+        public string? contractAppendixCode { get; set; } // số phụ lục
         public DateTime? dateOfSigning { get; set; } // Ngày kí
         public DateTime? effectiveDate { get; set; } // Ngày áp dụng phụ lục
         public DateTime? deductionDate { get; set; } // Ngày trích nộp

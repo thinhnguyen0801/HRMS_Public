@@ -4,6 +4,7 @@ using HNOne.Common;
 using HNOne.Model;
 using HNOne.Model.Entities;
 using HNOne.Model.Models;
+using System.Data;
 
 namespace HNOne.API.Services
 {
@@ -85,6 +86,9 @@ namespace HNOne.API.Services
         /// <returns></returns>
         public async Task<IEnumerable<ComboboxModel?>> GetLocationData(string? type, string? opt = "", string? opt1 = "", string? opt2 = "")
             => await _masterRepository.GetLocationData(type, opt, opt1, opt2);
+
+        public async Task<IEnumerable<dynamic>?> GetMasterData(RequestModel request)
+            => await _masterRepository.GetMasterData(request);
         #endregion
 
         #region Command

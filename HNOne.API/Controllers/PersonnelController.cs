@@ -103,6 +103,13 @@ namespace HNOne.API.Controllers
                         var insurance = JsonConvert.DeserializeObject<Insurances>($"{request.json}");
                         response = await _personnelService.UpdateInsurance(processKey, insurance!);
                         break;
+                    case ProcessConstants.POST_CONTRACT_APPENDIX:
+                    case ProcessConstants.PUT_CONTRACT_APPENDIX:
+                        var contractAppendix = JsonConvert.DeserializeObject<ContractAppendices>($"{request.json}");
+                        List<SalaryAdjustments>? lstSalaryAppendix = null;
+                        if(!string.IsNullOrEmpty(request.jsonDetail)) lstSalaryAppendix = JsonConvert.DeserializeObject<List<SalaryAdjustments>>($"{request.jsonDetail}");
+                        response = await _personnelService.UpdateContractAppendix(processKey, contractAppendix!, lstSalaryAppendix);
+                        break;
                     default:
                         response.status = StatusCodes.Status404NotFound;
                         response.message = $"Process Key {processKey} was not provider!!!";
