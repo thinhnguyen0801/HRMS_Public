@@ -6,7 +6,7 @@
          ShowFooter="IsShowFooter"
          Width="@Width"
          CssClass="w1FontSize"
-         BodyCssClass="p-2"
+         BodyCssClass="w1FontSize p-2"
          HeaderCssClass="w1FontSize py-0"
          FooterCssClass="w1FontSize py-0"
          HeaderText="@HeaderText">
@@ -14,8 +14,8 @@
         @ChildContent
     </BodyContentTemplate>
     <FooterContentTemplate Context="Context">
-        <DxButton CssClass="popup-button my-1 ms-2" RenderStyle="ButtonRenderStyle.Primary" Text="@TextBtnAccept" Click="@HandleClickAccept" />
-        <DxButton CssClass="popup-button my-1 ms-2" RenderStyle="ButtonRenderStyle.Secondary" Text="Hủy" Click="@CloseClick" />
+        <DxButton CssClass="popup-button my-1 ms-2 w1FontSize" RenderStyle="ButtonRenderStyle.Primary" Text="@TextBtnAccept" Click="@HandleClickAccept" />
+        <DxButton CssClass="popup-button my-1 ms-2 w1FontSize" RenderStyle="ButtonRenderStyle.Secondary" Text="Hủy" Click="@CloseClick" />
     </FooterContentTemplate>
 </DxPopup>
 

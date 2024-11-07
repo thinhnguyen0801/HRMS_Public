@@ -94,7 +94,7 @@ namespace HNOne.API.Controllers
                         response.data = await _masterDataService.GetReasonCategorie(request);
                         break;
                     case ProcessConstants.GET_ENUM:
-                        response.data = await _masterDataService.GetEnum($"{request.opt}");
+                        response.data = await _masterDataService.GetEnum(request);
                         break;
                     case ProcessConstants.GET_SALARY_CATEGORY:
                         response.data = await _masterDataService.GetSalaryCatagory(request);

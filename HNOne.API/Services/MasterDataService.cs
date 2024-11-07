@@ -4,7 +4,6 @@ using HNOne.Common;
 using HNOne.Model;
 using HNOne.Model.Entities;
 using HNOne.Model.Models;
-using static Dapper.SqlMapper;
 
 namespace HNOne.API.Services
 {
@@ -25,7 +24,6 @@ namespace HNOne.API.Services
         /// </summary>
         public async Task<IEnumerable<MenuModel>> GetMenu(RequestModel request)
             => await _masterRepository.GetMenu(request);
-
 
         /// <summary>
         /// lấy ra danh sách chi nhánh
@@ -53,8 +51,8 @@ namespace HNOne.API.Services
         public async Task<IEnumerable<ReasonCategories>> GetReasonCategorie(RequestModel request)
                     => await _masterRepository.GetReasonCategorie(request);
 
-        public async Task<IEnumerable<EnumCatagories>> GetEnum(string enumType)
-            => await _masterRepository.GetEnum(enumType);
+        public async Task<IEnumerable<EnumCatagories>> GetEnum(RequestModel request)
+            => await _masterRepository.GetEnum(request);
 
         /// <summary>
         /// lấy danh sách loại lương

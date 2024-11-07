@@ -100,10 +100,23 @@ namespace HNOne.API.Repositories
         /// </summary>
         /// <param name="enumType"></param>
         /// <returns></returns>
-        public async Task<IEnumerable<EnumCatagories>> GetEnum(string enumType)
+        public async Task<IEnumerable<EnumCatagories>> GetEnum(RequestModel request)
         {
-            var lstEnums = await _dbContext.EnumCatagories.Where(m => m.EnumType == enumType).OrderBy(m=> m.RowOrder).ToListAsync();
-            return lstEnums;
+            using (var connection = _dapperDbContext.CreateConnection())
+            {
+                var parameters = new DynamicParameters();
+                parameters.Add("@EnumType", request.opt, DbType.String);
+                string query = "select T0.* from EnumCatagories as T0 with(nolock)" +
+                    " where T0.IsDelete = '0'";
+                if(request.opt != "AllowEdit") query += " and T0.EnumType = @EnumType"; // nếu cho phép chỉnh sửa thì lấy hết
+                else
+                {
+                    query += " and IsAllowEditing = 1";
+                }
+                query += " order by T0.EnumType, T0.RowOrder";
+                var results = await connection.QueryAsync<EnumCatagories>(query, parameters, commandTimeout: GlobalConstants.COMMAND_TIMEOUT, commandType: CommandType.Text);
+                return results;
+            }    
         }
 
         /// <summary>

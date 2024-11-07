@@ -17,7 +17,7 @@ namespace HNOne.API.Services.Interfaces
         Task<ResponseModel> UpdateDepartment(string actionType, Departments entity);
         Task<ResponseModel> UpdatePosition(string actionType, Positions entity);
         Task<ResponseModel> UpdateTitle(string actionType, Titles entity);
-        Task<IEnumerable<EnumCatagories>> GetEnum(string enumType);
+        Task<IEnumerable<EnumCatagories>> GetEnum(RequestModel request);
         Task<ResponseModel> UpdateContractType(string actionType, ContractTypes entity);
         Task<ResponseModel> UpdateReasonCategorie(string actionType, ReasonCategories entity);
         Task<IEnumerable<SalaryCategories>> GetSalaryCatagory(RequestModel request);

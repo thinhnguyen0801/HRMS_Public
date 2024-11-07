@@ -10,12 +10,11 @@
                 <div class="card-header p-1">
                     <DxToolbar ItemRenderStyleMode="@ToolbarRenderStyleMode.Contained">
                         <Items>
-                            <DxToolbarItem Text="Làm mới" BeginGroup="true" IconCssClass="@($"{IconClassConstants.ICON_REFRESH}")"
+                            <DxToolbarItem Text="Làm mới" BeginGroup="true" IconCssClass="@($"{IconClassConstants.ICON_REFRESH}")" CssClass="w1FontSize"
                                            Alignment="@ToolbarItemAlignment.Right" Click="@(()=> RefreshHandler())" />
-                            <DxToolbarItem Text="Thêm mới" BeginGroup="true" IconCssClass="@($"{IconClassConstants.ICON_ADD}")"
+                            <DxToolbarItem Text="Thêm mới" BeginGroup="true" IconCssClass="@($"{IconClassConstants.ICON_ADD}")" CssClass="w1FontSize"
                                            Alignment="@ToolbarItemAlignment.Right" Click="@(()=> OnOpenDialogHandler())" />
-
-                            <DxToolbarItem Text="Xóa" BeginGroup="true" IconCssClass="@($"{IconClassConstants.ICON_DELETE}")"
+                            <DxToolbarItem Text="Xóa" BeginGroup="true" IconCssClass="@($"{IconClassConstants.ICON_DELETE}")" CssClass="w1FontSize"
                                            Alignment="@ToolbarItemAlignment.Right" Click="@(()=> DeleteDataHandler())" />
                         </Items>
                     </DxToolbar>
@@ -45,7 +44,7 @@
                                         <a @onclick="@(() => OnOpenDialogHandler(EnumType.Update, (context.DataItem as ContractTypeModel)))">@context.Value</a>
                                     }
                                 </CellDisplayTemplate>
-                            </DxGridDataColumn>/>
+                            </DxGridDataColumn>
                             <DxGridDataColumn FieldName="@nameof(ContractTypeModel.name)" Caption="Tên loại hợp đồng" MinWidth="170" />
                             <DxGridDataColumn FieldName="@nameof(ContractTypeModel.branchId)" Caption="Chi nhánh" MinWidth="170" />
                             <DxGridDataColumn FieldName="@nameof(ContractTypeModel.isActive)" Caption="Hoạt động?" MinWidth="100" />

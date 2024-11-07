@@ -4,7 +4,8 @@
     {
         Add,
         Update,
-        Delete
+        Delete,
+        AllowEdit
     }
 
     public enum EnumCatagory
@@ -21,6 +22,6 @@
         Ward,
         QuanHeGiaDinh,
         LoaiBaoHiem,
-        LoaiNhanVien
+        LoaiNhanVien,
     }
 }
