@@ -18,6 +18,8 @@ namespace HNOne.Model.Entities
         public string? Code { get; set; } // Mã nhân viên
         [MaxLength(250)]
         public string? Name { get; set; } // Tên nhân viên
+        [MaxLength(50)]
+        public string? EmployeeType { get; set; } // Loại nhân viên
         public DateTime? DateOfBirth { get; set; } // Ngày sinh (Khi check chỉ lấy năm sinh. default 1/1)
         public bool IsOnlybirthYear { get; set; } // Chỉ lấy năm sinh. đặt ngày chỗ ngày sinh
         

@@ -31,13 +31,22 @@ namespace HNOne.API.Services
         /// <returns></returns>
         public async Task<IEnumerable<ContractModel>> GetContract(RequestModel request)
             => await _personnelRepository.GetContract(request);
+        
         /// <summary>
         /// lấy danh sách quan hệ gia đình
         /// </summary>
         /// <param name="request"></param>
         /// <returns></returns>
-        public async Task<IEnumerable<FamilyRelationships>> GetFamilyRelationship(int employeeId)
+        public async Task<IEnumerable<FamilyRelationshipModel>> GetFamilyRelationship(int employeeId)
             => await _personnelRepository.GetFamilyRelationship(employeeId);
+
+        /// <summary>
+        /// lấy danh sách hợp đồng theo nhân viên
+        /// </summary>
+        /// <param name="employeeId"></param>
+        /// <returns></returns>
+        public async Task<IEnumerable<InsuranceModel>> GetInsurance(int employeeId)
+            => await _personnelRepository.GetInsurance(employeeId);
         #endregion
 
 
@@ -127,6 +136,15 @@ namespace HNOne.API.Services
             }
             return response;
         }
+
+        /// <summary>
+        /// cập nhật thông tin hợp đồng
+        /// </summary>
+        /// <param name="actionType"></param>
+        /// <param name="entity"></param>
+        /// <returns></returns>
+        public async Task<ResponseModel> UpdateInsurance(string actionType, Insurances entity)
+            => await _personnelRepository.UpdateInsurance(actionType, entity);
         #endregion
     }
 }

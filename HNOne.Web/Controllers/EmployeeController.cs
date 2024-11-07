@@ -37,6 +37,7 @@ namespace HNOne.Web.Controllers
         public List<ComboboxModel>? ListCboTitle { get; set; } // cbo ds chức danh
         public List<EnumCatagoryModel>? ListCboMaritalStatus { get; set; } // cbo ds tình trạng hộn nhân
         public List<EnumCatagoryModel>? ListCboRelationship { get; set; } // cbo ds quan hệ
+        public List<EnumCatagoryModel>? ListCboEmployeeType { get; set; } // cbo ds loại nhân viên
         public List<ComboboxModel>? ListCboCountry { get; set; } // cbo quốc gia
         public List<ComboboxModel>? ListCboProvince { get; set; } // cbo ds tỉnh thành trong thông tin liên hệ
 
@@ -54,6 +55,8 @@ namespace HNOne.Web.Controllers
         public string? DepartmentIds { get; set; }
         public string? StatusIds { get; set; } // Tình trạng nào
         public object? EmployeeSelected { get; set; } // Nhân viên được chọn
+
+        //public bool IsReadonlyControl { get; set; } = false;
         #endregion
 
         protected override async Task OnAfterRenderAsync(bool firstRender)
@@ -123,6 +126,7 @@ namespace HNOne.Web.Controllers
                 var getTask5 = _masterDataService.GetEnumAsync(UserId, Token, nameof(EnumCatagory.TinhTrangHonNhan)); // ds tình trạng hôn nhân
                 var getTask6 = _masterDataService.GetLocationAsync(UserId, Token, nameof(EnumCatagory.County)); // ds trạng thái
                 var getTask7 = _masterDataService.GetEnumAsync(UserId, Token, nameof(EnumCatagory.QuanHeGiaDinh)); // ds quan hệ gia đình
+                var getTask9 = _masterDataService.GetEnumAsync(UserId, Token, nameof(EnumCatagory.LoaiNhanVien)); // ds loại nhân viên
                 var getTask8 = _masterDataService.GetLocationAsync(UserId, Token, nameof(EnumCatagory.Province), "VN");
                 await Task.WhenAll(
                     getTask1,
@@ -132,7 +136,8 @@ namespace HNOne.Web.Controllers
                     getTask5,
                     getTask6,
                     getTask7,
-                    getTask8
+                    getTask8,
+                    getTask9
                 );
 
                 ListCboDepartment = (await getTask1)?.Select(m => new ComboboxModel() { id = m.id, name = m.name })?.ToList();
@@ -144,6 +149,7 @@ namespace HNOne.Web.Controllers
                 ListCboCountry = await getTask6;
                 ListCboRelationship = await getTask7;
                 ListCboProvince = await getTask8;
+                ListCboEmployeeType = await getTask9;
             }
             catch (Exception ex)
             {
@@ -190,6 +196,9 @@ namespace HNOne.Web.Controllers
                     if (!string.IsNullOrEmpty(EmployeeUpdate.districtCode2))
                         lstTask.Add(getWard($"{EmployeeUpdate.provinceCode2}", EmployeeUpdate.districtCode2).ContinueWith(t => ListCboWard2 = t.Result));
 
+                    lstTask.Add(geInsurance()); // danh sách hợp đồng
+                    lstTask.Add(getFamilyRelationship()); // danh sách quan hệ gia đình
+
                     await Task.WhenAll(lstTask);
                 }
             }
@@ -198,6 +207,12 @@ namespace HNOne.Web.Controllers
 
         private void validateForSave(ref string errorMessage, ref string fieldName)
         {
+            if(string.IsNullOrEmpty(EmployeeUpdate.employeeType))
+            {
+                errorMessage = string.Format(MessageConstants.MESSAGE_STRING_REQUIRE, "Loại nhân viên");
+                fieldName = nameof(EmployeeUpdate.employeeType);
+                return;
+            }    
             if (string.IsNullOrEmpty(EmployeeUpdate.name))
             {
                 errorMessage = string.Format(MessageConstants.MESSAGE_STRING_REQUIRE, "Họ tên");
@@ -267,6 +282,7 @@ namespace HNOne.Web.Controllers
 
         private async Task<List<ComboboxModel>?> getWard(string provinceCode, string districtCode)
             => await _masterDataService.GetLocationAsync(UserId, Token, nameof(EnumCatagory.Ward), opt1: provinceCode, opt2: districtCode);
+        
         #endregion
 
         #region Projected
@@ -275,7 +291,8 @@ namespace HNOne.Web.Controllers
         /// </summary>
         /// <param name="type"></param>
         /// <returns></returns>
-        protected async Task OpenPopupHandler(string type = nameof(EmployeeSelected), string popupType = nameof(EmployeeUpdate.managerCode))
+        protected async Task OpenPopupHandler(string type = nameof(EmployeeSelected), string popupType = nameof(EmployeeUpdate.managerCode)
+            , EnumType pAction = EnumType.Add, object? pItemDetails = null)
         {
             try
             {
@@ -286,6 +303,62 @@ namespace HNOne.Web.Controllers
                         ListCboDepartment ??= new();
                         DepartmentIds = string.Join(",", ListCboDepartment.Select(m => m.id));
                         IsShowDialogEmpSearch = true;
+                        break;
+                    case nameof(IsShowPopupInsurance):
+                        await ShowLoading();
+                        await Task.Delay(75);
+                        ListCboInsuranceType = await _masterDataService.GetEnumAsync(UserId, Token, nameof(EnumCatagory.LoaiBaoHiem));
+                        if (pAction == EnumType.Add)
+                        {
+                            IsCreatePopup = true;
+                            InsuranceUpdate = new InsuranceModel();
+                        }
+                        else
+                        {
+                            InsuranceModel insurance = JsonConvert.DeserializeObject<InsuranceModel>
+                                    (JsonConvert.SerializeObject(pItemDetails))!;
+                            InsuranceUpdate.id = insurance.id;
+                            InsuranceUpdate.employeeId = insurance.employeeId;
+                            InsuranceUpdate.insuranceType = insurance.insuranceType;
+                            InsuranceUpdate.insuranceTypeName = insurance.insuranceTypeName;
+                            InsuranceUpdate.insuranceNo = insurance.insuranceNo;
+                            InsuranceUpdate.startDate = insurance.startDate;
+                            InsuranceUpdate.endDate = insurance.endDate;
+                            InsuranceUpdate.rate = insurance.rate;
+                            InsuranceUpdate.zipCode = insurance.zipCode;
+                            InsuranceUpdate.address = insurance.address;
+                            InsuranceUpdate.addressNo = insurance.addressNo;
+                            IsCreatePopup = false;
+                        }
+                        IsShowPopupInsurance = true;
+                        break;
+                    case nameof(IsShowPopupFamily):
+                        if (pAction == EnumType.Add)
+                        {
+                            IsCreatePopup = true;
+                            FamilyRelationshipUpdate = new FamilyRelationshipModel();
+                        }
+                        else
+                        {
+                            FamilyRelationshipModel family = JsonConvert.DeserializeObject<FamilyRelationshipModel>
+                                    (JsonConvert.SerializeObject(pItemDetails))!;
+                            FamilyRelationshipUpdate.id = family.id;
+                            FamilyRelationshipUpdate.employeeId = family.employeeId;
+                            FamilyRelationshipUpdate.name = family.name;
+                            FamilyRelationshipUpdate.relationshipId = family.relationshipId;
+                            FamilyRelationshipUpdate.relationshipName = family.relationshipName;
+                            FamilyRelationshipUpdate.dateOfBirth = family.dateOfBirth;
+                            FamilyRelationshipUpdate.placeOfBirth = family.placeOfBirth;
+                            FamilyRelationshipUpdate.occupation = family.occupation;
+                            FamilyRelationshipUpdate.placeOfOrigin = family.placeOfOrigin;
+                            FamilyRelationshipUpdate.temporaryAddress = family.temporaryAddress;
+                            FamilyRelationshipUpdate.contactAddress = family.contactAddress;
+                            FamilyRelationshipUpdate.phoneNumber = family.phoneNumber;
+                            FamilyRelationshipUpdate.cIC = family.cIC;
+                            FamilyRelationshipUpdate.issuanceDateCIC = family.issuanceDateCIC;
+                            FamilyRelationshipUpdate.remark = family.remark;
+                        }
+                        IsShowPopupFamily = true;
                         break;
                 }
             }

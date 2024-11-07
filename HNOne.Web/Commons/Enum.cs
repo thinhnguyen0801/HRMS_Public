@@ -19,6 +19,8 @@
         Province,
         District,
         Ward,
-        QuanHeGiaDinh
+        QuanHeGiaDinh,
+        LoaiBaoHiem,
+        LoaiNhanVien
     }
 }

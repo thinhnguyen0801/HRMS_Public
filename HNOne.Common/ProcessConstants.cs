@@ -54,5 +54,8 @@
         public const string POST_FAMILYRELATIONSHIP = "post-familyrelationship";
         public const string PUT_FAMILYRELATIONSHIP = "put-familyrelationship";
         public const string GET_LOCATION = "get-location";
+        public const string GET_INSURANCE = "get-insurance";
+        public const string POST_INSURANCE = "post-insurance";
+        public const string PUT_INSURANCE = "put-insurance";
     }
 }

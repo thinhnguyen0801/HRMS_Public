@@ -1,6 +1,6 @@
 ﻿namespace HNOne.Model.Models
 {
-    public class InsuranceModel
+    public class InsuranceModel : AuditableModel
     {
         public int id { get; set; }
         public int employeeId { get; set; } // mã nhân viên

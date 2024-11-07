@@ -12,6 +12,7 @@ namespace HNOne.Model.Models
         public int id { get; set; }
         public string? code { get; set; }
         public string? name { get; set; }
+        public string? employeeType { get; set; } // loại nhân viên
         public DateTime? dateOfBirth { get; set; }
         public string? statusId { get; set; } // Tình trạng
         public string? gender { get; set; }

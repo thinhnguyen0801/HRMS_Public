@@ -48,6 +48,9 @@ namespace HNOne.API.Controllers
                     case ProcessConstants.GET_FAMILYRELATIONSHIP:
                         response.data = await _personnelService.GetFamilyRelationship(request.employeeId);
                         break;
+                    case ProcessConstants.GET_INSURANCE:
+                        response.data = await _personnelService.GetInsurance(request.employeeId);
+                        break;
 
                     default:
                         response.status = StatusCodes.Status404NotFound;
@@ -94,6 +97,11 @@ namespace HNOne.API.Controllers
                     case ProcessConstants.PUT_FAMILYRELATIONSHIP:
                         var familyRelationship = JsonConvert.DeserializeObject<FamilyRelationships>($"{request.json}");
                         response = await _personnelService.UpdateFamilyRelationship(processKey, familyRelationship!);
+                        break;
+                    case ProcessConstants.POST_INSURANCE:
+                    case ProcessConstants.PUT_INSURANCE:
+                        var insurance = JsonConvert.DeserializeObject<Insurances>($"{request.json}");
+                        response = await _personnelService.UpdateInsurance(processKey, insurance!);
                         break;
                     default:
                         response.status = StatusCodes.Status404NotFound;

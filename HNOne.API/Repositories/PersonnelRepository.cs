@@ -1,4 +1,5 @@
-﻿using Dapper;
+﻿using Azure.Core;
+using Dapper;
 using HNOne.API.Constants;
 using HNOne.API.Repositories.Interfaces;
 using HNOne.Common;
@@ -86,10 +87,39 @@ namespace HNOne.API.Repositories
         /// </summary>
         /// <param name="enumType"></param>
         /// <returns></returns>
-        public async Task<IEnumerable<FamilyRelationships>> GetFamilyRelationship(int employeeId)
+        public async Task<IEnumerable<FamilyRelationshipModel>> GetFamilyRelationship(int employeeId)
         {
-            var lstFamilyRelationship = await _dbContext.FamilyRelationships.Where(m => m.EmployeeId == employeeId).ToListAsync();
-            return lstFamilyRelationship;
+            using (var connection = _dapperDbContext.CreateConnection())
+            {
+                var parameters = new DynamicParameters();
+                parameters.Add("@EmployeeId", employeeId, DbType.Int32);
+                string query = "select T0.*, T1.Name as RelationshipName " +
+                    " from FamilyRelationships as T0 with(nolock)" +
+                    " inner join EnumCatagories as T1 with(nolock) on T0.RelationshipId = T1.Code and T1.EnumType = 'QuanHeGiaDinh'" +
+                    " where T0.IsDelete = 0 and T0.EmployeeId = @EmployeeId";
+                var results = await connection.QueryAsync<FamilyRelationshipModel>(query, parameters, commandTimeout: GlobalConstants.COMMAND_TIMEOUT, commandType: CommandType.Text);
+                return results;
+            }
+        }
+        
+        /// <summary>
+        /// lấy danh sách bảo hiểm
+        /// </summary>
+        /// <param name="employeeId"></param>
+        /// <returns></returns>
+        public async Task<IEnumerable<InsuranceModel>> GetInsurance(int employeeId)
+        {
+            using (var connection = _dapperDbContext.CreateConnection())
+            {
+                var parameters = new DynamicParameters();
+                parameters.Add("@EmployeeId", employeeId, DbType.Int32);
+                string query = "select T0.*, T1.Name as InsuranceTypeName " +
+                    " from Insurances as T0 with(nolock)" +
+                    " inner join EnumCatagories as T1 with(nolock) on T0.InsuranceType = T1.Code and T1.EnumType = 'LoaiBaoHiem'" +
+                    " where T0.IsDelete = 0 and T0.EmployeeId = @EmployeeId";
+                var results = await connection.QueryAsync<InsuranceModel>(query, parameters, commandTimeout: GlobalConstants.COMMAND_TIMEOUT, commandType: CommandType.Text);
+                return results;
+            }    
         }
         #endregion
 
@@ -106,8 +136,11 @@ namespace HNOne.API.Repositories
             {
                 using (var connection = _dapperDbContext.CreateConnection())
                 {
-                    string commandText = @$"select {StoreConstants.FUNC_GET_VOUCHER}(@Type, '', '', '')";
-                    string? voucherNo = await connection.QueryFirstOrDefaultAsync<string>(commandText, param: new { Type = GlobalConstants.TABLE_EMPLOYEE }, commandTimeout: GlobalConstants.COMMAND_TIMEOUT, commandType: CommandType.Text);
+                    var parameters = new DynamicParameters();
+                    parameters.Add("@Type", GlobalConstants.TABLE_EMPLOYEE, DbType.String);
+                    parameters.Add("@Opt", entity.EmployeeType, DbType.String);
+                    string commandText = @$"select {StoreConstants.FUNC_GET_VOUCHER}(@Type, @Opt, '', '')";
+                    string? voucherNo = await connection.QueryFirstOrDefaultAsync<string>(commandText, param: parameters, commandTimeout: GlobalConstants.COMMAND_TIMEOUT, commandType: CommandType.Text);
                     if (string.IsNullOrEmpty(voucherNo))
                     {
                         response.status = StatusCodes.Status204NoContent;
@@ -393,16 +426,12 @@ namespace HNOne.API.Repositories
             ResponseModel response = new ResponseModel();
             try
             {
-                using (var connection = _dapperDbContext.CreateConnection())
-                {
-                    
-                    entity.Id = await _dbContext.FamilyRelationships.Select(m => m.Id).DefaultIfEmpty().MaxAsync() + 1;
-                    entity.DateTracking = _dateTimeHelper.GetCurrentVietnamTime();
-                    entity.CreateDate = _dateTimeHelper.GetCurrentVietnamTime();
-                    await _dbContext.FamilyRelationships.AddAsync(entity);
-                    await _dbContext.SaveChangesAsync();
-                    response.message = MessageConstants.MESSAGE_ADD_SUCCESS;
-                }
+                DateTime dateTimeNow = _dateTimeHelper.GetCurrentVietnamTime();
+                entity.DateTracking = dateTimeNow;
+                entity.CreateDate = dateTimeNow;
+                await _dbContext.FamilyRelationships.AddAsync(entity);
+                await _dbContext.SaveChangesAsync();
+                response.message = MessageConstants.MESSAGE_ADD_SUCCESS;
                 return response;
             }
             catch (Exception) { throw; }
@@ -452,6 +481,75 @@ namespace HNOne.API.Repositories
             catch (Exception) { throw; }
         }
         
+        /// <summary>
+        /// Cập nhật thông tin hợp đồng
+        /// </summary>
+        /// <param name="actionType"></param>
+        /// <param name="entity"></param>
+        /// <returns></returns>
+        public async Task<ResponseModel> UpdateInsurance(string actionType, Insurances entity)
+        {
+            ResponseModel response = new ResponseModel();
+            try
+            {
+                DateTime dateTimeNow = _dateTimeHelper.GetCurrentVietnamTime();
+                bool isResult = true;
+                if (actionType == ProcessConstants.POST_INSURANCE)
+                {
+                    // Tạo mới
+                    isResult = await _dbContext.Insurances.FirstOrDefaultAsync(m => m.InsuranceNo == entity.InsuranceNo) != null;
+                    if (isResult)
+                    {
+                        response.status = StatusCodes.Status409Conflict;
+                        response.message = "Số bảo hiểm đã tồn tại!";
+                        return response;
+                    }
+                    entity.Id = await _dbContext.Insurances.Select(m => m.Id).DefaultIfEmpty().MaxAsync() + 1;
+                    entity.DateTracking = dateTimeNow;
+                    entity.CreateDate = dateTimeNow;
+                    await _dbContext.Insurances.AddAsync(entity);
+                    await _dbContext.SaveChangesAsync();
+                    response.message = MessageConstants.MESSAGE_ADD_SUCCESS;
+                    return response;
+                }
+                // cập nhật
+                var data = await _dbContext.Insurances.FirstOrDefaultAsync(m => m.Id == entity.Id);
+                if (data == null)
+                {
+                    response.status = StatusCodes.Status404NotFound;
+                    response.message = MessageConstants.MESSAGE_NOT_FOUNT;
+                    return response;
+                }
+                isResult = await _dbContext.Insurances.FirstOrDefaultAsync(m => m.InsuranceNo == entity.InsuranceNo && m.Id != data.Id) != null;
+                if (isResult)
+                {
+                    response.status = StatusCodes.Status409Conflict;
+                    response.message = "Số bảo hiểm đã tồn tại!";
+                    return response;
+                }
+                data.InsuranceType = entity.InsuranceType;
+                data.InsuranceNo = entity.InsuranceNo;
+                data.StartDate = entity.StartDate;
+                data.EndDate = entity.EndDate;
+                data.Rate = entity.Rate;
+                data.ZipCode = entity.ZipCode;
+                data.Address = entity.Address;
+                data.AddressNo = entity.AddressNo;
+                data.DateTracking = dateTimeNow;
+                data.UpdateDate = dateTimeNow;
+                data.UserSign2 = entity.UserSign2;
+                _dbContext.Insurances.Attach(data);
+                _dbContext.Entry(data).State = EntityState.Modified;
+                await _dbContext.SaveChangesAsync();
+                response.message = MessageConstants.MESSAGE_UPDATE_SUCCESS;
+            }
+            catch (Exception ex)
+            {
+                response.status = StatusCodes.Status400BadRequest;
+                response.message = ex.Message;
+            }
+            return response;
+        }
         #endregion
     }
 }
