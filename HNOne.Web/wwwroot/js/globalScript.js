@@ -28,6 +28,18 @@ function focusInput(id) {
     }
 }
 
+// scroll đến section
+function scrollToSection(id) {
+    const section = document.getElementById(id);
+    if (section) {
+        if (id === "section-accordion-1") {
+            section.scrollIntoView({ top: 0, behavior: "smooth" });
+        }
+        else {
+            section.scrollIntoView({ behavior: "smooth" });
+        }
+    }
+}
 
 /*
 hainguyen create 2024.07.17

@@ -615,6 +615,22 @@ namespace HNOne.Web.Controllers
                 _logger.LogError(ex, "EqualsHouseholdCheckedChangedHandler");
             }
         }
+        
+
+        protected async Task ScrollToSection(string sectionId)
+        {
+            try
+            {
+                //if (sectionId == "section-accordion-1" && ActiveTabIndex == 0) return;
+                //if (sectionId == "section-accordion-2" && ActiveTabIndex == 1) return;
+                await _jsRuntime.InvokeVoidAsync("scrollToSection", sectionId);
+            }
+            catch (Exception ex)
+            {
+                ShowError(ex.Message);
+                _logger.LogError(ex, "ScrollToSection");
+            }
+        }
         #endregion
     }
 }

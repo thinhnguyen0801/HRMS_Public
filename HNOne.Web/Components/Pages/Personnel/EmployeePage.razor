@@ -3,23 +3,23 @@
 <PageTitle>Hồ sơ nhân sự</PageTitle>
 
 <div class="h-content-filter">
-    <div class="w1FontSize">
+    <div class="w1FontSize sticky-top">
         <div class="border-bottom-0">
             <DxTabs @bind-ActiveTabIndex="@ActiveTabIndex" Id="tabActive" CssClass="w-full w1FontSize">
-                <DxTabPage Text="Thông tin chung" CssClass="w1FontSize"></DxTabPage>
-                <DxTabPage Text="CMND/CCCD/Hộ chiếu" CssClass="w1FontSize"></DxTabPage>
-                <DxTabPage Text="Trình độ/Bằng cấp" CssClass="w1FontSize"></DxTabPage>
-                <DxTabPage Text="Thông tin liên hệ" CssClass="w1FontSize"></DxTabPage>
-                <DxTabPage Text="Hộ khẩu thường trú" CssClass="w1FontSize"></DxTabPage>
-                <DxTabPage Text="Chỗ ở hiện nay" CssClass="w1FontSize"></DxTabPage>
-                <DxTabPage Text="Liên hệ khẩn cấp" CssClass="w1FontSize"></DxTabPage>
-                <DxTabPage Text="Thông tin công việc" CssClass="w1FontSize"></DxTabPage>
-                <DxTabPage Text="Quan hệ gia đình" CssClass="w1FontSize"></DxTabPage>
-                <DxTabPage Text="Lịch sử công tác" CssClass="w1FontSize"></DxTabPage>
-                <DxTabPage Text="Thông tin bảo hiểm" CssClass="w1FontSize"></DxTabPage>
-                <DxTabPage Text="Danh sách hợp đồng" CssClass="w1FontSize"></DxTabPage>
-                <DxTabPage Text="Danh sách quyết định" CssClass="w1FontSize"></DxTabPage>
-                <DxTabPage Text="Lịch sử lương" CssClass="w1FontSize"></DxTabPage>
+                <DxTabPage Text="Thông tin chung" CssClass="w1FontSize" Click="@(() => ScrollToSection("section-accordion-1"))"></DxTabPage>
+                <DxTabPage Text="CMND/CCCD/Hộ chiếu" CssClass="w1FontSize" Click="@(() => ScrollToSection("section-accordion-2"))"></DxTabPage>
+                <DxTabPage Text="Trình độ/Bằng cấp" CssClass="w1FontSize" Click="@(() => ScrollToSection("section-accordion-55555"))"></DxTabPage>
+                <DxTabPage Text="Thông tin liên hệ" CssClass="w1FontSize" Click="@(() => ScrollToSection("section-accordion-3"))"></DxTabPage>
+                <DxTabPage Text="Hộ khẩu thường trú" CssClass="w1FontSize" Click="@(() => ScrollToSection("section-accordion-4"))"></DxTabPage>
+                <DxTabPage Text="Chỗ ở hiện nay" CssClass="w1FontSize" Click="@(() => ScrollToSection("section-accordion-5"))"></DxTabPage>
+                <DxTabPage Text="Liên hệ khẩn cấp" CssClass="w1FontSize" Click="@(() => ScrollToSection("section-accordion-6"))"></DxTabPage>
+                <DxTabPage Text="Thông tin công việc" CssClass="w1FontSize" Click="@(() => ScrollToSection("section-accordion-7"))"></DxTabPage>
+                <DxTabPage Text="Quan hệ gia đình" CssClass="w1FontSize" Click="@(() => ScrollToSection("section-accordion-8"))"></DxTabPage>
+                <DxTabPage Text="Lịch sử công tác" CssClass="w1FontSize" Click="@(() => ScrollToSection("section-accordion-9"))"></DxTabPage>
+                <DxTabPage Text="Thông tin bảo hiểm" CssClass="w1FontSize" Click="@(() => ScrollToSection("section-accordion-10"))"></DxTabPage>
+                <DxTabPage Text="Danh sách hợp đồng" CssClass="w1FontSize" Click="@(() => ScrollToSection("section-accordion-11"))"></DxTabPage>
+                <DxTabPage Text="Danh sách quyết định" CssClass="w1FontSize" Click="@(() => ScrollToSection("section-accordion-12"))"></DxTabPage>
+                <DxTabPage Text="Lịch sử lương" CssClass="w1FontSize" Click="@(() => ScrollToSection("section-accordion-13"))"></DxTabPage>
             </DxTabs>
         </div>
     </div>
@@ -37,7 +37,7 @@
     </div>
 
     @* Thông tin chung  *@
-    <div class="card card-lg mt-1" style="padding: 5px">
+    <div class="card card-lg mt-1" style="padding: 5px" id="section-accordion-1">
         <div class="row row-gap-2">
             <div class="col-12">
                 <div class="accordion" id="accordion-1">
@@ -268,7 +268,7 @@
     </div>
 
     @* Thông tin CMMD/CCCD/Passport  *@
-    <div class="card card-lg mt-1" style="padding: 5px">
+    <div class="card card-lg mt-1" style="padding: 5px" id="section-accordion-2">
         <div class="row row-gap-2">
             <div class="col-12">
                 <div class="accordion" id="accordion-2">
@@ -375,7 +375,7 @@
     </div>
 
     @* Thông tin liên hệ  *@
-    <div class="card card-lg mt-1" style="padding: 5px">
+    <div class="card card-lg mt-1" style="padding: 5px" id="section-accordion-3">
         <div class="row row-gap-2">
             <div class="col-12">
                 <div class="accordion" id="accordion-3">
@@ -488,7 +488,7 @@
     </div>
 
     @* Hộ khẩu thường trú  *@
-    <div class="card card-lg mt-1" style="padding: 5px">
+    <div class="card card-lg mt-1" style="padding: 5px" id="section-accordion-4">
         <div class="row row-gap-2">
             <div class="col-12">
                 <div class="accordion" id="accordion-4">
@@ -604,7 +604,7 @@
     </div>
 
     @* Chỗ ở hiện nay  *@
-    <div class="card card-lg mt-1" style="padding: 5px">
+    <div class="card card-lg mt-1" style="padding: 5px" id="section-accordion-5">
         <div class="row row-gap-2">
             <div class="col-12">
                 <div class="accordion" id="accordion-5">
@@ -718,7 +718,7 @@
     </div>
 
     @* Liên hệ khẩn cấp   *@
-    <div class="card card-lg mt-1" style="padding: 5px">
+    <div class="card card-lg mt-1" style="padding: 5px" id="section-accordion-6">
         <div class="row row-gap-2">
             <div class="col-12">
                 <div class="accordion" id="accordion-6">
@@ -796,7 +796,7 @@
     </div>
 
     @* Thông tin công việc  *@
-    <div class="card card-lg mt-1" style="padding: 5px">
+    <div class="card card-lg mt-1" style="padding: 5px" id="section-accordion-8">
         <div class="row row-gap-2">
             <div class="col-12">
                 <div class="accordion" id="accordion-8">
@@ -884,7 +884,7 @@
     @if(pActionType == nameof(EnumType.Update))
     {
         @* Quan hệ gia đình  *@
-        <div class="card card-lg mt-1" style="padding: 5px">
+        <div class="card card-lg mt-1" style="padding: 5px" id="section-accordion-7">
             <div class="row row-gap-2">
                 <div class="col-12">
                     <div class="accordion" id="accordion-7">
@@ -952,7 +952,7 @@
         </div>
 
         @* Thông tin bảo hiểm  *@
-        <div class="card card-lg mt-1" style="padding: 5px">
+        <div class="card card-lg mt-1" style="padding: 5px" id="section-accordion-10">
             <div class="row row-gap-2">
                 <div class="col-12">
                     <div class="accordion" id="accordion-10">
@@ -1020,7 +1020,7 @@
         </div>
 
         @* Lịch sử công tác  *@
-        <div class="card card-lg mt-1" style="padding: 5px">
+        <div class="card card-lg mt-1" style="padding: 5px" id="section-accordion-9">
             <div class="row row-gap-2">
                 <div class="col-12">
                     <div class="accordion" id="accordion-9">
@@ -1048,7 +1048,7 @@
         </div>
 
         @* Danh sách hợp đồng  *@
-        <div class="card card-lg mt-1" style="padding: 5px">
+        <div class="card card-lg mt-1" style="padding: 5px" id="section-accordion-11">
             <div class="row row-gap-2">
                 <div class="col-12">
                     <div class="accordion" id="accordion-11">
@@ -1073,19 +1073,19 @@
         </div>
 
         @* Danh sách quyết định  *@
-        <div class="card card-lg mt-1" style="padding: 5px">
+        <div class="card card-lg mt-1" style="padding: 5px" id="section-accordion-12">
             <div class="row row-gap-2">
                 <div class="col-12">
-                    <div class="accordion" id="accordion-7">
+                    <div class="accordion" id="accordion-12">
                         <div class="accordion-item" style="border: none">
                             <span class="accordion-header" id="heading-1">
                                 <button class="accordion-button " style="padding-top: 1px; padding-bottom: 1px;padding-left: 5px;"
-                                        type="button" data-bs-toggle="collapse" data-bs-target="#collapse-7" aria-expanded="true">
+                                        type="button" data-bs-toggle="collapse" data-bs-target="#collapse-12" aria-expanded="true">
                                     <h4 class="mb-0 w1FontSize">Danh sách quyết định</h4>
                                 </button>
                             </span>
                             <div style="border-bottom: 1px solid var(--tblr-border-color); margin-top: 2px"></div>
-                            <div id="collapse-7" class="accordion-collapse collapse show" data-bs-parent="#accordion-7">
+                            <div id="collapse-12" class="accordion-collapse collapse show" data-bs-parent="#accordion-12">
                                 <div class="accordion-body p-1">
                                     <div class="row row-gap-2">
                                     </div>
@@ -1242,6 +1242,7 @@
     
 
 </div>
+<div class="mb-5"></div>
 
 
 <W1Popup @bind-IsOpenModal="@IsShowDialogEmpSearch" Width="70%"
