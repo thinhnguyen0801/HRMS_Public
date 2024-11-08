@@ -179,6 +179,18 @@ namespace HNOne.API.Services
             }
             return response;
         }
+
+        /// <summary>
+        /// cập nhật thông tin trình độ/bằng cấp
+        /// </summary>
+        /// <param name="actionType"></param>
+        /// <param name="entity"></param>
+        /// <returns></returns>
+        public async Task<ResponseModel> UpdateEducation(string actionType, LevelOfEducations entity)
+           => await _personnelRepository.UpdateEducation(actionType, entity);
+
+        public async Task<IEnumerable<LevelOfEducationModel>> GetEducation(int employeeId)
+            => await _personnelRepository.GetEducation(employeeId);
         #endregion
     }
 }

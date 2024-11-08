@@ -92,7 +92,7 @@
                         <Columns>
                             <DxGridDataColumn FieldName="@nameof(MenuModel.parentName)" Caption="Nhóm menu" MinWidth="110" GroupIndex="0" DataRowEditorVisible="false" />
                             <DxGridDataColumn FieldName="@nameof(MenuModel.menuName)" Caption="Chức năng" MinWidth="150" GroupIndex="0" DataRowEditorVisible="false" />
-                            @* <DxGridDataColumn Caption="Quyền chức năng" MinWidth="270">
+                            <DxGridDataColumn Caption="Quyền chức năng" MinWidth="270">
                                 <CellEditTemplate>
                                     @{
                                         var lstEvent = (context.DataItem as MenuModel)!.listEvent;
@@ -112,7 +112,7 @@
                                         }
                                     }
                                 </CellEditTemplate>
-                            </DxGridDataColumn> *@
+                            </DxGridDataColumn>
                             <DxGridDataColumn FieldName="@nameof(MenuModel.isFull)" Caption="Toàn quyền" MinWidth="100" />
                             <DxGridDataColumn FieldName="@nameof(MenuModel.isFull)" Caption="Toàn quyền" MinWidth="100" />
                             <DxGridDataColumn FieldName="@nameof(MenuModel.isFull)" Caption="Toàn quyền" MinWidth="100" />

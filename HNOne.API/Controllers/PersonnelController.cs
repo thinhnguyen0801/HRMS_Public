@@ -54,7 +54,9 @@ namespace HNOne.API.Controllers
                     case ProcessConstants.GET_CONTRACT_APPENDIX:
                         response.data = await _personnelService.GetContractAppendix(request);
                         break;
-
+                    case ProcessConstants.GET_EDUCATION:
+                        response.data = await _personnelService.GetEducation(request.employeeId);
+                        break;
                     default:
                         response.status = StatusCodes.Status404NotFound;
                         response.message = $"Process Key {processKey} was not provider!!!";
@@ -112,6 +114,11 @@ namespace HNOne.API.Controllers
                         List<SalaryAdjustments>? lstSalaryAppendix = null;
                         if(!string.IsNullOrEmpty(request.jsonDetail)) lstSalaryAppendix = JsonConvert.DeserializeObject<List<SalaryAdjustments>>($"{request.jsonDetail}");
                         response = await _personnelService.UpdateContractAppendix(processKey, contractAppendix!, lstSalaryAppendix);
+                        break;
+                    case ProcessConstants.POST_EDUCATION:
+                    case ProcessConstants.PUT_EDUCATION:
+                        var education = JsonConvert.DeserializeObject<LevelOfEducations>($"{request.json}");
+                        response = await _personnelService.UpdateEducation(processKey, education!);
                         break;
                     default:
                         response.status = StatusCodes.Status404NotFound;

@@ -198,6 +198,7 @@ namespace HNOne.Web.Controllers
 
                     lstTask.Add(geInsurance()); // danh sách hợp đồng
                     lstTask.Add(getFamilyRelationship()); // danh sách quan hệ gia đình
+                    lstTask.Add(getEducation()); // danh sách trình độ đại học
 
                     await Task.WhenAll(lstTask);
                 }
@@ -359,6 +360,34 @@ namespace HNOne.Web.Controllers
                             FamilyRelationshipUpdate.remark = family.remark;
                         }
                         IsShowPopupFamily = true;
+                        break;
+                    case nameof(IsShowPopupEducation):
+                        await ShowLoading();
+                        await Task.Delay(75);
+                        ListCboRank = await _masterDataService.GetEnumAsync(UserId, Token, nameof(EnumCatagory.XepLoaiDaoTao));
+                        if (pAction == EnumType.Add)
+                        {
+                            IsCreatePopup = true;
+                            LevelOfEducationUpdate = new LevelOfEducationModel();
+                        }
+                        else
+                        {
+                            LevelOfEducationModel education = JsonConvert.DeserializeObject<LevelOfEducationModel>
+                                    (JsonConvert.SerializeObject(pItemDetails))!;
+                            LevelOfEducationUpdate.id = education.id;
+                            LevelOfEducationUpdate.employeeId = education.employeeId;
+                            LevelOfEducationUpdate.fromYear = education.fromYear;
+                            LevelOfEducationUpdate.toYear = education.toYear;
+                            LevelOfEducationUpdate.levelOfEducation = education.levelOfEducation;
+                            LevelOfEducationUpdate.educationalInstitution1 = education.educationalInstitution1;
+                            LevelOfEducationUpdate.educationalInstitution2 = education.educationalInstitution2;
+                            LevelOfEducationUpdate.majorCode = education.majorCode;
+                            LevelOfEducationUpdate.rankingCode = education.rankingCode;
+                            LevelOfEducationUpdate.rankingName = education.rankingName;
+                            LevelOfEducationUpdate.isComplete = education.isComplete;
+                            IsCreatePopup = false;
+                        }
+                        IsShowPopupEducation = true;
                         break;
                 }
             }

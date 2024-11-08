@@ -61,6 +61,9 @@
         public const string GET_CONTRACT_APPENDIX = "get-contract-appendix";
         public const string POST_CONTRACT_APPENDIX = "post-contract-appendix";
         public const string PUT_CONTRACT_APPENDIX = "put-contract-appendix";
+        public const string GET_EDUCATION = "get-education";
+        public const string POST_EDUCATION = "post-education";
+        public const string PUT_EDUCATION = "put-education";
 
         #region Loại dưới store
         public const string GET_COMBO_TYPE_CONTRACT_BY_EMPLOYEEID = "CONTRACT_BY_EMPLOYEEID";

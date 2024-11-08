@@ -20,5 +20,7 @@ namespace HNOne.API.Repositories.Interfaces
         Task<ResponseModel> AddContractAppendix(ContractAppendices entity, IEnumerable<SalaryAdjustments>? lstSalaryConfig);
         Task<ResponseModel> UpdateContractAppendix(ContractAppendices entity, IEnumerable<SalaryAdjustments>? lstSalaryConfig);
         Task<IEnumerable<ContractAppendixModel>> GetContractAppendix(RequestModel request);
+        Task<ResponseModel> UpdateEducation(string actionType, LevelOfEducations entity);
+        Task<IEnumerable<LevelOfEducationModel>> GetEducation(int employeeId);
     }
 }

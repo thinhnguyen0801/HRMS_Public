@@ -158,6 +158,21 @@ namespace HNOne.API.Repositories
                 return lstResult ?? new List<ContractAppendixModel>();
             }
         }
+
+        public async Task<IEnumerable<LevelOfEducationModel>> GetEducation(int employeeId)
+        {
+            using (var connection = _dapperDbContext.CreateConnection())
+            {
+                var parameters = new DynamicParameters();
+                parameters.Add("@EmployeeId", employeeId, DbType.Int32);
+                string query = "select T0.*, T1.Name as RankingName " +
+                    " from LevelOfEducations as T0 with(nolock)" +
+                    " inner join EnumCatagories as T1 with(nolock) on T0.RankingCode = T1.Code and T1.EnumType = 'XepLoaiDaoTao'" +
+                    " where T0.IsDelete = 0 and T0.EmployeeId = @EmployeeId";
+                var results = await connection.QueryAsync<LevelOfEducationModel>(query, parameters, commandTimeout: GlobalConstants.COMMAND_TIMEOUT, commandType: CommandType.Text);
+                return results;
+            }
+        }
         #endregion
 
         #region Command
@@ -719,6 +734,56 @@ namespace HNOne.API.Repositories
                 data.UpdateDate = dateTimeNow;
                 data.UserSign2 = entity.UserSign2;
                 _dbContext.Insurances.Attach(data);
+                _dbContext.Entry(data).State = EntityState.Modified;
+                await _dbContext.SaveChangesAsync();
+                response.message = MessageConstants.MESSAGE_UPDATE_SUCCESS;
+            }
+            catch (Exception ex)
+            {
+                response.status = StatusCodes.Status400BadRequest;
+                response.message = ex.Message;
+            }
+            return response;
+        }
+
+        public async Task<ResponseModel> UpdateEducation(string actionType, LevelOfEducations entity)
+        {
+            ResponseModel response = new ResponseModel();
+            try
+            {
+                DateTime dateTimeNow = _dateTimeHelper.GetCurrentVietnamTime();
+                if (actionType == ProcessConstants.POST_EDUCATION)
+                {
+                    // Tạo mới
+                    entity.Id = await _dbContext.LevelOfEducations.Select(m => m.Id).DefaultIfEmpty().MaxAsync() + 1;
+                    entity.DateTracking = dateTimeNow;
+                    entity.CreateDate = dateTimeNow;
+                    await _dbContext.LevelOfEducations.AddAsync(entity);
+                    await _dbContext.SaveChangesAsync();
+                    response.message = MessageConstants.MESSAGE_ADD_SUCCESS;
+                    return response;
+                }
+                // cập nhật
+                var data = await _dbContext.LevelOfEducations.FirstOrDefaultAsync(m => m.Id == entity.Id);
+                if (data == null)
+                {
+                    response.status = StatusCodes.Status404NotFound;
+                    response.message = MessageConstants.MESSAGE_NOT_FOUNT;
+                    return response;
+                }
+                data.FromYear = entity.FromYear;
+                data.ToYear = entity.ToYear;
+                data.LevelOfEducation = entity.LevelOfEducation;
+                data.EducationalInstitution1 = entity.EducationalInstitution1;
+                data.EducationalInstitution2 = entity.EducationalInstitution2;
+                data.MajorCode = entity.MajorCode;
+                data.RankingCode = entity.RankingCode;
+                data.RankingName = entity.RankingName;
+                data.IsComplete = entity.IsComplete;
+                data.DateTracking = dateTimeNow;
+                data.UpdateDate = dateTimeNow;
+                data.UserSign2 = entity.UserSign2;
+                _dbContext.LevelOfEducations.Attach(data);
                 _dbContext.Entry(data).State = EntityState.Modified;
                 await _dbContext.SaveChangesAsync();
                 response.message = MessageConstants.MESSAGE_UPDATE_SUCCESS;

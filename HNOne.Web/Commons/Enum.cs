@@ -23,5 +23,6 @@
         QuanHeGiaDinh,
         LoaiBaoHiem,
         LoaiNhanVien,
+        XepLoaiDaoTao,
     }
 }
