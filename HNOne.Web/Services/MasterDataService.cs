@@ -6,7 +6,10 @@ using HNOne.Model.Entities;
 using HNOne.Model.Models;
 using HNOne.Web.Commons;
 using HNOne.Web.Services.Interfaces;
+using Microsoft.AspNetCore.Mvc.RazorPages;
 using Newtonsoft.Json;
+using System.Linq;
+using System.Net.Http.Headers;
 
 namespace HNOne.Web.Services
 {
@@ -863,6 +866,72 @@ namespace HNOne.Web.Services
                 _logger.LogError(ex, "GetMenuAsync");
                 throw;
             }
+        }
+
+        /// <summary>
+        /// upload hình ảnh lên server
+        /// </summary>
+        /// <param name="listImages"></param>
+        /// <param name="subFolder"></param>
+        /// <returns></returns>
+        public async Task<List<FileUploadModel>?> UploadImagesAsync(List<FileUploadModel> listImages, string subFolder)
+        {
+            bool isSuccess = false;
+            try
+            {
+                _httpClient.DefaultRequestHeaders.Accept.Clear();
+                _httpClient.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
+                using var content = new MultipartFormDataContent();
+                content.Headers.ContentDisposition = new ContentDispositionHeaderValue("form-data");
+                if (listImages != null && listImages.Any())
+                {
+                    var lstUpload = listImages.Where(m => m.isDelete == false); // lấy ra hình ảnh nào cần upload
+                    foreach (var file in lstUpload)
+                    {
+                        if (File.Exists($"{file.filePath}"))
+                        {
+                            content.Add(new StreamContent(File.OpenRead(@$"{file.filePath}")), name: "\"files\"", fileName: file.fileName + "");
+                        }
+                    }
+                }
+                HttpResponseMessage httpResponse = await _httpClient.PostAsync($"api/{EnpointConstants.MASTERDATA_UPLOAD_IMAGE}?subFolder={subFolder}", content);
+                var checkContent = ValidateJsonContent(httpResponse.Content);
+                if (httpResponse.StatusCode == System.Net.HttpStatusCode.Unauthorized)
+                {
+                    _toastService.ShowInfo(MessageConstants.MESSAGE_LOGIN_EXPIRED);
+                    return default;
+                }
+                if (!checkContent) _toastService.ShowError(MessageConstants.MESSAGE_JSON_INVALID);
+                else
+                {
+                    var resContent = await httpResponse.Content.ReadAsStringAsync();
+                    if (httpResponse.IsSuccessStatusCode)
+                    {
+                        isSuccess = true;
+                        return JsonConvert.DeserializeObject<List<FileUploadModel>>(resContent);
+                    }    
+                    var oMessage = JsonConvert.DeserializeObject<ResponseModel>(resContent);
+                    _toastService.ShowInfo($"{oMessage?.message}");
+                }
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "UploadImagesAsync");
+                _toastService.ShowError(ex.Message);
+            }
+            finally
+            {
+                // xóa hình ảnh trong folder tạm
+                if (isSuccess && listImages != null && listImages.Any())
+                {
+                    foreach (var file in listImages)
+                    {
+                        if (File.Exists($"{file.filePath}")) File.Delete($"{file.filePath}");
+                    }
+                }
+            }
+            return default;
+
         }
     }
 }

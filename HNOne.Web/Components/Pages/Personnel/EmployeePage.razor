@@ -3,7 +3,7 @@
 <PageTitle>Hồ sơ nhân sự</PageTitle>
 
 <div class="h-content-filter">
-    <div class="w1FontSize sticky-top">
+    <div class="w1FontSize sticky-top" style="z-index: 1010">
         <div class="border-bottom-0">
             <DxTabs @bind-ActiveTabIndex="@ActiveTabIndex" Id="tabActive" CssClass="w-full w1FontSize">
                 <DxTabPage Text="Thông tin chung" CssClass="w1FontSize" Click="@(() => ScrollToSection("section-accordion-1"))"></DxTabPage>
@@ -45,7 +45,7 @@
                         <span class="accordion-header" id="heading-1">
                             <button class="accordion-button " style="padding-top: 1px; padding-bottom: 1px;padding-left: 5px;"
                                     type="button" data-bs-toggle="collapse" data-bs-target="#collapse-1" aria-expanded="true">
-                                <h4 class="mb-0 w1FontSize">Thông tin chính</h4>
+                                <h4 class="mb-0 w1FontSize">Thông tin chung</h4>
                             </button>
                         </span>
                         <div style="border-bottom: 1px solid var(--tblr-border-color); margin-top: 2px"></div>
@@ -55,8 +55,15 @@
                                     <div class="g-col-lg-2 g-col-md-3 g-col-sm-12 g-col-12">
                                         <div class="g-col-lg-2 g-col-md-3 g-col-sm-12 g-col-12">
                                             <label for="file-upload-1">
-                                                <img src="" class="avatar avatar-xl mb-3 rounded" style="width: 9rem; height: 9rem" />
+                                                <img src="@EmployeeUpdate.imageViewUrl" class="avatar avatar-xl mb-3 rounded" style="width: 9rem; height: 9rem" />
                                             </label>
+                                            <div>
+                                                <W1Label Value="Chọn hình ảnh (nếu có):" />
+                                                <InputFile id="ref-upload" accept="image/*" OnChange="@OnLoadFileHandler" />
+                                                <div class="text-secondary">
+                                                    *Lưu ý: dung lượng file không quá 2MB và ảnh JPG, PNG
+                                                </div>
+                                            </div>
                                         </div>
                                     </div>
                                     <div class="g-col-lg-10 g-col-md-9 g-col-sm-12 g-col-12">
@@ -373,12 +380,6 @@
             </div>
         </div>
     </div>
-
-    @if(pActionType == nameof(EnumType.Update))
-    {
-        
-    }
-
 
     @* Thông tin liên hệ  *@
     <div class="card card-lg mt-1" style="padding: 5px" id="section-accordion-3">

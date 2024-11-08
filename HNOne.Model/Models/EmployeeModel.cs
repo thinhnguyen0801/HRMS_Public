@@ -21,6 +21,7 @@ namespace HNOne.Model.Models
         public string? religion { get; set; } // Tôn giáo
         public string? ethnicity { get; set; } // Dân tộc
         public string? imageUrl { get; set; } // Đường dẫn ảnh
+        public string? imageViewUrl { get; set; } // Đường dẫn ảnh
         public string? nationality { get; set; } // Quốc tịch
         public string? maritalStatus { get; set; } // Tình trạng hôn nhân
         public string? educationalInstitution1 { get; set; } // Trường đào tạo 1

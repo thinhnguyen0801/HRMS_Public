@@ -1,12 +1,12 @@
-﻿using Azure;
-using HNOne.API.Services.Interfaces;
+﻿using HNOne.API.Services.Interfaces;
 using HNOne.Common;
 using HNOne.Model;
 using HNOne.Model.Entities;
-using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Http;
+using HNOne.Model.Models;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
+using SixLabors.ImageSharp;
+using SixLabors.ImageSharp.Processing;
 
 namespace HNOne.API.Controllers
 {
@@ -16,10 +16,13 @@ namespace HNOne.API.Controllers
     {
         private readonly ILogger<MasterDataController> _logger;
         private readonly IMasterDataService _masterDataService;
-        public MasterDataController(IMasterDataService masterDataService, ILogger<MasterDataController> logger)
+        private readonly IWebHostEnvironment _webHostEnvironment;
+        public MasterDataController(IMasterDataService masterDataService
+            , ILogger<MasterDataController> logger, IWebHostEnvironment webHostEnvironment)
         {
             _masterDataService = masterDataService;
             _logger = logger;
+            _webHostEnvironment = webHostEnvironment;
         }
 
         /// <summary>
@@ -201,8 +204,51 @@ namespace HNOne.API.Controllers
             }
             return Ok(response);
         }
-        
-        
+
+
+        [HttpPost]
+        [Route("upload-images")]
+        public async Task<IActionResult> UploadImages([FromForm] List<IFormFile> files, string subFolder)
+        {
+            try
+            {
+                if (files == null || !files.Any())
+                {
+                    return StatusCode(StatusCodes.Status400BadRequest, new
+                    {
+                        StatusCode = StatusCodes.Status400BadRequest,
+                        Message = "Không có dữ liệu file đính kèm"
+                    });
+                }
+                var result = new List<FileUploadModel>();
+                string fileName = string.Empty;
+                string path = $"{this._webHostEnvironment.WebRootPath}\\{subFolder}";
+                if (!Directory.Exists(path)) Directory.CreateDirectory(path);
+
+                foreach (var file in files)
+                {
+                    fileName = file.FileName; // trên kia mã hóa
+                    string fullPath = Path.Combine(path, fileName);
+                    using (var image = Image.Load(file.OpenReadStream()))
+                    {
+                        image.Mutate(m => m.Resize(400, 400));
+                        await image.SaveAsync(fullPath);
+                    }
+                    result.Add(new FileUploadModel() { fileName = fileName, filePath = fullPath });
+                }
+                return Ok(result);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "UploadImages");
+                return StatusCode(StatusCodes.Status400BadRequest, new
+                {
+                    StatusCode = StatusCodes.Status400BadRequest,
+                    ex.Message
+                });
+
+            }
+        }
         #region Private Function
         #endregion
     }

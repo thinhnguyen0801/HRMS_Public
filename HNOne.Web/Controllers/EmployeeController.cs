@@ -7,6 +7,9 @@ using HNOne.Web.Components.Controls;
 using HNOne.Web.Models;
 using HNOne.Web.Services.Interfaces;
 using Microsoft.AspNetCore.Components;
+using Microsoft.AspNetCore.Components.Forms;
+using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.AspNetCore.WebUtilities;
 using Microsoft.JSInterop;
 using Newtonsoft.Json;
@@ -21,6 +24,8 @@ namespace HNOne.Web.Controllers
         [Inject] IPersonnelService _personnelService { get; init; }
         [Inject] IEncryptHelper _encryptHelper { get; init; }
         [Inject] IJSRuntime _jsRuntime { get; set; }
+        [Inject] IWebHostEnvironment _webHostEnvironment { get; init; }
+        [Inject] IConfiguration _configuration { get; init; }
         public W1Confirm confirm { get; set; }
 
         #region Properties
@@ -56,6 +61,7 @@ namespace HNOne.Web.Controllers
         public string? StatusIds { get; set; } // Tình trạng nào
         public object? EmployeeSelected { get; set; } // Nhân viên được chọn
 
+        private List<FileUploadModel>? lstImageTemp { get; set; } // danh sách ảnh tạm
         //public bool IsReadonlyControl { get; set; } = false;
         #endregion
 
@@ -171,6 +177,11 @@ namespace HNOne.Web.Controllers
                 if (!lstData.IsNullOrEmpty())
                 {
                     EmployeeUpdate = lstData![0];
+                    if (!string.IsNullOrEmpty(EmployeeUpdate.imageUrl))
+                    {
+                        string apiUrl = _configuration.GetSection("appSettings:ApiUrl").Value + "";
+                        EmployeeUpdate.imageViewUrl = $"{apiUrl}{nameof(EmployeeController)}/{EmployeeUpdate.imageUrl}";
+                    } 
                     List<Task> lstTask = new List<Task>();
                     // nếu có chọn quốc tịch
                     if (!string.IsNullOrEmpty(EmployeeUpdate.countryCode1))
@@ -474,6 +485,13 @@ namespace HNOne.Web.Controllers
                 isConfirm = await confirm.SetConfirm(MessageConstants.MESSAGE_TITLE, errorMessage);
                 if (!isConfirm) return;
                 await ShowLoading();
+                // lưu hình ảnh
+                if (!lstImageTemp.IsNullOrEmpty())
+                {
+                    var lstImages = await _masterDataService!.UploadImagesAsync(lstImageTemp!, nameof(EmployeeController));
+                    if (lstImages.IsNullOrEmpty()) return;
+                    EmployeeUpdate.imageUrl = lstImages![0].fileName;
+                }
                 string processKey = pActionType == nameof(EnumType.Add) ? ProcessConstants.POST_EMPLOYEE : ProcessConstants.PUT_EMPLOYEE;
                 if (!string.IsNullOrEmpty(EmployeeUpdate.provinceCode))
                     EmployeeUpdate.provinceName = ListCboProvince?.FirstOrDefault(m => m.code == EmployeeUpdate.provinceCode)?.name;
@@ -531,6 +549,12 @@ namespace HNOne.Web.Controllers
             }
         }
 
+        /// <summary>
+        /// Thay đổi giá trị combobox
+        /// </summary>
+        /// <param name="value"></param>
+        /// <param name="controlID"></param>
+        /// <returns></returns>
         protected async Task ComboboxValueChangedHandler(object? value
             , string controlID = nameof(EmployeeUpdate.countryCode1))
         {
@@ -645,7 +669,11 @@ namespace HNOne.Web.Controllers
             }
         }
         
-
+        /// <summary>
+        /// Scroll đến section của element
+        /// </summary>
+        /// <param name="sectionId"></param>
+        /// <returns></returns>
         protected async Task ScrollToSection(string sectionId)
         {
             try
@@ -658,6 +686,55 @@ namespace HNOne.Web.Controllers
             {
                 ShowError(ex.Message);
                 _logger.LogError(ex, "ScrollToSection");
+            }
+        }
+
+        /// <summary>
+        /// load dữ liệu lên view
+        /// </summary>
+        /// <param name="args"></param>
+        protected async void OnLoadFileHandler(InputFileChangeEventArgs args)
+        {
+            try
+            {
+                if (args.FileCount <= 0) return;
+                await ShowLoading();
+                lstImageTemp ??= new List<FileUploadModel>();
+                var rootFolder = Path.Combine(_webHostEnvironment!.WebRootPath, "Upload", "Temps");
+                //tạo thư mục
+                if (!Directory.Exists(rootFolder)) Directory.CreateDirectory(rootFolder);
+                string strFileFullName = string.Empty;
+                var file = args.GetMultipleFiles().First();
+                string fileNameNew = $"{Guid.NewGuid()}---{file.Name}";
+                strFileFullName = Path.Combine(rootFolder, fileNameNew);
+                await using FileStream fs = new(strFileFullName, FileMode.Create);
+                await file.OpenReadStream(long.MaxValue).CopyToAsync(fs);
+                await fs.FlushAsync();
+                await fs.DisposeAsync();
+                FileUploadModel itemFile = new FileUploadModel();
+                itemFile.fileName = fileNameNew;
+                itemFile.filePath = strFileFullName;
+                itemFile.imageUrl = $"../Upload/Temps/{fileNameNew}";
+                itemFile.isDelete = false;
+                // cập nhật nó là true để khỏi upload -> nhưng phải remove temp. ví dụ họ chọn mà không lưu
+                // lấy file chọn mới nhất. xóa mấy cái chọn củ đi
+                foreach (var item in lstImageTemp)
+                {
+                    item.isDelete = true;
+                }
+                lstImageTemp.Add(itemFile);
+                EmployeeUpdate.imageViewUrl = $"../Upload/Temps/{fileNameNew}";
+            }
+            catch (Exception ex)
+            {
+                _logger!.LogError(ex, "OnLoadFileHandler");
+                _toastService!.ShowError(ex.Message);
+            }
+            finally
+            {
+                await Task.Delay(75);
+                await ShowLoading(false);
+                await InvokeAsync(StateHasChanged);
             }
         }
         #endregion

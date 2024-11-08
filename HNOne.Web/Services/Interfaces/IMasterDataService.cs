@@ -27,5 +27,6 @@ namespace HNOne.Web.Services.Interfaces
         Task<string?> GetDocumentNo(int userId, string token, int branchId, string? type, string? opt = "", string? opt1 = "", string? opt2 = "");
         Task<List<ComboboxModel>?> GetLocationAsync(int userId, string token, string? type, string? opt = "", string? opt1 = "", string? opt2 = "");
         Task<List<T>?> GetMasterDataAsync<T>(RequestModel request, bool isShowToast = false) where T : class;
+        Task<List<FileUploadModel>?> UploadImagesAsync(List<FileUploadModel> listImages, string subFolder);
     }
 }
