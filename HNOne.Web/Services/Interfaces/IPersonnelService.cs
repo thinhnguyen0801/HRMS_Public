@@ -13,5 +13,6 @@ namespace HNOne.Web.Services.Interfaces
         Task<bool> UpdateInsuranceAsync(string processKey, int userId, string token, string json);
         Task<bool> UpdateFamilyRelationshipAsync(string processKey, int userId, string token, string json);
         Task<List<FamilyRelationshipModel>?> GetFamilyRelationshipAsync(RequestModel request, bool isShowToast = false);
+        Task<List<ContractAppendixModel>?> GetContractAppendixAsync(RequestModel request, bool isShowToast = false);
     }
 }

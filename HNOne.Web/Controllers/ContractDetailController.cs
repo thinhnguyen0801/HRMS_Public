@@ -548,6 +548,15 @@ namespace HNOne.Web.Controllers
                 await InvokeAsync(StateHasChanged);
             }
         }
+        
+        /// <summary>
+        /// gửi phê duyệt
+        /// </summary>
+        /// <returns></returns>
+        protected async Task SubmitForApprovalHandler()
+        {
+
+        }
         #endregion
     }
 }

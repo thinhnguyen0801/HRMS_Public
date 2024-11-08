@@ -51,6 +51,9 @@ namespace HNOne.API.Controllers
                     case ProcessConstants.GET_INSURANCE:
                         response.data = await _personnelService.GetInsurance(request.employeeId);
                         break;
+                    case ProcessConstants.GET_CONTRACT_APPENDIX:
+                        response.data = await _personnelService.GetContractAppendix(request);
+                        break;
 
                     default:
                         response.status = StatusCodes.Status404NotFound;

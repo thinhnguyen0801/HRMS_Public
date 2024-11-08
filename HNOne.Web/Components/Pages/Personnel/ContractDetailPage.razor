@@ -9,8 +9,13 @@
                 
                 <DxToolbarItem Text="Lưu" BeginGroup="true" IconCssClass="@($"{IconClassConstants.ICON_UPDATE}")" CssClass="w1FontSize"
                                Alignment="@ToolbarItemAlignment.Right" Click="@SaveDataHandler" />
+
+                <DxToolbarItem Text="Gửi phê duyệt" BeginGroup="true" IconCssClass="@($"{IconClassConstants.ICON_SHARE}")" CssClass="w1FontSize"
+                               Alignment="@ToolbarItemAlignment.Right" Click="@(()=> SubmitForApprovalHandler())" />
+
                 <DxToolbarItem Text="Hủy" BeginGroup="true" IconCssClass="@($"{IconClassConstants.ICON_DELETE}")" CssClass="w1FontSize"
                                Alignment="@ToolbarItemAlignment.Right" />
+
                 <DxToolbarItem Text="Làm mới" BeginGroup="true" IconCssClass="@($"{IconClassConstants.ICON_REFRESH}")" CssClass="w1FontSize"
                                Alignment="@ToolbarItemAlignment.Right" />
             </Items>
@@ -375,7 +380,7 @@
                                         <DxGridDataColumn FieldName="@nameof(SalaryConfigurationModel.isHealthInsurance)" Caption="BHYT" MinWidth="80" DataRowEditorVisible="false" />
                                         <DxGridDataColumn FieldName="@nameof(SalaryConfigurationModel.isAccidentInsurance)" Caption="BHTN" MinWidth="80" DataRowEditorVisible="false" />
                                         <DxGridDataColumn FieldName="@nameof(SalaryConfigurationModel.isOccupationalAccidentInsurance)" Caption="BHTNLD" MinWidth="80" DataRowEditorVisible="false" />
-                                        <DxGridDataColumn FieldName="@nameof(SalaryConfigurationModel.isUnionFee)" Caption="Phí công đoàn" MinWidth="100" DataRowEditorVisible="false" />
+                                        @* <DxGridDataColumn FieldName="@nameof(SalaryConfigurationModel.isUnionFee)" Caption="Phí công đoàn" MinWidth="100" DataRowEditorVisible="false" /> *@
                                     </Columns>
                                 </DxGrid>
                             </div>

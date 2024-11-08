@@ -23,6 +23,7 @@ namespace HNOne.Web.Controllers
         #region Properties
         public string? pActionType { get; set; } = nameof(EnumType.Add);
         private int pDocEntry { get; set; } = 0;
+        private int pContractId { get; set; } = 0; // id của hợp dồng
         public bool IsReadonlyControl { get; set; } = false;
         public bool firstRender = true;
         public ContractAppendixModel ContractDocument { get; set; } = new ContractAppendixModel();
@@ -96,6 +97,7 @@ namespace HNOne.Web.Controllers
                 {
                     if (pParams.ContainsKey("pActionType")) pActionType = Convert.ToString(pParams["pActionType"]);
                     if (pParams.ContainsKey("pDocEntry")) pDocEntry = Convert.ToInt32(pParams["pDocEntry"]);
+                    if (pParams.ContainsKey("pContractId")) pContractId = Convert.ToInt32(pParams["pContractId"]);
                 }
             }
             IsReadonlyControl = pActionType == nameof(EnumType.Update);
@@ -140,6 +142,10 @@ namespace HNOne.Web.Controllers
             StateHasChanged();
         }
 
+        /// <summary>
+        /// hiển thị thông tin phiếu voucher
+        /// </summary>
+        /// <returns></returns>
         private async Task showVoucher()
         {
             try
@@ -149,16 +155,18 @@ namespace HNOne.Web.Controllers
                 request.userId = UserId;
                 request.branchId = BranchId;
                 request.token = Token;
-                //var lstData = await _personnelService.GetContractAsync(request);
-                //if (!lstData.IsNullOrEmpty())
-                //{
-                //    ContractDocument = lstData![0];
-                //    if (!string.IsNullOrEmpty(ContractDocument.jsonDetail))
-                //    {
-                //        ListSalaryInfoConfig = JsonConvert.DeserializeObject<List<SalaryConfigurationModel>>(ContractDocument.jsonDetail);
-                //        GridSalaryInfoConfig?.Reload();
-                //    }
-                //}
+                request.opt1 = pContractId.ToString();
+                var lstData = await _personnelService.GetContractAppendixAsync(request, true);
+                if (!lstData.IsNullOrEmpty())
+                {
+                    ContractDocument = lstData![0];
+                    ListCboContract = new List<ComboboxModel>() { new ComboboxModel() { id = ContractDocument.contractId, code = ContractDocument.contractCode, name = ContractDocument.contractCode} };
+                    if (!string.IsNullOrEmpty(ContractDocument.jsonDetail))
+                    {
+                        ListSalaryInfoConfig = JsonConvert.DeserializeObject<List<SalaryConfigurationModel>>(ContractDocument.jsonDetail);
+                        GridSalaryInfoConfig?.Reload();
+                    }
+                }
             }
             catch (Exception ex)
             {
@@ -358,6 +366,7 @@ namespace HNOne.Web.Controllers
                 {
                     pActionType = nameof(EnumType.Update);
                     pDocEntry = result;
+                    pContractId = contractId;
                     await showVoucher();
                 }
             }
@@ -466,6 +475,11 @@ namespace HNOne.Web.Controllers
             if (itemFind == null) return;
             itemFind.amount = itemEdit.amount;
             calcTotalSalary();
+        }
+        
+        protected async Task SubmitForApprovalHandler()
+        {
+
         }
         #endregion
     }

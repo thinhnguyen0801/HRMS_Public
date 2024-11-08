@@ -13,7 +13,6 @@ namespace HNOne.Web.Controllers
     public class ContractListController : DocumentControllerBase
     {
         [Inject] IPersonnelService _personnelService { get; init; }
-        [Inject] IEncryptHelper _encryptHelper { get; init; }
 
         #region Properties
         public List<ContractModel>? ListContract { get; set; }

@@ -47,6 +47,9 @@ namespace HNOne.API.Services
         /// <returns></returns>
         public async Task<IEnumerable<InsuranceModel>> GetInsurance(int employeeId)
             => await _personnelRepository.GetInsurance(employeeId);
+
+        public async Task<IEnumerable<ContractAppendixModel>> GetContractAppendix(RequestModel request)
+            => await _personnelRepository.GetContractAppendix(request);
         #endregion
 
 

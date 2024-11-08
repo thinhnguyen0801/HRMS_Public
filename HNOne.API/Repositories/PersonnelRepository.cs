@@ -121,6 +121,43 @@ namespace HNOne.API.Repositories
                 return results;
             }    
         }
+
+        /// <summary>
+        /// lấy danh sách phụ lục hợp đồng
+        /// </summary>
+        /// <param name="request"></param>
+        /// <returns></returns>
+        public async Task<IEnumerable<ContractAppendixModel>> GetContractAppendix(RequestModel request)
+        {
+            using (var connection = _dapperDbContext.CreateConnection())
+            {
+                int.TryParse(request.opt1, out int contractId);
+                request.fromDate ??= new DateTime(2000, 01, 01);
+                request.toDate ??= DateTime.Now.AddMonths(1);
+                var parameters = new DynamicParameters();
+                parameters.Add("@ContractAppendixId", request.documentId, DbType.Int32);
+                parameters.Add("@ContractId", contractId, DbType.Int32);
+                parameters.Add("@UserId", request.userId, DbType.Int32);
+                parameters.Add("@BranchId", request.branchId, DbType.Int32);
+                parameters.Add("@StatusIds", request.opt, DbType.String);
+                parameters.Add("@FromDate", request.fromDate, DbType.Date);
+                parameters.Add("@ToDate", request.toDate, DbType.Date);
+                IEnumerable<ContractAppendixModel>? lstResult = null;
+                var dtResult = await connection.QueryMultipleAsync(StoreConstants.STORE_H1_CONTRACT_APPENDIX_SELECT, param: parameters
+                    , commandTimeout: GlobalConstants.COMMAND_TIMEOUT, commandType: CommandType.StoredProcedure);
+                if (dtResult != null)
+                {
+                    lstResult = dtResult.Read<ContractAppendixModel>();
+                    if (request.documentId > 0)
+                    {
+                        var lstSalaryConfig = dtResult.Read<SalaryConfigurationModel>();
+                        string jsonDetail = JsonConvert.SerializeObject(lstSalaryConfig);
+                        lstResult = lstResult.Update(m => m.jsonDetail = jsonDetail);
+                    }
+                }
+                return lstResult ?? new List<ContractAppendixModel>();
+            }
+        }
         #endregion
 
         #region Command

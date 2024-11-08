@@ -306,5 +306,35 @@ namespace HNOne.Web.Services
             }
             catch (Exception) { throw; }
         }
+
+        /// <summary>
+        /// lấy danh sách phụ lục hợp đồng
+        /// </summary>
+        /// <param name="request"></param>
+        /// <param name="isShowToast"></param>
+        /// <returns></returns>
+        public async Task<List<ContractAppendixModel>?> GetContractAppendixAsync(RequestModel request, bool isShowToast = false)
+        {
+            try
+            {
+                List<ContractAppendixModel>? data = null;
+                request.process = ProcessConstants.GET_CONTRACT_APPENDIX;
+                HttpResponseMessage httpResponse = await PostAsync(EnpointConstants.PERSONNEL_GET_DATA, request);
+                var checkContent = ValidateJsonContent(httpResponse.Content);
+                if (!checkContent) _toastService.ShowInfo(MessageConstants.MESSAGE_JSON_INVALID);
+                else
+                {
+                    var response = await httpResponse.Content.ReadFromJsonAsync<ResCliModel<ContractAppendixModel>>();
+                    if (response == null || response.status != StatusCodes.Status200OK)
+                    {
+                        if (isShowToast) _toastService.ShowWarning(response?.message ?? MessageConstants.MESSAGE_IT_SUPPORT);
+                        return data;
+                    }
+                    data = response.data?.ToList();
+                }
+                return data;
+            }
+            catch (Exception) { throw; }
+        }
     }
 }

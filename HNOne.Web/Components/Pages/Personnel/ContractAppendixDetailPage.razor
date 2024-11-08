@@ -7,11 +7,16 @@
         <DxToolbar ItemRenderStyleMode="@ToolbarRenderStyleMode.Contained">
             <Items>
 
-                <DxToolbarItem Text="Lưu" BeginGroup="true" IconCssClass="@($"{IconClassConstants.ICON_UPDATE}")"
+                <DxToolbarItem Text="Lưu" BeginGroup="true" IconCssClass="@($"{IconClassConstants.ICON_UPDATE}")" CssClass="w1FontSize"
                                Alignment="@ToolbarItemAlignment.Right" Click="@SaveDataHandler" />
-                <DxToolbarItem Text="Hủy" BeginGroup="true" IconCssClass="@($"{IconClassConstants.ICON_DELETE}")"
+
+                <DxToolbarItem Text="Gửi phê duyệt" BeginGroup="true" IconCssClass="@($"{IconClassConstants.ICON_SHARE}")" CssClass="w1FontSize"
+                               Alignment="@ToolbarItemAlignment.Right" Click="@(()=> SubmitForApprovalHandler())" />
+
+                <DxToolbarItem Text="Hủy" BeginGroup="true" IconCssClass="@($"{IconClassConstants.ICON_DELETE}")" CssClass="w1FontSize"
                                Alignment="@ToolbarItemAlignment.Right" />
-                <DxToolbarItem Text="Làm mới" BeginGroup="true" IconCssClass="@($"{IconClassConstants.ICON_REFRESH}")"
+
+                <DxToolbarItem Text="Làm mới" BeginGroup="true" IconCssClass="@($"{IconClassConstants.ICON_REFRESH}")" CssClass="w1FontSize"
                                Alignment="@ToolbarItemAlignment.Right" />
             </Items>
         </DxToolbar>
@@ -79,6 +84,7 @@
                                                             FilteringMode="DataGridFilteringMode.Contains"
                                                             TextFieldName="@nameof(ComboboxModel.name)"
                                                             ValueFieldName="@nameof(ComboboxModel.code)"
+                                                            ReadOnly="@(pActionType != nameof(EnumType.Add))"
                                                             CssClass="w1FontSize" Id="contractCode">
                                                 </DxComboBox>
                                             </div>
@@ -137,7 +143,7 @@
                                         <div class="d-flex ">
                                             <W1Label Value="Số phụ lục" Styles="width: 110px" />
                                             <div style="width: calc(100% - 110px)">
-                                                <DxTextBox @bind-Text="@ContractDocument.contractAppendixCode" CssClass="w1FontSize"></DxTextBox>
+                                                <DxTextBox @bind-Text="@ContractDocument.contractAppendixCode" CssClass="w1FontSize" ReadOnly="@(pActionType != nameof(EnumType.Add))"></DxTextBox>
                                             </div>
                                         </div>
                                     </div>
@@ -340,7 +346,7 @@
                                 <DxGridDataColumn FieldName="@nameof(SalaryConfigurationModel.isHealthInsurance)" Caption="BHYT" MinWidth="80" DataRowEditorVisible="false" />
                                 <DxGridDataColumn FieldName="@nameof(SalaryConfigurationModel.isAccidentInsurance)" Caption="BHTN" MinWidth="80" DataRowEditorVisible="false" />
                                 <DxGridDataColumn FieldName="@nameof(SalaryConfigurationModel.isOccupationalAccidentInsurance)" Caption="BHTNLD" MinWidth="80" DataRowEditorVisible="false" />
-                                <DxGridDataColumn FieldName="@nameof(SalaryConfigurationModel.isUnionFee)" Caption="Phí công đoàn" MinWidth="100" DataRowEditorVisible="false" />
+                                @* <DxGridDataColumn FieldName="@nameof(SalaryConfigurationModel.isUnionFee)" Caption="Phí công đoàn" MinWidth="100" DataRowEditorVisible="false" /> *@
                             </Columns>
                         </DxGrid>
                     </div>
