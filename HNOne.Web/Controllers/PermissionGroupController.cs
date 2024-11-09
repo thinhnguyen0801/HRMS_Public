@@ -95,10 +95,33 @@ namespace HNOne.Web.Controllers
         {
             if (string.IsNullOrEmpty(DataUpdate.name))
             {
-                errorMessage = String.Format(MessageConstants.MESSAGE_STRING_REQUIRE, "tên tài khoản");
+                errorMessage = string.Format(MessageConstants.MESSAGE_STRING_REQUIRE, "tên tài khoản");
                 fieldName = "txtName";
                 return;
             }
+        }
+
+        /// <summary>
+        /// kiểm tra dữ liệu trước khi lưu phân quyền
+        /// </summary>
+        /// <param name="errorMessage"></param>
+        private void validateForSavePermission(ref string errorMessage)
+        {
+            if (SelectedItems.IsNullOrEmpty())
+            {
+                errorMessage = MessageConstants.MESSAGE_NO_CHOSE_DATA;
+                return;
+            }
+            if (SelectedItems!.Count > 1)
+            {
+                errorMessage = MessageConstants.MESSAGE_ONLY_ONE_SELECTION_ALLOWED;
+                return;
+            }
+            if(ListMenuAuth.IsNullOrEmpty())
+            {
+                errorMessage = string.Format(MessageConstants.MESSAGE_NOT_FOUNT_FORMAT, "Phân quyền");
+                return;
+            }    
         }
 
         #endregion
@@ -193,7 +216,7 @@ namespace HNOne.Web.Controllers
             }
         }
 
-        public async Task DeleteDataHandler()
+        protected async Task DeleteDataHandler()
         { 
             try
             {
@@ -202,6 +225,122 @@ namespace HNOne.Web.Controllers
             catch (Exception ex)
             {
                 _logger!.LogError(ex, "DeleteDataHandler");
+                ShowError(ex.Message);
+            }
+            finally
+            {
+                await Task.Delay(50);
+                await ShowLoading(false);
+                await InvokeAsync(StateHasChanged);
+            }
+        }
+        
+        /// <summary>
+        /// cập nhật quyền cho nhóm
+        /// </summary>
+        /// <returns></returns>
+        protected async Task SavePermissionHandler()
+        {
+            try
+            {
+                string errorMessage = string.Empty;
+                validateForSavePermission(ref errorMessage);
+                if (!string.IsNullOrEmpty(errorMessage))
+                {
+                    ShowWarning(errorMessage);
+                    return;
+                }
+                var permision = JsonConvert.DeserializeObject<PermissionGroupModel>(JsonConvert.SerializeObject(SelectedItems![0]));
+                errorMessage = string.Format(MessageConstants.MESSAGE_CONFIRM_UPDATE_FORMAT, $"quyền cho nhóm {permision!.code}");
+                bool isConfirm = await confirm.SetConfirm(MessageConstants.MESSAGE_TITLE, errorMessage);
+                if (!isConfirm) return;
+                await ShowLoading();
+                List<object> lstEvent = new List<object>();
+                foreach(var menu in ListMenuAuth!)
+                {
+                    if(!menu.listEvent.IsNullOrEmpty())
+                    {
+                        var dataEvetn = menu.listEvent!.Select(m => new
+                        {
+                            m.eventId,
+                            m.actionName,
+                            m.isAllow,
+                            userSign = UserId,
+                            userSign2 = UserId,
+                        });
+                        lstEvent.AddRange(dataEvetn);
+                    }    
+                }    
+                DataUpdate.userSign = UserId;
+                DataUpdate.userSign2 = UserId;
+                string content = JsonConvert.SerializeObject(lstEvent);
+                isConfirm = await _userDataService.UpdatePerGroupControlAsync(permision!.id, UserId, Token, content);
+                if(isConfirm)
+                {
+                    // load lại dữ liệu cấu hình
+                    SelectedItems = null;
+                }    
+            }
+            catch (Exception ex)
+            {
+                _logger!.LogError(ex, "SavePermissionHandler");
+                ShowError(ex.Message);
+            }
+            finally
+            {
+                await Task.Delay(50);
+                await ShowLoading(false);
+                await InvokeAsync(StateHasChanged);
+            }
+        }
+        
+        /// <summary>
+        /// call lấy dữ liệu phân quyền
+        /// </summary>
+        /// <param name="selected"></param>
+        /// <returns></returns>
+        protected async Task ItemGroupChangedHandler(object selected)
+        {
+            try
+            {
+                if(ListMenuAuth.IsNullOrEmpty())
+                {
+                    ShowWarning(string.Format(MessageConstants.MESSAGE_NOT_FOUNT_FORMAT, "Phân quyền"));
+                    return;
+                }
+                await ShowLoading();
+                ListMenuAuth!.Update(m => m.listEvent?.Update(m => m.isAllow = false));
+                PermissionGroupModel permissionSelected = (PermissionGroupModel)selected;
+                RequestModel request = new RequestModel();
+                request.userId = UserId;
+                request.token = Token;
+                request.branchId = BranchId;
+                request.documentId = permissionSelected.id;
+                request.process = ProcessConstants.GET_PER_GROUP_ACCESS_CONTROL;
+                var listResult = await _userDataService.GetMasterDataAsync<EventConfigModel>(request);
+                if (!listResult.IsNullOrEmpty())
+                {
+                    foreach (var menu in ListMenuAuth!)
+                    {
+                        if (menu.listEvent.IsNullOrEmpty()) continue;
+                        foreach (var item in menu.listEvent!)
+                        {
+                            foreach (var permiss in listResult!)
+                            {
+                                if (item.eventId == permiss.eventId)
+                                {
+                                    item.isAllow = permiss.isAllow;
+                                    break;
+                                }
+                            }
+                        }
+                    }
+                }
+                GridMenuAuth?.Reload();
+            }
+            catch (Exception ex)
+            {
+                _logger!.LogError(ex, "SavePermissionHandler");
                 ShowError(ex.Message);
             }
             finally

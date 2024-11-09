@@ -28,6 +28,8 @@ namespace HNOne.API.Services
         public async Task<IEnumerable<PermissionGroupModel>> GetPermissionGroup(RequestModel request)
             => await _userRepository.GetPermissionGroup(request);
 
+        public async Task<IEnumerable<GroupAccessControls>> GetPermissionByGroupId(int groupId)
+            => await _userRepository.GetPermissionByGroupId(groupId);
         #region Command
         public async Task<ResponseModel> UpdateUser(string actionType, Users entity)
         {
@@ -82,6 +84,9 @@ namespace HNOne.API.Services
             }
             return response;
         }
+
+        public async Task<ResponseModel> UpdateGroupAccessControl(int groupId, IEnumerable<GroupAccessControls> listEntity)
+            => await _userRepository.UpdateGroupAccessControl(groupId, listEntity);
         #endregion
     }
 }

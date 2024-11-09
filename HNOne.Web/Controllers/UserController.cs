@@ -25,7 +25,7 @@ namespace HNOne.Web.Controllers
         [Inject] IPersonnelService _personnelService { get; init; }
         [Inject] IJSRuntime _jsRuntime { get; set; }
         [Inject] IEncryptHelper _encryptHelper { get; init; }
-
+        public W1Confirm confirm { get; set; }
         #region Properties
         public List<UserModel>? ListUser { get; set; }
         public IGrid? GridUser { get; set; }
@@ -34,18 +34,22 @@ namespace HNOne.Web.Controllers
         public EditContext? _EditContext { get; set; }
         public bool IsShowDialog { get; set; }
         public bool IsCreate { get; set; } = true;
-        public W1Confirm confirm { get; set; }
-        public List<ComboboxModel>? ListCboBranchId { get; set; } // cbo ds chi nhánh
-        public List<ComboboxModel>? ListCboDepartmentId { get; set; } // cbo ds chi nhánh
-        public List<ComboboxModel>? ListPerGroupId { get; set; } // cbo ds quyền nhóm
+        
+        public List<ComboboxModel>? ListCboBranch { get; set; } // cbo ds chi nhánh
+        public IEnumerable<ComboboxModel>? ListCboBranchSelected { get; set; } // ds được chọn chi nhánh sử dụng
+        public List<ComboboxModel>? ListCboDepartment { get; set; } // cbo ds phòng ban
+        public IEnumerable<ComboboxModel>? ListDepartmentSelected { get; set; }
+        public List<ComboboxModel>? ListCboPerGroup { get; set; } // cbo ds quyền nhóm
         public List<EmployeeModel>? ListEmployee { get; set; } // ds nhân viên
-        public List<ComboboxModel>? ListCboType { get; set; } // cbo ds loại lý do
         public string? StatusFilter { get; set; } // tình trạng
-        public List<EnumCatagoryModel>? ListCboStatus { get; set; } // danh sách tình trạng nhân viên
         public bool IsShowPassword { get; set; } = false;
-        public bool IsShowRepassword { get; set; } = false;
+        public bool IsShowRePassword { get; set; } = false;
 
 
+        public bool IsShowDialogEmpSearch { get; set; }
+        public string? DepartmentIds { get; set; }
+        public string? StatusIds { get; set; } // Tình trạng nào
+        public object? EmployeeSelected { get; set; } // Nhân viên được chọn
         #endregion
 
         protected override async Task OnAfterRenderAsync(bool firstRender)
@@ -88,68 +92,65 @@ namespace HNOne.Web.Controllers
             ListUser = new List<UserModel>();
             ListUser = await _userDataService.GetUserAsync(request);
         }
-        private void validateForSave(ref string errorMessage, ref string fieldName)
-        {
-            if (string.IsNullOrEmpty(UserUpdate.userName))
-            {
-                errorMessage = String.Format(MessageConstants.MESSAGE_STRING_REQUIRE, "tên tài khoản");
-                fieldName = nameof(UserUpdate.userName);
-                return;
-            }
-            if (string.IsNullOrEmpty(UserUpdate.password))
-            {
-                errorMessage = String.Format(MessageConstants.MESSAGE_STRING_REQUIRE, "mật khẩu");
-                fieldName = nameof(UserUpdate.password);
-                return;
-            }
-            if (UserUpdate.branchId < 1)
-            {
-                errorMessage = String.Format(MessageConstants.MESSAGE_COMBOBOX_REQUIRE, "Chi nhánh");
-                fieldName = nameof(UserUpdate.branchId);
-                return;
-            }
-            if (UserUpdate.employeeId < 1)
-            {
-                errorMessage = String.Format(MessageConstants.MESSAGE_COMBOBOX_REQUIRE, "Nhân viên liên kết");
-                fieldName = nameof(UserUpdate.employeeId);
-                return;
-            }
-        }
+
         private async Task buildComboAsync()
         {
             try
             {
-                ListCboStatus = await _masterDataService.GetEnumAsync(UserId, Token, nameof(EnumCatagory.TrangThaiNhanVien)); // ds trạng thái nhân viên
-                if (!ListCboStatus.IsNullOrEmpty()) StatusFilter = ListCboStatus![0].code;
-                var getTask1 = _masterDataService.GetBranchAsync(UserId, Token);
-                var getTask2 = _masterDataService.GetDepartmentAsync(UserId, Token);
-                await Task.WhenAll(
-                        getTask1,
-                        getTask2
-                        );
-                ListCboBranchId = (await getTask1)?.Select(m => new ComboboxModel() { id = m.branchId, name = m.branchName })?.ToList();
-                ListCboDepartmentId = (await getTask2)?.Select(m => new ComboboxModel() { id = m.id, name = m.name })?.ToList();
-
                 RequestModel request = new RequestModel();
                 request.userId = UserId;
                 request.branchId = BranchId;
-                request.opt = "";
-                ListEmployee = new List<EmployeeModel>();
-                var lstEmp = await _personnelService.GetEmployeeAsync(request);
-                ListEmployee = lstEmp?.Update(m =>
-                {
-                    Dictionary<string, string> pParams = new Dictionary<string, string>
-                {
-                    { "pActionType", nameof(EnumType.Update) },
-                    { "pDocEntry", $"{m.id}" },
-                };
-                    m.link = _encryptHelper.Encrypt(JsonConvert.SerializeObject(pParams));
-                })?.ToList();
+                request.opt = "ACTIVE";
+                var getTask1 = _masterDataService.GetBranchAsync(UserId, Token);
+                var getTask2 = _masterDataService.GetDepartmentAsync(UserId, Token);
+                var getTask3 = _userDataService.GetPermissionGroup(request);
+                await Task.WhenAll(
+                    getTask1,
+                    getTask2,
+                    getTask3
+                );
+                ListCboBranch = (await getTask1)?.Select(m => new ComboboxModel() { id = m.branchId, code = m.branchCode, name = m.branchName })?.ToList();
+                ListCboDepartment = (await getTask2)?.Select(m => new ComboboxModel() { id = m.id, code = m.code, name = m.name })?.ToList();
+                ListCboPerGroup = (await getTask3)?.Select(m => new ComboboxModel() { id = m.id, code = m.code, name = m.name })?.ToList();
             }
             catch (Exception ex)
             {
                 ShowError(ex.Message);
                 _logger.LogError(ex, "buildComboAsync");
+            }
+        }
+
+        private void validateForSave(ref string errorMessage, ref string fieldName)
+        {
+            if (string.IsNullOrEmpty(UserUpdate.userName))
+            {
+                errorMessage = string.Format(MessageConstants.MESSAGE_STRING_REQUIRE, "Tên tài khoản");
+                fieldName = "txtUserName";
+                return;
+            }
+            if (string.IsNullOrEmpty(UserUpdate.password))
+            {
+                errorMessage = string.Format(MessageConstants.MESSAGE_STRING_REQUIRE, "Mật khẩu");
+                fieldName = "txtPassword";
+                return;
+            }
+            if (string.IsNullOrEmpty(UserUpdate.rePassword))
+            {
+                errorMessage = string.Format(MessageConstants.MESSAGE_STRING_REQUIRE, "Mật khẩu");
+                fieldName = "txtRePassword";
+                return;
+            }
+            if (UserUpdate.password.Trim() != UserUpdate.rePassword.Trim())
+            {
+                errorMessage = string.Format("Nhập lại mật khẩu không khớp!");
+                fieldName = "txtRePassword";
+                return;
+            }
+            if (UserUpdate.branchId < 1)
+            {
+                errorMessage = string.Format(MessageConstants.MESSAGE_COMBOBOX_REQUIRE, "Chi nhánh");
+                fieldName = nameof(UserUpdate.branchId);
+                return;
             }
         }
         #endregion
@@ -180,7 +181,7 @@ namespace HNOne.Web.Controllers
             try
             {
                 IsShowPassword = false;
-                IsShowRepassword = false;
+                IsShowRePassword = false;
                 if (pAction == EnumType.Add)
                 {
                     IsCreate = true;
@@ -188,15 +189,20 @@ namespace HNOne.Web.Controllers
                 }
                 else
                 {
-                    //string userName = _encryptHelper.Encrypt(LoginRequest.userName);
-
                     UserUpdate.userId = pItemDetails!.userId;
                     UserUpdate.userName = pItemDetails!.userName;
                     UserUpdate.password = _encryptHelper.Decrypt(pItemDetails!.password);
+                    UserUpdate.rePassword = _encryptHelper.Decrypt(pItemDetails!.password);
                     UserUpdate.branchId = pItemDetails!.branchId;
                     UserUpdate.employeeId = pItemDetails!.employeeId;
+                    UserUpdate.employeeCode = pItemDetails!.employeeCode;
+                    UserUpdate.employeeName = pItemDetails!.employeeName;
                     UserUpdate.branchIds = pItemDetails!.branchIds;
+                    string[] arrBranchSelected = $"{pItemDetails!.branchIds}".Split(",");
+                    ListCboBranchSelected = ListCboBranch?.Where(m => arrBranchSelected.Contains($"{m.id}"));
                     UserUpdate.departmentIds = pItemDetails!.departmentIds;
+                    string[] arrDepartSelected = $"{pItemDetails!.departmentIds}".Split(",");
+                    ListDepartmentSelected = ListCboDepartment?.Where(m => arrDepartSelected.Contains($"{m.id}"));
                     UserUpdate.isActive = pItemDetails!.isActive;
                     UserUpdate.isAdmin = pItemDetails!.isAdmin;
                     UserUpdate.perGroupId = pItemDetails!.perGroupId;
@@ -226,12 +232,15 @@ namespace HNOne.Web.Controllers
                     await _jsRuntime.InvokeVoidAsync("focusInput", fieldName);
                     return;
                 }
-                bool isConfirm = await confirm.SetConfirm(MessageConstants.MESSAGE_TITLE, MessageConstants.MESSAGE_CONFIRM_ADD);
+                errorMessage = IsCreate ? MessageConstants.MESSAGE_CONFIRM_ADD : MessageConstants.MESSAGE_CONFIRM_UPDATE;
+                bool isConfirm = await confirm.SetConfirm(MessageConstants.MESSAGE_TITLE, errorMessage);
                 if (!isConfirm) return;
                 await ShowLoading();
                 string processKey = IsCreate ? ProcessConstants.POST_USER : ProcessConstants.PUT_USER;
                 UserUpdate.userSign = UserId;
                 UserUpdate.userSign2 = UserId;
+                if(!ListCboBranchSelected.IsNullOrEmpty()) UserUpdate.branchIds = string.Join(",", ListCboBranchSelected!.Select(m => m.id));
+                if(!ListDepartmentSelected.IsNullOrEmpty()) UserUpdate.departmentIds = string.Join(",", ListDepartmentSelected!.Select(m => m.id));
                 string content = JsonConvert.SerializeObject(UserUpdate);
                 isConfirm = await _userDataService.UpdateUserAsync(processKey, UserId, Token, content);
                 if (isConfirm)
@@ -254,7 +263,7 @@ namespace HNOne.Web.Controllers
             }
         }
 
-        public async Task DeleteDataHandler()
+        protected async Task DeleteDataHandler()
         {
             try
             {
@@ -281,6 +290,71 @@ namespace HNOne.Web.Controllers
             finally
             {
                 await Task.Delay(50);
+                await ShowLoading(false);
+                await InvokeAsync(StateHasChanged);
+            }
+        }
+        
+        protected void ShowPasswordHandler() => IsShowPassword = !IsShowPassword;
+        protected void ShowRePasswordHandler() => IsShowRePassword = !IsShowRePassword;
+
+        /// <summary>
+        /// callback nhân viên
+        /// </summary>
+        /// <param name="lstEmp"></param>
+        protected void EventCallbackEmpChangedHandler(object? lstEmp) => EmployeeSelected = lstEmp;
+
+        /// <summary>
+        /// chọn nhân viên
+        /// </summary>
+        /// <returns></returns>
+        protected async Task SelectEmployeeHandler()
+        {
+            try
+            {
+                if (EmployeeSelected == null)
+                {
+                    ShowWarning(string.Format(MessageConstants.MESSAGE_COMBOBOX_REQUIRE, "Nhân viên"));
+                    return;
+                }
+                EmployeeModel employee = (EmployeeModel)EmployeeSelected;
+                UserUpdate.employeeId = employee.id;
+                UserUpdate.employeeCode = employee.code;
+                UserUpdate.employeeName = employee.name;
+                IsShowDialogEmpSearch = false;
+            }
+            catch (Exception ex)
+            {
+                ShowError(ex.Message);
+                _logger.LogError(ex, "SelectEmployeeHandler");
+            }
+            finally
+            {
+                await ShowLoading(false);
+                await InvokeAsync(StateHasChanged);
+            }
+        }
+
+        protected async Task OpenPopupHandler(string type = nameof(EmployeeSelected), string popupType = nameof(UserUpdate.employeeCode))
+        {
+            try
+            {
+                switch (type)
+                {
+                    case nameof(EmployeeSelected):
+                        ListCboDepartment ??= new();
+                        DepartmentIds = string.Join(",", ListCboDepartment.Select(m => m.id));
+                        IsShowDialogEmpSearch = true;
+                        break;
+                }
+            }
+            catch (Exception ex)
+            {
+                ShowError(ex.Message);
+                _logger.LogError(ex, "OpenPopupHandler");
+            }
+            finally
+            {
                 await ShowLoading(false);
                 await InvokeAsync(StateHasChanged);
             }

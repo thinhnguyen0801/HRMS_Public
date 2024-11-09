@@ -44,18 +44,18 @@ namespace HNOne.API.Repositories
                 var result = await connection.QueryAsync<MenuModel>(StoreConstants.STORE_H1_MENU_SELECT, param: parameters, commandTimeout: GlobalConstants.COMMAND_TIMEOUT, commandType: CommandType.StoredProcedure);
                 if (string.Equals(request.type, "AUTHENTICATION", StringComparison.OrdinalIgnoreCase))
                 {
-                    var groupBy = result.GroupBy(m => m.menuID);
+                    var groupBy = result.GroupBy(m => m.parentID);
                     foreach(var group in groupBy)
                     {
                         var header = group.First();
                         MenuModel menuModel = new MenuModel();
-                        menuModel.menuID = group.Key;
+                        menuModel.menuID = header.menuID;
                         menuModel.menuName = header.menuName;
-                        menuModel.parentID = header.parentID;
+                        menuModel.parentID = group.Key;
                         menuModel.parentName = header.parentName;
                         menuModel.level = header.level;
                         menuModel.ordinalNumber = header.ordinalNumber;
-                        menuModel.listEvent = group.Select(m => new EventConfigModel() { actionKey = m.actionKey, actionName = m.actionName }).ToList();
+                        menuModel.listEvent = group.Select(m => new EventConfigModel() { eventId = m.eventId, actionName = m.actionName }).ToList();
                         lstMenu.Add(menuModel);
                     }    
                 }

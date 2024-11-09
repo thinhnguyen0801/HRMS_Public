@@ -34,6 +34,8 @@
                             FocusedRowEnabled="true"
                             SelectionMode="@GridSelectionMode.Multiple"
                             @bind-SelectedDataItems="@SelectedItems"
+                            SelectedDataItemChanged="@ItemGroupChangedHandler"
+                            AllowSelectRowByClick="true"
                             KeyFieldName="@nameof(PermissionGroupModel.id)"
                             CssClass="h-full">
                         <Columns>
@@ -67,7 +69,7 @@
                     <DxToolbar ItemRenderStyleMode="@ToolbarRenderStyleMode.Contained">
                         <Items>
                             <DxToolbarItem Text="Lưu" BeginGroup="true" IconCssClass="@($"{IconClassConstants.ICON_UPDATE}")" CssClass="w1FontSize"
-                                           Alignment="@ToolbarItemAlignment.Right" Click="@(()=> OnOpenDialogHandler())" />
+                                           Alignment="@ToolbarItemAlignment.Right" Click="@(()=> SavePermissionHandler())" />
                         </Items>
                     </DxToolbar>
                 </div>
@@ -91,44 +93,31 @@
                             CssClass="h-full">
                         <Columns>
                             <DxGridDataColumn FieldName="@nameof(MenuModel.parentName)" Caption="Nhóm menu" MinWidth="110" GroupIndex="0" DataRowEditorVisible="false" />
-                            <DxGridDataColumn FieldName="@nameof(MenuModel.menuName)" Caption="Chức năng" MinWidth="150" GroupIndex="0" DataRowEditorVisible="false" />
-                            <DxGridDataColumn Caption="Quyền chức năng" MinWidth="270">
-                                <CellEditTemplate>
+                            <DxGridDataColumn FieldName="@nameof(MenuModel.menuName)" Caption="Chức năng" Width="170px" MinWidth="150" DataRowEditorVisible="false" />
+                            <DxGridDataColumn Caption="Quyền chức năng" MinWidth="470" Width="100%">
+                                <CellDisplayTemplate>
                                     @{
                                         var lstEvent = (context.DataItem as MenuModel)!.listEvent;
                                         @if (lstEvent != null && lstEvent.Any())
                                         {
-                                            @foreach(var item in lstEvent)
-                                            {
-                                                <div style="width: 120px">
-                                                    <DxCheckBox CssClass="w-full w1FontSize"
-                                                                SizeMode="@SizeMode.Small"
-                                                                @bind-Checked="@item.isCheck"
-                                                                LabelPosition="@LabelPosition.Right">
-                                                        @item.actionName
-                                                    </DxCheckBox>
-                                                </div>
-                                            }
+                                            <div class="d-flex">
+                                                @foreach (var item in lstEvent)
+                                                {
+                                                    <div style="min-width: 120px; max-width: 120px; margin-right: 5px">
+                                                        <DxCheckBox CssClass="w-full w1FontSize" LabelWrapMode="@LabelWrapMode.Ellipsis"
+                                                                    SizeMode="@SizeMode.Small"
+                                                                    @bind-Checked="@item.isAllow"
+                                                                    LabelPosition="@LabelPosition.Right">
+                                                            @item.actionName
+                                                        </DxCheckBox>
+                                                    </div>
+                                                }
+                                            </div>
                                         }
                                     }
-                                </CellEditTemplate>
+                                </CellDisplayTemplate>
                             </DxGridDataColumn>
-                            <DxGridDataColumn FieldName="@nameof(MenuModel.isFull)" Caption="Toàn quyền" MinWidth="100" />
-                            <DxGridDataColumn FieldName="@nameof(MenuModel.isFull)" Caption="Toàn quyền" MinWidth="100" />
-                            <DxGridDataColumn FieldName="@nameof(MenuModel.isFull)" Caption="Toàn quyền" MinWidth="100" />
-                            <DxGridDataColumn FieldName="@nameof(MenuModel.isFull)" Caption="Toàn quyền" MinWidth="100" />
-                            <DxGridDataColumn FieldName="@nameof(MenuModel.isFull)" Caption="Toàn quyền" MinWidth="100" />
-                            <DxGridDataColumn FieldName="@nameof(MenuModel.isFull)" Caption="Toàn quyền" MinWidth="100" />
-                            <DxGridDataColumn FieldName="@nameof(MenuModel.isFull)" Caption="Toàn quyền" MinWidth="100" />
-                            <DxGridDataColumn FieldName="@nameof(MenuModel.isFull)" Caption="Toàn quyền" MinWidth="100" />
-                            <DxGridDataColumn FieldName="@nameof(MenuModel.isFull)" Caption="Toàn quyền" MinWidth="100" />
-                            <DxGridDataColumn FieldName="@nameof(MenuModel.isFull)" Caption="Toàn quyền" MinWidth="100" />
                         </Columns>
-                        <TotalSummary>
-                            <DxGridSummaryItem DisplayText="@GlobalContants.FORMAT_GRID_DISPLAYTEXT_COUNT" SummaryType="GridSummaryItemType.Count"
-                                               FieldName="@nameof(MenuModel.menuName)" ValueDisplayFormat="@GlobalContants.FORMAT_CURRENCY"
-                                               FooterColumnName="@nameof(MenuModel.menuName)" />
-                        </TotalSummary>
                     </DxGrid>
                 </div>
             </div>

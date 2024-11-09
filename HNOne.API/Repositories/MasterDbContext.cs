@@ -30,6 +30,7 @@ namespace HNOne.API.Repositories
         public DbSet<EventConfigurations> EventConfigurations { get; set; }
         public DbSet<ContractAppendices> ContractAppendices { get; set; }
         public DbSet<LevelOfEducations> LevelOfEducations { get; set; }
+        public DbSet<GroupAccessControls> GroupAccessControls { get; set; }
 
         public MasterDbContext(DbContextOptions<MasterDbContext> options)
             : base(options)

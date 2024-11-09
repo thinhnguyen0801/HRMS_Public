@@ -54,7 +54,9 @@
 .dxbl-grid .dxbl-grid-table > tfoot > tr > th,
 .dxbl-grid .dxbl-grid-table > thead > tr > td,
 .dxbl-grid .dxbl-grid-table > thead > tr > th,
-.dxbl-modal > .dxbl-modal-root > .dxbl-popup > .dxbl-modal-content {
+.dxbl-modal > .dxbl-modal-root > .dxbl-popup > .dxbl-modal-content,
+.dxbl-listbox > .dxbs-gridview .table > tbody > tr > td, 
+.dxbl-listbox > .dxbs-gridview .table > thead > tr > th {
     font-size: 12px !important;
 }
 

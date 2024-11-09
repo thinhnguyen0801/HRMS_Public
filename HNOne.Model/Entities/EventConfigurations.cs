@@ -22,6 +22,15 @@ namespace HNOne.Model.Entities
         [MaxLength(100)]
         public string? ActionName { get; set; } // Thêm xóa sửa
         [MaxLength(50)]
-        public string? MenuID { get; set; } 
+        public string? MenuID { get; set; } // menu
+        [MaxLength(250)]
+        public string? MenuName { get; set; } // Tên menu để hiển thị trên phân quyền
+        [MaxLength(50)]
+        public string? ParentID { get; set; } // Parent
+        [MaxLength(250)]
+        public string? ParentName { get; set; } // Parent
+        [MaxLength(50)]
+        public string? EventType { get; set; } // loại sự kiện
+        public int RowOrder { get; set; } // sắp xếp
     }
 }

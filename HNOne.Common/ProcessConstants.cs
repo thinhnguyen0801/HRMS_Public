@@ -46,9 +46,9 @@
         public const string GET_CONTRACT = "get-contract";
         public const string POST_CONTRACT = "post-contract";
         public const string PUT_CONTRACT = "put-contract";
-        public const string GET_PER_GROUP = "get-per_group";
-        public const string POST_PER_GROUP = "post-per_group";
-        public const string PUT_PER_GROUP = "put-per_group";
+        public const string GET_PER_GROUP = "get-per-group";
+        public const string POST_PER_GROUP = "post-per-group";
+        public const string PUT_PER_GROUP = "put-per-group";
         public const string DELETE_PER_GROUP = "delete-per_group";
         public const string GET_FAMILYRELATIONSHIP = "get-familyrelationship";
         public const string POST_FAMILYRELATIONSHIP = "post-familyrelationship";
@@ -64,6 +64,8 @@
         public const string GET_EDUCATION = "get-education";
         public const string POST_EDUCATION = "post-education";
         public const string PUT_EDUCATION = "put-education";
+        public const string GET_PER_GROUP_ACCESS_CONTROL = "get-per-group-access-control";
+        public const string POST_PER_GROUP_ACCESS_CONTROL = "post-per-group-access-control";
 
         #region Loại dưới store
         public const string GET_COMBO_TYPE_CONTRACT_BY_EMPLOYEEID = "CONTRACT_BY_EMPLOYEEID";
