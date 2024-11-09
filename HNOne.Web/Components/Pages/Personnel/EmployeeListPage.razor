@@ -27,9 +27,11 @@
                             <DxToolbarItem Text="Làm mới" BeginGroup="true" IconCssClass="@($"{IconClassConstants.ICON_REFRESH}")" CssClass="w1FontSize"
                                            Alignment="@ToolbarItemAlignment.Right" Click="@RefreshHandler" />
                             <DxToolbarItem Text="Thêm mới" BeginGroup="true" IconCssClass="@($"{IconClassConstants.ICON_ADD}")" CssClass="w1FontSize"
-                                           Alignment="@ToolbarItemAlignment.Right" Click="@RedirectPageDetailHandler" />
+                                           Alignment="@ToolbarItemAlignment.Right" Click="@RedirectPageDetailHandler"
+                                           Visible="@(IsAllowPost)" />
                             <DxToolbarItem Text="Xóa" BeginGroup="true" IconCssClass="@($"{IconClassConstants.ICON_DELETE}")" CssClass="w1FontSize"
-                                           Alignment="@ToolbarItemAlignment.Right" />
+                                           Alignment="@ToolbarItemAlignment.Right"
+                                           Visible="@(IsAllowDelete)" />
                         </Items>
                     </DxToolbar>
                 </div>
@@ -56,7 +58,7 @@
                             <DxGridDataColumn FieldName="@nameof(EmployeeModel.code)" Caption="Mã nhân viên" MinWidth="150">
                                 <CellDisplayTemplate>
                                     @{
-                                        <a href="@($"ho-so-nhan-vien?key={(context.DataItem as EmployeeModel)!.link}")">@context.Value</a>
+                                        <a href="@((context.DataItem as EmployeeModel)!.link)">@context.Value</a>
                                     }
                                 </CellDisplayTemplate>
                             </DxGridDataColumn>

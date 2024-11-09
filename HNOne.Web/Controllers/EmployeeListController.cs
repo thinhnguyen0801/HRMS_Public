@@ -15,11 +15,19 @@ namespace HNOne.Web.Controllers
         [Inject] IMasterDataService _masterDataService { get; init; }
         [Inject] IPersonnelService _personnelService { get; init; }
         [Inject] IEncryptHelper _encryptHelper { get; init; }
+        const string STRING_KEY_EVENT_POST = "EMPLOYEE_CONTROLLER_POST";
+        const string STRING_KEY_EVENT_DELETE = "EMPLOYEE_CONTROLLER_DELETE";
+        const string STRING_KEY_EVENT_PUT = "EMPLOYEE_CONTROLLER_PUT";
         #region Properties
         public string? StatusFilter { get; set; } // tình trạng
         public List<EmployeeModel>? ListEmployee { get; set; }
         public IGrid? GridEmployee { get; set; }
         public List<EnumCatagoryModel>? ListCboStatus { get; set; } // danh sách tình trạng nhân viên
+
+        // nút quyền
+        public bool IsAllowPost { get; set; }
+        public bool IsAllowDelete { get; set; }
+        public bool IsAllowPut { get; set; }
         #endregion
 
         protected override async Task OnAfterRenderAsync(bool firstRender)
@@ -32,6 +40,7 @@ namespace HNOne.Web.Controllers
                     string errMessage = await CheckMenuPermissionAsync("danh-sach-nhan-vien");
                     if (errMessage == "401") return; // kiểm quyền menu page danh sách
                     await ShowLoading();
+                    await checkPermission();
                     ListBreadcrumbs = new List<BreadcrumbModel>()
                     {
                         new BreadcrumbModel("Nhân sự", isActive: true),
@@ -55,6 +64,19 @@ namespace HNOne.Web.Controllers
         }
 
         #region Private Functions
+
+        /// <summary>
+        /// kiểm tra quyền nút
+        /// </summary>
+        /// <returns></returns>
+        private async Task checkPermission()
+        {
+            List<string> lstKey = await CheckEventPermission("000-002-001");
+            IsAllowPost = lstKey.FirstOrDefault(m => m == STRING_KEY_EVENT_POST) != null;
+            IsAllowDelete = lstKey.FirstOrDefault(m => m == STRING_KEY_EVENT_DELETE) != null;
+            IsAllowPut = lstKey.FirstOrDefault(m => m == STRING_KEY_EVENT_PUT) != null;
+        }
+
         private async Task buildComboAsync()
         {
             try
@@ -77,15 +99,22 @@ namespace HNOne.Web.Controllers
             request.opt = "";
             ListEmployee = new List<EmployeeModel>();
             var lstEmp = await _personnelService.GetEmployeeAsync(request);
-            ListEmployee = lstEmp?.Update(m =>
+            if(IsAllowPut)
             {
-                Dictionary<string, string> pParams = new Dictionary<string, string>
+                ListEmployee = lstEmp?.Update(m =>
                 {
-                    { "pActionType", nameof(EnumType.Update) },
-                    { "pDocEntry", $"{m.id}" },
-                };
-                m.link = _encryptHelper.Encrypt(JsonConvert.SerializeObject(pParams));
-            })?.ToList();
+                    Dictionary<string, string> pParams = new Dictionary<string, string>
+                    {
+                        { "pActionType", nameof(EnumType.Update) },
+                        { "pDocEntry", $"{m.id}" },
+                    };
+                    m.link = "ho-so-nhan-vien?key=" + _encryptHelper.Encrypt(JsonConvert.SerializeObject(pParams));
+                })?.ToList();
+            }
+            else
+            {
+                ListEmployee = lstEmp;
+            }
         }
         #endregion
 

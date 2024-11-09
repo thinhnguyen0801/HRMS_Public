@@ -99,13 +99,14 @@ namespace HNOne.Web.Components.Layout
                 RequestModel request = new RequestModel();
                 request.token = Token;
                 request.userId = UserId;
+                request.type = ProcessConstants.GET_MENU_TYPE_MENU;
                 ListMenus = await _masterDataService.GetMenuAsync(request) ?? [];
                 var lstPermission = ListMenus.Where(m => !string.IsNullOrEmpty(m.link) && m.link != "#").Select(m=> $"{m.link}").ToList();
                 if(!lstPermission.IsNullOrEmpty())
                 {
                     // lưu vào local store nhưng menu nào bạn được phép truy cập
-                    var checkExists = await _localStorage.ContainKeyAsync("authMenu");
-                    if (checkExists) await _localStorage.RemoveItemAsync("authMenu");
+                    //var checkExists = await _localStorage.ContainKeyAsync("authMenu");
+                    //if (checkExists) await _localStorage.RemoveItemAsync("authMenu");
                     await _localStorage.SetItemAsync<string>("authMenu", _encryptHelper.Encrypt(JsonConvert.SerializeObject(lstPermission)));
                 }    
             }

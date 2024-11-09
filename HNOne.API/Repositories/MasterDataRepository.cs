@@ -41,6 +41,7 @@ namespace HNOne.API.Repositories
                 parameters.Add("@UserId", request.userId, DbType.Int32);
                 parameters.Add("@BranchId", request.branchId, DbType.Int32);
                 parameters.Add("@Type", request.type, DbType.String);
+                parameters.Add("@MenuId", request.opt, DbType.String);
                 var result = await connection.QueryAsync<MenuModel>(StoreConstants.STORE_H1_MENU_SELECT, param: parameters, commandTimeout: GlobalConstants.COMMAND_TIMEOUT, commandType: CommandType.StoredProcedure);
                 if (string.Equals(request.type, "AUTHENTICATION", StringComparison.OrdinalIgnoreCase))
                 {

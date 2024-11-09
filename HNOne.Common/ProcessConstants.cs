@@ -70,6 +70,9 @@
         #region Loại dưới store
         public const string GET_COMBO_TYPE_CONTRACT_BY_EMPLOYEEID = "CONTRACT_BY_EMPLOYEEID";
         public const string GET_COMBO_TYPE_SALARY_ADJUSTMENT_BY_CONTRACT = "SALARY_ADJUSTMENT_BY_CONTRACT";
+        public const string GET_MENU_TYPE_AUTHENTICATION = "AUTHENTICATION";
+        public const string GET_MENU_TYPE_CHECK_PERMISSION = "CHECK_PERMISSION";
+        public const string GET_MENU_TYPE_MENU = "MENU";
         #endregion
     }
 }

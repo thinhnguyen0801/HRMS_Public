@@ -1,14 +1,14 @@
 ﻿using Blazored.LocalStorage;
 using Blazored.Toast.Services;
 using HNOne.Common;
+using HNOne.Model;
 using HNOne.Web.Commons;
 using HNOne.Web.Models;
+using HNOne.Web.Services;
 using HNOne.Web.Services.Interfaces;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Authorization;
-using Microsoft.JSInterop;
 using Newtonsoft.Json;
-using System.Reflection;
 
 namespace HNOne.Web.Controllers
 {
@@ -26,6 +26,7 @@ namespace HNOne.Web.Controllers
         [Inject] protected ILocalStorageService _localStorageService { get; init; }
         [Inject] protected IProgressService _progressService { get; init; }
         [Inject] protected IEncryptHelper _encryptHelper { get; init; }
+        [Inject] private IPermissionService _permissionService { get; init; }
 
         #region Properties
         public int UserId { get; set; }
@@ -93,6 +94,7 @@ namespace HNOne.Web.Controllers
         {
             try
             {
+                await Task.Delay(10);
                 var checkSession = await _localStorageService.ContainKeyAsync("authMenu");
                 if(!checkSession)
                 {
@@ -111,6 +113,14 @@ namespace HNOne.Web.Controllers
             }
             catch(Exception){ throw; }
         }
+
+        /// <summary>
+        /// lấy ra danh sách key để kiểm tra quyền
+        /// </summary>
+        /// <param name="menuId"></param>
+        /// <returns></returns>
+        protected async Task<List<string>> CheckEventPermission(string menuId)
+            => await _permissionService.GetEventKeyAsync(UserId, Token, menuId);
         #endregion
 
     }
