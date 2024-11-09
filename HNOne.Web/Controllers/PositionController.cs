@@ -35,10 +35,13 @@ namespace HNOne.Web.Controllers
 
         protected override async Task OnAfterRenderAsync(bool firstRender)
         {
+            await base.OnAfterRenderAsync(firstRender);
             if (firstRender)
             {
                 try
                 {
+                    string errMessage = await CheckMenuPermissionAsync("chuc-vu");
+                    if (errMessage == "401") return; // kiểm quyền menu page danh sách
                     await ShowLoading();
                     ListBreadcrumbs = new List<BreadcrumbModel>()
                     {

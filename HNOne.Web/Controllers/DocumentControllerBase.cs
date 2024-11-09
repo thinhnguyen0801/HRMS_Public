@@ -83,6 +83,34 @@ namespace HNOne.Web.Controllers
         protected void ShowWarning(string message) => _toastService.ShowWarning(message);
         protected void ShowError(string message) => _toastService.ShowError(message);
         protected void ShowInfo(string message) => _toastService.ShowInfo(message);
+        
+        /// <summary>
+        /// kiểm tra quyền truy cập menu
+        /// </summary>
+        /// <param name="link"></param>
+        /// <returns></returns>
+        protected async Task<string> CheckMenuPermissionAsync(string link)
+        {
+            try
+            {
+                var checkSession = await _localStorageService.ContainKeyAsync("authMenu");
+                if(!checkSession)
+                {
+                    _navigationManager.NavigateTo("/401");
+                    return "401";
+                }
+                string? planText = await _localStorageService.GetItemAsync<string>("authMenu");
+                var lstItem = JsonConvert.DeserializeObject<List<string>>(_encryptHelper.Decrypt(planText));
+                var checkMenu = lstItem?.FirstOrDefault(m => m == link || m == $"/{link}");
+                if(checkMenu == null)
+                {
+                    _navigationManager.NavigateTo("/401");
+                    return "401";
+                }    
+                return "";
+            }
+            catch(Exception){ throw; }
+        }
         #endregion
 
     }

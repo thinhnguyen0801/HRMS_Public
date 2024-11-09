@@ -72,6 +72,8 @@ namespace HNOne.Web.Controllers
             {
                 try
                 {
+                    string errMessage = await CheckMenuPermissionAsync("danh-sach-nhan-vien");
+                    if (errMessage == "401") return; // kiểm quyền menu page danh sách
                     this.firstRender = firstRender;
                     await ShowLoading();
                     await initDataAsync();

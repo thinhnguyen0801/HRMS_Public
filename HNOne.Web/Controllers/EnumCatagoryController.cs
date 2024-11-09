@@ -37,6 +37,8 @@ namespace HNOne.Web.Controllers
             {
                 try
                 {
+                    string errMessage = await CheckMenuPermissionAsync("danh-muc-cau-hinh-chung");
+                    if (errMessage == "401") return; // kiểm quyền menu page danh sách
                     await ShowLoading();
                     ListBreadcrumbs = new List<BreadcrumbModel>()
                     {

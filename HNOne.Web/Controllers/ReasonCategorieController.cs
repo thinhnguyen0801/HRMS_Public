@@ -18,7 +18,7 @@ namespace HNOne.Web.Controllers
     {
         [Inject] IMasterDataService _masterDataService { get; init; }
         [Inject] IJSRuntime _jsRuntime { get; set; }
-
+        public W1Confirm confirm { get; set; }
         #region Properties
         public List<ReasonCategorieModel>? ListReasonCategorie { get; set; }
         public IGrid? GridReasonCategorie { get; set; }
@@ -27,7 +27,6 @@ namespace HNOne.Web.Controllers
         public EditContext? _EditContext { get; set; }
         public bool IsShowDialog { get; set; }
         public bool IsCreate { get; set; } = true;
-        public W1Confirm confirm { get; set; }
         public List<ComboboxModel>? ListCboType { get; set; } // cbo ds loại lý do
 
         
@@ -39,6 +38,8 @@ namespace HNOne.Web.Controllers
             {
                 try
                 {
+                    string errMessage = await CheckMenuPermissionAsync("ly-do");
+                    if (errMessage == "401") return; // kiểm quyền menu page danh sách
                     await ShowLoading();
                     ListBreadcrumbs = new List<BreadcrumbModel>()
                     {

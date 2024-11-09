@@ -29,17 +29,14 @@ namespace HNOne.Web.Controllers
             {
                 try
                 {
+                    string errMessage = await CheckMenuPermissionAsync("danh-sach-nhan-vien");
+                    if (errMessage == "401") return; // kiểm quyền menu page danh sách
                     await ShowLoading();
                     ListBreadcrumbs = new List<BreadcrumbModel>()
                     {
                         new BreadcrumbModel("Nhân sự", isActive: true),
                         new BreadcrumbModel("Danh sách nhân viên", isActive: true)
                     };
-                    //string errMessage = await CheckAuthMenuAsync("contractlist");
-                    //if (errMessage == "401") return; // kiểm quyền menu page danh sách
-                    //Permission = await _masterDataService.GetAccessControl(UserId, Token, BranchId, 10012);
-                    //ItemSearch.fromDate = new DateTime(DateTime.Now.Year, DateTime.Now.Month, 1);
-                    //ItemSearch.toDate = DateTime.Now;
                     await NotifyBreadcrumb.InvokeAsync(ListBreadcrumbs);
                     await buildComboAsync();
                     await getEmployee();

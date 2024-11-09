@@ -278,7 +278,7 @@ namespace HNOne.Web.Controllers
                 if(isConfirm)
                 {
                     // load lại dữ liệu cấu hình
-                    SelectedItems = null;
+                    await ItemGroupChangedHandler(SelectedItems![0]);
                 }    
             }
             catch (Exception ex)
