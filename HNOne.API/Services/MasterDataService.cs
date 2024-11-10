@@ -40,10 +40,10 @@ namespace HNOne.API.Services
         public async Task<IEnumerable<DepartmentModel>> GetDepartment(RequestModel request)
             => await _masterRepository.GetDepartment(request);
 
-        public async Task<IEnumerable<Titles>> GetTitle(RequestModel request)
+        public async Task<IEnumerable<TitleModel>> GetTitle(RequestModel request)
             => await _masterRepository.GetTitle(request);
 
-        public async Task<IEnumerable<Positions>> GetPosition(RequestModel request)
+        public async Task<IEnumerable<PositionModel>> GetPosition(RequestModel request)
                     => await _masterRepository.GetPosition(request);
 
         public async Task<IEnumerable<ContractTypes>> GetContractType(RequestModel request)

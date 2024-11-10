@@ -17,6 +17,7 @@ namespace HNOne.Web.Controllers
     {
         [Inject] IMasterDataService _masterDataService { get; init; }
         [Inject] IJSRuntime _jsRuntime { get; set; }
+        public W1Confirm confirm { get; set; }
         const string STRING_KEY_EVENT_POST = "DEPARTMENT_CONTROLLER_POST";
         const string STRING_KEY_EVENT_PUT = "DEPARTMENT_CONTROLLER_PUT";
         const string STRING_KEY_EVENT_DELETE = "DEPARTMENT_CONTROLLER_DELETE";
@@ -29,7 +30,6 @@ namespace HNOne.Web.Controllers
         public EditContext? _EditContext { get; set; }
         public bool IsShowDialog { get; set; }
         public bool IsCreate { get; set; } = true;
-        public W1Confirm confirm { get; set; }
         public List<ComboboxModel>? ListCboHead { get; set; } // cbo ds trưởng phòng
         public List<ComboboxModel>? ListCboManager { get; set; } // cbo ds giám đốc
         public List<ComboboxModel>? ListCboAssistantManager { get; set; } // cbo ds phó phòng

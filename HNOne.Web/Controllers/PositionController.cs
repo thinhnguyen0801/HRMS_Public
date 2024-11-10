@@ -171,6 +171,7 @@ namespace HNOne.Web.Controllers
                     }
                     IsCreate = true;
                     PositionUpdate = new PositionModel();
+                    if (!ListCboBranch.IsNullOrEmpty()) PositionUpdate.branchId = BranchId;
                 }
                 else
                 {

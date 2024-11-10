@@ -140,7 +140,7 @@ namespace HNOne.Web.Services
         /// </summary>
         /// <param name="request"></param>
         /// <returns></returns>
-        public async Task<List<DepartmentModel>?> GetDepartmentAsync(int userId, string token = "")
+        public async Task<List<DepartmentModel>?> GetDepartmentAsync(int userId, string token = "", string opt = "", string opt1 = "", string opt2 = "")
         {
 
             try
@@ -150,6 +150,9 @@ namespace HNOne.Web.Services
                 request.process = ProcessConstants.GET_DEPARTMENT;
                 request.userId = userId;
                 request.token = token;
+                request.opt = opt;
+                request.opt1 = opt1;
+                request.opt2 = opt2;
                 HttpResponseMessage httpResponse = await PostAsync(EnpointConstants.MASTERDATA_GET_DATA, request);
                 var checkContent = ValidateJsonContent(httpResponse.Content);
                 if (!checkContent) _toastService.ShowInfo(MessageConstants.MESSAGE_JSON_INVALID);

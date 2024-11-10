@@ -55,9 +55,9 @@
                                 </CellDisplayTemplate>
                             </DxGridDataColumn>
                             <DxGridDataColumn FieldName="@nameof(TitleModel.name)" Caption="Tên chức danh" MinWidth="170" />
-                            <DxGridDataColumn FieldName="@nameof(TitleModel.branchId)" Caption="Chi nhánh" MinWidth="170" />
+                            <DxGridDataColumn FieldName="@nameof(TitleModel.branchName)" Caption="Chi nhánh" MinWidth="170" />
                             <DxGridDataColumn FieldName="@nameof(TitleModel.isActive)" Caption="Hoạt động?" MinWidth="100" />
-                            <DxGridDataColumn FieldName="@nameof(TitleModel.departmentId)" Caption="Phòng ban" MinWidth="130" />
+                            <DxGridDataColumn FieldName="@nameof(TitleModel.departmentName)" Caption="Phòng ban" MinWidth="130" />
                             <DxGridDataColumn FieldName="@nameof(TitleModel.remark)" Caption="Ghi chú" MinWidth="170" />
                             <DxGridDataColumn FieldName="@nameof(TitleModel.dateTracking)" Caption="Ngày cập nhật" MinWidth="120" DisplayFormat="@GlobalContants.FORMAT_DATE_TIME" />
                             <DxGridDataColumn FieldName="@nameof(TitleModel.userSignName)" Caption="Người tạo" MinWidth="120" />
@@ -113,7 +113,8 @@
                 <W1Label Value="Chi nhánh" Id="bacLuong" Styles="width: 110px" IsRequired="true" />
                 <div style="width: calc(100% - 110px)">
                     <DxComboBox Data="@ListCboBranch"
-                                @bind-Value="@TitleUpdate.branchId"
+                                Value="@TitleUpdate.branchId"
+                                ValueChanged="@((int branchId) => ComboboxValueChangedHandler(branchId, controlID: nameof(TitleUpdate.branchId)))"
                                 FilteringMode="DataGridFilteringMode.Contains"
                                 Id="txtBranchId"
                                 TextFieldName="@nameof(ComboboxModel.name)"

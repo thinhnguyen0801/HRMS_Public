@@ -1,6 +1,8 @@
 ﻿using DevExpress.Blazor;
+using DevExpress.Blazor.Primitives.Internal;
 using HNOne.Common;
 using HNOne.Model;
+using HNOne.Model.Entities;
 using HNOne.Model.Models;
 using HNOne.Web.Commons;
 using HNOne.Web.Components.Controls;
@@ -83,13 +85,8 @@ namespace HNOne.Web.Controllers
             try
             {
                 var getTask1 = _masterDataService.GetBranchAsync(UserId, Token);
-                var getTask2 = _masterDataService.GetDepartmentAsync(UserId, Token);
-                await Task.WhenAll(
-                        getTask1,
-                        getTask2
-                        );
+                await Task.WhenAll(getTask1);
                 ListCboBranch = (await getTask1)?.Select(m => new ComboboxModel() { id = m.branchId, name = m.branchName })?.ToList();
-                ListCboDepartment = (await getTask2)?.Select(m => new ComboboxModel() { id = m.id, name = m.name })?.ToList();
             }
             catch (Exception ex)
             {
@@ -97,6 +94,7 @@ namespace HNOne.Web.Controllers
                 _logger.LogError(ex, "BuildComboAsync");
             }
         }
+
         private void validateForSave(ref string errorMessage, ref string fieldName)
         {
             if (string.IsNullOrEmpty(TitleUpdate.name))
@@ -117,6 +115,18 @@ namespace HNOne.Web.Controllers
                 fieldName = "txtDepartmentId";
                 return;
             }
+        }
+
+        /// <summary>
+        /// lấy phòng ban theo chi nhánh
+        /// </summary>
+        /// <param name="branchId"></param>
+        /// <returns></returns>
+        private async Task getDepartmentByBranchId(int branchId)
+        {
+            ListCboDepartment = new List<ComboboxModel>();
+            var lstResult = await _masterDataService.GetDepartmentAsync(UserId, Token, "ACTIVE", $"{branchId}");
+            ListCboDepartment = lstResult?.Select(m => new ComboboxModel() { id = m.id, name = m.name })?.ToList();
         }
 
         /// <summary>
@@ -167,6 +177,11 @@ namespace HNOne.Web.Controllers
                     }
                     IsCreate = true;
                     TitleUpdate = new TitleModel();
+                    if (!ListCboBranch.IsNullOrEmpty())
+                    {
+                        TitleUpdate.branchId = BranchId;
+                        await ComboboxValueChangedHandler(TitleUpdate.branchId, controlID: nameof(TitleUpdate.branchId));
+                    }    
                 }
                 else
                 {
@@ -175,6 +190,7 @@ namespace HNOne.Web.Controllers
                         ShowInfo(MessageConstants.MESSAGE_NO_PERMISSION);
                         return;
                     }
+                    await ComboboxValueChangedHandler(pItemDetails!.branchId, controlID: nameof(TitleUpdate.branchId));
                     TitleUpdate.id = pItemDetails!.id;
                     TitleUpdate.code = pItemDetails!.code;
                     TitleUpdate.name = pItemDetails!.name;
@@ -267,6 +283,44 @@ namespace HNOne.Web.Controllers
             finally
             {
                 await Task.Delay(50);
+                await ShowLoading(false);
+                await InvokeAsync(StateHasChanged);
+            }
+        }
+
+        /// <summary>
+        /// thay đổi combobox
+        /// </summary>
+        /// <param name="value"></param>
+        /// <param name="controlID"></param>
+        /// <returns></returns>
+        protected async Task ComboboxValueChangedHandler(object? value, string controlID = nameof(TitleUpdate.branchId))
+        {
+            try
+            {
+                switch (controlID)
+                {
+                    case nameof(TitleUpdate.branchId):
+                        int.TryParse(value?.ToString(), out int oBranchId);
+                        TitleUpdate.branchId = oBranchId;
+                        TitleUpdate.departmentId = 0;
+                        TitleUpdate.departmentCode = "";
+                        TitleUpdate.departmentName = "";
+                        await ShowLoading();
+                        await getDepartmentByBranchId(oBranchId);
+                        await Task.Delay(100);
+                        break;
+                    default:
+                        break;
+                }
+            }
+            catch (Exception ex)
+            {
+                ShowError(ex.Message);
+                _logger.LogError(ex, "ComboboxValueChangedHandler");
+            }
+            finally
+            {
                 await ShowLoading(false);
                 await InvokeAsync(StateHasChanged);
             }
