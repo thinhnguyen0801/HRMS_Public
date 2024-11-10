@@ -520,10 +520,30 @@ namespace HNOne.Web.Controllers
                     await _jsRuntime.InvokeVoidAsync("focusInput", fieldName);
                     return;
                 }
+                int check = 0; // 0 là thay đổi lương
                 bool isConfirm = true;
-                errorMessage = pActionType == nameof(EnumType.Add) ? MessageConstants.MESSAGE_CONFIRM_ADD : MessageConstants.MESSAGE_CONFIRM_UPDATE;
-                isConfirm = await confirm.SetConfirm(MessageConstants.MESSAGE_TITLE, errorMessage);
-                if (!isConfirm) return;
+                RequestModel request = new RequestModel();
+                request.userId = UserId;
+                request.token = Token;
+                request.process = ProcessConstants.POST_CONTRACT;
+                request.employeeId = ContractDocument.employeeId;
+                request.type = ContractDocument.contractTypeId.ToString();
+                var checkContract = await _personnelService.CheckDataAsync(request);
+                if(checkContract?.status == StatusCodes.Status409Conflict)
+                {
+                    errorMessage = checkContract.message;
+                    await Task.Yield();
+                    isConfirm = await confirm.SetConfirm(MessageConstants.MESSAGE_TITLE, errorMessage);
+                    if (!isConfirm) return;
+                    check = 1;
+                }    
+                if(check == 0)
+                {
+                    errorMessage = pActionType == nameof(EnumType.Add) ? MessageConstants.MESSAGE_CONFIRM_ADD : MessageConstants.MESSAGE_CONFIRM_UPDATE;
+                    await Task.Yield();
+                    isConfirm = await confirm.SetConfirm(MessageConstants.MESSAGE_TITLE, errorMessage);
+                    if (!isConfirm) return;
+                }    
                 await ShowLoading();
                 string processKey = pActionType == nameof(EnumType.Add) ? ProcessConstants.POST_CONTRACT : ProcessConstants.PUT_CONTRACT;
                 ContractDocument.branchId = BranchId;

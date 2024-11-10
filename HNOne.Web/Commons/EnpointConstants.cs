@@ -8,6 +8,7 @@
         public const string MASTERDATA_UPLOAD_IMAGE = "MasterData/upload-images";
         public const string PERSONNEL_POST_DATA = "Personnel/post-data";
         public const string PERSONNEL_GET_DATA = "Personnel/get-data";
+        public const string PERSONNEL_CHECK_DATA = "Personnel/check-data";
         public const string USER_LOGIN = "User/login";
         public const string USER_LOGOUT = "User/logout";
         public const string USER_POST_DATA = "User/post-data";

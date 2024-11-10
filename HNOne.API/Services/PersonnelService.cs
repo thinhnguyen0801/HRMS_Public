@@ -191,6 +191,10 @@ namespace HNOne.API.Services
 
         public async Task<IEnumerable<LevelOfEducationModel>> GetEducation(int employeeId)
             => await _personnelRepository.GetEducation(employeeId);
+
+        public async Task<ResponseModel> CheckExistsData(RequestModel request)
+            => await _personnelRepository.CheckExistsData(request);
+
         #endregion
     }
 }

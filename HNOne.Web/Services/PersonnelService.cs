@@ -1,4 +1,5 @@
 ﻿using Blazored.Toast.Services;
+using DevExpress.ClipboardSource.SpreadsheetML;
 using HNOne.Common;
 using HNOne.Model;
 using HNOne.Model.Models;
@@ -357,6 +358,28 @@ namespace HNOne.Web.Services
                     data = response.data?.ToList();
                 }
                 return data;
+            }
+            catch (Exception) { throw; }
+        }
+
+        /// <summary>
+        /// kiểm tra dữ liệu
+        /// </summary>
+        /// <param name="request"></param>
+        /// <returns></returns>
+        public async Task<ResponseModel?> CheckDataAsync(RequestModel request)
+        {
+            try
+            {
+                ResponseModel response = new ResponseModel();
+                HttpResponseMessage httpResponse = await PostAsync(EnpointConstants.PERSONNEL_CHECK_DATA, request);
+                var checkContent = ValidateJsonContent(httpResponse.Content);
+                if (!checkContent) _toastService.ShowInfo(MessageConstants.MESSAGE_JSON_INVALID);
+                else
+                {
+                    response = await httpResponse.Content.ReadFromJsonAsync<ResponseModel>() ?? new ResponseModel();
+                }
+                return response;
             }
             catch (Exception) { throw; }
         }

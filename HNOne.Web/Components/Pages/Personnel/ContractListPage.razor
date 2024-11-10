@@ -27,11 +27,11 @@
                 <div class="card-header p-1">
                     <DxToolbar ItemRenderStyleMode="@ToolbarRenderStyleMode.Contained">
                         <Items>
-                            <DxToolbarItem Text="Làm mới" BeginGroup="true" IconCssClass="@($"{IconClassConstants.ICON_REFRESH}")"
+                            <DxToolbarItem Text="Làm mới" BeginGroup="true" IconCssClass="@($"{IconClassConstants.ICON_REFRESH}")" CssClass="w1FontSize"
                                            Alignment="@ToolbarItemAlignment.Right" Click="@RefreshHandler" />
-                            <DxToolbarItem Text="Thêm mới" BeginGroup="true" IconCssClass="@($"{IconClassConstants.ICON_ADD}")"
+                            <DxToolbarItem Text="Thêm mới" BeginGroup="true" IconCssClass="@($"{IconClassConstants.ICON_ADD}")" CssClass="w1FontSize"
                                            Alignment="@ToolbarItemAlignment.Right" Click="@RedirectPageDetailHandler" />
-                            <DxToolbarItem Text="Xóa" BeginGroup="true" IconCssClass="@($"{IconClassConstants.ICON_DELETE}")"
+                            <DxToolbarItem Text="Xóa" BeginGroup="true" IconCssClass="@($"{IconClassConstants.ICON_DELETE}")" CssClass="w1FontSize"
                                            Alignment="@ToolbarItemAlignment.Right" />
                         </Items>
                     </DxToolbar>
@@ -42,7 +42,7 @@
                         <DxTabPage Text="Tất cả" Id="tabAll" CssClass="w1FontSize"></DxTabPage>
                     </DxTabs>
                 </div>
-                <div class="card-body p-1" style="height: calc(100vh - 230px); min-height: 350px">
+                <div class="card-body p-1" style="height: calc(100vh - 232px); min-height: 350px">
                     @switch(ActiveTabIndex)
                     {
                         case 0:

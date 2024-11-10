@@ -349,7 +349,7 @@ namespace HNOne.API.Repositories
                 {
                     DateTime dateTimeNow = _dateTimeHelper.GetCurrentVietnamTime();
                     DynamicParameters parameters = new DynamicParameters();
-                    bool isResult = true;
+                    bool isResult = true;   
                     isResult = await _dbContext.Contracts.FirstOrDefaultAsync(m => m.ContractCode == entity.ContractCode) != null;
                     if (isResult)
                     {
@@ -794,6 +794,44 @@ namespace HNOne.API.Repositories
                 response.message = ex.Message;
             }
             return response;
+        }
+        
+        /// <summary>
+        /// kiểm tra dữ liệu trước khi lưu
+        /// </summary>
+        /// <param name="request"></param>
+        /// <returns></returns>
+        public async Task<ResponseModel> CheckExistsData(RequestModel request)
+        {
+            using (var connection = _dapperDbContext.CreateConnection())
+            {
+                ResponseModel response = new ResponseModel();
+                var parameters = new DynamicParameters();
+                string query = "";
+                switch(request.process)
+                {
+                    case ProcessConstants.POST_CONTRACT:
+                        parameters.Add("@EmployeeId", request.employeeId);
+                        parameters.Add("@ContractTypeId", request.type);
+                        query = "select top 1 T0.ContractCode as Code, T1.Name from Contracts as T0 with(nolock) " +
+                            " inner join Employees as T1 with(nolock) on T0.EmployeeId = T1.Id" +
+                            " where T0.EmployeeId = @EmployeeId and T0.ContractTypeId = @ContractTypeId";
+                        var contract = await connection.QueryFirstOrDefaultAsync<ComboboxModel>(query, parameters, commandTimeout: GlobalConstants.COMMAND_TIMEOUT, commandType: CommandType.Text);
+                        if(contract != null)
+                        {
+                            response.message = $"Nhân viên [ {contract.name} ] đang áp dụng hợp đồng số [ {contract.code} ]. <br />" +
+                                $"Bạn có muốn thay thế bằng hợp đồng hiện tại?";
+                            response.status = StatusCodes.Status409Conflict;
+                        }    
+                        break;
+                    default:
+                        response.status = StatusCodes.Status404NotFound;
+                        response.message = $"Process Key {request.process} was not provider!!!";
+                        break;
+
+                }
+                return response;
+            }    
         }
         #endregion
     }

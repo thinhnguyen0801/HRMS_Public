@@ -1,4 +1,5 @@
-﻿using HNOne.API.Services.Interfaces;
+﻿using Azure;
+using HNOne.API.Services.Interfaces;
 using HNOne.Common;
 using HNOne.Model;
 using HNOne.Model.Entities;
@@ -134,5 +135,24 @@ namespace HNOne.API.Controllers
             }
             return Ok(response);
         }
+
+        [HttpPost]
+        [Route("check-data")]
+        public async Task<IActionResult> CheckData([FromBody] RequestModel request)
+        {
+            ResponseModel response = new ResponseModel();
+            try
+            {
+                response = await _personnelService.CheckExistsData(request);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "An error occurred while processing the request.");
+                response.status = StatusCodes.Status400BadRequest;
+                response.message = ex.Message;
+            }
+            return Ok(response);
+        }
+        
     }
 }
