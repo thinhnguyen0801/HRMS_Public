@@ -622,7 +622,7 @@ namespace HNOne.Web.Controllers
                     case nameof(EmployeeUpdate.districtCode2):
                         await ShowLoading();
                         await Task.Delay(75);
-                        ListCboWard2 = await getWard($"{EmployeeUpdate.provinceCode1}", $"{value}");
+                        ListCboWard2 = await getWard($"{EmployeeUpdate.provinceCode2}", $"{value}");
                         EmployeeUpdate.districtCode2 = $"{value}";
                         EmployeeUpdate.wardCode2 = string.Empty;
                         EmployeeUpdate.temporaryAddress = string.Empty;

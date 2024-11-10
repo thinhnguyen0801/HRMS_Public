@@ -101,7 +101,8 @@ namespace HNOne.Web.Components.Layout
                 request.userId = UserId;
                 request.type = ProcessConstants.GET_MENU_TYPE_MENU;
                 ListMenus = await _masterDataService.GetMenuAsync(request) ?? [];
-                var lstPermission = ListMenus.Where(m => !string.IsNullOrEmpty(m.link) && m.link != "#").Select(m=> $"{m.link}").ToList();
+                var lstPermission = ListMenus.Where(m => !string.IsNullOrEmpty(m.link) && m.link != "#")
+                        .Select(m=> new { link = $"{m.link}", menuId = $"{m.menuID}"} ).ToList();
                 if(!lstPermission.IsNullOrEmpty())
                 {
                     // lưu vào local store nhưng menu nào bạn được phép truy cập

@@ -40,7 +40,7 @@ namespace HNOne.Web.Controllers
                     string errMessage = await CheckMenuPermissionAsync("danh-sach-nhan-vien");
                     if (errMessage == "401") return; // kiểm quyền menu page danh sách
                     await ShowLoading();
-                    await checkPermission();
+                    await checkPermission(errMessage);
                     ListBreadcrumbs = new List<BreadcrumbModel>()
                     {
                         new BreadcrumbModel("Nhân sự", isActive: true),
@@ -69,9 +69,9 @@ namespace HNOne.Web.Controllers
         /// kiểm tra quyền nút
         /// </summary>
         /// <returns></returns>
-        private async Task checkPermission()
+        private async Task checkPermission(string menuId)
         {
-            List<string> lstKey = await CheckEventPermission("000-002-001");
+            List<string> lstKey = await CheckEventPermission(menuId);
             IsAllowPost = lstKey.FirstOrDefault(m => m == STRING_KEY_EVENT_POST) != null;
             IsAllowDelete = lstKey.FirstOrDefault(m => m == STRING_KEY_EVENT_DELETE) != null;
             IsAllowPut = lstKey.FirstOrDefault(m => m == STRING_KEY_EVENT_PUT) != null;

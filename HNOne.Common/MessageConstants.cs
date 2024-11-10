@@ -21,6 +21,6 @@ namespace HNOne.Common
         public const string MESSAGE_ONLY_ONE_SELECTION_ALLOWED = "Chỉ được phép chọn một dòng dữ liệu!";
         public const string MESSAGE_CONFIRM_UPDATE_FORMAT = "Bạn có chắc muốn cập nhật {0} không?";
         public const string MESSAGE_NOT_FOUNT_FORMAT = "Không tìm thấy dữ liệu {0}";
-
+        public const string MESSAGE_NO_PERMISSION = "Bạn không có quyền thao tác. Vui lòng kiểm tra lại thông tin phân quyền!";
     }
 }

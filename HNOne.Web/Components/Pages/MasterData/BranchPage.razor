@@ -10,17 +10,17 @@
                 <div class="card-header p-1">
                     <DxToolbar ItemRenderStyleMode="@ToolbarRenderStyleMode.Contained">
                         <Items>
-                            <DxToolbarItem Text="Làm mới" BeginGroup="true" IconCssClass="@($"{IconClassConstants.ICON_REFRESH}")"
+                            <DxToolbarItem Text="Làm mới" BeginGroup="true" IconCssClass="@($"{IconClassConstants.ICON_REFRESH}")" CssClass="w1FontSize"
                                            Alignment="@ToolbarItemAlignment.Right" Click="@(()=> RefreshHandler())" />
-                            <DxToolbarItem Text="Thêm mới" BeginGroup="true" IconCssClass="@($"{IconClassConstants.ICON_ADD}")"
-                                           Alignment="@ToolbarItemAlignment.Right" Click="@(()=> OnOpenDialogHandler())" />
+                            <DxToolbarItem Text="Thêm mới" BeginGroup="true" IconCssClass="@($"{IconClassConstants.ICON_ADD}")" CssClass="w1FontSize"
+                                           Alignment="@ToolbarItemAlignment.Right" Click="@(async()=> await OnOpenDialogHandler())" Visible="@(IsAllowPost)" />
 
-                            <DxToolbarItem Text="Xóa" BeginGroup="true" IconCssClass="@($"{IconClassConstants.ICON_DELETE}")"
-                                           Alignment="@ToolbarItemAlignment.Right" Click="@(()=> DeleteDataHandler())" />
+                            <DxToolbarItem Text="Xóa" BeginGroup="true" IconCssClass="@($"{IconClassConstants.ICON_DELETE}")" CssClass="w1FontSize"
+                                           Alignment="@ToolbarItemAlignment.Right" Click="@(()=> DeleteDataHandler())" Visible="@(IsAllowDelete)" />
                         </Items>
                     </DxToolbar>
                 </div>
-                <div class="card-body p-1" style="height: calc(100vh - 160px); min-height: 350px">
+                <div class="card-body p-1" style="height: calc(100vh - 155px); min-height: 350px">
                     <DxGrid Data="ListBranch" @ref="GridBranch"
                             ShowFilterRow="true"
                             ColumnResizeMode="GridColumnResizeMode.ColumnsContainer"
@@ -42,7 +42,14 @@
                             <DxGridDataColumn FieldName="@nameof(BranchModel.branchCode)" Caption="Mã chi nhánh" MinWidth="150">
                                 <CellDisplayTemplate>
                                     @{
-                                        <a @onclick="@(() => OnOpenDialogHandler(EnumType.Update, (context.DataItem as BranchModel)))">@context.Value</a>
+                                        if(IsAllowPut)
+                                        {
+                                            <a @onclick="@(async()=> await OnOpenDialogHandler(EnumType.Update, (context.DataItem as BranchModel)))">@context.Value</a>
+                                        }
+                                        else
+                                        {
+                                            <span>@context.Value</span>
+                                        }
                                     }
                                 </CellDisplayTemplate>
                             </DxGridDataColumn>

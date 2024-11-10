@@ -30,6 +30,7 @@ namespace HNOne.Web.Services
                 request.userId = userId;
                 request.type = ProcessConstants.GET_MENU_TYPE_CHECK_PERMISSION;
                 request.process = ProcessConstants.GET_MENU;
+                request.opt = menuId;
                 HttpResponseMessage httpResponse = await PostAsync(EnpointConstants.MASTERDATA_GET_DATA, request);
                 var checkContent = ValidateJsonContent(httpResponse.Content);
                 if (checkContent) 

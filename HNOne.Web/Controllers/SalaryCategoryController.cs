@@ -17,6 +17,9 @@ namespace HNOne.Web.Controllers
         [Inject] IJSRuntime _jsRuntime { get; set; }
         public W1Confirm confirm { get; set; }
 
+        const string STRING_KEY_EVENT_POST = "SALARY_CATAGORY_CONTROLLER_POST";
+        const string STRING_KEY_EVENT_PUT = "SALARY_CATAGORY_CONTROLLER_PUT";
+        const string STRING_KEY_EVENT_DELETE = "SALARY_CATAGORY_CONTROLLER_DELETE";
         #region Properties
         public List<SalaryCategoryModel>? ListSalary { get; set; }
         public IGrid? GridSalary { get; set; }
@@ -24,6 +27,11 @@ namespace HNOne.Web.Controllers
         public SalaryCategoryModel EntityUpdate { get; set; } = new SalaryCategoryModel();
         public bool IsShowDialog { get; set; }
         public bool IsCreate { get; set; } = true;
+
+        // nút quyền
+        public bool IsAllowPost { get; set; }
+        public bool IsAllowDelete { get; set; }
+        public bool IsAllowPut { get; set; }
         #endregion
 
         protected override async Task OnAfterRenderAsync(bool firstRender)
@@ -36,6 +44,7 @@ namespace HNOne.Web.Controllers
                     string errMessage = await CheckMenuPermissionAsync("loai-luong");
                     if (errMessage == "401") return; // kiểm quyền menu page danh sách
                     await ShowLoading();
+                    await checkPermission(errMessage);
                     ListBreadcrumbs = new List<BreadcrumbModel>()
                     {
                         new BreadcrumbModel("Danh mục"),
@@ -81,6 +90,17 @@ namespace HNOne.Web.Controllers
             }
         }
 
+        /// <summary>
+        /// kiểm tra quyền nút
+        /// </summary>
+        /// <returns></returns>
+        private async Task checkPermission(string menuId)
+        {
+            List<string> lstKey = await CheckEventPermission(menuId);
+            IsAllowPost = lstKey.FirstOrDefault(m => m == STRING_KEY_EVENT_POST) != null;
+            IsAllowDelete = lstKey.FirstOrDefault(m => m == STRING_KEY_EVENT_DELETE) != null;
+            IsAllowPut = lstKey.FirstOrDefault(m => m == STRING_KEY_EVENT_PUT) != null;
+        }
         #endregion
 
         #region Projected Functions
@@ -104,17 +124,28 @@ namespace HNOne.Web.Controllers
             }
         }
 
-        protected void OnOpenDialogHandler(EnumType pAction = EnumType.Add, SalaryCategoryModel? pItemDetails = null)
+        protected async Task OnOpenDialogHandler(EnumType pAction = EnumType.Add, SalaryCategoryModel? pItemDetails = null)
         {
             try
             {
+                await checkPermission(MenuId);
                 if (pAction == EnumType.Add)
                 {
+                    if (!IsAllowPost)
+                    {
+                        ShowInfo(MessageConstants.MESSAGE_NO_PERMISSION);
+                        return;
+                    }
                     IsCreate = true;
                     EntityUpdate = new SalaryCategoryModel();
                 }
                 else
                 {
+                    if (!IsAllowPut)
+                    {
+                        ShowInfo(MessageConstants.MESSAGE_NO_PERMISSION);
+                        return;
+                    }
                     EntityUpdate.id = pItemDetails!.id;
                     EntityUpdate.code = pItemDetails!.code;
                     EntityUpdate.name = pItemDetails!.name;

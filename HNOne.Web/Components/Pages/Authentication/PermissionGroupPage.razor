@@ -12,8 +12,10 @@
                         <Items>
                             <DxToolbarItem Text="Làm mới" BeginGroup="true" IconCssClass="@($"{IconClassConstants.ICON_REFRESH}")" CssClass="w1FontSize"
                                            Alignment="@ToolbarItemAlignment.Right" Click="@(()=> RefreshHandler())" />
+
                             <DxToolbarItem Text="Thêm mới" BeginGroup="true" IconCssClass="@($"{IconClassConstants.ICON_ADD}")" CssClass="w1FontSize"
                                            Alignment="@ToolbarItemAlignment.Right" Click="@(()=> OnOpenDialogHandler())" />
+
                             <DxToolbarItem Text="Xóa" BeginGroup="true" IconCssClass="@($"{IconClassConstants.ICON_DELETE}")" CssClass="w1FontSize"
                                            Alignment="@ToolbarItemAlignment.Right" Click="@(()=> DeleteDataHandler())" />
                         </Items>
@@ -68,6 +70,9 @@
                 <div class="card-header p-1">
                     <DxToolbar ItemRenderStyleMode="@ToolbarRenderStyleMode.Contained">
                         <Items>
+                            <DxToolbarItem Text="Làm mới" BeginGroup="true" IconCssClass="@($"{IconClassConstants.ICON_REFRESH}")" CssClass="w1FontSize"
+                                           Alignment="@ToolbarItemAlignment.Right" Click="@(()=> RefreshHandler(false))" />
+
                             <DxToolbarItem Text="Lưu" BeginGroup="true" IconCssClass="@($"{IconClassConstants.ICON_UPDATE}")" CssClass="w1FontSize"
                                            Alignment="@ToolbarItemAlignment.Right" Click="@(()=> SavePermissionHandler())" />
                         </Items>

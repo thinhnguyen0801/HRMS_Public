@@ -20,6 +20,10 @@ namespace HNOne.Web.Controllers
         [Inject] IJSRuntime _jsRuntime { get; set; }
         public W1Confirm confirm { get; set; }
 
+        const string STRING_KEY_EVENT_POST = "ENUM_CATAGORY_CONTROLLER_POST";
+        const string STRING_KEY_EVENT_PUT = "ENUM_CATAGORY_CONTROLLER_PUT";
+        const string STRING_KEY_EVENT_DELETE = "ENUM_CATAGORY_CONTROLLER_DELETE";
+
         #region Properties
         public List<EnumCatagoryModel>? ListEnum { get; set; }
         public IGrid? GridEnum { get; set; }
@@ -28,6 +32,11 @@ namespace HNOne.Web.Controllers
         public bool IsShowDialog { get; set; }
         public bool IsCreate { get; set; } = true;
         public List<ComboboxModel>? ListCboStatus { get; set; } // cbo ds loại enum
+
+        // nút quyền
+        public bool IsAllowPost { get; set; }
+        public bool IsAllowDelete { get; set; }
+        public bool IsAllowPut { get; set; }
         #endregion
 
         protected override async Task OnAfterRenderAsync(bool firstRender)
@@ -40,6 +49,7 @@ namespace HNOne.Web.Controllers
                     string errMessage = await CheckMenuPermissionAsync("danh-muc-cau-hinh-chung");
                     if (errMessage == "401") return; // kiểm quyền menu page danh sách
                     await ShowLoading();
+                    await checkPermission(errMessage);
                     ListBreadcrumbs = new List<BreadcrumbModel>()
                     {
                         new BreadcrumbModel("Danh mục"),
@@ -68,6 +78,18 @@ namespace HNOne.Web.Controllers
         {
             ListEnum = new List<EnumCatagoryModel>();
             ListEnum = await _masterDataService.GetEnumAsync(UserId, Token, nameof(EnumType.AllowEdit), isShowToast: true);
+        }
+
+        /// <summary>
+        /// kiểm tra quyền nút
+        /// </summary>
+        /// <returns></returns>
+        private async Task checkPermission(string menuId)
+        {
+            List<string> lstKey = await CheckEventPermission(menuId);
+            IsAllowPost = lstKey.FirstOrDefault(m => m == STRING_KEY_EVENT_POST) != null;
+            IsAllowDelete = lstKey.FirstOrDefault(m => m == STRING_KEY_EVENT_DELETE) != null;
+            IsAllowPut = lstKey.FirstOrDefault(m => m == STRING_KEY_EVENT_PUT) != null;
         }
         #endregion
 

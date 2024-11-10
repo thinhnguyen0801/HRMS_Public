@@ -2,6 +2,7 @@
 using Blazored.Toast.Services;
 using HNOne.Common;
 using HNOne.Model;
+using HNOne.Model.Models;
 using HNOne.Web.Commons;
 using HNOne.Web.Models;
 using HNOne.Web.Services;
@@ -36,6 +37,7 @@ namespace HNOne.Web.Controllers
         public int EmployeeId { get; set; }
         public string? EmployeeCode { get; set; }
         public string? EmployeeName { get; set; }
+        public string MenuId { get; set; } = string.Empty; // menu được chọn
 
         [CascadingParameter]
         public EventCallback<List<BreadcrumbModel>> NotifyBreadcrumb { get; set; }
@@ -102,14 +104,15 @@ namespace HNOne.Web.Controllers
                     return "401";
                 }
                 string? planText = await _localStorageService.GetItemAsync<string>("authMenu");
-                var lstItem = JsonConvert.DeserializeObject<List<string>>(_encryptHelper.Decrypt(planText));
-                var checkMenu = lstItem?.FirstOrDefault(m => m == link || m == $"/{link}");
+                var lstItem = JsonConvert.DeserializeObject<List<MenuModel>>(_encryptHelper.Decrypt(planText));
+                var checkMenu = lstItem?.FirstOrDefault(m => m.link == link || m.link == $"/{link}");
                 if(checkMenu == null)
                 {
                     _navigationManager.NavigateTo("/401");
                     return "401";
-                }    
-                return "";
+                }
+                MenuId = $"{checkMenu.menuID}";
+                return $"{checkMenu.menuID}";
             }
             catch(Exception){ throw; }
         }

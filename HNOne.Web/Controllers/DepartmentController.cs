@@ -17,7 +17,9 @@ namespace HNOne.Web.Controllers
     {
         [Inject] IMasterDataService _masterDataService { get; init; }
         [Inject] IJSRuntime _jsRuntime { get; set; }
-
+        const string STRING_KEY_EVENT_POST = "DEPARTMENT_CONTROLLER_POST";
+        const string STRING_KEY_EVENT_PUT = "DEPARTMENT_CONTROLLER_PUT";
+        const string STRING_KEY_EVENT_DELETE = "DEPARTMENT_CONTROLLER_DELETE";
         #region Properties
 
         public List<DepartmentModel>? ListDepartment { get; set; }
@@ -33,6 +35,10 @@ namespace HNOne.Web.Controllers
         public List<ComboboxModel>? ListCboAssistantManager { get; set; } // cbo ds phó phòng
         public List<ComboboxModel>? ListCboBranch { get; set; } // cbo ds chi nhánh
 
+        // nút quyền
+        public bool IsAllowPost { get; set; }
+        public bool IsAllowDelete { get; set; }
+        public bool IsAllowPut { get; set; }
         #endregion
 
         protected override async Task OnAfterRenderAsync(bool firstRender)
@@ -45,6 +51,7 @@ namespace HNOne.Web.Controllers
                     string errMessage = await CheckMenuPermissionAsync("phong-ban");
                     if (errMessage == "401") return; // kiểm quyền menu page danh sách
                     await ShowLoading();
+                    await checkPermission(errMessage);
                     ListBreadcrumbs = new List<BreadcrumbModel>()
                     {
                         new BreadcrumbModel("Danh mục"),
@@ -112,6 +119,18 @@ namespace HNOne.Web.Controllers
                 return;
             }
         }
+
+        /// <summary>
+        /// kiểm tra quyền nút
+        /// </summary>
+        /// <returns></returns>
+        private async Task checkPermission(string menuId)
+        {
+            List<string> lstKey = await CheckEventPermission(menuId);
+            IsAllowPost = lstKey.FirstOrDefault(m => m == STRING_KEY_EVENT_POST) != null;
+            IsAllowDelete = lstKey.FirstOrDefault(m => m == STRING_KEY_EVENT_DELETE) != null;
+            IsAllowPut = lstKey.FirstOrDefault(m => m == STRING_KEY_EVENT_PUT) != null;
+        }
         #endregion
 
         #region
@@ -135,18 +154,29 @@ namespace HNOne.Web.Controllers
             }
         }
 
-        protected void OnOpenDialogHandler(EnumType pAction = EnumType.Add, DepartmentModel? pItemDetails = null)
+        protected async Task OnOpenDialogHandler(EnumType pAction = EnumType.Add, DepartmentModel? pItemDetails = null)
         {
             try
             {
+                await checkPermission(MenuId);
                 if (pAction == EnumType.Add)
                 {
+                    if (!IsAllowPost)
+                    {
+                        ShowInfo(MessageConstants.MESSAGE_NO_PERMISSION);
+                        return;
+                    }
                     IsCreate = true;
                     DepartmentUpdate = new DepartmentModel();
                     if (!ListCboBranch.IsNullOrEmpty()) DepartmentUpdate.branchId = BranchId;
                 }
                 else
                 {
+                    if (!IsAllowPut)
+                    {
+                        ShowInfo(MessageConstants.MESSAGE_NO_PERMISSION);
+                        return;
+                    }
                     DepartmentUpdate.id = pItemDetails!.id;
                     DepartmentUpdate.code = pItemDetails!.code;
                     DepartmentUpdate.name = pItemDetails!.name;
@@ -214,6 +244,12 @@ namespace HNOne.Web.Controllers
         {
             try
             {
+                await checkPermission(MenuId);
+                if (!IsAllowDelete)
+                {
+                    ShowInfo(MessageConstants.MESSAGE_NO_PERMISSION);
+                    return;
+                }
                 if (SelectedDepartments.IsNullOrEmpty())
                 {
                     ShowWarning(MessageConstants.MESSAGE_NO_CHOSE_DATA);

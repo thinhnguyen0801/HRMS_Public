@@ -1,6 +1,7 @@
 ﻿using DevExpress.Blazor;
 using HNOne.Common;
 using HNOne.Model;
+using HNOne.Model.Entities;
 using HNOne.Model.Models;
 using HNOne.Web.Commons;
 using HNOne.Web.Components.Controls;
@@ -20,15 +21,21 @@ namespace HNOne.Web.Controllers
         [Inject] IJSRuntime _jsRuntime { get; set; }
         public W1Confirm confirm { get; set; }
 
+        const string STRING_KEY_EVENT_POST = "BRANCH_CONTROLLER_POST";
+        const string STRING_KEY_EVENT_PUT = "BRANCH_CONTROLLER_PUT";
+        const string STRING_KEY_EVENT_DELETE = "BRANCH_CONTROLLER_DELETE";
         #region Properties
         public List<BranchModel>? ListBranch { get; set; }
         public IGrid? GridBranch { get; set; }
         public IReadOnlyList<object>? SelectedBranchs { get; set; } = null;
         public BranchModel BranchUpdate { get; set; } = new BranchModel();
-        public EditContext? _EditContext { get; set; }
         public bool IsShowDialog { get; set; }
         public bool IsCreate { get; set; } = true;
-        
+
+        // nút quyền
+        public bool IsAllowPost { get; set; }
+        public bool IsAllowDelete { get; set; }
+        public bool IsAllowPut { get; set; }
         #endregion
 
         protected override async Task OnAfterRenderAsync(bool firstRender)
@@ -41,6 +48,7 @@ namespace HNOne.Web.Controllers
                     string errMessage = await CheckMenuPermissionAsync("chi-nhanh");
                     if (errMessage == "401") return; // kiểm quyền menu page danh sách
                     await ShowLoading();
+                    await checkPermission(errMessage);
                     ListBreadcrumbs = new List<BreadcrumbModel>()
                     {
                         new BreadcrumbModel("Danh mục"),
@@ -79,6 +87,18 @@ namespace HNOne.Web.Controllers
                 return;
             }
         }
+
+        /// <summary>
+        /// kiểm tra quyền nút
+        /// </summary>
+        /// <returns></returns>
+        private async Task checkPermission(string menuId)
+        {
+            List<string> lstKey = await CheckEventPermission(menuId);
+            IsAllowPost = lstKey.FirstOrDefault(m => m == STRING_KEY_EVENT_POST) != null;
+            IsAllowDelete = lstKey.FirstOrDefault(m => m == STRING_KEY_EVENT_DELETE) != null;
+            IsAllowPut = lstKey.FirstOrDefault(m => m == STRING_KEY_EVENT_PUT) != null;
+        }
         #endregion
 
         #region
@@ -102,26 +122,37 @@ namespace HNOne.Web.Controllers
             }
         }
         
-        protected void OnOpenDialogHandler(EnumType pAction = EnumType.Add, BranchModel? pItemDetails = null)
+        protected async Task OnOpenDialogHandler(EnumType pAction = EnumType.Add, BranchModel? pItemDetails = null)
         {
             try
             {
+                await checkPermission(MenuId);
                 if (pAction == EnumType.Add)
                 {
+                    if (!IsAllowPost)
+                    {
+                        ShowInfo(MessageConstants.MESSAGE_NO_PERMISSION);
+                        return;
+                    }
                     IsCreate = true;
                     BranchUpdate = new BranchModel();
                 }
                 else
                 {
+                    if (!IsAllowPut)
+                    {
+                        ShowInfo(MessageConstants.MESSAGE_NO_PERMISSION);
+                        return;
+                    }
                     BranchUpdate.branchId = pItemDetails!.branchId;
                     BranchUpdate.branchCode = pItemDetails!.branchCode;
                     BranchUpdate.branchName = pItemDetails!.branchName;
+                    BranchUpdate.phoneNumber = pItemDetails!.phoneNumber;
                     BranchUpdate.imgUrl = pItemDetails!.imgUrl;
                     BranchUpdate.address = pItemDetails!.address;
                     IsCreate = false;
                 }
                 IsShowDialog = true;
-                _EditContext = new EditContext(BranchUpdate);
             }
             catch (Exception ex)
             {
@@ -176,6 +207,12 @@ namespace HNOne.Web.Controllers
         {
             try
             {
+                await checkPermission(MenuId);
+                if(!IsAllowDelete)
+                {
+                    ShowInfo(MessageConstants.MESSAGE_NO_PERMISSION);
+                    return;
+                }    
                 if (SelectedBranchs.IsNullOrEmpty())
                 {
                     ShowWarning(MessageConstants.MESSAGE_NO_CHOSE_DATA);

@@ -9,13 +9,14 @@
                 <div class="card-header p-1">
                     <DxToolbar ItemRenderStyleMode="@ToolbarRenderStyleMode.Contained">
                         <Items>
-                            <DxToolbarItem Text="Làm mới" BeginGroup="true" IconCssClass="@($"{IconClassConstants.ICON_REFRESH}")"
+                            <DxToolbarItem Text="Làm mới" BeginGroup="true" IconCssClass="@($"{IconClassConstants.ICON_REFRESH}")" CssClass="w1FontSize"
                                            Alignment="@ToolbarItemAlignment.Right" Click="@(()=> RefreshHandler())" />
-                            <DxToolbarItem Text="Thêm mới" BeginGroup="true" IconCssClass="@($"{IconClassConstants.ICON_ADD}")"
-                                           Alignment="@ToolbarItemAlignment.Right" Click="@(()=> OnOpenDialogHandler())" />
 
-                            <DxToolbarItem Text="Xóa" BeginGroup="true" IconCssClass="@($"{IconClassConstants.ICON_DELETE}")"
-                                           Alignment="@ToolbarItemAlignment.Right" />
+                            <DxToolbarItem Text="Thêm mới" BeginGroup="true" IconCssClass="@($"{IconClassConstants.ICON_ADD}")" CssClass="w1FontSize"
+                                           Alignment="@ToolbarItemAlignment.Right" Click="@(()=> OnOpenDialogHandler())" Visible="@(IsAllowPost)" />
+
+                            <DxToolbarItem Text="Xóa" BeginGroup="true" IconCssClass="@($"{IconClassConstants.ICON_DELETE}")" CssClass="w1FontSize"
+                                           Alignment="@ToolbarItemAlignment.Right" Visible="@(IsAllowDelete)" />
                         </Items>
                     </DxToolbar>
                 </div>
@@ -42,7 +43,14 @@
                             <DxGridDataColumn FieldName="@nameof(SalaryConfigurationModel.salaryCategoryName)" Caption="Tên loại lương" MinWidth="190">
                                 <CellDisplayTemplate>
                                     @{
-                                        <a @onclick="@(() => OnOpenDialogHandler(EnumType.Update, (context.DataItem as SalaryConfigurationModel)))">@context.Value</a>
+                                        if(IsAllowPut)
+                                        {
+                                             <a @onclick="@(() => OnOpenDialogHandler(EnumType.Update, (context.DataItem as SalaryConfigurationModel)))">@context.Value</a>
+                                        }
+                                        else
+                                        {
+                                            <span>@context.Value</span>
+                                        }
                                     }
                                 </CellDisplayTemplate>
                             </DxGridDataColumn>

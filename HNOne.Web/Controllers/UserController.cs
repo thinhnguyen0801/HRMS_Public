@@ -26,12 +26,15 @@ namespace HNOne.Web.Controllers
         [Inject] IJSRuntime _jsRuntime { get; set; }
         [Inject] IEncryptHelper _encryptHelper { get; init; }
         public W1Confirm confirm { get; set; }
+
+        const string STRING_KEY_EVENT_POST = "USER_CONTROLLER_POST";
+        const string STRING_KEY_EVENT_PUT = "USER_CONTROLLER_PUT";
+        const string STRING_KEY_EVENT_DELETE = "USER_CONTROLLER_DELETE";
         #region Properties
         public List<UserModel>? ListUser { get; set; }
         public IGrid? GridUser { get; set; }
         public IReadOnlyList<object>? SelectedUsers { get; set; } = null;
         public UserModel UserUpdate { get; set; } = new UserModel();
-        public EditContext? _EditContext { get; set; }
         public bool IsShowDialog { get; set; }
         public bool IsCreate { get; set; } = true;
         
@@ -50,6 +53,11 @@ namespace HNOne.Web.Controllers
         public string? DepartmentIds { get; set; }
         public string? StatusIds { get; set; } // Tình trạng nào
         public object? EmployeeSelected { get; set; } // Nhân viên được chọn
+
+        // nút quyền
+        public bool IsAllowPost { get; set; }
+        public bool IsAllowDelete { get; set; }
+        public bool IsAllowPut { get; set; }
         #endregion
 
         protected override async Task OnAfterRenderAsync(bool firstRender)
@@ -59,7 +67,10 @@ namespace HNOne.Web.Controllers
             {
                 try
                 {
+                    string errMessage = await CheckMenuPermissionAsync("tai-khoan");
+                    if (errMessage == "401") return; // kiểm quyền menu page danh sách
                     await ShowLoading();
+                    await checkPermission(errMessage);
                     ListBreadcrumbs = new List<BreadcrumbModel>()
                     {
                         new BreadcrumbModel("Hệ thống"),
@@ -153,6 +164,18 @@ namespace HNOne.Web.Controllers
                 return;
             }
         }
+
+        /// <summary>
+        /// kiểm tra quyền nút
+        /// </summary>
+        /// <returns></returns>
+        private async Task checkPermission(string menuId)
+        {
+            List<string> lstKey = await CheckEventPermission(menuId);
+            IsAllowPost = lstKey.FirstOrDefault(m => m == STRING_KEY_EVENT_POST) != null;
+            IsAllowDelete = lstKey.FirstOrDefault(m => m == STRING_KEY_EVENT_DELETE) != null;
+            IsAllowPut = lstKey.FirstOrDefault(m => m == STRING_KEY_EVENT_PUT) != null;
+        }
         #endregion
 
         #region
@@ -176,19 +199,30 @@ namespace HNOne.Web.Controllers
             }
         }
 
-        protected void OnOpenDialogHandler(EnumType pAction = EnumType.Add, UserModel? pItemDetails = null)
+        protected async Task OnOpenDialogHandler(EnumType pAction = EnumType.Add, UserModel? pItemDetails = null)
         {
             try
             {
+                await checkPermission(MenuId);
                 IsShowPassword = false;
                 IsShowRePassword = false;
                 if (pAction == EnumType.Add)
                 {
+                    if (!IsAllowPost)
+                    {
+                        ShowInfo(MessageConstants.MESSAGE_NO_PERMISSION);
+                        return;
+                    }
                     IsCreate = true;
                     UserUpdate = new UserModel();
                 }
                 else
                 {
+                    if (!IsAllowPut)
+                    {
+                        ShowInfo(MessageConstants.MESSAGE_NO_PERMISSION);
+                        return;
+                    }
                     UserUpdate.userId = pItemDetails!.userId;
                     UserUpdate.userName = pItemDetails!.userName;
                     UserUpdate.password = _encryptHelper.Decrypt(pItemDetails!.password);
@@ -209,7 +243,6 @@ namespace HNOne.Web.Controllers
                     IsCreate = false;
                 }
                 IsShowDialog = true;
-                _EditContext = new EditContext(UserUpdate);
             }
             catch (Exception ex)
             {
@@ -267,6 +300,12 @@ namespace HNOne.Web.Controllers
         {
             try
             {
+                await checkPermission(MenuId);
+                if (!IsAllowDelete)
+                {
+                    ShowInfo(MessageConstants.MESSAGE_NO_PERMISSION);
+                    return;
+                }
                 if (SelectedUsers.IsNullOrEmpty())
                 {
                     ShowWarning(MessageConstants.MESSAGE_NO_CHOSE_DATA);

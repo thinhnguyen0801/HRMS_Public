@@ -20,17 +20,24 @@ namespace HNOne.Web.Controllers
         [Inject] IJSRuntime _jsRuntime { get; set; }
         public W1Confirm confirm { get; set; }
 
+        const string STRING_KEY_EVENT_POST = "POSITION_CONTROLLER_POST";
+        const string STRING_KEY_EVENT_PUT = "POSITION_CONTROLLER_PUT";
+        const string STRING_KEY_EVENT_DELETE = "POSITION_CONTROLLER_DELETE";
+
         #region Properties
         public List<PositionModel>? ListPosition { get; set; }
         public IGrid? GridPosition { get; set; }
         public IReadOnlyList<object>? SelectedPositions { get; set; } = null;
         public PositionModel PositionUpdate { get; set; } = new PositionModel();
-        public EditContext? _EditContext { get; set; }
         public bool IsShowDialog { get; set; }
         public bool IsCreate { get; set; } = true;
         public List<ComboboxModel>? ListCboBranch { get; set; } // cbo ds chi nhánh
         public List<EnumCatagoryModel>? ListCboLevel { get; set; } // cbo ds trạng thái nhân viên
 
+        // nút quyền
+        public bool IsAllowPost { get; set; }
+        public bool IsAllowDelete { get; set; }
+        public bool IsAllowPut { get; set; }
         #endregion
 
         protected override async Task OnAfterRenderAsync(bool firstRender)
@@ -43,6 +50,7 @@ namespace HNOne.Web.Controllers
                     string errMessage = await CheckMenuPermissionAsync("chuc-vu");
                     if (errMessage == "401") return; // kiểm quyền menu page danh sách
                     await ShowLoading();
+                    await checkPermission(errMessage);
                     ListBreadcrumbs = new List<BreadcrumbModel>()
                     {
                         new BreadcrumbModel("Danh mục"),
@@ -114,6 +122,18 @@ namespace HNOne.Web.Controllers
                 return;
             }
         }
+
+        /// <summary>
+        /// kiểm tra quyền nút
+        /// </summary>
+        /// <returns></returns>
+        private async Task checkPermission(string menuId)
+        {
+            List<string> lstKey = await CheckEventPermission(menuId);
+            IsAllowPost = lstKey.FirstOrDefault(m => m == STRING_KEY_EVENT_POST) != null;
+            IsAllowDelete = lstKey.FirstOrDefault(m => m == STRING_KEY_EVENT_DELETE) != null;
+            IsAllowPut = lstKey.FirstOrDefault(m => m == STRING_KEY_EVENT_PUT) != null;
+        }
         #endregion
 
         #region
@@ -137,17 +157,28 @@ namespace HNOne.Web.Controllers
             }
         }
 
-        protected void OnOpenDialogHandler(EnumType pAction = EnumType.Add, PositionModel? pItemDetails = null)
+        protected async Task OnOpenDialogHandler(EnumType pAction = EnumType.Add, PositionModel? pItemDetails = null)
         {
             try
             {
+                await checkPermission(MenuId);
                 if (pAction == EnumType.Add)
                 {
+                    if (!IsAllowPost)
+                    {
+                        ShowInfo(MessageConstants.MESSAGE_NO_PERMISSION);
+                        return;
+                    }
                     IsCreate = true;
                     PositionUpdate = new PositionModel();
                 }
                 else
                 {
+                    if (!IsAllowPut)
+                    {
+                        ShowInfo(MessageConstants.MESSAGE_NO_PERMISSION);
+                        return;
+                    }
                     PositionUpdate.id = pItemDetails!.id;
                     PositionUpdate.code = pItemDetails!.code;
                     PositionUpdate.name = pItemDetails!.name;
@@ -158,7 +189,6 @@ namespace HNOne.Web.Controllers
                     IsCreate = false;
                 }
                 IsShowDialog = true;
-                _EditContext = new EditContext(PositionUpdate);
             }
             catch (Exception ex)
             {
@@ -213,6 +243,12 @@ namespace HNOne.Web.Controllers
         {
             try
             {
+                await checkPermission(MenuId);
+                if (!IsAllowDelete)
+                {
+                    ShowInfo(MessageConstants.MESSAGE_NO_PERMISSION);
+                    return;
+                }
                 if (SelectedPositions.IsNullOrEmpty())
                 {
                     ShowWarning(MessageConstants.MESSAGE_NO_CHOSE_DATA);

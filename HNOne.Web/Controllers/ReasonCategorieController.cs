@@ -19,21 +19,27 @@ namespace HNOne.Web.Controllers
         [Inject] IMasterDataService _masterDataService { get; init; }
         [Inject] IJSRuntime _jsRuntime { get; set; }
         public W1Confirm confirm { get; set; }
+        const string STRING_KEY_EVENT_POST = "REASON_CATAGORY_CONTROLLER_POST";
+        const string STRING_KEY_EVENT_PUT = "REASON_CATAGORY_CONTROLLER_PUT";
+        const string STRING_KEY_EVENT_DELETE = "REASON_CATAGORY_CONTROLLER_DELETE";
         #region Properties
         public List<ReasonCategorieModel>? ListReasonCategorie { get; set; }
         public IGrid? GridReasonCategorie { get; set; }
         public IReadOnlyList<object>? SelectedReasonCategories { get; set; } = null;
         public ReasonCategorieModel ReasonCategorieUpdate { get; set; } = new ReasonCategorieModel();
-        public EditContext? _EditContext { get; set; }
         public bool IsShowDialog { get; set; }
         public bool IsCreate { get; set; } = true;
         public List<ComboboxModel>? ListCboType { get; set; } // cbo ds loại lý do
 
-        
+        // nút quyền
+        public bool IsAllowPost { get; set; }
+        public bool IsAllowDelete { get; set; }
+        public bool IsAllowPut { get; set; }
         #endregion
 
         protected override async Task OnAfterRenderAsync(bool firstRender)
         {
+            await base.OnAfterRenderAsync(firstRender);
             if (firstRender)
             {
                 try
@@ -41,6 +47,7 @@ namespace HNOne.Web.Controllers
                     string errMessage = await CheckMenuPermissionAsync("ly-do");
                     if (errMessage == "401") return; // kiểm quyền menu page danh sách
                     await ShowLoading();
+                    await checkPermission(errMessage);
                     ListBreadcrumbs = new List<BreadcrumbModel>()
                     {
                         new BreadcrumbModel("Danh mục"),
@@ -79,6 +86,18 @@ namespace HNOne.Web.Controllers
                 return;
             }
         }
+
+        /// <summary>
+        /// kiểm tra quyền nút
+        /// </summary>
+        /// <returns></returns>
+        private async Task checkPermission(string menuId)
+        {
+            List<string> lstKey = await CheckEventPermission(menuId);
+            IsAllowPost = lstKey.FirstOrDefault(m => m == STRING_KEY_EVENT_POST) != null;
+            IsAllowDelete = lstKey.FirstOrDefault(m => m == STRING_KEY_EVENT_DELETE) != null;
+            IsAllowPut = lstKey.FirstOrDefault(m => m == STRING_KEY_EVENT_PUT) != null;
+        }
         #endregion
 
         #region
@@ -102,17 +121,28 @@ namespace HNOne.Web.Controllers
             }
         }
 
-        protected void OnOpenDialogHandler(EnumType pAction = EnumType.Add, ReasonCategorieModel? pItemDetails = null)
+        protected async Task OnOpenDialogHandler(EnumType pAction = EnumType.Add, ReasonCategorieModel? pItemDetails = null)
         {
             try
             {
+                await checkPermission(MenuId);
                 if (pAction == EnumType.Add)
                 {
+                    if (!IsAllowPost)
+                    {
+                        ShowInfo(MessageConstants.MESSAGE_NO_PERMISSION);
+                        return;
+                    }
                     IsCreate = true;
                     ReasonCategorieUpdate = new ReasonCategorieModel();
                 }
                 else
                 {
+                    if (!IsAllowPut)
+                    {
+                        ShowInfo(MessageConstants.MESSAGE_NO_PERMISSION);
+                        return;
+                    }
                     ReasonCategorieUpdate.id = pItemDetails!.id;
                     ReasonCategorieUpdate.name = pItemDetails!.name;
                     ReasonCategorieUpdate.type = pItemDetails!.type;
@@ -120,7 +150,6 @@ namespace HNOne.Web.Controllers
                     IsCreate = false;
                 }
                 IsShowDialog = true;
-                _EditContext = new EditContext(ReasonCategorieUpdate);
             }
             catch (Exception ex)
             {
@@ -175,6 +204,12 @@ namespace HNOne.Web.Controllers
         {
             try
             {
+                await checkPermission(MenuId);
+                if (!IsAllowDelete)
+                {
+                    ShowInfo(MessageConstants.MESSAGE_NO_PERMISSION);
+                    return;
+                }
                 if (SelectedReasonCategories.IsNullOrEmpty())
                 {
                     ShowWarning(MessageConstants.MESSAGE_NO_CHOSE_DATA);

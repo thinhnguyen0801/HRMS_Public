@@ -127,12 +127,18 @@ namespace HNOne.Web.Controllers
         #endregion
 
         #region Protected Functions
-        protected async Task RefreshHandler()
+        protected async Task RefreshHandler(bool isUserGroup = true)
         {
             try
             {
                 await ShowLoading();
-                await getPermissionGroup();
+                if(isUserGroup) await getPermissionGroup();
+                else
+                {
+                    await getMenuAuth();
+                    if(!SelectedItems.IsNullOrEmpty()) await ItemGroupChangedHandler(SelectedItems![0]);
+                }
+
             }
             catch (Exception ex)
             {
