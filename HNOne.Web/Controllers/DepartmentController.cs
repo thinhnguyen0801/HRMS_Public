@@ -35,6 +35,11 @@ namespace HNOne.Web.Controllers
         public List<ComboboxModel>? ListCboAssistantManager { get; set; } // cbo ds phó phòng
         public List<ComboboxModel>? ListCboBranch { get; set; } // cbo ds chi nhánh
 
+        private string? pPopupType { get; set; } = string.Empty; // mở popup nào
+        public bool IsShowDialogEmpSearch { get; set; }
+        public string? DepartmentIds { get; set; }
+        public string? StatusIds { get; set; } // Tình trạng nào
+        public object? EmployeeSelected { get; set; } // Nhân viên được chọn
         // nút quyền
         public bool IsAllowPost { get; set; }
         public bool IsAllowDelete { get; set; }
@@ -102,19 +107,19 @@ namespace HNOne.Web.Controllers
         {
             if(string.IsNullOrEmpty(DepartmentUpdate.code))
             {
-                errorMessage = String.Format(MessageConstants.MESSAGE_STRING_REQUIRE, "Tên phòng ban");
+                errorMessage = string.Format(MessageConstants.MESSAGE_STRING_REQUIRE, "Mã phòng ban");
                 fieldName = "txtCode";
                 return;
             }
             if(string.IsNullOrEmpty(DepartmentUpdate.name))
             {
-                errorMessage = String.Format(MessageConstants.MESSAGE_STRING_REQUIRE, "Tên phòng ban");
+                errorMessage = string.Format(MessageConstants.MESSAGE_STRING_REQUIRE, "Tên phòng ban");
                 fieldName = "txtName";
                 return;
             }
             if (DepartmentUpdate.branchId < 1)
             {
-                errorMessage = String.Format(MessageConstants.MESSAGE_COMBOBOX_REQUIRE, "Chi nhánh");
+                errorMessage = string.Format(MessageConstants.MESSAGE_COMBOBOX_REQUIRE, "Chi nhánh");
                 fieldName = "txtBranchId";
                 return;
             }
@@ -273,6 +278,80 @@ namespace HNOne.Web.Controllers
             finally
             {
                 await Task.Delay(50);
+                await ShowLoading(false);
+                await InvokeAsync(StateHasChanged);
+            }
+        }
+
+
+        protected async Task OpenPopupHandler(string type = nameof(EmployeeSelected), string popupType = nameof(DepartmentUpdate.headCode))
+        {
+            try
+            {
+                pPopupType = popupType;
+                switch (type)
+                {
+                    case nameof(EmployeeSelected):
+                        DepartmentIds = "";
+                        IsShowDialogEmpSearch = true;
+                        break;
+                }
+            }
+            catch (Exception ex)
+            {
+                ShowError(ex.Message);
+                _logger.LogError(ex, "OpenPopupHandler");
+            }
+            finally
+            {
+                await ShowLoading(false);
+                await InvokeAsync(StateHasChanged);
+            }
+        }
+
+        /// <summary>
+        /// callback nhân viên
+        /// </summary>
+        /// <param name="lstEmp"></param>
+        protected void EventCallbackEmpChangedHandler(object? lstEmp) => EmployeeSelected = lstEmp;
+
+        /// <summary>
+        /// chọn nhân viên
+        /// </summary>
+        /// <returns></returns>
+        protected async Task SelectEmployeeHandler()
+        {
+            try
+            {
+                if (EmployeeSelected == null)
+                {
+                    ShowWarning(string.Format(MessageConstants.MESSAGE_COMBOBOX_REQUIRE, "Nhân viên"));
+                    return;
+                }
+                EmployeeModel employee = (EmployeeModel)EmployeeSelected;
+                switch (pPopupType)
+                {
+                    case nameof(DepartmentUpdate.headCode):
+                        DepartmentUpdate.headId = employee.id;
+                        DepartmentUpdate.headCode = employee.code;
+                        DepartmentUpdate.headName = employee.name;
+                        IsShowDialogEmpSearch = false;
+                        break;
+                    case nameof(DepartmentUpdate.assistantManagerCode):
+                        DepartmentUpdate.assistantManagerIds = employee.id.ToString();
+                        DepartmentUpdate.assistantManagerCode = employee.code;
+                        DepartmentUpdate.assistantManagerName = employee.name;
+                        IsShowDialogEmpSearch = false;
+                        break;
+                }
+            }
+            catch (Exception ex)
+            {
+                ShowError(ex.Message);
+                _logger.LogError(ex, "SelectEmployeeHandler");
+            }
+            finally
+            {
                 await ShowLoading(false);
                 await InvokeAsync(StateHasChanged);
             }

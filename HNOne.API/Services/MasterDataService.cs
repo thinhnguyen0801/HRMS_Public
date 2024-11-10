@@ -37,7 +37,7 @@ namespace HNOne.API.Services
         /// lấy ra danh sách phòng ban
         /// </summary>
         /// <returns></returns>
-        public async Task<IEnumerable<Departments>> GetDepartment(RequestModel request)
+        public async Task<IEnumerable<DepartmentModel>> GetDepartment(RequestModel request)
             => await _masterRepository.GetDepartment(request);
 
         public async Task<IEnumerable<Titles>> GetTitle(RequestModel request)

@@ -9,7 +9,7 @@ namespace HNOne.API.Repositories.Interfaces
     {
         Task<IEnumerable<MenuModel>> GetMenu(RequestModel request);
         Task<IEnumerable<Branchs>> GetBranch();
-        Task<IEnumerable<Departments>> GetDepartment(RequestModel request);
+        Task<IEnumerable<DepartmentModel>> GetDepartment(RequestModel request);
         Task<IEnumerable<Titles>> GetTitle(RequestModel request);
         Task<IEnumerable<Positions>> GetPosition(RequestModel request);
         Task<ResponseModel> AddBranch(Branchs entity);

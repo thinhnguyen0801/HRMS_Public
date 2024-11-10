@@ -39,7 +39,7 @@
                             CssClass="h-full">
                         <Columns>
                             <DxGridSelectionColumn Width="45px" />
-                            <DxGridDataColumn FieldName="@nameof(DepartmentModel.code)" Caption="Mã phòng ban" MinWidth="150">
+                            <DxGridDataColumn FieldName="@nameof(DepartmentModel.code)" Caption="Mã phòng ban" MinWidth="140">
                                 <CellDisplayTemplate>
                                     @{
                                         if(IsAllowPut)
@@ -54,12 +54,11 @@
                                 </CellDisplayTemplate>
                             </DxGridDataColumn>
                             <DxGridDataColumn FieldName="@nameof(DepartmentModel.name)" Caption="Tên phòng ban" MinWidth="170" />
-                            <DxGridDataColumn FieldName="@nameof(DepartmentModel.managerId)" Caption="Giám đốc" MinWidth="170" />
-                            <DxGridDataColumn FieldName="@nameof(DepartmentModel.headId)" Caption="Trưởng phòng" MinWidth="210" />
-                            <DxGridDataColumn FieldName="@nameof(DepartmentModel.assistantManagerIds)" Caption="Phó phòng" MinWidth="210" />
-                            <DxGridDataColumn FieldName="@nameof(DepartmentModel.remark)" Caption="Ghi chú" MinWidth="210" />
-                            <DxGridDataColumn FieldName="@nameof(DepartmentModel.isActive)" Caption="Active" MinWidth="210" />
-                            <DxGridDataColumn FieldName="@nameof(DepartmentModel.branchId)" Caption="Chi nhánh" MinWidth="210" />
+                            <DxGridDataColumn FieldName="@nameof(DepartmentModel.isActive)" Caption="Hoạt động?" MinWidth="100" />
+                            <DxGridDataColumn FieldName="@nameof(DepartmentModel.branchName)" Caption="Chi nhánh" MinWidth="170" />
+                            <DxGridDataColumn FieldName="@nameof(DepartmentModel.headName)" Caption="Trưởng phòng" MinWidth="170" />
+                            <DxGridDataColumn FieldName="@nameof(DepartmentModel.assistantManagerName)" Caption="Phó phòng" MinWidth="170" />
+                            <DxGridDataColumn FieldName="@nameof(DepartmentModel.remark)" Caption="Ghi chú" MinWidth="170" />
                             <DxGridDataColumn FieldName="@nameof(DepartmentModel.createDate)" Caption="Ngày cập nhật" MinWidth="120" DisplayFormat="@GlobalContants.FORMAT_DATE_TIME" />
                             <DxGridDataColumn FieldName="@nameof(DepartmentModel.userSignName)" Caption="Người tạo" MinWidth="120" />
                             <DxGridDataColumn FieldName="@nameof(DepartmentModel.userSign2Name)" Caption="Người cập nhật" MinWidth="120" />
@@ -84,7 +83,7 @@
         <div class="col-sm-12">
             <div class="d-flex ">
                 <W1Label Value="Mã phòng ban" Styles="width: 110px" IsRequired="true" />
-                <div style="width: calc(100% - 120px)">
+                <div style="width: calc(100% - 110px)">
                     <div class="row row-gap-2">
                         <div class="col-md-8 col-sm-12">
                             <DxTextBox @bind-Text="@DepartmentUpdate.code" ReadOnly="@(!IsCreate)" CssClass="w1FontSize" Id="txtCode"></DxTextBox>
@@ -123,42 +122,43 @@
                 </div>
             </div>
         </div>
-        @* <div class="col-sm-12">
-            <div class="d-flex ">
-                <W1Label Value="Giám đốc" Styles="width: 110px" />
-                <div style="width: calc(100% - 110px)">
-                    <DxComboBox Data="@ListCboManager"
-                                @bind-Value="@DepartmentUpdate.managerId"
-                                FilteringMode="DataGridFilteringMode.Contains"
-                                TextFieldName="@nameof(ComboboxModel.name)"
-                                ValueFieldName="@nameof(ComboboxModel.id)" CssClass="w1FontSize">
-                    </DxComboBox>
-                </div>
-            </div>
-        </div> *@
         <div class="col-sm-12">
-            <div class="d-flex ">
+            <div class="d-flex">
                 <W1Label Value="Trưởng phòng" Styles="width: 110px" />
                 <div style="width: calc(100% - 110px)">
-                    <DxComboBox Data="@ListCboHead"
-                                @bind-Value="@DepartmentUpdate.headId"
-                                FilteringMode="DataGridFilteringMode.Contains"
-                                TextFieldName="@nameof(ComboboxModel.name)"
-                                ValueFieldName="@nameof(ComboboxModel.id)" CssClass="w1FontSize">
-                    </DxComboBox>                            
+                    <div class="grid gap-1 row-gap-2">
+                        <div class="g-col-md-4 g-col-sm-12 g-col-12">
+                            <DxTextBox @bind-Text="@DepartmentUpdate.headCode" ReadOnly="true" CssClass="w1FontSize" ClearButtonDisplayMode="@DataEditorClearButtonDisplayMode.Auto" />
+                        </div>
+                        <div class="g-col-md-8 g-col-sm-12 g-col-12">
+                            <DxTextBox @bind-Text="@DepartmentUpdate.headName" CssClass="w1FontSize" ReadOnly="true">
+                                <Buttons>
+                                    <DxEditorButton style="width: 29px" CssClass="w1FontSize" IconCssClass="fas fa-search" Tooltip="Tìm kiếm nhân viên"
+                                                    Click="@(async () => await OpenPopupHandler(nameof(EmployeeSelected), nameof(DepartmentUpdate.headCode)))" />
+                                </Buttons>
+                            </DxTextBox>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
         <div class="col-sm-12">
-            <div class="d-flex ">
+            <div class="d-flex">
                 <W1Label Value="Phó phòng" Styles="width: 110px" />
                 <div style="width: calc(100% - 110px)">
-                    <DxComboBox Data="@ListCboAssistantManager"
-                                @bind-Value="@DepartmentUpdate.assistantManagerIds"
-                                FilteringMode="DataGridFilteringMode.Contains"
-                                TextFieldName="@nameof(ComboboxModel.name)"
-                                ValueFieldName="@nameof(ComboboxModel.id)" CssClass="w1FontSize">
-                    </DxComboBox>
+                    <div class="grid gap-1 row-gap-2">
+                        <div class="g-col-md-4 g-col-sm-12 g-col-12">
+                            <DxTextBox @bind-Text="@DepartmentUpdate.assistantManagerCode" ReadOnly="true" CssClass="w1FontSize" ClearButtonDisplayMode="@DataEditorClearButtonDisplayMode.Auto" />
+                        </div>
+                        <div class="g-col-md-8 g-col-sm-12 g-col-12">
+                            <DxTextBox @bind-Text="@DepartmentUpdate.assistantManagerName" CssClass="w1FontSize" ReadOnly="true">
+                                <Buttons>
+                                    <DxEditorButton style="width: 29px" CssClass="w1FontSize" IconCssClass="fas fa-search" Tooltip="Tìm kiếm nhân viên"
+                                                    Click="@(async () => await OpenPopupHandler(nameof(EmployeeSelected), nameof(DepartmentUpdate.assistantManagerCode)))" />
+                                </Buttons>
+                            </DxTextBox>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
@@ -170,6 +170,16 @@
                 </div>
             </div>
         </div>
+    </div>
+</W1Popup>
+
+<W1Popup @bind-IsOpenModal="@IsShowDialogEmpSearch" Width="55%"
+         HandleClickAccept="@(()=> SelectEmployeeHandler())"
+         TextBtnAccept="Chọn"
+         HeaderText="Danh sách nhân viên">
+    <div style="height: 400px; min-height: 350px">
+        <W1Employee UserId="@UserId" Token="@Token" BranchId="@BranchId" DepartmentIds="@DepartmentIds" StatusIds="@StatusIds"
+                    SelectedDataItemChanged="@EventCallbackEmpChangedHandler" />
     </div>
 </W1Popup>
 

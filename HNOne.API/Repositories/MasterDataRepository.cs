@@ -7,6 +7,7 @@ using HNOne.Model;
 using HNOne.Model.Entities;
 using HNOne.Model.Models;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using System.Data;
 
 namespace HNOne.API.Repositories
@@ -68,11 +69,27 @@ namespace HNOne.API.Repositories
             };
         }
 
-        public async Task<IEnumerable<Departments>> GetDepartment(RequestModel request)
+        public async Task<IEnumerable<DepartmentModel>> GetDepartment(RequestModel request)
         {
-            var lstData = await _dbContext.Departments.Where(m => !m.IsDelete).ToListAsync();
-            return lstData;
+            using (var connection = _dapperDbContext.CreateConnection())
+            {
+                DynamicParameters parameters = new DynamicParameters();
+                string strQuery = "select T0.*" +
+                    " ,T1.BranchCode as BranchCode, T1.BranchName as BranchName" +
+                    " ,T2.[Code] as HeadCode, T2.[Name] as HeadName" +
+                    " ,T3.[Code] as AssistantManagerCode, T3.[Name] as AssistantManagerName" +
+                    " from Departments as T0 with(nolock)" +
+                    " inner join Branchs as T1 with(nolock) on T0.BranchId = T1.BranchId" +
+                    " left join Employees as T2 with(nolock) on T0.HeadId = T2.Id" +
+                    " left join Employees as T3 with(nolock) on T0.AssistantManagerIds = T3.Id" +
+                    " where T0.IsDelete = 0";
+                // thêm điều kiện
+                if (request.opt == "ACTIVE") strQuery += " and T0.IsActive = '1'";
+                var result = await connection.QueryAsync<DepartmentModel>(strQuery, parameters, commandTimeout: 500, commandType: CommandType.Text);
+                return result;
+            } 
         }
+        
         public async Task<IEnumerable<Titles>> GetTitle(RequestModel request)
         {
             var lstData = await _dbContext.Titles.Where(m => !m.IsDelete).ToListAsync();
@@ -314,6 +331,15 @@ namespace HNOne.API.Repositories
             ResponseModel response = new ResponseModel();
             try
             {
+                bool isResult = true;
+                // Tạo mới
+                isResult = await _dbContext.Departments.FirstOrDefaultAsync(m => m.Code == entity.Code) != null;
+                if (isResult)
+                {
+                    response.status = StatusCodes.Status409Conflict;
+                    response.message = "Mã phòng ban đã tồn tại đã tồn tại!";
+                    return response;
+                }
                 entity.Id = await _dbContext.Departments.Select(m => m.Id).DefaultIfEmpty().MaxAsync() + 1;
                 entity.DateTracking = _dateTimeHelper.GetCurrentVietnamTime();
                 entity.CreateDate = _dateTimeHelper.GetCurrentVietnamTime();
