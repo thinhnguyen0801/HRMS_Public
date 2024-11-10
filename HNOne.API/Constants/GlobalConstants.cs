@@ -11,7 +11,7 @@
         public const string TABLE_TITLE = "Titles";
         public const string TABLE_EMPLOYEE = "Employees";
         public const string TABLE_CONTRACTTYPE = "ContractTypes";
-        public const string TABLE_REASONCATEGORIER = "ReasonCategories";
+        public const string TABLE_REASON_CATEGORY = "ReasonCategories";
         public const string TABLE_USER = "Users";
         public const string TABLE_PERMISSION_GROUP = "PermissionGroups";
         #endregion

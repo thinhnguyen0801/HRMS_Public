@@ -40,7 +40,7 @@
                             CssClass="h-full">
                         <Columns>
                             <DxGridSelectionColumn Width="45px" />
-                            <DxGridDataColumn FieldName="@nameof(ReasonCategorieModel.name)" Caption="Tên danh mục lý do" MinWidth="190" >
+                            <DxGridDataColumn FieldName="@nameof(ReasonCategorieModel.name)" Caption="Lý do" MinWidth="170" >
                                 <CellDisplayTemplate>
                                     @{
                                         if(IsAllowPut)
@@ -54,11 +54,12 @@
                                     }
                                 </CellDisplayTemplate>
                             </DxGridDataColumn>/>
-                            <DxGridDataColumn FieldName="@nameof(ReasonCategorieModel.type)" Caption="Loại lý do" MinWidth="110" />
+                            <DxGridDataColumn FieldName="@nameof(ReasonCategorieModel.typeName)" Caption="Loại lý do" MinWidth="170" />
                             <DxGridDataColumn FieldName="@nameof(ReasonCategorieModel.isActive)" Caption="Hoạt động?" MinWidth="100" />
-                            <DxGridDataColumn FieldName="@nameof(ReasonCategorieModel.dateTracking)" Caption="Ngày cập nhật" MinWidth="120" DisplayFormat="@GlobalContants.FORMAT_DATE_TIME" />
-                            <DxGridDataColumn FieldName="@nameof(ReasonCategorieModel.userSignName)" Caption="Người tạo" MinWidth="120" />
-                            <DxGridDataColumn FieldName="@nameof(ReasonCategorieModel.userSign2Name)" Caption="Người cập nhật" MinWidth="120" />
+                            <DxGridDataColumn FieldName="@nameof(ReasonCategorieModel.value)" Caption="% Tính lương" MinWidth="100" />
+                            <DxGridDataColumn FieldName="@nameof(DepartmentModel.dateTracking)" Caption="Ngày cập nhật" MinWidth="120" DisplayFormat="@GlobalContants.FORMAT_DATE_TIME" />
+                            <DxGridDataColumn FieldName="@nameof(DepartmentModel.userSignName)" Caption="Người tạo" MinWidth="120" />
+                            <DxGridDataColumn FieldName="@nameof(DepartmentModel.userSign2Name)" Caption="Người cập nhật" MinWidth="120" />
                         </Columns>
                         <TotalSummary>
                             <DxGridSummaryItem DisplayText="@GlobalContants.FORMAT_GRID_DISPLAYTEXT_COUNT" SummaryType="GridSummaryItemType.Count"
@@ -99,28 +100,32 @@
         </div>
         <div class="col-sm-12">
             <div class="d-flex ">
-                <W1Label Value="Loại lý do" Id="bacLuong" Styles="width: 110px" IsRequired="true" />
+                <W1Label Value="Loại lý do" Styles="width: 110px" IsRequired="true" />
                 <div style="width: calc(100% - 110px)">
                     <DxComboBox Data="@ListCboType"
                                 @bind-Value="@ReasonCategorieUpdate.type"
                                 FilteringMode="DataGridFilteringMode.Contains"
                                 TextFieldName="@nameof(ComboboxModel.name)"
-                                ValueFieldName="@nameof(ComboboxModel.id)" CssClass="w1FontSize">
+                                ValueFieldName="@nameof(ComboboxModel.code)" 
+                                CssClass="w1FontSize" Id="txtType">
                     </DxComboBox>
                 </div>
             </div>
         </div>
         <div class="col-sm-12">
             <div class="d-flex ">
-                <W1Label Value="Giá trị 1" Id="bacLuong" Styles="width: 110px" />
+                <W1Label Value="Tính lương (%)" Styles="width: 110px" />
                 <div style="width: calc(100% - 110px)">
-                    <DxTextBox @bind-Text="@ReasonCategorieUpdate.value" CssClass="w1FontSize" Id="txtName"></DxTextBox>
+                    <DxSpinEdit @bind-Value="@ReasonCategorieUpdate.config"
+                                InputCssClass="text-end"
+                                Increment="1" MinValue="0" MaxValue="1"
+                                DisplayFormat="@GlobalContants.FORMAT_NUMBER" Mask="@GlobalContants.FORMAT_NUMBER" CssClass="w1FontSize" />
                 </div>
             </div>
         </div>
-        <div class="col-sm-12">
+        @* <div class="col-sm-12">
             <div class="d-flex ">
-                <W1Label Value="Giá trị 2" Id="bacLuong" Styles="width: 110px" />
+                <W1Label Value="Giá trị 2" Styles="width: 110px" />
                 <div style="width: calc(100% - 110px)">
                     <DxTextBox @bind-Text="@ReasonCategorieUpdate.value1" CssClass="w1FontSize" Id="txtName"></DxTextBox>
                 </div>
@@ -128,12 +133,12 @@
         </div>
         <div class="col-sm-12">
             <div class="d-flex ">
-                <W1Label Value="Giá trị 3" Id="bacLuong" Styles="width: 110px" />
+                <W1Label Value="Giá trị 3" Styles="width: 110px" />
                 <div style="width: calc(100% - 110px)">
                     <DxTextBox @bind-Text="@ReasonCategorieUpdate.value2" CssClass="w1FontSize" Id="txtName"></DxTextBox>
                 </div>
             </div>
-        </div>
+        </div> *@
     </div>
 </W1Popup>
 

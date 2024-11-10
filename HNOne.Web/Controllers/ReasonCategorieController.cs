@@ -29,7 +29,7 @@ namespace HNOne.Web.Controllers
         public ReasonCategorieModel ReasonCategorieUpdate { get; set; } = new ReasonCategorieModel();
         public bool IsShowDialog { get; set; }
         public bool IsCreate { get; set; } = true;
-        public List<ComboboxModel>? ListCboType { get; set; } // cbo ds loại lý do
+        public List<EnumCatagoryModel>? ListCboType { get; set; } // cbo ds loại lý do
 
         // nút quyền
         public bool IsAllowPost { get; set; }
@@ -54,6 +54,7 @@ namespace HNOne.Web.Controllers
                         new BreadcrumbModel("Lý do", isActive: true)
                     };
                     await NotifyBreadcrumb.InvokeAsync(ListBreadcrumbs);
+                    ListCboType = await _masterDataService.GetEnumAsync(UserId, Token, nameof(EnumCatagory.LoaiLyDo));
                     await getReasonCategories();
 
                 }
@@ -65,7 +66,6 @@ namespace HNOne.Web.Controllers
                 finally
                 {
                     await ShowLoading(false);
-                    //await _progressService!.Done();
                     await InvokeAsync(StateHasChanged);
                 }
             }
@@ -77,12 +77,19 @@ namespace HNOne.Web.Controllers
             ListReasonCategorie = new List<ReasonCategorieModel>();
             ListReasonCategorie = await _masterDataService.GetReasonCategorieAsync(UserId, Token);
         }
+        
         private void validateForSave(ref string errorMessage, ref string fieldName)
         {
             if (string.IsNullOrEmpty(ReasonCategorieUpdate.name))
             {
-                errorMessage = String.Format(MessageConstants.MESSAGE_COMBOBOX_REQUIRE, "Tên danh mục lý do");
-                fieldName = nameof(ReasonCategorieUpdate.name);
+                errorMessage = string.Format(MessageConstants.MESSAGE_STRING_REQUIRE, "Tên lý do");
+                fieldName = "txtName";
+                return;
+            }
+            if (string.IsNullOrEmpty(ReasonCategorieUpdate.type))
+            {
+                errorMessage = String.Format(MessageConstants.MESSAGE_COMBOBOX_REQUIRE, "Loại lý do");
+                fieldName = "txtType";
                 return;
             }
         }
@@ -146,7 +153,13 @@ namespace HNOne.Web.Controllers
                     ReasonCategorieUpdate.id = pItemDetails!.id;
                     ReasonCategorieUpdate.name = pItemDetails!.name;
                     ReasonCategorieUpdate.type = pItemDetails!.type;
+                    decimal.TryParse(pItemDetails!.value, out decimal oConfig);
+                    decimal.TryParse(pItemDetails!.value1, out decimal oConfig1);
+                    decimal.TryParse(pItemDetails!.value2, out decimal oConfig2);
                     ReasonCategorieUpdate.isActive = pItemDetails!.isActive;
+                    ReasonCategorieUpdate.config = oConfig;
+                    ReasonCategorieUpdate.config1 = oConfig1;
+                    ReasonCategorieUpdate.config2 = oConfig2;
                     IsCreate = false;
                 }
                 IsShowDialog = true;
@@ -178,6 +191,9 @@ namespace HNOne.Web.Controllers
                 string processKey = IsCreate ? ProcessConstants.POST_REASONCATEGORIE : ProcessConstants.PUT_REASONCATEGORIE;
                 ReasonCategorieUpdate.userSign = UserId;
                 ReasonCategorieUpdate.userSign2 = UserId;
+                ReasonCategorieUpdate.value = ReasonCategorieUpdate.config.ToString();
+                ReasonCategorieUpdate.value1 = ReasonCategorieUpdate.config1.ToString();
+                ReasonCategorieUpdate.value2 = ReasonCategorieUpdate.config2.ToString();
                 string content = JsonConvert.SerializeObject(ReasonCategorieUpdate);
                 isConfirm = await _masterDataService.UpdateReasonCategorieAsync(processKey, UserId, Token, content);
                 if (isConfirm)

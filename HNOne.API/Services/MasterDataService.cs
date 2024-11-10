@@ -49,7 +49,7 @@ namespace HNOne.API.Services
         public async Task<IEnumerable<ContractTypes>> GetContractType(RequestModel request)
                     => await _masterRepository.GetContractType(request);
 
-        public async Task<IEnumerable<ReasonCategories>> GetReasonCategorie(RequestModel request)
+        public async Task<IEnumerable<ReasonCategorieModel>> GetReasonCategorie(RequestModel request)
                     => await _masterRepository.GetReasonCategorie(request);
 
         public async Task<IEnumerable<EnumCatagories>> GetEnum(RequestModel request)

@@ -24,7 +24,7 @@ namespace HNOne.API.Repositories.Interfaces
         Task<IEnumerable<ContractTypes>> GetContractType(RequestModel request);
         Task<ResponseModel> AddContractType(ContractTypes entity);
         Task<ResponseModel> UpdateContractType(ContractTypes entity);
-        Task<IEnumerable<ReasonCategories>> GetReasonCategorie(RequestModel request);
+        Task<IEnumerable<ReasonCategorieModel>> GetReasonCategorie(RequestModel request);
         Task<ResponseModel> AddReasonCategorie(ReasonCategories entity);
         Task<ResponseModel> UpdateReasonCategorie(ReasonCategories entity);
         Task<IEnumerable<SalaryCategories>> GetSalaryCatagory(RequestModel request);

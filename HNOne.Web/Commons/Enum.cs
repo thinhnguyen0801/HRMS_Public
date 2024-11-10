@@ -24,5 +24,6 @@
         LoaiBaoHiem,
         LoaiNhanVien,
         XepLoaiDaoTao,
+        LoaiLyDo,
     }
 }

@@ -135,10 +135,18 @@ namespace HNOne.API.Repositories
             var lstData = await _dbContext.ContractTypes.Where(m => !m.IsDelete).ToListAsync();
             return lstData;
         }
-        public async Task<IEnumerable<ReasonCategories>> GetReasonCategorie(RequestModel request)
+        public async Task<IEnumerable<ReasonCategorieModel>> GetReasonCategorie(RequestModel request)
         {
-            var lstData = await _dbContext.ReasonCategories.Where(m => !m.IsDelete).ToListAsync();
-            return lstData;
+            using (var connection = _dapperDbContext.CreateConnection())
+            {
+                DynamicParameters parameters = new DynamicParameters();
+                string strQuery = "select T0.*, T1.Name as TypeName" +
+                    " from ReasonCategories as T0 with(nolock)" +
+                    " inner join EnumCatagories as T1 with(nolock) on T0.Type = T1.Code and T1.EnumType = 'LoaiLyDo'" +
+                    " where T0.IsDelete = 0";
+                var result = await connection.QueryAsync<ReasonCategorieModel>(strQuery, parameters, commandTimeout: 500, commandType: CommandType.Text);
+                return result;
+            }    
         }
 
         /// <summary>
@@ -664,6 +672,9 @@ namespace HNOne.API.Repositories
                 data.Name = entity.Name;
                 data.Type = entity.Type;
                 data.IsActive = entity.IsActive;
+                data.Value = entity.Value;
+                data.Value1 = entity.Value1;
+                data.Value2 = entity.Value2;
                 data.DateTracking = _dateTimeHelper.GetCurrentVietnamTime();
                 data.UpdateDate = _dateTimeHelper.GetCurrentVietnamTime();
                 data.UserSign2 = entity.UserSign2;

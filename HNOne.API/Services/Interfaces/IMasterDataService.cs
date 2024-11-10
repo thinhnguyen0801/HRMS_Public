@@ -13,7 +13,7 @@ namespace HNOne.API.Services.Interfaces
         Task<IEnumerable<TitleModel>> GetTitle(RequestModel request);
         Task<IEnumerable<PositionModel>> GetPosition(RequestModel request);
         Task<IEnumerable<ContractTypes>> GetContractType(RequestModel request);
-        Task<IEnumerable<ReasonCategories>> GetReasonCategorie(RequestModel request);
+        Task<IEnumerable<ReasonCategorieModel>> GetReasonCategorie(RequestModel request);
         Task<ResponseModel> UpdateBranch(string actionType, Branchs branch);
         Task<ResponseModel> UpdateDepartment(string actionType, Departments entity);
         Task<ResponseModel> UpdatePosition(string actionType, Positions entity);
