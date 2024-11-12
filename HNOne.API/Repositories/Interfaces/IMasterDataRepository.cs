@@ -1,7 +1,6 @@
 ﻿using HNOne.Model;
 using HNOne.Model.Entities;
 using HNOne.Model.Models;
-using System.Data;
 
 namespace HNOne.API.Repositories.Interfaces
 {

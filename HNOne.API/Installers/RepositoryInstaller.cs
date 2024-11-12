@@ -20,6 +20,7 @@ namespace HNOne.API.Installers
             services.AddScoped<IMasterDataRepository, MasterDataRepository>();
             services.AddScoped<IUserRepository, UserRepository>();
             services.AddScoped<IPersonnelRepository, PersonnelRepository>();
+            services.AddScoped<IWorkforceRepository, WorkforceRepository>();
 
         }
     }

@@ -1,0 +1,186 @@
+﻿@page "/cau-hinh-thong-so-phep"
+@inherits Controllers.LeaveConfigController
+
+<PageTitle>Thông số phép năm</PageTitle>
+
+<div class="h-content-filter">
+    <div class="row row-gap-2">
+        <div class="col-12">
+            <div class="card w1FontSize">
+                <div class="card-header p-1">
+                    <DxToolbar ItemRenderStyleMode="@ToolbarRenderStyleMode.Contained">
+                        <Items>
+                            <DxToolbarItem Text="Làm mới" BeginGroup="true" IconCssClass="@($"{IconClassConstants.ICON_REFRESH}")" CssClass="w1FontSize"
+                                           Alignment="@ToolbarItemAlignment.Right" Click="@(()=> RefreshHandler())" />
+
+                            <DxToolbarItem Text="Thêm mới" BeginGroup="true" IconCssClass="@($"{IconClassConstants.ICON_ADD}")" CssClass="w1FontSize"
+                                           Alignment="@ToolbarItemAlignment.Right" Click="@(async()=> await OnOpenDialogHandler())" />
+
+                            <DxToolbarItem Text="Xóa" BeginGroup="true" IconCssClass="@($"{IconClassConstants.ICON_DELETE}")" CssClass="w1FontSize"
+                                           Alignment="@ToolbarItemAlignment.Right" />
+                        </Items>
+                    </DxToolbar>
+                </div>
+                <div class="card-body p-1" style="height: calc(100vh - 155px); min-height: 350px">
+                    <DxGrid Data="ListLeaveConfig" @ref="GridLeaveConfig"
+                            ShowFilterRow="true"
+                            ColumnResizeMode="GridColumnResizeMode.ColumnsContainer"
+                            PagerPosition="GridPagerPosition.Bottom"
+                            PageSizeSelectorVisible="true"
+                            PageSize="@GlobalContants.PageSize"
+                            PageSizeSelectorItems="@(GlobalContants.PageSizeList)"
+                            PageSizeSelectorAllRowsItemVisible="true"
+                            PagerSwitchToInputBoxButtonCount="10"
+                            PagerVisibleNumericButtonCount="10"
+                            TextWrapEnabled="false"
+                            FocusedRowEnabled="true"
+                            SelectionMode="@GridSelectionMode.Multiple"
+                            @bind-SelectedDataItems="@SelectedItems"
+                            KeyFieldName="@nameof(LeaveConfigModel.id)"
+                            CssClass="h-full">
+                        <Columns>
+                            <DxGridSelectionColumn Width="35px" />
+                            <DxGridDataColumn FieldName="@nameof(LeaveConfigModel.year)" Caption="Năm áp dụng" MinWidth="130">
+                                <CellDisplayTemplate>
+                                    @{
+                                        <a @onclick="@(async()=> await OnOpenDialogHandler(EnumType.Update, (context.DataItem as LeaveConfigModel)))">@context.Value</a>
+                                    }
+                                </CellDisplayTemplate>
+                            </DxGridDataColumn>
+                            <DxGridDataColumn FieldName="@nameof(LeaveConfigModel.fromDate)" Caption="Ngày bắt đầu" MinWidth="110" DisplayFormat="@GlobalContants.FORMAT_DATE" />
+                            <DxGridDataColumn FieldName="@nameof(LeaveConfigModel.toDate)" Caption="Ngày kết thúc" MinWidth="110" DisplayFormat="@GlobalContants.FORMAT_DATE" />
+                            <DxGridDataColumn FieldName="@nameof(LeaveConfigModel.numOfLeave)" Caption="Số phép năm" MinWidth="110" />
+                            <DxGridDataColumn FieldName="@nameof(LeaveConfigModel.numOfYearIncrease)" Caption="Số năm tăng phép" MinWidth="130" />
+                            <DxGridDataColumn FieldName="@nameof(LeaveConfigModel.numOfLeaveIncrease)" Caption="Số phép tăng" MinWidth="110" />
+                            <DxGridDataColumn FieldName="@nameof(LeaveConfigModel.numOfLeaveTransfer)" Caption="Số phép chuyển sang năm" MinWidth="160" />
+                            <DxGridDataColumn FieldName="@nameof(LeaveConfigModel.isActive)" Caption="Hoạt động?" MinWidth="100" />
+                            <DxGridDataColumn FieldName="@nameof(LeaveConfigModel.isOffSaturday)" Caption="Nghỉ T7" MinWidth="100" />
+                            <DxGridDataColumn FieldName="@nameof(LeaveConfigModel.isOffSunday)" Caption="Nghỉ CN" MinWidth="100" />
+                            <DxGridDataColumn FieldName="@nameof(LeaveConfigModel.dateTracking)" Caption="Ngày cập nhật" MinWidth="120" DisplayFormat="@GlobalContants.FORMAT_DATE_TIME" />
+                            <DxGridDataColumn FieldName="@nameof(LeaveConfigModel.userSignName)" Caption="Người tạo" MinWidth="120" />
+                            <DxGridDataColumn FieldName="@nameof(LeaveConfigModel.userSign2Name)" Caption="Người cập nhật" MinWidth="120" />
+                        </Columns>
+                        <TotalSummary>
+                            <DxGridSummaryItem DisplayText="@GlobalContants.FORMAT_GRID_DISPLAYTEXT_COUNT" SummaryType="GridSummaryItemType.Count"
+                                               FieldName="@nameof(LeaveConfigModel.year)" ValueDisplayFormat="@GlobalContants.FORMAT_CURRENCY"
+                                               FooterColumnName="@nameof(LeaveConfigModel.year)" />
+                        </TotalSummary>
+                    </DxGrid>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<W1Popup @bind-IsOpenModal="@IsShowDialog"
+         Width="60%" TextBtnAccept="Cập nhật"
+         HeaderText="@(IsCreate ? "Thêm mới thông số phép" : $"Cập nhật thông số phép năm [{LeaveConfigUpdate.year}]")"
+         HandleClickAccept="@SaveDataHandler">
+    <div class="row row-gap-2">
+        <div class="col-sm-12">
+            <div class="d-flex ">
+                <W1Label Value="Năm áp dụng" Styles="width: 230px" IsRequired="true" />
+                <div style="width: calc(100% - 230px)">
+                    <div class="row row-gap-2">
+                        <div class="col-md-8 col-sm-12">
+                            <DxSpinEdit @bind-Value="@LeaveConfigUpdate.year" MinValue="2024" Increment="1"
+                                        InputCssClass="text-end" ShowSpinButtons="true" CssClass="w1FontSize" />
+                        </div>
+                        <div class="col-md-4 col-sm-12">
+                            <DxCheckBox CssClass="w-100 w1FontSize"
+                                        SizeMode="@SizeMode.Small"
+                                        @bind-Checked="@LeaveConfigUpdate.isActive"
+                                        LabelPosition="@LabelPosition.Right">
+                                Hoạt động?
+                            </DxCheckBox>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-sm-12">
+            <div class="d-flex ">
+                <W1Label Value="Ngày BĐ/KT" Styles="width: 230px" IsRequired="true" />
+                <div style="width: calc(100% - 230px)">
+                    <div class="grid gap-1 row-gap-2">
+                        <div class="g-col-md-6 g-col-sm-12 g-col-12">
+                            <DxDateEdit @bind-Date="@LeaveConfigUpdate.fromDate"
+                                        CssClass="w1FontSize" Id="startDate"
+                                        Mask="@GlobalContants.FORMAT_DATE" Format="@GlobalContants.FORMAT_DATE"
+                                        DisplayFormat="@GlobalContants.FORMAT_DATE" />
+                        </div>
+                        <div class="g-col-md-6 g-col-sm-12 g-col-12">
+                            <DxDateEdit @bind-Date="@LeaveConfigUpdate.toDate" CssClass="w1FontSize" Id="endDate"
+                                        Mask="@GlobalContants.FORMAT_DATE" Format="@GlobalContants.FORMAT_DATE"
+                                        DisplayFormat="@GlobalContants.FORMAT_DATE" />
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-sm-12">
+            <div class="d-flex ">
+                <W1Label Value="Số phép năm" Styles="width: 230px" IsRequired="true" />
+                <div style="width: calc(100% - 230px)">
+                    <DxSpinEdit @bind-Value="@LeaveConfigUpdate.numOfLeave" MinValue="0" Increment="1"
+                                InputCssClass="text-end" ShowSpinButtons="true" CssClass="w1FontSize" />
+                </div>
+            </div>
+        </div>
+        <div class="col-sm-12">
+            <div class="d-flex ">
+                <W1Label Value="Số năm được tăng phép" Styles="width: 230px" />
+                <div style="width: calc(100% - 230px)">
+                    <DxSpinEdit @bind-Value="@LeaveConfigUpdate.numOfYearIncrease" MinValue="0" Increment="1"
+                                InputCssClass="text-end" ShowSpinButtons="true" CssClass="w1FontSize" />
+                </div>
+            </div>
+        </div>
+        <div class="col-sm-12">
+            <div class="d-flex ">
+                <W1Label Value="Số phép được tăng" Styles="width: 230px" />
+                <div style="width: calc(100% - 230px)">
+                    <DxSpinEdit @bind-Value="@LeaveConfigUpdate.numOfLeaveIncrease" MinValue="0" Increment="1"
+                                InputCssClass="text-end" ShowSpinButtons="true" CssClass="w1FontSize" />
+                </div>
+            </div>
+        </div>
+        <div class="col-sm-12">
+            <div class="d-flex ">
+                <W1Label Value="Số phép được chuyển sang năm mới" Styles="width: 230px" />
+                <div style="width: calc(100% - 230px)">
+                    <DxSpinEdit @bind-Value="@LeaveConfigUpdate.numOfLeaveTransfer" MinValue="0" Increment="1"
+                                InputCssClass="text-end" ShowSpinButtons="true" CssClass="w1FontSize" />
+                </div>
+            </div>
+        </div>
+        <div class="col-sm-12">
+            <div class="d-flex ">
+                <W1Label Value="" Styles="width: 230px" />
+                <div style="width: calc(100% - 230px)">
+                    <DxCheckBox CssClass="w-100 w1FontSize"
+                                SizeMode="@SizeMode.Small"
+                                @bind-Checked="@LeaveConfigUpdate.isOffSaturday"
+                                LabelPosition="@LabelPosition.Right">
+                        Thứ 7 là ngày nghỉ trong tuần?
+                    </DxCheckBox>
+                </div>
+            </div>
+        </div>
+        <div class="col-sm-12">
+            <div class="d-flex ">
+                <W1Label Value="" Styles="width: 230px" />
+                <div style="width: calc(100% - 230px)">
+                    <DxCheckBox CssClass="w-100 w1FontSize"
+                                SizeMode="@SizeMode.Small"
+                                @bind-Checked="@LeaveConfigUpdate.isOffSunday"
+                                LabelPosition="@LabelPosition.Right">
+                        Chủ nhật là ngày nghỉ trong tuần?
+                    </DxCheckBox>
+                </div>
+            </div>
+        </div>
+    </div>
+</W1Popup>
+
+<W1Confirm @ref="confirm" />

@@ -31,6 +31,8 @@ namespace HNOne.API.Repositories
         public DbSet<ContractAppendices> ContractAppendices { get; set; }
         public DbSet<LevelOfEducations> LevelOfEducations { get; set; }
         public DbSet<GroupAccessControls> GroupAccessControls { get; set; }
+        public DbSet<LeaveConfigs> LeaveConfigs { get; set; }
+
 
         public MasterDbContext(DbContextOptions<MasterDbContext> options)
             : base(options)

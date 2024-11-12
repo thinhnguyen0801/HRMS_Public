@@ -13,5 +13,7 @@
         public const string USER_LOGOUT = "User/logout";
         public const string USER_POST_DATA = "User/post-data";
         public const string USER_GET_DATA = "User/get-data";
+        public const string WORKFORCE_GET_DATA = "Workforce/get-data";
+        public const string WORKFORCE_POST_DATA = "Workforce/post-data";
     }
 }

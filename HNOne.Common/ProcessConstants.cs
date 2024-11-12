@@ -67,6 +67,10 @@
         public const string GET_PER_GROUP_ACCESS_CONTROL = "get-per-group-access-control";
         public const string POST_PER_GROUP_ACCESS_CONTROL = "post-per-group-access-control";
 
+        public const string GET_LEAVE_CONFIG = "get-leave-config";
+        public const string POST_LEAVE_CONFIG = "post-leave-config";
+        public const string PUT_LEAVE_CONFIG = "put-leave-config";
+
         #region Loại dưới store
         public const string GET_COMBO_TYPE_CONTRACT_BY_EMPLOYEEID = "CONTRACT_BY_EMPLOYEEID";
         public const string GET_COMBO_TYPE_SALARY_ADJUSTMENT_BY_CONTRACT = "SALARY_ADJUSTMENT_BY_CONTRACT";
