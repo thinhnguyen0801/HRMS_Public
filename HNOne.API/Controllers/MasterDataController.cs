@@ -1,4 +1,6 @@
-﻿using HNOne.API.Services.Interfaces;
+﻿using Azure;
+using HNOne.API.Repositories.Interfaces;
+using HNOne.API.Services.Interfaces;
 using HNOne.Common;
 using HNOne.Model;
 using HNOne.Model.Entities;
@@ -16,13 +18,16 @@ namespace HNOne.API.Controllers
     {
         private readonly ILogger<MasterDataController> _logger;
         private readonly IMasterDataService _masterDataService;
+        private readonly IApprovalRepository _approvalRepository;
         private readonly IWebHostEnvironment _webHostEnvironment;
         public MasterDataController(IMasterDataService masterDataService
-            , ILogger<MasterDataController> logger, IWebHostEnvironment webHostEnvironment)
+            , ILogger<MasterDataController> logger, IWebHostEnvironment webHostEnvironment
+            , IApprovalRepository approvalRepository)
         {
             _masterDataService = masterDataService;
             _logger = logger;
             _webHostEnvironment = webHostEnvironment;
+            _approvalRepository = approvalRepository;
         }
 
         /// <summary>
@@ -114,6 +119,9 @@ namespace HNOne.API.Controllers
                     case ProcessConstants.GET_COMBO_MASTER_DATA:
                         response.data = await _masterDataService.GetMasterData(request);
                         break;
+                    case ProcessConstants.GET_FUN_ENUM:
+                        response.data = await _masterDataService.GetFnEnum(request);
+                        break;
                     default:
                         response.status = StatusCodes.Status404NotFound;
                         response.message = $"Process Key {processKey} was not provider!!!";
@@ -124,6 +132,40 @@ namespace HNOne.API.Controllers
                     response.status = StatusCodes.Status204NoContent;
                     response.message = "Không tìm thấy dữ liệu!!!";
                 }
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "An error occurred while processing the request.");
+                response.status = StatusCodes.Status400BadRequest;
+                response.message = ex.Message;
+            }
+            return Ok(response);
+        }
+
+        [HttpPost]
+        [Route("approval")]
+        public async Task<IActionResult> Approval([FromBody] RequestModel request)
+        {
+            ResponseModel response = new ResponseModel();
+            try
+            {
+                string? processKey = request.process?.Trim();
+                var approval = JsonConvert.DeserializeObject<Approvals>($"{request.json}")!;
+                switch (processKey)
+                {
+                    case ProcessConstants.POST_APPROVAL:
+                        // gửi phê duyệt
+                        response = await _approvalRepository.AddApproval(approval);
+                        break;
+                    case ProcessConstants.PUT_APPROVAL:
+                        // duyệt/từ chối
+                        response = await _approvalRepository.UpdateApproval($"{request.type}", approval);
+                        break;
+                    default:
+                        response.status = StatusCodes.Status404NotFound;
+                        response.message = $"Process Key {processKey} was not provider!!!";
+                        return Ok(response);
+                }    
             }
             catch (Exception ex)
             {

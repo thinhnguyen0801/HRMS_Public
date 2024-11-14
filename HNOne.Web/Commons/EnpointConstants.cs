@@ -4,6 +4,7 @@
     {
         public const string MASTERDATA_GET_DATA = "MasterData/get-data";
         public const string MASTERDATA_POST_DATA = "MasterData/post-data";
+        public const string MASTERDATA_APPROVAL_DATA = "MasterData/approval";
         public const string MASTERDATA_GET_DATA_WITHOUT_TOKEN = "MasterData/get-data-without-token";
         public const string MASTERDATA_UPLOAD_IMAGE = "MasterData/upload-images";
         public const string PERSONNEL_POST_DATA = "Personnel/post-data";

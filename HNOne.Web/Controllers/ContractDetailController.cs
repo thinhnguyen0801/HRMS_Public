@@ -10,6 +10,7 @@ using DevExpress.Blazor;
 using HNOne.Web.Models;
 using Microsoft.AspNetCore.WebUtilities;
 using Newtonsoft.Json;
+using HNOne.Web.Services;
 
 namespace HNOne.Web.Controllers
 {
@@ -17,6 +18,7 @@ namespace HNOne.Web.Controllers
     {
         [Inject] IMasterDataService _masterDataService { get; init; }
         [Inject] IPersonnelService _personnelService { get; init; }
+        [Inject] IApprovalService _approvalService { get; init; }
         [Inject] IJSRuntime _jsRuntime { get; set; }
         public W1Confirm confirm { get; set; }
         #region Properties
@@ -95,7 +97,7 @@ namespace HNOne.Web.Controllers
             ContractDocument.numberOfMonths = 1;
             ContractDocument.contractNumber = 1;
             ContractDocument.numberOfDaysReduced = 1;
-            ContractDocument.statusCode = "1"; // mặc định là chờ xử lý
+            ContractDocument.statusCode = CommonConstants.STATUS_CODE_ADD; // mặc định là chờ xử lý
             var uri = _navigationManager?.ToAbsoluteUri(_navigationManager.Uri);
             if (uri != null && QueryHelpers.ParseQuery(uri.Query).Count > 0)
             {
@@ -122,7 +124,7 @@ namespace HNOne.Web.Controllers
                 var getTask2 = _masterDataService.GetTitleAsync(UserId, Token); // ds chức danh
                 var getTask3 = _masterDataService.GetPositionAsync(UserId, Token); // ds chức vụ
                 var getTask4 = _masterDataService.GetEnumAsync(UserId, Token, nameof(EnumCatagory.DanhMucThueTNCN)); // ds loại tính thuế
-                var getTask5 = _masterDataService.GetEnumAsync(UserId, Token, nameof(EnumCatagory.TrangThaiHopDong)); // ds trạng thái
+                var getTask5 = _masterDataService.GetFunEnumAsync(UserId, Token, nameof(EnumCatagory.TrangThaiHopDong)); // ds trạng thái
                 await Task.WhenAll(
                     getTask1,
                     getTask2,
@@ -274,6 +276,27 @@ namespace HNOne.Web.Controllers
                                 .AddDays(-1 * ContractDocument.numberOfDaysReduced);
             }    
 
+        }
+
+        /// <summary>
+        /// kiểm tra dữ liệu trươc khi gửi phê duyệt
+        /// </summary>
+        /// <param name="errorMessage"></param>
+        /// <param name="fieldName"></param>
+        private void validateForSaveApproval(ref string errorMessage, ref string fieldName)
+        {
+            if (ContractDocument.id < 1)
+            {
+                errorMessage = "Vui lòng lưu thông tin chứng từ trước khi gửi phê duyệt";
+                fieldName = "zzzz";
+                return;
+            }
+            if (ContractDocument.employeeId < 1)
+            {
+                errorMessage = string.Format(MessageConstants.MESSAGE_COMBOBOX_REQUIRE, "Người ký");
+                fieldName = nameof(ContractDocument.employeeSignatureId);
+                return;
+            }
         }
         #endregion
 
@@ -577,7 +600,45 @@ namespace HNOne.Web.Controllers
         /// <returns></returns>
         protected async Task SubmitForApprovalHandler()
         {
-
+            try
+            {
+                string errorMessage = string.Empty;
+                string fieldName = string.Empty; // trả ra trường nào cần validate
+                bool isConfirm = true;
+                validateForSaveApproval(ref errorMessage, ref fieldName);
+                if (!string.IsNullOrEmpty(errorMessage))
+                {
+                    ShowWarning(errorMessage);
+                    await _jsRuntime.InvokeVoidAsync("focusInput", fieldName);
+                    return;
+                }
+                await Task.Yield();
+                errorMessage = string.Format(MessageConstants.MESSAGE_CONFIRM_SEND_APPROVAL_FORMAT, $"đến nhân viên {ContractDocument.employeeName}");
+                isConfirm = await confirm.SetConfirm(MessageConstants.MESSAGE_TITLE, $"{errorMessage}");
+                if (!isConfirm) return;
+                await ShowLoading();
+                string processKey = ProcessConstants.POST_APPROVAL;
+                ApprovalModel approval = new ApprovalModel();
+                approval.docEntry = ContractDocument.id;
+                approval.objType = nameof(EnumObjType.Contracts);
+                approval.branchId = BranchId;
+                approval.statusCode = CommonConstants.STATUS_CODE_APPROVAL_PENDING;
+                approval.userSign = UserId;
+                approval.employeeSignatureId = ContractDocument.employeeSignatureId;
+                string content = JsonConvert.SerializeObject(approval);
+                isConfirm = await _approvalService.UpdateApprovalAsync(processKey, UserId, Token, json: content);
+                if(isConfirm) await showVoucher();
+            }
+            catch (Exception ex)
+            {
+                ShowError(ex.Message);
+                _logger.LogError(ex, "SubmitForApprovalHandler");
+            }
+            finally
+            {
+                await ShowLoading(false);
+                await InvokeAsync(StateHasChanged);
+            }
         }
         #endregion
     }

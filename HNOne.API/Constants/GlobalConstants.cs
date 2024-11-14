@@ -14,6 +14,7 @@
         public const string TABLE_REASON_CATEGORY = "ReasonCategories";
         public const string TABLE_USER = "Users";
         public const string TABLE_PERMISSION_GROUP = "PermissionGroups";
+        public const string TABLE_CONTRACT = "Contracts";
         #endregion
     }
 }

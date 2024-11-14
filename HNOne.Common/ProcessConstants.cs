@@ -58,6 +58,7 @@
         public const string POST_INSURANCE = "post-insurance";
         public const string PUT_INSURANCE = "put-insurance";
         public const string GET_COMBO_MASTER_DATA = "get-combo-master-data";
+        public const string GET_FUN_ENUM = "get-fun-enum";
         public const string GET_CONTRACT_APPENDIX = "get-contract-appendix";
         public const string POST_CONTRACT_APPENDIX = "post-contract-appendix";
         public const string PUT_CONTRACT_APPENDIX = "put-contract-appendix";
@@ -70,6 +71,10 @@
         public const string GET_LEAVE_CONFIG = "get-leave-config";
         public const string POST_LEAVE_CONFIG = "post-leave-config";
         public const string PUT_LEAVE_CONFIG = "put-leave-config";
+
+        public const string GET_APPROVAL = "get-approval";
+        public const string POST_APPROVAL = "post-approval";
+        public const string PUT_APPROVAL = "put-approval";
 
         #region Loại dưới store
         public const string GET_COMBO_TYPE_CONTRACT_BY_EMPLOYEEID = "CONTRACT_BY_EMPLOYEEID";

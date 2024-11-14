@@ -5,7 +5,7 @@
         Add,
         Update,
         Delete,
-        AllowEdit
+        AllowEdit,
     }
 
     public enum EnumCatagory
@@ -25,5 +25,10 @@
         LoaiNhanVien,
         XepLoaiDaoTao,
         LoaiLyDo,
+    }
+
+    public enum EnumObjType
+    {
+        Contracts // hợp đồng
     }
 }

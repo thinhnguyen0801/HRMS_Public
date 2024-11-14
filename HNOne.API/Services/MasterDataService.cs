@@ -89,6 +89,10 @@ namespace HNOne.API.Services
 
         public async Task<IEnumerable<dynamic>?> GetMasterData(RequestModel request)
             => await _masterRepository.GetMasterData(request);
+
+
+        public async Task<IEnumerable<EnumCatagoryModel>> GetFnEnum(RequestModel request)
+            => await _masterRepository.GetFnEnum(request);
         #endregion
 
         #region Command

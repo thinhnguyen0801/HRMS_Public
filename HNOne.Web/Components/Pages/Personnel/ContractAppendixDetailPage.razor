@@ -148,16 +148,16 @@
                                         </div>
                                     </div>
 
-                                    <div class="col-md-6 col-sm-12" IsRequired="true">
+                                    <div class="col-md-6 col-sm-12">
                                         <div class="d-flex ">
                                             <W1Label Value="Phòng ban" Styles="width: 110px" IsRequired="true" />
                                             <div style="width: calc(100% - 110px)">
-                                                <DxComboBox Data="@ListCboPosition"
+                                                <DxComboBox Data="@ListCboDepartment"
                                                             @bind-Value="@ContractDocument.departmentId"
                                                             FilteringMode="DataGridFilteringMode.Contains"
                                                             TextFieldName="@nameof(ComboboxModel.name)"
                                                             ValueFieldName="@nameof(ComboboxModel.id)"
-                                                            Id="positionId"
+                                                            Id="departmentId"
                                                             CssClass="w1FontSize">
                                                 </DxComboBox>
                                             </div>

@@ -464,7 +464,7 @@ namespace HNOne.Web.Services
         /// </summary>
         /// <param name="request"></param>
         /// <returns></returns>
-        public async Task<List<ReasonCategorieModel>?> GetReasonCategorieAsync(int userId, string token = "")
+        public async Task<List<ReasonCategorieModel>?> GetReasonCategorieAsync(int userId, string token = "", string reasonType = "")
         {
 
             try
@@ -474,6 +474,7 @@ namespace HNOne.Web.Services
                 request.process = ProcessConstants.GET_REASONCATEGORIE;
                 request.userId = userId;
                 request.token = token;
+                request.opt = reasonType;
                 HttpResponseMessage httpResponse = await PostAsync(EnpointConstants.MASTERDATA_GET_DATA, request);
                 var checkContent = ValidateJsonContent(httpResponse.Content);
                 if (!checkContent) _toastService.ShowInfo(MessageConstants.MESSAGE_JSON_INVALID);
@@ -940,6 +941,51 @@ namespace HNOne.Web.Services
             }
             return default;
 
+        }
+    
+        /// <summary>
+        /// lấy danh mục các enum mặc định không cho sửa
+        /// </summary>
+        /// <param name="userId"></param>
+        /// <param name="token"></param>
+        /// <param name="enumType"></param>
+        /// <param name="opt"></param>
+        /// <param name="opt1"></param>
+        /// <param name="isShowToast"></param>
+        /// <returns></returns>
+        public async Task<List<EnumCatagoryModel>?> GetFunEnumAsync(int userId, string token, string enumType
+            , string opt = "", string opt1 = "", bool isShowToast = false)
+        {
+            try
+            {
+                List<EnumCatagoryModel>? data = null;
+                RequestModel request = new RequestModel();
+                request.process = ProcessConstants.GET_FUN_ENUM;
+                request.userId = userId;
+                request.token = token;
+                request.type = enumType;
+                request.opt = opt;
+                request.opt1 = opt1;
+                HttpResponseMessage httpResponse = await PostAsync(EnpointConstants.MASTERDATA_GET_DATA, request);
+                var checkContent = ValidateJsonContent(httpResponse.Content);
+                if (!checkContent) _toastService.ShowInfo(MessageConstants.MESSAGE_JSON_INVALID);
+                else
+                {
+                    var response = await httpResponse.Content.ReadFromJsonAsync<ResCliModel<EnumCatagoryModel>>();
+                    if (response == null || response.status != StatusCodes.Status200OK)
+                    {
+                        if (isShowToast) _toastService.ShowWarning(response?.message ?? MessageConstants.MESSAGE_IT_SUPPORT);
+                        return data;
+                    }
+                    data = response.data?.ToList();
+                }
+                return data;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "GetSalaryCatagoryAsync");
+                throw ex;
+            }
         }
     }
 }

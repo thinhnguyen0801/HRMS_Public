@@ -12,7 +12,7 @@ namespace HNOne.Web.Services.Interfaces
         Task<List<TitleModel>?> GetTitleAsync(int userId, string token = "");
         Task<List<PositionModel>?> GetPositionAsync(int userId, string token = "");
         Task<List<ContractTypeModel>?> GetContractTypeAsync(int userId, string token = "");
-        Task<List<ReasonCategorieModel>?> GetReasonCategorieAsync(int userId, string token = "");
+        Task<List<ReasonCategorieModel>?> GetReasonCategorieAsync(int userId, string token = "", string reasonType = "");
         Task<bool> UpdateBranchAsync(string processKey, int userId, string token, string json);
         Task<bool> UpdateDepartmentAsync(string processKey, int userId, string token, string json);
         Task<bool> UpdateTitleAsync(string processKey, int userId, string token, string json);
@@ -28,5 +28,7 @@ namespace HNOne.Web.Services.Interfaces
         Task<List<ComboboxModel>?> GetLocationAsync(int userId, string token, string? type, string? opt = "", string? opt1 = "", string? opt2 = "");
         Task<List<T>?> GetMasterDataAsync<T>(RequestModel request, bool isShowToast = false) where T : class;
         Task<List<FileUploadModel>?> UploadImagesAsync(List<FileUploadModel> listImages, string subFolder);
+        Task<List<EnumCatagoryModel>?> GetFunEnumAsync(int userId, string token, string enumType
+            , string opt = "", string opt1 = "", bool isShowToast = false);
     }
 }

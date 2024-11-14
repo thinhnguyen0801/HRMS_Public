@@ -11,7 +11,8 @@
                                Alignment="@ToolbarItemAlignment.Right" Click="@SaveDataHandler" />
 
                 <DxToolbarItem Text="Gửi phê duyệt" BeginGroup="true" IconCssClass="@($"{IconClassConstants.ICON_SHARE}")" CssClass="w1FontSize"
-                               Alignment="@ToolbarItemAlignment.Right" Click="@(()=> SubmitForApprovalHandler())" />
+                               Alignment="@ToolbarItemAlignment.Right" Click="@(()=> SubmitForApprovalHandler())" 
+                               Visible="@(ContractDocument.statusCode == CommonConstants.STATUS_CODE_ADD)"/>
 
                 <DxToolbarItem Text="Hủy" BeginGroup="true" IconCssClass="@($"{IconClassConstants.ICON_DELETE}")" CssClass="w1FontSize"
                                Alignment="@ToolbarItemAlignment.Right" />
@@ -137,7 +138,7 @@
                                             <div style="width: calc(100% - 120px)">
                                                 <div class="grid gap-1 row-gap-2">
                                                     <div class="g-col-md-4 g-col-sm-12 g-col-12">
-                                                        <DxTextBox @bind-Text="@ContractDocument.employeeSignatureCode" ReadOnly="true" CssClass="w1FontSize" ClearButtonDisplayMode="@DataEditorClearButtonDisplayMode.Auto" />
+                                                        <DxTextBox @bind-Text="@ContractDocument.employeeSignatureCode" ReadOnly="true" CssClass="w1FontSize" Id="employeeSignatureId" />
                                                     </div>
                                                     <div class="g-col-md-8 g-col-sm-12 g-col-12">
                                                         <DxTextBox @bind-Text="@ContractDocument.employeeSignatureName" CssClass="w1FontSize" ReadOnly="true">

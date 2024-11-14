@@ -144,6 +144,11 @@ namespace HNOne.API.Repositories
                     " from ReasonCategories as T0 with(nolock)" +
                     " inner join EnumCatagories as T1 with(nolock) on T0.Type = T1.Code and T1.EnumType = 'LoaiLyDo'" +
                     " where T0.IsDelete = 0";
+                if(!string.IsNullOrEmpty(request.opt))
+                {
+                    strQuery += " and T0.Type = @EnumType";
+                    parameters.Add("@EnumType", request.opt, DbType.String);
+                }    
                 var result = await connection.QueryAsync<ReasonCategorieModel>(strQuery, parameters, commandTimeout: 500, commandType: CommandType.Text);
                 return result;
             }    
@@ -285,6 +290,26 @@ namespace HNOne.API.Repositories
                     , commandTimeout: GlobalConstants.COMMAND_TIMEOUT, commandType: CommandType.StoredProcedure);
                 return results;
             }    
+        }
+        
+        /// <summary>
+        /// lấy danh sách enum
+        /// </summary>
+        /// <param name="request"></param>
+        /// <returns></returns>
+        public async Task<IEnumerable<EnumCatagoryModel>> GetFnEnum(RequestModel request)
+        {
+            using (var connection = _dapperDbContext.CreateConnection())
+            {
+                var parameters = new DynamicParameters();
+                parameters.Add("@EnumType", request.type, DbType.String);
+                parameters.Add("@Opt", $"{request.opt}", DbType.String);
+                parameters.Add("@Opt1", $"{request.opt1}", DbType.String);
+                string commandText = @$"select * from {StoreConstants.FUNC_GET_ENUM}(@EnumType, @Opt, @Opt1)";
+                var results = await connection.QueryAsync<EnumCatagoryModel>(commandText, parameters
+                    , commandTimeout: GlobalConstants.COMMAND_TIMEOUT, commandType: CommandType.Text);
+                return results;
+            }
         }
         #endregion 
 

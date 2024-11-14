@@ -12,6 +12,7 @@ namespace HNOne.Web.Installers
             services.AddScoped<IUserService, UserService>();
             services.AddScoped<IPermissionService, PermissionService>();
             services.AddScoped<IWorkforceService, WorkforceService>();
+            services.AddScoped<IApprovalService, ApprovalService>();
         }
     }
 }
