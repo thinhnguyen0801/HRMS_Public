@@ -36,7 +36,7 @@ namespace HNOne.Model.Entities
     public sealed class LeaveRequest1s
     {
         [Key]
-        [DatabaseGenerated(DatabaseGeneratedOption.None)] // Không tự tăng
+        [DatabaseGenerated(DatabaseGeneratedOption.Identity)] // tự tăng
         public int Id { get; set; }
         public int LeaveRequestId { get; set; } // id 
         public DateTime DateOff { get; set; } // ngày nghỉ

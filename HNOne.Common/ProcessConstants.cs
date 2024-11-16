@@ -75,6 +75,10 @@
         public const string GET_APPROVAL = "get-approval";
         public const string POST_APPROVAL = "post-approval";
         public const string PUT_APPROVAL = "put-approval";
+        public const string GET_WORKFORCE_MASTER_DATA = "get-workforce-master-data";
+        public const string GET_LEAVE_REQUEST = "get-leave-request";
+        public const string POST_LEAVE_REQUEST = "post-leave-request";
+        public const string PUT_LEAVE_REQUEST = "put-leave-request";
 
         #region Loại dưới store
         public const string GET_COMBO_TYPE_CONTRACT_BY_EMPLOYEEID = "CONTRACT_BY_EMPLOYEEID";
@@ -82,6 +86,7 @@
         public const string GET_MENU_TYPE_AUTHENTICATION = "AUTHENTICATION";
         public const string GET_MENU_TYPE_CHECK_PERMISSION = "CHECK_PERMISSION";
         public const string GET_MENU_TYPE_MENU = "MENU";
+        public const string GET_COMBO_LIST_OF_VACATION_DAY = "LR_LIST_OF_VACATION_DAYS";
         #endregion
     }
 }

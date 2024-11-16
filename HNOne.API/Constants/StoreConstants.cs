@@ -9,6 +9,9 @@
         public const string STORE_H1_MENU_SELECT = "[dbo].[H1_MENU_SELECT]";
         public const string STORE_H1_LOCATIONDATA_SELECT = "[dbo].[H1_LOCATIONDATA_SELECT]";
         public const string STORE_H1_MASTER_DATA_SELECT = "[dbo].[H1_MASTER_DATA_SELECT]";
+        public const string STORE_H1_WORKFORCE_MASTER_DATA_SELECT = "[dbo].[H1_WORKFORCE_MASTER_DATA_SELECT]";
         public const string STORE_H1_CONTRACT_APPENDIX_SELECT = "[dbo].[H1_CONTRACT_APPENDIX_SELECT]";
+        public const string STORE_H1_APPROVAL_SELECT = "[dbo].[H1_APPROVAL_SELECT]";
+        public const string STORE_H1_LEAVE_REQUEST_SELECT = "[dbo].[H1_LEAVE_REQUEST_SELECT]";
     }
 }

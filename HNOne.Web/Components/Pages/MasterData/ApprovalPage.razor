@@ -9,9 +9,13 @@
                     <DxToolbar ItemRenderStyleMode="@ToolbarRenderStyleMode.Contained">
                         <Items>
                             <DxToolbarItem Text="Làm mới" BeginGroup="true" IconCssClass="@($"{IconClassConstants.ICON_REFRESH}")" CssClass="w1FontSize"
-                                           Alignment="@ToolbarItemAlignment.Right" />
-                            <DxToolbarItem Text="Thêm mới" BeginGroup="true" IconCssClass="@($"{IconClassConstants.ICON_ADD}")" CssClass="w1FontSize"
+                                           Alignment="@ToolbarItemAlignment.Right" Click="@RefreshHandler" />
+                            <DxToolbarItem Text="Duyệt" BeginGroup="true" IconCssClass="@($"{IconClassConstants.ICON_ADD}")" CssClass="w1FontSize"
                                            Alignment="@ToolbarItemAlignment.Right"  />
+                            <DxToolbarItem Text="Từ chối" BeginGroup="true" IconCssClass="@($"{IconClassConstants.ICON_ADD}")" CssClass="w1FontSize"
+                                           Alignment="@ToolbarItemAlignment.Right" />
+                            <DxToolbarItem Text="Trả về" BeginGroup="true" IconCssClass="@($"{IconClassConstants.ICON_ADD}")" CssClass="w1FontSize"
+                                           Alignment="@ToolbarItemAlignment.Right" />
                         </Items>
                     </DxToolbar>
                 </div>
@@ -46,9 +50,8 @@
                                     CssClass="h-full">
                                 <Columns>
                                     <DxGridSelectionColumn Width="35px" />
-                                    <DxGridDataColumn FieldName="@nameof(ApprovalModel.branchCode)" DisplayFormat="d" Caption="Chi nhánh" MinWidth="110" GroupIndex="0" DataRowEditorVisible="false" />
                                     <DxGridDataColumn FieldName="@nameof(ApprovalModel.objTypeName)" Caption="Loại chứng từ" MinWidth="140" DataRowEditorVisible="false" GroupIndex="0" />
-                                    <DxGridDataColumn FieldName="@nameof(ApprovalModel.voucherNo)" Caption="Mã chứng từ" MinWidth="140" DataRowEditorVisible="false">
+                                    <DxGridDataColumn FieldName="@nameof(ApprovalModel.voucherNo)" Caption="Mã chứng từ" MinWidth="130" DataRowEditorVisible="false">
                                         <CellDisplayTemplate>
                                             @{
                                                 <a href="@($"chi-tiet-phu-luc-hop-dong?key={(context.DataItem as ApprovalModel)!.voucherNo}")">@context.Value</a>
@@ -61,7 +64,7 @@
                                     <DxGridDataColumn FieldName="@nameof(ApprovalModel.remark)" Caption="Ghi chú chứng từ" MinWidth="150" DataRowEditorVisible="false" />
                                     <DxGridDataColumn FieldName="@nameof(ApprovalModel.approvalRemark)" Caption="Ghi chú phê duyệt" MinWidth="160" />
                                     <DxGridDataColumn FieldName="@nameof(ApprovalModel.departmentName)" Caption="Phòng ban" MinWidth="150" DataRowEditorVisible="false" />
-                                    <DxGridDataColumn FieldName="@nameof(ApprovalModel.branchName)" Caption="Tên chi nhánh" MinWidth="160" DataRowEditorVisible="false" />
+                                    <DxGridDataColumn FieldName="@nameof(ApprovalModel.branchName)" Caption="Chi nhánh" MinWidth="160" DataRowEditorVisible="false" />
                                 </Columns>
                                 <TotalSummary>
                                     <DxGridSummaryItem DisplayText="@GlobalContants.FORMAT_GRID_DISPLAYTEXT_COUNT" SummaryType="GridSummaryItemType.Count"
@@ -92,7 +95,6 @@
                                     CssClass="h-full">
                                 <Columns>
                                     <DxGridSelectionColumn Width="35px" />
-                                    <DxGridDataColumn FieldName="@nameof(ApprovalModel.branchCode)" DisplayFormat="d" Caption="Chi nhánh" MinWidth="110" GroupIndex="0" DataRowEditorVisible="false" />
                                     <DxGridDataColumn FieldName="@nameof(ApprovalModel.objTypeName)" Caption="Loại chứng từ" MinWidth="140" DataRowEditorVisible="false" />
                                     <DxGridDataColumn FieldName="@nameof(ApprovalModel.voucherNo)" Caption="Mã chứng từ" MinWidth="140" DataRowEditorVisible="false">
                                         <CellDisplayTemplate>

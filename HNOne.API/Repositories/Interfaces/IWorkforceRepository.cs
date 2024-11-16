@@ -8,5 +8,9 @@ namespace HNOne.API.Repositories.Interfaces
     {
         Task<IEnumerable<LeaveConfigModel>> GetLeaveConfig(RequestModel request);
         Task<ResponseModel> UpdateLeaveConfig(string actionType, LeaveConfigs entity);
+        Task<IEnumerable<dynamic>> GetWorkforceMasterData(RequestModel request);
+        Task<ResponseModel> AddLeaveRequest(LeaveRequests entity, IEnumerable<LeaveRequest1s> lstEntity1);
+        Task<ResponseModel> UpdateLeaveRequest(LeaveRequests entity, IEnumerable<LeaveRequest1s> lstEntity1);
+        Task<IEnumerable<LeaveRequestModel>> GetLeaveRequest(RequestModel request);
     }
 }

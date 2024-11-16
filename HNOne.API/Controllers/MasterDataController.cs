@@ -153,6 +153,14 @@ namespace HNOne.API.Controllers
                 var approval = JsonConvert.DeserializeObject<Approvals>($"{request.json}")!;
                 switch (processKey)
                 {
+                    case ProcessConstants.GET_APPROVAL:
+                        response.data = await _approvalRepository.GetApproval(request);
+                        if ((response.data is IEnumerable<object> dataList) && dataList.IsNullOrEmpty())
+                        {
+                            response.status = StatusCodes.Status204NoContent;
+                            response.message = "Không tìm thấy dữ liệu!!!";
+                        }
+                        break;
                     case ProcessConstants.POST_APPROVAL:
                         // gửi phê duyệt
                         response = await _approvalRepository.AddApproval(approval);

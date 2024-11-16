@@ -29,6 +29,7 @@
 
     public enum EnumObjType
     {
-        Contracts // hợp đồng
+        Contracts, // hợp đồng
+        LeaveRequests, // đề nghị nghỉ phép
     }
 }

@@ -7,10 +7,10 @@
             <Items>
 
                 <DxToolbarItem Text="Lưu" BeginGroup="true" IconCssClass="@($"{IconClassConstants.ICON_UPDATE}")" CssClass="w1FontSize"
-                               Alignment="@ToolbarItemAlignment.Right" />
+                               Alignment="@ToolbarItemAlignment.Right" Click="@SaveDataHandler" />
 
                 <DxToolbarItem Text="Gửi phê duyệt" BeginGroup="true" IconCssClass="@($"{IconClassConstants.ICON_SHARE}")" CssClass="w1FontSize"
-                               Alignment="@ToolbarItemAlignment.Right" />
+                               Alignment="@ToolbarItemAlignment.Right" Click="@(()=> SubmitForApprovalHandler())" />
 
                 <DxToolbarItem Text="Hủy" BeginGroup="true" IconCssClass="@($"{IconClassConstants.ICON_DELETE}")" CssClass="w1FontSize"
                                Alignment="@ToolbarItemAlignment.Right" />
@@ -65,7 +65,7 @@
                                             <div style="width: calc(100% - 120px)">
                                                 <div class="grid gap-1 row-gap-2">
                                                     <div class="g-col-md-4 g-col-sm-12 g-col-12">
-                                                        <DxTextBox @bind-Text="@LeaveRequestDocument.employeeCode" ReadOnly="true" CssClass="w1FontSize" ClearButtonDisplayMode="@DataEditorClearButtonDisplayMode.Auto" />
+                                                        <DxTextBox @bind-Text="@LeaveRequestDocument.employeeCode" ReadOnly="true" CssClass="w1FontSize"  />
                                                     </div>
                                                     <div class="g-col-md-8 g-col-sm-12 g-col-12">
                                                         <DxTextBox @bind-Text="@LeaveRequestDocument.employeeName" CssClass="w1FontSize" ReadOnly="true">
@@ -100,7 +100,7 @@
                                             <div style="width: calc(100% - 120px)">
                                                 <div class="grid gap-1 row-gap-2">
                                                     <div class="g-col-md-4 g-col-sm-12 g-col-12">
-                                                        <DxTextBox @bind-Text="@LeaveRequestDocument.employeeSignatureCode" ReadOnly="true" CssClass="w1FontSize" ClearButtonDisplayMode="@DataEditorClearButtonDisplayMode.Auto" />
+                                                        <DxTextBox @bind-Text="@LeaveRequestDocument.employeeSignatureCode" ReadOnly="true" CssClass="w1FontSize" Id="employeeSignatureId" />
                                                     </div>
                                                     <div class="g-col-md-8 g-col-sm-12 g-col-12">
                                                         <DxTextBox @bind-Text="@LeaveRequestDocument.employeeSignatureName" CssClass="w1FontSize" ReadOnly="true">
@@ -118,8 +118,8 @@
                                         <div class="d-flex ">
                                             <W1Label Value="Ngày ký" Styles="width: 120px" />
                                             <div style="width: calc(100% - 120px)">
-                                                <DxDateEdit @bind-Date="@LeaveRequestDocument.fromDate"
-                                                            CssClass="w1FontSize" Id="startDate"
+                                                <DxDateEdit @bind-Date="@LeaveRequestDocument.dateOfSigning"
+                                                            CssClass="w1FontSize"
                                                             Mask="@GlobalContants.FORMAT_DATE" Format="@GlobalContants.FORMAT_DATE"
                                                             DisplayFormat="@GlobalContants.FORMAT_DATE" ReadOnly="true" />
                                             </div>
@@ -134,6 +134,7 @@
                                                             FilteringMode="DataGridFilteringMode.Contains"
                                                             TextFieldName="@nameof(ComboboxModel.name)"
                                                             ValueFieldName="@nameof(ComboboxModel.id)"
+                                                            Id="reasonId"
                                                             CssClass="w1FontSize">
                                                 </DxComboBox>
                                             </div>
@@ -145,13 +146,16 @@
                                             <div style="width: calc(100% - 120px)">
                                                 <div class="grid gap-1 row-gap-2">
                                                     <div class="g-col-md-6 g-col-sm-12 g-col-12">
-                                                        <DxDateEdit @bind-Date="@LeaveRequestDocument.fromDate"
+                                                        <DxDateEdit Date="@LeaveRequestDocument.fromDate"
+                                                                    DateChanged="@((DateTime? fromDate)=>DateEditValueChangedHandler(fromDate, controlID: nameof(LeaveRequestDocument.fromDate)))"
                                                                     CssClass="w1FontSize" Id="startDate"
                                                                     Mask="@GlobalContants.FORMAT_DATE" Format="@GlobalContants.FORMAT_DATE"
                                                                     DisplayFormat="@GlobalContants.FORMAT_DATE" />
                                                     </div>
                                                     <div class="g-col-md-6 g-col-sm-12 g-col-12">
-                                                        <DxDateEdit @bind-Date="@LeaveRequestDocument.toDate" CssClass="w1FontSize" Id="endDate"
+                                                        <DxDateEdit Date="@LeaveRequestDocument.toDate" 
+                                                                    DateChanged="@((DateTime? toDate)=>DateEditValueChangedHandler(toDate, controlID: nameof(LeaveRequestDocument.toDate)))"
+                                                                    CssClass="w1FontSize" Id="endDate"
                                                                     Mask="@GlobalContants.FORMAT_DATE" Format="@GlobalContants.FORMAT_DATE"
                                                                     DisplayFormat="@GlobalContants.FORMAT_DATE" />
                                                     </div>
@@ -280,9 +284,11 @@
                                         PagerSwitchToInputBoxButtonCount="10"
                                         PagerVisibleNumericButtonCount="10"
                                         TextWrapEnabled="false"
-                                        KeyFieldName="@nameof(SalaryConfigurationModel.id)"
+                                        KeyFieldNames="@(new [] {nameof(LeaveRequest1Model.dateOff),nameof(LeaveRequest1Model.id)})"
                                         ValidationEnabled="true"
                                         EditMode="GridEditMode.EditCell"
+                                        EditModelSaving="@GridLeaveDateEditSavingHandler"
+                                        CustomizeElement="@GridLeaveDateCustomizeElement"
                                         KeyboardNavigationEnabled="true"
                                         AllowSelectRowByClick="true"
                                         FocusedRowEnabled="true"
@@ -291,21 +297,33 @@
                                     <ToolbarTemplate>
                                         <DxToolbar ItemRenderStyleMode="@ToolbarRenderStyleMode.Plain">
                                             <Items>
-                                                <DxToolbarItem IconCssClass="@IconClassConstants.ICON_REFRESH" BeginGroup="true" 
-                                                    Alignment="@ToolbarItemAlignment.Right"  Tooltip="Lấy thông tin ngày nghỉ"/>
+                                                <DxToolbarItem IconCssClass="@IconClassConstants.ICON_REFRESH" BeginGroup="true"
+                                                               Alignment="@ToolbarItemAlignment.Right" Tooltip="Lấy thông tin ngày nghỉ" Click="@CreateLeaveDateHandler" />
                                             </Items>
                                         </DxToolbar>
                                     </ToolbarTemplate>
                                     <Columns>
-                                        <DxGridDataColumn FieldName="@nameof(LeaveRequest1Model.dateOff)" Caption="Ngày nghỉ phép" MinWidth="150" DataRowEditorVisible="false" DisplayFormat="@GlobalContants.FORMAT_DATE" />
-                                        <DxGridDataColumn FieldName="@nameof(LeaveRequest1Model.isMorningBreak)" Caption="Nghỉ buổi sáng?" MinWidth="110" />
-                                        <DxGridDataColumn FieldName="@nameof(LeaveRequest1Model.isAfternoonBreak)" Caption="Nghỉ buổi chiều?" MinWidth="120" />
+                                        <DxGridDataColumn FieldName="@nameof(LeaveRequest1Model.dateOff)" Caption="Ngày nghỉ phép" MinWidth="140" Width="140px"
+                                                          DisplayFormat="@GlobalContants.FORMAT_DATE" DataRowEditorVisible="false" />
+                                        <DxGridDataColumn FieldName="@nameof(LeaveRequest1Model.isMorningBreak)" Caption="Nghỉ buổi sáng?" Width="140px" MinWidth="120">
+                                            <EditSettings>
+                                                <DxCheckBoxSettings CssClass="w1FontSize" />
+                                            </EditSettings>
+                                        </DxGridDataColumn>
+                                        <DxGridDataColumn FieldName="@nameof(LeaveRequest1Model.isAfternoonBreak)" Caption="Nghỉ buổi chiều?" Width="140px" MinWidth="120">
+                                            <EditSettings>
+                                                <DxCheckBoxSettings CssClass="w1FontSize" />
+                                            </EditSettings>
+                                        </DxGridDataColumn>
                                         <DxGridDataColumn FieldName="@nameof(LeaveRequest1Model.remark)" Caption="Ghi chú" MinWidth="170" />
                                     </Columns>
                                 </DxGrid>
                             </div>
                             break;
                         case 1:
+                            <div style="height: 350px; min-height: 350px">
+
+                            </div>
                             break;
                     }
                 </div>

@@ -5,10 +5,10 @@ namespace HNOne.Model.Models
     {
         public int id { get; set; }
         public int branchId { get; set; }
-        public int branchCode { get; set; }
-        public int branchName { get; set; }
+        public string branchCode { get; set; }
+        public string branchName { get; set; }
         public int docEntry { get; set; }
-        public int voucherNo { get; set; }
+        public string? voucherNo { get; set; }
         public string? objType { get; set; } // loại chứng từ
         public string? objTypeName { get; set; } // loại chứng từ
         public string? statusCode { get; set; } // trạng thái phê duyệt

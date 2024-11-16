@@ -26,7 +26,29 @@ namespace HNOne.API.Repositories
         }
 
         #region Query
-        
+
+        /// <summary>
+        /// lấy danh sách dữ liệu phê duyệt
+        /// </summary>
+        /// <param name="request"></param>
+        /// <returns></returns>
+        public async Task<IEnumerable<ApprovalModel>> GetApproval(RequestModel request)
+        {
+            using (var connection = _dapperDbContext.CreateConnection())
+            {
+                var parameters = new DynamicParameters();
+                parameters.Add("@UserId", request.userId, DbType.Int32);
+                parameters.Add("@BranchId", request.branchId, DbType.Int32);
+                parameters.Add("@EmployeeId", request.employeeId, DbType.Int32);
+                parameters.Add("@Type", request.type, DbType.String);
+                parameters.Add("@FromDate", request.fromDate, DbType.Date);
+                parameters.Add("@ToDate", request.toDate, DbType.Date);
+                var results = await connection.QueryAsync<ApprovalModel>(StoreConstants.STORE_H1_APPROVAL_SELECT, parameters
+                    , commandTimeout: GlobalConstants.COMMAND_TIMEOUT, commandType: CommandType.StoredProcedure);
+                return results;
+            }
+        }
+
         #endregion
 
         #region Command
@@ -73,6 +95,20 @@ namespace HNOne.API.Repositories
                         contract.DateTracking = dateTimeNow;
                         _dbContext.Contracts.Attach(contract);
                         _dbContext.Entry(contract).State = EntityState.Modified;
+                        break;
+                    case GlobalConstants.TABLE_LEAVE_REQUEST:
+                        var leaveRequest = await _dbContext.LeaveRequests.FirstOrDefaultAsync(m => m.Id == entity.DocEntry);
+                        if (leaveRequest == null)
+                        {
+                            response.status = StatusCodes.Status404NotFound;
+                            response.message = $"ObjType {entity.ObjType} was not provider!!!";
+                            await _dbContext.Database.RollbackTransactionAsync();
+                            return response;
+                        }
+                        leaveRequest.StatusCode = CommonConstants.STATUS_CODE_APPROVAL_PENDING; // ĐÃ GỬI YÊU CẦU PHÊ DUYỆT
+                        leaveRequest.DateTracking = dateTimeNow;
+                        _dbContext.LeaveRequests.Attach(leaveRequest);
+                        _dbContext.Entry(leaveRequest).State = EntityState.Modified;
                         break;
                     default:
                         response.status = StatusCodes.Status404NotFound;

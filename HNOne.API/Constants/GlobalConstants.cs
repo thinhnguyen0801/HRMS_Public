@@ -15,6 +15,7 @@
         public const string TABLE_USER = "Users";
         public const string TABLE_PERMISSION_GROUP = "PermissionGroups";
         public const string TABLE_CONTRACT = "Contracts";
+        public const string TABLE_LEAVE_REQUEST = "LeaveRequests";
         #endregion
     }
 }

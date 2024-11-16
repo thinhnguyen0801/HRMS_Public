@@ -613,7 +613,7 @@ namespace HNOne.Web.Controllers
                     return;
                 }
                 await Task.Yield();
-                errorMessage = string.Format(MessageConstants.MESSAGE_CONFIRM_SEND_APPROVAL_FORMAT, $"đến nhân viên {ContractDocument.employeeName}");
+                errorMessage = string.Format(MessageConstants.MESSAGE_CONFIRM_SEND_APPROVAL_FORMAT, $"đến nhân viên {ContractDocument.employeeSignatureName}");
                 isConfirm = await confirm.SetConfirm(MessageConstants.MESSAGE_TITLE, $"{errorMessage}");
                 if (!isConfirm) return;
                 await ShowLoading();

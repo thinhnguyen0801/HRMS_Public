@@ -1,6 +1,7 @@
 ﻿using Blazored.Toast.Services;
 using HNOne.Common;
 using HNOne.Model;
+using HNOne.Model.Models;
 using HNOne.Web.Commons;
 using HNOne.Web.Services.Interfaces;
 using Newtonsoft.Json;
@@ -79,6 +80,78 @@ namespace HNOne.Web.Services
                     _toastService.ShowError(response?.message ?? MessageConstants.MESSAGE_IT_SUPPORT);
                 }
                 return false;
+            }
+            catch (Exception) { throw; }
+        }
+
+        /// <summary>
+        /// lấy danh sách/chi tiết đề nghị nghỉ phép
+        /// </summary>
+        /// <param name="request"></param>
+        /// <param name="isShowToast"></param>
+        /// <returns></returns>
+        public async Task<List<LeaveRequestModel>?> GetLeaveRequestAsync(RequestModel request, bool isShowToast = false)
+        {
+            try
+            {
+                List<LeaveRequestModel>? data = null;
+                request.process = ProcessConstants.GET_LEAVE_REQUEST;
+                HttpResponseMessage httpResponse = await PostAsync(EnpointConstants.WORKFORCE_GET_DATA, request);
+                var checkContent = ValidateJsonContent(httpResponse.Content);
+                if (!checkContent) _toastService.ShowInfo(MessageConstants.MESSAGE_JSON_INVALID);
+                else
+                {
+                    var response = await httpResponse.Content.ReadFromJsonAsync<ResCliModel<LeaveRequestModel>>();
+                    if (response == null || response.status != StatusCodes.Status200OK)
+                    {
+                        if (isShowToast) _toastService.ShowWarning(response?.message ?? MessageConstants.MESSAGE_IT_SUPPORT);
+                        return data;
+                    }
+                    data = response.data?.ToList();
+                }
+                return data;
+            }
+            catch (Exception) { throw; }
+        }
+
+        public async Task<int> UpdateLeaveRequestAsync(string processKey, int userId, string token, int branchId, string json, string jsonDetail)
+        {
+            try
+            {
+                RequestModel request = new RequestModel();
+                request.process = processKey;
+                request.userId = userId;
+                request.token = token;
+                request.branchId = branchId;
+                request.json = json;
+                request.jsonDetail = jsonDetail;
+                HttpResponseMessage httpResponse = await PostAsync(EnpointConstants.WORKFORCE_POST_DATA, request);
+                if (httpResponse.StatusCode == System.Net.HttpStatusCode.Unauthorized)
+                {
+                    _toastService.ShowInfo(MessageConstants.MESSAGE_LOGIN_EXPIRED);
+                    return -1;
+                }
+                var checkContent = ValidateJsonContent(httpResponse.Content);
+                if (!checkContent) _toastService.ShowError(MessageConstants.MESSAGE_JSON_INVALID);
+                else
+                {
+                    var content = await httpResponse.Content.ReadAsStringAsync();
+                    ResponseModel response = JsonConvert.DeserializeObject<ResponseModel>(content)!;
+                    if (httpResponse.IsSuccessStatusCode
+                        && response?.status == StatusCodes.Status200OK)
+                    {
+                        _toastService.ShowSuccess(response.message);
+                        int.TryParse(response.data?.ToString(), out int result);
+                        return result;
+                    }
+                    if (response?.status == StatusCodes.Status409Conflict)
+                    {
+                        _toastService.ShowInfo(response?.message ?? MessageConstants.MESSAGE_IT_SUPPORT);
+                        return -1;
+                    }
+                    _toastService.ShowError(response?.message ?? MessageConstants.MESSAGE_IT_SUPPORT);
+                }
+                return -1;
             }
             catch (Exception) { throw; }
         }

@@ -1,6 +1,7 @@
 ﻿using Blazored.Toast.Services;
 using HNOne.Common;
 using HNOne.Model;
+using HNOne.Model.Models;
 using HNOne.Web.Commons;
 using Newtonsoft.Json;
 
@@ -8,6 +9,8 @@ namespace HNOne.Web.Services
 {
     public interface IApprovalService
     {
+        Task<List<ApprovalModel>?> GetApprovalAsync(int userId, int branchId, int employeeId
+            , string token, string approvalType = "O", DateTime? fromDate = null, DateTime? toDate = null);
         Task<bool> UpdateApprovalAsync(string processKey, int userId, string token, string json, string approvalType = "");
     }
     public class ApprovalService : ApiServiceBase, IApprovalService
@@ -17,6 +20,50 @@ namespace HNOne.Web.Services
             : base(factory, logger)
         {
             _toastService = toastService;
+        }
+
+        /// <summary>
+        /// lấy danh sách chứng từ phê duyệt
+        /// </summary>
+        /// <param name="userId"></param>
+        /// <param name="branchId"></param>
+        /// <param name="employeeId"></param>
+        /// <param name="token"></param>
+        /// <param name="approvalType"></param>
+        /// <param name="fromDate"></param>
+        /// <param name="toDate"></param>
+        /// <returns></returns>
+        public async Task<List<ApprovalModel>?> GetApprovalAsync(int userId, int branchId, int employeeId
+            , string token, string approvalType = "O", DateTime? fromDate = null, DateTime? toDate = null)
+        {
+            try
+            {
+                List<ApprovalModel>? data = null;
+                RequestModel request = new RequestModel();
+                request.process = ProcessConstants.GET_APPROVAL;
+                request.userId = userId;
+                request.branchId = branchId;
+                request.employeeId = employeeId;
+                request.token = token;
+                request.type = approvalType;
+                request.fromDate = fromDate;
+                request.toDate = toDate;
+                HttpResponseMessage httpResponse = await PostAsync(EnpointConstants.MASTERDATA_APPROVAL_DATA, request);
+                var checkContent = ValidateJsonContent(httpResponse.Content);
+                if (!checkContent) _toastService.ShowInfo(MessageConstants.MESSAGE_JSON_INVALID);
+                else
+                {
+                    var response = await httpResponse.Content.ReadFromJsonAsync<ResCliModel<ApprovalModel>>();
+                    if (response == null || response.status != StatusCodes.Status200OK)
+                    {
+                        _toastService.ShowWarning(response?.message ?? MessageConstants.MESSAGE_IT_SUPPORT);
+                        return data;
+                    }
+                    data = response.data?.ToList();
+                }
+                return data;
+            }
+            catch (Exception) { throw; }
         }
 
         /// <summary>

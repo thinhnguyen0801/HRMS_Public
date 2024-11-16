@@ -1,36 +1,29 @@
 ﻿using DevExpress.Blazor;
-using HNOne.Common;
 using HNOne.Model;
+using HNOne.Common;
 using HNOne.Model.Models;
-using HNOne.Web.Components.Controls;
 using HNOne.Web.Models;
-using HNOne.Web.Services;
 using HNOne.Web.Services.Interfaces;
 using Microsoft.AspNetCore.Components;
-using Microsoft.JSInterop;
+using HNOne.Web.Commons;
+using Newtonsoft.Json;
 
 namespace HNOne.Web.Controllers
 {
-    public class ApprovalController : DocumentControllerBase
+    public class LeaveRequestListController : DocumentControllerBase
     {
-        [Inject] IApprovalService _approvalService { get; init; }
-        [Inject] IJSRuntime _jsRuntime { get; set; }
-        public W1Confirm confirm { get; set; }
+        [Inject] IWorkforceService _workforceService { get; init; }
 
-        const string STRING_KEY_EVENT_APPROVAL = "APPROVAL_CONTROLLER_APPROVAL";
-        const string STRING_KEY_EVENT_DENY = "APPROVAL_CONTROLLER_DENY";
-        const string STRING_KEY_EVENT_ = "APPROVAL_CONTROLLER_DELETE";
         #region Properties
-        public List<ApprovalModel>? ListPending { get; set; } // ds chờ xử lý
+        public List<LeaveRequestModel>? ListPending { get; set; }
         public IGrid? GridPending { get; set; }
-        public IReadOnlyList<object>? SelectedPendings { get; set; } = null;
-
-        public List<ApprovalModel>? ListAll { get; set; } // ds tất cả - status chờ xử lý
+        public List<LeaveRequestModel>? ListAll { get; set; }
         public IGrid? GridAll { get; set; }
 
         public int ActiveTabIndex { get; set; } = 0;
         public DateTime? FromDate { get; set; }
         public DateTime? ToDate { get; set; }
+
         #endregion
 
         protected override async Task OnAfterRenderAsync(bool firstRender)
@@ -45,12 +38,13 @@ namespace HNOne.Web.Controllers
                     await ShowLoading();
                     ListBreadcrumbs = new List<BreadcrumbModel>()
                     {
-                        new BreadcrumbModel("Phê duyệt chứng từ", isActive: true)
+                        new BreadcrumbModel("Công - Phép", isActive: true),
+                        new BreadcrumbModel("Danh sách đề nghị nghỉ phép", isActive: true)
                     };
-                    FromDate = new DateTime(DateTime.Now.Year, 01, 01);
+                    FromDate = new DateTime(DateTime.Now.Year, DateTime.Now.Month, 01);
                     ToDate = DateTime.Now;
                     await NotifyBreadcrumb.InvokeAsync(ListBreadcrumbs);
-                    await getApprovalList();
+                    await getLeaveRequestList();
                 }
                 catch (Exception ex)
                 {
@@ -62,34 +56,44 @@ namespace HNOne.Web.Controllers
                     await ShowLoading(false);
                     await InvokeAsync(StateHasChanged);
                 }
-            }    
+            }
         }
 
         #region Private Functions
-        private async Task getApprovalList()
+        private async Task getLeaveRequestList()
         {
-            string approvalType = ActiveTabIndex == 0 ? "O" : "";
-            var lstApproval = await _approvalService.GetApprovalAsync(UserId, BranchId, EmployeeId, Token
-                , approvalType, fromDate: FromDate, toDate: ToDate);
+            RequestModel request = new RequestModel();
+            request.userId = UserId;
+            request.branchId = BranchId;
+            request.token = Token;
+            request.opt = ActiveTabIndex == 0 ? "ACTIVE" : ""; // tình trạng
+            request.fromDate = FromDate;
+            request.toDate = ToDate;
+            var listResult = await _workforceService.GetLeaveRequestAsync(request, isShowToast: true);
+            listResult = listResult?.Update(m =>
+            {
+                Dictionary<string, string> pParams = new Dictionary<string, string>
+                {
+                    { "pActionType", nameof(EnumType.Update) },
+                    { "pDocEntry", $"{m.id}" }
+                };
+                m.link = "de-nghi-nghi-phep?key=" + _encryptHelper.Encrypt(JsonConvert.SerializeObject(pParams));
+            })?.ToList();
             if (ActiveTabIndex == 0)
             {
-                ListPending = lstApproval;
+                ListPending = listResult;
                 return;
             }
-            ListAll = lstApproval;
+            ListAll = listResult;
         }
 
-        /// <summary>
-        /// kiểm tra dữ liệu
-        /// </summary>
-        /// <param name="errorMessage"></param>
         private void validateData(ref string errorMessage)
         {
             if (FromDate.HasValue && ToDate.HasValue)
             {
                 if (ToDate.Value.Date < FromDate.Value.Date)
                 {
-                    errorMessage = MessageConstants.MESSAGE_FROM_DATE_TO_DATE_INVALID;
+                    errorMessage = "Ngày đến không hợp lệ. [Từ ngày] phải nhỏ hơn [Đến ngày]";
                     return;
                 }
             }
@@ -109,11 +113,11 @@ namespace HNOne.Web.Controllers
                     return;
                 }
                 await ShowLoading();
-                await getApprovalList();
+                await getLeaveRequestList();
             }
             catch (Exception ex)
             {
-                _logger!.LogError(ex, "RefreshHandler");
+                _logger!.LogError(ex, "ReLoadDataHandler");
                 ShowError(ex.Message);
             }
             finally
@@ -123,7 +127,22 @@ namespace HNOne.Web.Controllers
                 await InvokeAsync(StateHasChanged);
             }
         }
-        #endregion
 
+        protected void RedirectPageDetailHandler()
+        {
+            try
+            {
+                Dictionary<string, string> pParams = new Dictionary<string, string>
+                {
+                    { "pActionType", nameof(EnumType.Add) },
+                    { "pDocEntry", "-1" },
+                };
+                string key = _encryptHelper.Encrypt(JsonConvert.SerializeObject(pParams)); // mã hóa key
+                _navigationManager.NavigateTo($"/de-nghi-nghi-phep?key={key}");
+            }
+            catch { }
+        }
+        #endregion
     }
+
 }

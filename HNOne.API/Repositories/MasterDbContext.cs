@@ -33,8 +33,9 @@ namespace HNOne.API.Repositories
         public DbSet<GroupAccessControls> GroupAccessControls { get; set; }
         public DbSet<LeaveConfigs> LeaveConfigs { get; set; }
         public DbSet<Approvals> Approvals { get; set; }
-
-
+        public DbSet<HolidayCatagories> HolidayCatagories { get; set; }
+        public DbSet<LeaveRequests> LeaveRequests { get; set; }
+        public DbSet<LeaveRequest1s> LeaveRequest1s { get; set; }
 
         public MasterDbContext(DbContextOptions<MasterDbContext> options)
             : base(options)

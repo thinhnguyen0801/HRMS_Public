@@ -40,6 +40,12 @@ namespace HNOne.API.Controllers
                     case ProcessConstants.GET_LEAVE_CONFIG:
                         response.data = await _workforceRepository.GetLeaveConfig(request);
                         break;
+                    case ProcessConstants.GET_WORKFORCE_MASTER_DATA:
+                        response.data = await _workforceRepository.GetWorkforceMasterData(request);
+                        break;
+                    case ProcessConstants.GET_LEAVE_REQUEST:
+                        response.data = await _workforceRepository.GetLeaveRequest(request);
+                        break;
                     default:
                         response.status = StatusCodes.Status404NotFound;
                         response.message = $"Process Key {processKey} was not provider!!!";
@@ -68,12 +74,24 @@ namespace HNOne.API.Controllers
             try
             {
                 string? processKey = request.process?.Trim();
+                // Helper function for deserialization to reduce duplication
+                T DeserializeJson<T>(string json) => JsonConvert.DeserializeObject<T>(json)!;
                 switch (processKey)
                 {
                     case ProcessConstants.POST_LEAVE_CONFIG:
                     case ProcessConstants.PUT_LEAVE_CONFIG:
-                        var leaveConfig = JsonConvert.DeserializeObject<LeaveConfigs>($"{request.json}");
+                        var leaveConfig = DeserializeJson<LeaveConfigs>($"{request.json}");
                         response = await _workforceRepository.UpdateLeaveConfig(processKey, leaveConfig!);
+                        break;
+                    case ProcessConstants.POST_LEAVE_REQUEST:
+                        var leaveRequestPost = DeserializeJson<LeaveRequests>($"{request.json}");
+                        var lstRequest1Post = DeserializeJson<List<LeaveRequest1s>>($"{request.jsonDetail}");
+                        response = await _workforceRepository.AddLeaveRequest(leaveRequestPost!, lstRequest1Post!);
+                        break;
+                    case ProcessConstants.PUT_LEAVE_REQUEST:
+                        var leaveRequestPut = DeserializeJson<LeaveRequests>($"{request.json}");
+                        var lstRequest1Put = DeserializeJson<List<LeaveRequest1s>>($"{request.jsonDetail}");
+                        response = await _workforceRepository.UpdateLeaveRequest(leaveRequestPut!, lstRequest1Put!);
                         break;
                     default:
                         response.status = StatusCodes.Status404NotFound;
