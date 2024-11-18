@@ -12,5 +12,7 @@ namespace HNOne.API.Repositories.Interfaces
         Task<ResponseModel> AddLeaveRequest(LeaveRequests entity, IEnumerable<LeaveRequest1s> lstEntity1);
         Task<ResponseModel> UpdateLeaveRequest(LeaveRequests entity, IEnumerable<LeaveRequest1s> lstEntity1);
         Task<IEnumerable<LeaveRequestModel>> GetLeaveRequest(RequestModel request);
+        Task<IEnumerable<LeaveRequestModel>> GetLeaveWorkingHour(RequestModel request);
+        Task<ResponseModel> UpdateLeaveWorkingHours(string actionType, LeaveWorkingHours entity);
     }
 }

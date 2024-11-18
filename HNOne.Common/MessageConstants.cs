@@ -27,5 +27,6 @@ namespace HNOne.Common
         public const string MESSAGE_APPROVAL_SUCCESS = "Phê duyệt thành công";
         public const string MESSAGE_DENY_SUCCESS = "Từ chối thành công";
         public const string MESSAGE_FROM_DATE_TO_DATE_INVALID = "Ngày đến không hợp lệ. [Từ ngày] phải nhỏ hơn [Đến ngày]";
+        public const string MESSAGE_FROM_TIME_TO_TIME_INVALID = "Giờ đến không hợp lệ. [Từ giờ] phải nhỏ hơn [Đến giờ]";
     }
 }

@@ -10,7 +10,7 @@ using Newtonsoft.Json;
 
 namespace HNOne.Web.Controllers
 {
-    public class LeaveRequestListController : DocumentControllerBase
+    public class LeaveWorkingHourListController : DocumentControllerBase
     {
         [Inject] IWorkforceService _workforceService { get; init; }
 
@@ -39,7 +39,7 @@ namespace HNOne.Web.Controllers
                     ListBreadcrumbs = new List<BreadcrumbModel>()
                     {
                         new BreadcrumbModel("Công - Phép", isActive: true),
-                        new BreadcrumbModel("Danh sách đề nghị nghỉ phép", isActive: true)
+                        new BreadcrumbModel("Danh sách xin nghỉ trong giờ", isActive: true)
                     };
                     FromDate = new DateTime(DateTime.Now.Year, DateTime.Now.Month, 01);
                     ToDate = DateTime.Now;
@@ -69,7 +69,7 @@ namespace HNOne.Web.Controllers
             request.opt = ActiveTabIndex == 0 ? "ACTIVE" : ""; // tình trạng
             request.fromDate = FromDate;
             request.toDate = ToDate;
-            request.process = ProcessConstants.GET_LEAVE_REQUEST;
+            request.process = ProcessConstants.GET_LEAVE_WORKING_HOUR;
             var listResult = await _workforceService.GetLeaveRequestAsync(request, isShowToast: true);
             listResult = listResult?.Update(m =>
             {
@@ -78,7 +78,7 @@ namespace HNOne.Web.Controllers
                     { "pActionType", nameof(EnumType.Update) },
                     { "pDocEntry", $"{m.id}" }
                 };
-                m.link = "de-nghi-nghi-phep?key=" + _encryptHelper.Encrypt(JsonConvert.SerializeObject(pParams));
+                m.link = "xin-nghi-trong-gio?key=" + _encryptHelper.Encrypt(JsonConvert.SerializeObject(pParams));
             })?.ToList();
             if (ActiveTabIndex == 0)
             {
@@ -139,11 +139,10 @@ namespace HNOne.Web.Controllers
                     { "pDocEntry", "-1" },
                 };
                 string key = _encryptHelper.Encrypt(JsonConvert.SerializeObject(pParams)); // mã hóa key
-                _navigationManager.NavigateTo($"/de-nghi-nghi-phep?key={key}");
+                _navigationManager.NavigateTo($"/xin-nghi-trong-gio?key={key}");
             }
             catch { }
         }
         #endregion
     }
-
 }

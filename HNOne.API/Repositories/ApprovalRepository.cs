@@ -110,6 +110,20 @@ namespace HNOne.API.Repositories
                         _dbContext.LeaveRequests.Attach(leaveRequest);
                         _dbContext.Entry(leaveRequest).State = EntityState.Modified;
                         break;
+                    case GlobalConstants.TABLE_LEAVE_WORKING_HOURS:
+                        var leaveWorkingHour = await _dbContext.LeaveWorkingHours.FirstOrDefaultAsync(m => m.Id == entity.DocEntry);
+                        if (leaveWorkingHour == null)
+                        {
+                            response.status = StatusCodes.Status404NotFound;
+                            response.message = $"ObjType {entity.ObjType} was not provider!!!";
+                            await _dbContext.Database.RollbackTransactionAsync();
+                            return response;
+                        }
+                        leaveWorkingHour.StatusCode = CommonConstants.STATUS_CODE_APPROVAL_PENDING; // ĐÃ GỬI YÊU CẦU PHÊ DUYỆT
+                        leaveWorkingHour.DateTracking = dateTimeNow;
+                        _dbContext.LeaveWorkingHours.Attach(leaveWorkingHour);
+                        _dbContext.Entry(leaveWorkingHour).State = EntityState.Modified;
+                        break;
                     default:
                         response.status = StatusCodes.Status404NotFound;
                         response.message = $"ObjType {entity.ObjType} was not provider!!!";

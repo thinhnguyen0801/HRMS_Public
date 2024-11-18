@@ -100,6 +100,41 @@ namespace HNOne.API.Repositories
                 return lstResult ?? new List<LeaveRequestModel>();
             }
         }
+
+        /// <summary>
+        /// lấy danh sách đề nghị nghỉ phép
+        /// </summary>
+        /// <param name="request"></param>
+        /// <returns></returns>
+        public async Task<IEnumerable<LeaveRequestModel>> GetLeaveWorkingHour(RequestModel request)
+        {
+            using (var connection = _dapperDbContext.CreateConnection())
+            {
+                request.fromDate ??= new DateTime(2000, 01, 01);
+                request.toDate ??= DateTime.Now.AddMonths(1);
+                var parameters = new DynamicParameters();
+                parameters.Add("@LeaveRequestId", request.documentId, DbType.Int32);
+                parameters.Add("@UserId", request.userId, DbType.Int32);
+                parameters.Add("@BranchId", request.branchId, DbType.Int32);
+                parameters.Add("@StatusIds", request.opt, DbType.String);
+                parameters.Add("@FromDate", request.fromDate, DbType.Date);
+                parameters.Add("@ToDate", request.toDate, DbType.Date);
+                IEnumerable<LeaveRequestModel>? lstResult = null;
+                var dtResult = await connection.QueryMultipleAsync(StoreConstants.STORE_H1_LEAVE_WORKING_HOUR_SELECT, param: parameters
+                    , commandTimeout: GlobalConstants.COMMAND_TIMEOUT, commandType: CommandType.StoredProcedure);
+                if (dtResult != null)
+                {
+                    lstResult = dtResult.Read<LeaveRequestModel>();
+                    //if (request.documentId > 0)
+                    //{
+                    //    var lstDetail = dtResult.Read<LeaveRequest1Model>();
+                    //    string jsonDetail = JsonConvert.SerializeObject(lstDetail);
+                    //    lstResult = lstResult.Update(m => m.jsonDetail = jsonDetail);
+                    //}
+                }
+                return lstResult ?? new List<LeaveRequestModel>();
+            }
+        }
         #endregion
 
         #region Command
@@ -274,6 +309,77 @@ namespace HNOne.API.Repositories
                 await _dbContext.Database.CommitTransactionAsync();
                 response.message = MessageConstants.MESSAGE_UPDATE_SUCCESS;
                 response.data = data.Id;
+                return response;
+            }
+            catch (Exception)
+            {
+                if (isTrans) await _dbContext.Database.RollbackTransactionAsync();
+                throw;
+            }
+        }
+        
+        /// <summary>
+        /// lưu thông tin xin phép nghỉ trong giờ
+        /// </summary>
+        /// <param name="actionType"></param>
+        /// <param name="entity"></param>
+        /// <returns></returns>
+        public async Task<ResponseModel> UpdateLeaveWorkingHours(string actionType, LeaveWorkingHours entity)
+        {
+            bool isTrans = false;
+            ResponseModel response = new ResponseModel();
+            try
+            {
+                DateTime dateTimeNow = _dateTimeHelper.GetCurrentVietnamTime();
+                if (actionType == ProcessConstants.POST_LEAVE_WORKING_HOUR)
+                {
+                    using (var connection = _dapperDbContext.CreateConnection())
+                    {
+                        DynamicParameters parameters = new DynamicParameters();
+                        parameters.Add("@Type", GlobalConstants.TABLE_LEAVE_WORKING_HOURS, DbType.String);
+                        string commandText = @$"select {StoreConstants.FUNC_GET_VOUCHER}(@Type, '', '', '')";
+                        string? voucherNo = await connection.QueryFirstOrDefaultAsync<string>(commandText, param: parameters, commandTimeout: GlobalConstants.COMMAND_TIMEOUT, commandType: CommandType.Text);
+                        if (string.IsNullOrEmpty(voucherNo))
+                        {
+                            response.status = StatusCodes.Status204NoContent;
+                            response.message = MessageConstants.MESSAGE_VOUCHER_NO_MISSING;
+                            return response;
+                        }
+                        entity.Id = await _dbContext.LeaveWorkingHours.Select(m => m.Id).DefaultIfEmpty().MaxAsync() + 1;
+                        entity.VoucherNo = voucherNo;
+                        entity.DateTracking = dateTimeNow;
+                        entity.CreateDate = dateTimeNow;
+                        await _dbContext.LeaveWorkingHours.AddAsync(entity);
+                        await _dbContext.SaveChangesAsync();
+                        response.message = MessageConstants.MESSAGE_ADD_SUCCESS;
+                        response.data = entity.Id;
+                    }
+                }
+                else
+                {
+                    var data = await _dbContext.LeaveWorkingHours.FirstOrDefaultAsync(m => m.Id == entity.Id);
+                    if (data == null)
+                    {
+                        response.status = StatusCodes.Status404NotFound;
+                        response.message = MessageConstants.MESSAGE_NOT_FOUNT;
+                        return response;
+                    }
+                    data.EmployeeId = entity.EmployeeId;
+                    data.EmployeeSignatureId = entity.EmployeeSignatureId;
+                    data.DepartmentId = entity.DepartmentId;
+                    data.StatusCode = entity.StatusCode;
+                    data.FromDate = entity.FromDate;
+                    data.ToDate = entity.ToDate;
+                    data.Remark = entity.Remark;
+                    data.DateTracking = dateTimeNow;
+                    data.UpdateDate = dateTimeNow;
+                    data.UserSign2 = entity.UserSign2;
+                    _dbContext.LeaveWorkingHours.Attach(data);
+                    _dbContext.Entry(data).State = EntityState.Modified;
+                    await _dbContext.SaveChangesAsync();
+                    response.message = MessageConstants.MESSAGE_UPDATE_SUCCESS;
+                    response.data = data.Id;
+                }
                 return response;
             }
             catch (Exception)

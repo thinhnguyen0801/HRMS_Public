@@ -25,11 +25,13 @@
         LoaiNhanVien,
         XepLoaiDaoTao,
         LoaiLyDo,
+        LoaiDangKyXinNghiTrongGio
     }
 
     public enum EnumObjType
     {
         Contracts, // hợp đồng
         LeaveRequests, // đề nghị nghỉ phép
+        LeaveWorkingHours, // xin nghỉ trong giờ
     }
 }

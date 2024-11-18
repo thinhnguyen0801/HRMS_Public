@@ -14,13 +14,14 @@ using HNOne.Web.Services;
 
 namespace HNOne.Web.Controllers
 {
-    public class LeaveRequestController : DocumentControllerBase
+    public class LeaveWorkingHourController : DocumentControllerBase
     {
         [Inject] IMasterDataService _masterDataService { get; init; }
         [Inject] IWorkforceService _workforceService { get; init; }
         [Inject] IApprovalService _approvalService { get; init; }
         [Inject] IJSRuntime _jsRuntime { get; set; }
         public W1Confirm confirm { get; set; }
+
         #region Properties
         public string? pActionType { get; set; } = nameof(EnumType.Add);
         private int pDocEntry { get; set; } = 0;
@@ -29,8 +30,8 @@ namespace HNOne.Web.Controllers
         public List<LeaveRequest1Model>? ListOfVacationDays { get; set; } // danh sách thông tin lương
         public IGrid? GridOfVacationDays { get; set; }
         public List<ComboboxModel>? ListCboDepartment { get; set; } // cbo ds phòng ban
-        public List<ComboboxModel>? ListCboReason { get; set; } // cbo ds phòng ban
         public List<EnumCatagoryModel>? ListCboStatus { get; set; } // cbo ds tình trạng
+        public List<EnumCatagoryModel>? ListCboRequestType { get; set; } // cbo ds loại đăng kí
 
         private string? pPopupType { get; set; } = string.Empty; // mở popup nào
         public bool IsShowDialogEmpSearch { get; set; }
@@ -56,7 +57,7 @@ namespace HNOne.Web.Controllers
                     if (pDocEntry > 0)
                     {
                         await showVoucher();
-                    }    
+                    }
                 }
                 catch (Exception ex)
                 {
@@ -80,12 +81,15 @@ namespace HNOne.Web.Controllers
             {
                 new BreadcrumbModel("Công - Phép"),
                 new BreadcrumbModel("Chứng từ đề nghị", "danh-sach-de-nghi-nghi-phep"),
-                new BreadcrumbModel("Đề nghị nghỉ phép", isActive: true),
+                new BreadcrumbModel("Xin nghỉ trong giờ", isActive: true),
             };
             await NotifyBreadcrumb.InvokeAsync(ListBreadcrumbs);
 
             // GÁN DỮ LIỆU MẶC ĐỊNH
             LeaveRequestDocument.statusCode = CommonConstants.STATUS_CODE_ADD; // mặc định là chờ xử lý
+            LeaveRequestDocument.createDate = DateTime.Now;
+            LeaveRequestDocument.fromDate = DateTime.Now;
+            LeaveRequestDocument.fromDateTime = DateTime.Now;
             var uri = _navigationManager?.ToAbsoluteUri(_navigationManager.Uri);
             if (uri != null && QueryHelpers.ParseQuery(uri.Query).Count > 0)
             {
@@ -108,17 +112,17 @@ namespace HNOne.Web.Controllers
             try
             {
                 var getTask1 = _masterDataService.GetDepartmentAsync(UserId, Token); // ds phòng ban
-                var getTask2 = _masterDataService.GetReasonCategorieAsync(UserId, Token, GlobalContants.ENUM_REASON_DNNP);
                 var getTask5 = _masterDataService.GetFunEnumAsync(UserId, Token, nameof(EnumCatagory.TrangThaiHopDong)); // ds trạng thái
+                var getTask6 = _masterDataService.GetFunEnumAsync(UserId, Token, nameof(EnumCatagory.LoaiDangKyXinNghiTrongGio)); // ds trạng thái
                 await Task.WhenAll(
                     getTask1,
-                    getTask2,
-                    getTask5
+                    getTask5,
+                    getTask6
                 );
 
                 ListCboDepartment = (await getTask1)?.Select(m => new ComboboxModel() { id = m.id, name = m.name })?.ToList();
-                ListCboReason = (await getTask2)?.Select(m => new ComboboxModel() { id = m.id, name = m.name })?.ToList();
                 ListCboStatus = await getTask5;
+                ListCboRequestType = await getTask6;
             }
             catch (Exception) { throw; }
         }
@@ -130,25 +134,54 @@ namespace HNOne.Web.Controllers
         /// <param name="fieldName"></param>
         private void validateForSave(ref string errorMessage, ref string fieldName)
         {
-            if (LeaveRequestDocument.employeeId < 1)
-            {
-                errorMessage = string.Format(MessageConstants.MESSAGE_COMBOBOX_REQUIRE, "Nhân viên");
-                fieldName = nameof(LeaveRequestDocument.employeeId);
-                return;
-            }
             if (LeaveRequestDocument.departmentId < 1)
             {
                 errorMessage = string.Format(MessageConstants.MESSAGE_COMBOBOX_REQUIRE, "Phòng ban");
                 fieldName = nameof(LeaveRequestDocument.departmentId);
                 return;
             }
-            if (LeaveRequestDocument.reasonId < 1)
+            if (LeaveRequestDocument.employeeId < 1)
             {
-                errorMessage = string.Format(MessageConstants.MESSAGE_COMBOBOX_REQUIRE, "Lý do nghỉ");
+                errorMessage = string.Format(MessageConstants.MESSAGE_COMBOBOX_REQUIRE, "Nhân viên");
+                fieldName = nameof(LeaveRequestDocument.employeeId);
+                return;
+            }
+            if (string.IsNullOrEmpty(LeaveRequestDocument.requestType))
+            {
+                errorMessage = string.Format(MessageConstants.MESSAGE_COMBOBOX_REQUIRE, "Loại đăng ký");
                 fieldName = nameof(LeaveRequestDocument.reasonId);
                 return;
             }
-            validateForCreateLeaveDate(ref errorMessage, ref fieldName);
+            if (LeaveRequestDocument.fromDate == null)
+            {
+                errorMessage = string.Format(MessageConstants.MESSAGE_COMBOBOX_REQUIRE, "Ngày đăng kí"); ;
+                fieldName = "startDate";
+                return;
+            }
+            if (LeaveRequestDocument.fromDateTime == null)
+            {
+                errorMessage = string.Format(MessageConstants.MESSAGE_COMBOBOX_REQUIRE, "Từ giờ"); ;
+                fieldName = "startDateTime";
+                return;
+            }
+            if (LeaveRequestDocument.toDate == null)
+            {
+                errorMessage = string.Format(MessageConstants.MESSAGE_COMBOBOX_REQUIRE, "Đến giờ"); ;
+                fieldName = "endDate";
+                return;
+            }
+            if (LeaveRequestDocument.toDate.Value < LeaveRequestDocument.fromDate.Value)
+            {
+                errorMessage = MessageConstants.MESSAGE_FROM_TIME_TO_TIME_INVALID;
+                fieldName = "startDateTime";
+                return;
+            }
+            if (string.IsNullOrEmpty(LeaveRequestDocument.remark))
+            {
+                errorMessage = string.Format(MessageConstants.MESSAGE_COMBOBOX_REQUIRE, "Lý do nghỉ");
+                fieldName = "txtRemark";
+                return;
+            }
         }
 
         /// <summary>
@@ -172,8 +205,8 @@ namespace HNOne.Web.Controllers
             }
             if (LeaveRequestDocument.toDate.Value.Date < LeaveRequestDocument.fromDate.Value.Date)
             {
-                errorMessage = MessageConstants.MESSAGE_FROM_DATE_TO_DATE_INVALID;
-                fieldName = "startDate";
+                errorMessage = MessageConstants.MESSAGE_FROM_TIME_TO_TIME_INVALID;
+                fieldName = "startDateTime";
                 return;
             }
         }
@@ -212,7 +245,7 @@ namespace HNOne.Web.Controllers
                 request.userId = UserId;
                 request.branchId = BranchId;
                 request.token = Token;
-                request.process = ProcessConstants.GET_LEAVE_REQUEST;
+                request.process = ProcessConstants.GET_LEAVE_WORKING_HOUR;
                 var lstData = await _workforceService.GetLeaveRequestAsync(request);
                 if (!lstData.IsNullOrEmpty())
                 {
@@ -233,7 +266,7 @@ namespace HNOne.Web.Controllers
 
 
         #region Protected Functions
-        protected async Task OpenPopupHandler(string type = nameof(EmployeeSelected), 
+        protected async Task OpenPopupHandler(string type = nameof(EmployeeSelected),
             string popupType = nameof(LeaveRequestDocument.employeeCode))
         {
             try
@@ -309,7 +342,7 @@ namespace HNOne.Web.Controllers
         /// </summary>
         /// <param name="lstEmp"></param>
         protected void EventCallbackEmpChangedHandler(object? lstEmp) => EmployeeSelected = lstEmp;
-        
+
         /// <summary>
         /// tạo danh sách ngày nghỉ
         /// </summary>
@@ -363,7 +396,7 @@ namespace HNOne.Web.Controllers
                 itemFind.isAfternoonBreak = itemEdit.isAfternoonBreak;
                 StateHasChanged();
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 _logger.LogError(ex, "GridLeaveDateEditSavingHandler");
             }
@@ -377,14 +410,14 @@ namespace HNOne.Web.Controllers
         {
             try
             {
-                if(e.ElementType == GridElementType.DataRow && GridOfVacationDays != null)
+                if (e.ElementType == GridElementType.DataRow && GridOfVacationDays != null)
                 {
                     var employee = (LeaveRequest1Model)GridOfVacationDays.GetDataItem(e.VisibleIndex);
-                    if(!string.IsNullOrEmpty(employee?.bgColor))
+                    if (!string.IsNullOrEmpty(employee?.bgColor))
                     {
                         e.Style = $"background-color: {employee.bgColor}";
-                    }    
-                }    
+                    }
+                }
             }
             catch (Exception ex) { }
         }
@@ -412,13 +445,19 @@ namespace HNOne.Web.Controllers
                 isConfirm = await confirm.SetConfirm(MessageConstants.MESSAGE_TITLE, errorMessage);
                 if (!isConfirm) return;
                 await ShowLoading();
-                string processKey = pActionType == nameof(EnumType.Add) ? ProcessConstants.POST_LEAVE_REQUEST : ProcessConstants.PUT_LEAVE_REQUEST;
+                string processKey = pActionType == nameof(EnumType.Add) ? ProcessConstants.POST_LEAVE_WORKING_HOUR : ProcessConstants.PUT_LEAVE_WORKING_HOUR;
                 LeaveRequestDocument.branchId = BranchId;
                 LeaveRequestDocument.userSign = UserId;
                 LeaveRequestDocument.userSign2 = UserId;
+                DateTime fromDateTemp = LeaveRequestDocument.fromDate!.Value;
+                DateTime fromTimeTemp = LeaveRequestDocument.fromDateTime!.Value;
+                DateTime toTimeTemp = LeaveRequestDocument.toDate!.Value;
+                LeaveRequestDocument.fromDate = new DateTime(fromDateTemp.Year
+                    , fromDateTemp.Month, fromDateTemp.Day, fromTimeTemp.Hour, fromTimeTemp.Minute, 0);
+                LeaveRequestDocument.toDate = new DateTime(fromDateTemp.Year
+                    , fromDateTemp.Month, fromDateTemp.Day, toTimeTemp.Hour, toTimeTemp.Minute, 0);
                 string json = JsonConvert.SerializeObject(LeaveRequestDocument);
-                string jsonDetail = JsonConvert.SerializeObject(ListOfVacationDays);
-                int result = await _workforceService.UpdateLeaveRequestAsync(processKey, UserId, Token, BranchId, json, jsonDetail);
+                int result = await _workforceService.UpdateLeaveRequestAsync(processKey, UserId, Token, BranchId, json, "");
                 if (result > 0)
                 {
                     pActionType = nameof(EnumType.Update);
@@ -464,7 +503,7 @@ namespace HNOne.Web.Controllers
                 string processKey = ProcessConstants.POST_APPROVAL;
                 ApprovalModel approval = new ApprovalModel();
                 approval.docEntry = LeaveRequestDocument.id;
-                approval.objType = nameof(EnumObjType.LeaveRequests);
+                approval.objType = nameof(EnumObjType.LeaveWorkingHours);
                 approval.branchId = BranchId;
                 approval.statusCode = CommonConstants.STATUS_CODE_APPROVAL_PENDING;
                 approval.userSign = UserId;
@@ -498,15 +537,13 @@ namespace HNOne.Web.Controllers
                 if (firstRender) return;
                 switch (controlID)
                 {
-                    case nameof(LeaveRequestDocument.fromDate):
-                        LeaveRequestDocument.fromDate = (DateTime?)value;
+                    case nameof(LeaveRequestDocument.fromDateTime):
+                        LeaveRequestDocument.fromDateTime = (DateTime?)value;
                         LeaveRequestDocument.toDate = null;
-                        ListOfVacationDays = new List<LeaveRequest1Model>();
                         StateHasChanged();
                         break;
                     case nameof(LeaveRequestDocument.toDate):
                         LeaveRequestDocument.toDate = (DateTime?)value;
-                        ListOfVacationDays = new List<LeaveRequest1Model>();
                         StateHasChanged();
                         break;
                 }

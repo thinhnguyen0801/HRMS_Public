@@ -36,6 +36,7 @@ namespace HNOne.API.Repositories
         public DbSet<HolidayCatagories> HolidayCatagories { get; set; }
         public DbSet<LeaveRequests> LeaveRequests { get; set; }
         public DbSet<LeaveRequest1s> LeaveRequest1s { get; set; }
+        public DbSet<LeaveWorkingHours> LeaveWorkingHours { get; set; }
 
         public MasterDbContext(DbContextOptions<MasterDbContext> options)
             : base(options)
@@ -56,6 +57,8 @@ namespace HNOne.API.Repositories
             modelBuilder.Entity<PermissionGroups>().HasIndex(m => m.Code).IsUnique();
             modelBuilder.Entity<SalaryConfigurations>().HasIndex(m => new { m.SalaryCategoryId, m.BranchId }).IsUnique();
             modelBuilder.Entity<EventConfigurations>().HasIndex(m => m.ActionKey).IsUnique();
+            modelBuilder.Entity<LeaveRequests>().HasIndex(m => m.VoucherNo).IsUnique();
+            modelBuilder.Entity<LeaveWorkingHours>().HasIndex(m => m.VoucherNo).IsUnique();
         }
 
 

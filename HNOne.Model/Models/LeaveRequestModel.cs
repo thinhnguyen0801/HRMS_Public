@@ -27,6 +27,13 @@ namespace HNOne.Model.Models
         public int numOfLeaveOld { get; set; }
         public int numOfLeaveTotal { get; set; }
         public string? jsonDetail { get; set; } // danh sách chi tiết
+        #region dành cho xin nghỉ phép trong giờ
+        public string? requestType { get; set; } // loại yêu cầu
+        public string? requestTypeName { get; set; } // loại yêu cầu
+        public DateTime? fromDateTime { get; set; } // Ngày bắt đầu
+        public string? employeeListCode { get; set; }
+        public string? employeeListName { get; set; }
+        #endregion
     }
 
     // danh sách chi tiết ngày nghỉ

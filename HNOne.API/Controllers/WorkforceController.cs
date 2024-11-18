@@ -46,6 +46,9 @@ namespace HNOne.API.Controllers
                     case ProcessConstants.GET_LEAVE_REQUEST:
                         response.data = await _workforceRepository.GetLeaveRequest(request);
                         break;
+                    case ProcessConstants.GET_LEAVE_WORKING_HOUR:
+                        response.data = await _workforceRepository.GetLeaveWorkingHour(request);
+                        break;
                     default:
                         response.status = StatusCodes.Status404NotFound;
                         response.message = $"Process Key {processKey} was not provider!!!";
@@ -92,6 +95,11 @@ namespace HNOne.API.Controllers
                         var leaveRequestPut = DeserializeJson<LeaveRequests>($"{request.json}");
                         var lstRequest1Put = DeserializeJson<List<LeaveRequest1s>>($"{request.jsonDetail}");
                         response = await _workforceRepository.UpdateLeaveRequest(leaveRequestPut!, lstRequest1Put!);
+                        break;
+                    case ProcessConstants.POST_LEAVE_WORKING_HOUR:
+                    case ProcessConstants.PUT_LEAVE_WORKING_HOUR:
+                        var leaveWorkingHour = DeserializeJson<LeaveWorkingHours>($"{request.json}");
+                        response = await _workforceRepository.UpdateLeaveWorkingHours(processKey, leaveWorkingHour!);
                         break;
                     default:
                         response.status = StatusCodes.Status404NotFound;

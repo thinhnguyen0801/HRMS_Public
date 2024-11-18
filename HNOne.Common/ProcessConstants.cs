@@ -79,6 +79,9 @@
         public const string GET_LEAVE_REQUEST = "get-leave-request";
         public const string POST_LEAVE_REQUEST = "post-leave-request";
         public const string PUT_LEAVE_REQUEST = "put-leave-request";
+        public const string GET_LEAVE_WORKING_HOUR = "get-leave-working-hour";
+        public const string POST_LEAVE_WORKING_HOUR = "post-leave-working-hour";
+        public const string PUT_LEAVE_WORKING_HOUR = "put-leave-working-hour";
 
         #region Loại dưới store
         public const string GET_COMBO_TYPE_CONTRACT_BY_EMPLOYEEID = "CONTRACT_BY_EMPLOYEEID";

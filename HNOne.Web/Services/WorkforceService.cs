@@ -95,7 +95,6 @@ namespace HNOne.Web.Services
             try
             {
                 List<LeaveRequestModel>? data = null;
-                request.process = ProcessConstants.GET_LEAVE_REQUEST;
                 HttpResponseMessage httpResponse = await PostAsync(EnpointConstants.WORKFORCE_GET_DATA, request);
                 var checkContent = ValidateJsonContent(httpResponse.Content);
                 if (!checkContent) _toastService.ShowInfo(MessageConstants.MESSAGE_JSON_INVALID);

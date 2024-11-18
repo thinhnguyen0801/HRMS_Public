@@ -13,5 +13,6 @@
         public const string STORE_H1_CONTRACT_APPENDIX_SELECT = "[dbo].[H1_CONTRACT_APPENDIX_SELECT]";
         public const string STORE_H1_APPROVAL_SELECT = "[dbo].[H1_APPROVAL_SELECT]";
         public const string STORE_H1_LEAVE_REQUEST_SELECT = "[dbo].[H1_LEAVE_REQUEST_SELECT]";
+        public const string STORE_H1_LEAVE_WORKING_HOUR_SELECT = "[dbo].[H1_LEAVE_WORKING_HOUR_SELECT]";
     }
 }

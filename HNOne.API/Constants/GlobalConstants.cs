@@ -16,6 +16,7 @@
         public const string TABLE_PERMISSION_GROUP = "PermissionGroups";
         public const string TABLE_CONTRACT = "Contracts";
         public const string TABLE_LEAVE_REQUEST = "LeaveRequests";
+        public const string TABLE_LEAVE_WORKING_HOURS = "LeaveWorkingHours";
         #endregion
     }
 }
