@@ -17,20 +17,27 @@ namespace HNOne.API.Repositories
         private readonly MasterDbContext _dbContext;
         private readonly IDapperDbContext _dapperDbContext;
         private readonly IDateTimeHelper _dateTimeHelper;
+        private readonly IEncryptHelper _encryptHelper;
         public MasterDataRepository(MasterDbContext dbContext
-            , IDapperDbContext dapperDbContext, IDateTimeHelper dateTimeHelper) 
+            , IDapperDbContext dapperDbContext, IDateTimeHelper dateTimeHelper
+            , IEncryptHelper encryptHelper) 
         {
             _dbContext = dbContext;
             _dapperDbContext = dapperDbContext;
             _dateTimeHelper = dateTimeHelper;
+            _encryptHelper = encryptHelper;
         }
 
         #region Query
 
         public async Task<IEnumerable<Branchs>> GetBranch()
         {
-            var lstBranch = await _dbContext.Branchs.Where(m=> !m.IsDelete).ToListAsync();
-            return lstBranch;
+            using (var connection = _dapperDbContext.CreateConnection())
+            {
+                string strQuery = "select * from Branchs as T0 with(nolock) where T0.IsDelete = 0";
+                var result = await connection.QueryAsync<Branchs>(strQuery, commandTimeout: 500, commandType: CommandType.Text);
+                return result;
+            }
         }
 
         public async Task<IEnumerable<MenuModel>> GetMenu(RequestModel request)
@@ -338,6 +345,7 @@ namespace HNOne.API.Repositories
                     }
                     entity.BranchId = await _dbContext.Branchs.Select(m=>m.BranchId).DefaultIfEmpty().MaxAsync() + 1;
                     entity.BranchCode = voucherNo;
+                    entity.DefaultPassword = _encryptHelper.Encrypt(entity.DefaultPassword?.Trim());
                     entity.DateTracking = _dateTimeHelper.GetCurrentVietnamTime();
                     entity.CreateDate = _dateTimeHelper.GetCurrentVietnamTime();
                     await _dbContext.Branchs.AddAsync(entity);
@@ -371,6 +379,7 @@ namespace HNOne.API.Repositories
                 branch.Address = entity.Address;
                 branch.ImgUrl = entity.ImgUrl;
                 branch.PhoneNumber = entity.PhoneNumber;
+                branch.DefaultPassword = _encryptHelper.Encrypt(entity.DefaultPassword?.Trim());
                 branch.DateTracking = _dateTimeHelper.GetCurrentVietnamTime();
                 branch.UpdateDate = _dateTimeHelper.GetCurrentVietnamTime();
                 branch.UserSign2 = entity.UserSign2;

@@ -31,6 +31,7 @@ namespace HNOne.Web.Controllers
         public BranchModel BranchUpdate { get; set; } = new BranchModel();
         public bool IsShowDialog { get; set; }
         public bool IsCreate { get; set; } = true;
+        public bool IsShowPassword { get; set; } = false;
 
         // nút quyền
         public bool IsAllowPost { get; set; }
@@ -150,6 +151,7 @@ namespace HNOne.Web.Controllers
                     BranchUpdate.phoneNumber = pItemDetails!.phoneNumber;
                     BranchUpdate.imgUrl = pItemDetails!.imgUrl;
                     BranchUpdate.address = pItemDetails!.address;
+                    BranchUpdate.defaultPassword = _encryptHelper.Decrypt(pItemDetails!.defaultPassword);
                     IsCreate = false;
                 }
                 IsShowDialog = true;
@@ -240,6 +242,8 @@ namespace HNOne.Web.Controllers
                 await InvokeAsync(StateHasChanged);
             }
         }
+
+        protected void ShowPasswordHandler() => IsShowPassword = !IsShowPassword;
         #endregion
     }
 }

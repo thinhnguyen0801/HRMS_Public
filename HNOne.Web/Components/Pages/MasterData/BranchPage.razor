@@ -79,33 +79,47 @@
     <div class="row row-gap-2">
         <div class="col-sm-12">
             <div class="d-flex ">
-                <W1Label Value="Mã chi nhánh" Id="bacLuong" Styles="width: 110px" />
-                <div style="width: calc(100% - 110px)">
+                <W1Label Value="Mã chi nhánh" Id="bacLuong" Styles="width: 120px" />
+                <div style="width: calc(100% - 120px)">
                     <DxTextBox @bind-Text="@BranchUpdate.branchCode" ReadOnly="true" CssClass="w1FontSize"></DxTextBox>
                 </div>
             </div>
         </div>
         <div class="col-sm-12">
             <div class="d-flex ">
-                <W1Label Value="Tên chi nhánh" Id="bacLuong" Styles="width: 110px" IsRequired="true" />
-                <div style="width: calc(100% - 110px)">
+                <W1Label Value="Tên chi nhánh" Id="bacLuong" Styles="width: 120px" IsRequired="true" />
+                <div style="width: calc(100% - 120px)">
                     <DxTextBox @bind-Text="@BranchUpdate.branchName" CssClass="w1FontSize"></DxTextBox>
                 </div>
             </div>
         </div>
         <div class="col-sm-12">
             <div class="d-flex ">
-                <W1Label Value="Số điện thoại" Id="bacLuong" Styles="width: 110px" />
-                <div style="width: calc(100% - 110px)">
+                <W1Label Value="Số điện thoại" Id="bacLuong" Styles="width: 120px" />
+                <div style="width: calc(100% - 120px)">
                     <DxTextBox @bind-Text="@BranchUpdate.phoneNumber" CssClass="w1FontSize"></DxTextBox>
                 </div>
             </div>
         </div>
         <div class="col-sm-12">
             <div class="d-flex ">
-                <W1Label Value="Địa chỉ" Id="bacLuong" Styles="width: 110px" />
-                <div style="width: calc(100% - 110px)">
+                <W1Label Value="Địa chỉ" Id="bacLuong" Styles="width: 120px" />
+                <div style="width: calc(100% - 120px)">
                     <DxTextBox @bind-Text="@BranchUpdate.address" CssClass="w1FontSize"></DxTextBox>
+                </div>
+            </div>
+        </div>
+        <div class="col-sm-12">
+            <div class="d-flex">
+                <W1Label Value="Mật khẩu mặc định" Styles="width: 120px" IsRequired="true" />
+                <div style="width: calc(100% - 120px); position: relative;">
+                    <DxTextBox @bind-Text="@BranchUpdate.defaultPassword" Id="txtPasswordDefault" autocomplete="off"
+                               SizeMode="SizeMode.Medium" Password="@(!IsShowPassword)">
+                        <Buttons>
+                            <DxEditorButton IconCssClass="@(IsShowPassword ? "fa-regular fa-eye" : "fa-regular fa-eye-slash")"
+                                            Tooltip="Hiển thị mật khẩu" Click="@ShowPasswordHandler" />
+                        </Buttons>
+                    </DxTextBox>
                 </div>
             </div>
         </div>

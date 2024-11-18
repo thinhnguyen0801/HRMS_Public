@@ -19,5 +19,7 @@ namespace HNOne.Model.Entities
         public string? Address { get; set; }
         [MaxLength(50)]
         public string? PhoneNumber { get; set; }
+        [MaxLength(500)]
+        public string? DefaultPassword { get; set; } // mật khẩu mặt định
     }
 }
