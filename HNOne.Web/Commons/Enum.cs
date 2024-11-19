@@ -25,7 +25,8 @@
         LoaiNhanVien,
         XepLoaiDaoTao,
         LoaiLyDo,
-        LoaiDangKyXinNghiTrongGio
+        LoaiDangKyXinNghiTrongGio,
+        CaLamViec
     }
 
     public enum EnumObjType

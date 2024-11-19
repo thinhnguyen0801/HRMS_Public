@@ -25,6 +25,10 @@ namespace HNOne.Model.Entities
         public string? Value1 { get; set; } // config nếu có 1
         [MaxLength(250)]
         public string? Value2 { get; set; } // config nếu có 2
+        [MaxLength(250)]
+        public string? Value3 { get; set; } // config nếu có 3
+        [MaxLength(250)]
+        public string? Value4 { get; set; } // config nếu có 4
         public int RowOrder { get; set; } // sắp xếp
         public bool IsAllowEditing { get; set; } // cho phép chỉnh sửa
 

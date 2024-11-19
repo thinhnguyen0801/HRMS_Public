@@ -53,6 +53,7 @@ namespace HNOne.Web.Controllers
         public List<ComboboxModel>? ListCboProvince2 { get; set; } // cbo ds tỉnh thành 
         public List<ComboboxModel>? ListCboDistrict2 { get; set; } // cbo ds quận huyện 
         public List<ComboboxModel>? ListCboWard2 { get; set; } // cbo ds phường xã 
+        public List<EnumCatagoryModel>? ListCboShift { get; set; } // cbo ds ca làm việc
 
 
         private string? pPopupType { get; set; } = string.Empty; // mở popup nào
@@ -136,6 +137,7 @@ namespace HNOne.Web.Controllers
                 var getTask7 = _masterDataService.GetEnumAsync(UserId, Token, nameof(EnumCatagory.QuanHeGiaDinh)); // ds quan hệ gia đình
                 var getTask9 = _masterDataService.GetEnumAsync(UserId, Token, nameof(EnumCatagory.LoaiNhanVien)); // ds loại nhân viên
                 var getTask8 = _masterDataService.GetLocationAsync(UserId, Token, nameof(EnumCatagory.Province), "VN");
+                var getTask10 = _masterDataService.GetEnumAsync(UserId, Token, nameof(EnumCatagory.CaLamViec)); // ds loại nhân viên
                 await Task.WhenAll(
                     getTask1,
                     getTask2,
@@ -145,7 +147,8 @@ namespace HNOne.Web.Controllers
                     getTask6,
                     getTask7,
                     getTask8,
-                    getTask9
+                    getTask9,
+                    getTask10
                 );
 
                 ListCboDepartment = (await getTask1)?.Select(m => new ComboboxModel() { id = m.id, name = m.name })?.ToList();
@@ -158,6 +161,7 @@ namespace HNOne.Web.Controllers
                 ListCboRelationship = await getTask7;
                 ListCboProvince = await getTask8;
                 ListCboEmployeeType = await getTask9;
+                ListCboShift = await getTask10;
             }
             catch (Exception ex)
             {
@@ -212,6 +216,7 @@ namespace HNOne.Web.Controllers
                     lstTask.Add(geInsurance()); // danh sách hợp đồng
                     lstTask.Add(getFamilyRelationship()); // danh sách quan hệ gia đình
                     lstTask.Add(getEducation()); // danh sách trình độ đại học
+                    lstTask.Add(getContractList()); // danh sách hợp đồng
 
                     await Task.WhenAll(lstTask);
                 }
@@ -269,18 +274,18 @@ namespace HNOne.Web.Controllers
             //    fieldName = nameof(EmployeeUpdate.dateOfJoining);
             //    return;
             //}
-            if (EmployeeUpdate.probationStartDate == null)
-            {
-                errorMessage = string.Format(MessageConstants.MESSAGE_STRING_REQUIRE, "Ngày thử việc");
-                fieldName = nameof(EmployeeUpdate.probationStartDate);
-                return;
-            }
-            if (EmployeeUpdate.probationEndDate == null)
-            {
-                errorMessage = string.Format(MessageConstants.MESSAGE_STRING_REQUIRE, "Ngày kết thúc thử việc");
-                fieldName = nameof(EmployeeUpdate.startDate);
-                return;
-            }
+            //if (EmployeeUpdate.probationStartDate == null)
+            //{
+            //    errorMessage = string.Format(MessageConstants.MESSAGE_STRING_REQUIRE, "Ngày thử việc");
+            //    fieldName = nameof(EmployeeUpdate.probationStartDate);
+            //    return;
+            //}
+            //if (EmployeeUpdate.probationEndDate == null)
+            //{
+            //    errorMessage = string.Format(MessageConstants.MESSAGE_STRING_REQUIRE, "Ngày kết thúc thử việc");
+            //    fieldName = nameof(EmployeeUpdate.startDate);
+            //    return;
+            //}
         }
 
         /// <summary>
@@ -469,7 +474,7 @@ namespace HNOne.Web.Controllers
         /// Lưu thông tin nhân viên
         /// </summary>
         /// <returns></returns>
-        protected async Task SaveDataHandler()
+        protected async Task SaveDataHandler(bool isCreateAccount = false)
         {
             try
             {
@@ -483,7 +488,12 @@ namespace HNOne.Web.Controllers
                     return;
                 }
                 bool isConfirm = true;
-                errorMessage = pActionType == nameof(EnumType.Add) ? MessageConstants.MESSAGE_CONFIRM_ADD : MessageConstants.MESSAGE_CONFIRM_UPDATE;
+                // nếu có tạo tài khoản luôn không?
+                if (isCreateAccount)
+                {
+                    errorMessage = "Thao tác này sẽ phát sinh tài khoản đăng nhập cho nhân viên.<br />";
+                }
+                errorMessage += pActionType == nameof(EnumType.Add) ? MessageConstants.MESSAGE_CONFIRM_ADD : MessageConstants.MESSAGE_CONFIRM_UPDATE;
                 isConfirm = await confirm.SetConfirm(MessageConstants.MESSAGE_TITLE, errorMessage);
                 if (!isConfirm) return;
                 await ShowLoading();
@@ -531,7 +541,7 @@ namespace HNOne.Web.Controllers
                 EmployeeUpdate.userSign = UserId;
                 EmployeeUpdate.userSign2 = UserId;
                 string content = JsonConvert.SerializeObject(EmployeeUpdate);
-                int result = await _personnelService.UpdateEmployeeAsync(processKey, UserId, Token, content);
+                int result = await _personnelService.UpdateEmployeeAsync(processKey, UserId, Token, content, isCreateAccount: isCreateAccount);
                 if (result > 0)
                 {
                     pActionType = nameof(EnumType.Update);

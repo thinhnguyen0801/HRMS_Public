@@ -201,6 +201,8 @@ namespace HNOne.Model.Entities
 
         [MaxLength(1000)]
         public string? Remark { get; set; } // ghi chú
+        [MaxLength(50)]
+        public string? ShiftCode { get; set; } // ca làm việc lấy từ bảng enum
         #endregion
 
         // Đơn vị công tác bên bảng WorkHistories

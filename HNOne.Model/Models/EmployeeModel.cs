@@ -137,6 +137,9 @@ namespace HNOne.Model.Models
         public DateTime? traineeDate { get; set; } // Ngày tập sự
         public DateTime? probationStartDate { get; set; } // ngày thử việc
         public DateTime? probationEndDate { get; set; } // ngày kết thúc thử việcs
+        public string? shiftCode { get; set; } // ca làm việc
+        public string? shiftName { get; set; }
+        public string? userName { get; set; } // tài khoản đăng nhập
         #endregion
 
     }

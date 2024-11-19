@@ -5,21 +5,24 @@
 <div class="h-content-filter">
     <div class="w1FontSize sticky-top" style="z-index: 1010">
         <div class="border-bottom-0">
-            <DxTabs @bind-ActiveTabIndex="@ActiveTabIndex" Id="tabActive" CssClass="w-full w1FontSize">
+            <DxTabs @bind-ActiveTabIndex="@ActiveTabIndex" Id="tabActive" CssClass="w-full w1FontSize h1-tab-scroll">
                 <DxTabPage Text="Thông tin chung" CssClass="w1FontSize" Click="@(() => ScrollToSection("section-accordion-1"))"></DxTabPage>
                 <DxTabPage Text="CMND/CCCD/Hộ chiếu" CssClass="w1FontSize" Click="@(() => ScrollToSection("section-accordion-2"))"></DxTabPage>
                 <DxTabPage Text="Thông tin liên hệ" CssClass="w1FontSize" Click="@(() => ScrollToSection("section-accordion-3"))"></DxTabPage>
                 <DxTabPage Text="Hộ khẩu thường trú" CssClass="w1FontSize" Click="@(() => ScrollToSection("section-accordion-4"))"></DxTabPage>
                 <DxTabPage Text="Chỗ ở hiện nay" CssClass="w1FontSize" Click="@(() => ScrollToSection("section-accordion-5"))"></DxTabPage>
                 <DxTabPage Text="Liên hệ khẩn cấp" CssClass="w1FontSize" Click="@(() => ScrollToSection("section-accordion-6"))"></DxTabPage>
-                <DxTabPage Text="Thông tin công việc" CssClass="w1FontSize" Click="@(() => ScrollToSection("section-accordion-7"))"></DxTabPage>
-                <DxTabPage Text="Trình độ/Bằng cấp" CssClass="w1FontSize" Click="@(() => ScrollToSection("section-accordion-14"))"></DxTabPage>
-                <DxTabPage Text="Quan hệ gia đình" CssClass="w1FontSize" Click="@(() => ScrollToSection("section-accordion-8"))"></DxTabPage>
-                <DxTabPage Text="Lịch sử công tác" CssClass="w1FontSize" Click="@(() => ScrollToSection("section-accordion-9"))"></DxTabPage>
-                <DxTabPage Text="Thông tin bảo hiểm" CssClass="w1FontSize" Click="@(() => ScrollToSection("section-accordion-10"))"></DxTabPage>
-                <DxTabPage Text="Danh sách hợp đồng" CssClass="w1FontSize" Click="@(() => ScrollToSection("section-accordion-11"))"></DxTabPage>
-                <DxTabPage Text="Danh sách quyết định" CssClass="w1FontSize" Click="@(() => ScrollToSection("section-accordion-12"))"></DxTabPage>
-                <DxTabPage Text="Lịch sử lương" CssClass="w1FontSize" Click="@(() => ScrollToSection("section-accordion-13"))"></DxTabPage>
+                <DxTabPage Text="Thông tin công việc" CssClass="w1FontSize" Click="@(() => ScrollToSection("section-accordion-8"))"></DxTabPage>
+                @if(pActionType == nameof(EnumType.Update))
+                {
+                    <DxTabPage Text="Trình độ/Bằng cấp" CssClass="w1FontSize" Click="@(() => ScrollToSection("section-accordion-14"))"></DxTabPage>
+                    <DxTabPage Text="Quan hệ gia đình" CssClass="w1FontSize" Click="@(() => ScrollToSection("section-accordion-7"))"></DxTabPage>
+                    <DxTabPage Text="Lịch sử công tác" CssClass="w1FontSize" Click="@(() => ScrollToSection("section-accordion-9"))"></DxTabPage>
+                    <DxTabPage Text="Thông tin bảo hiểm" CssClass="w1FontSize" Click="@(() => ScrollToSection("section-accordion-10"))"></DxTabPage>
+                    <DxTabPage Text="Danh sách hợp đồng" CssClass="w1FontSize" Click="@(() => ScrollToSection("section-accordion-11"))"></DxTabPage>
+                    <DxTabPage Text="Danh sách quyết định" CssClass="w1FontSize" Click="@(() => ScrollToSection("section-accordion-12"))"></DxTabPage>
+                    <DxTabPage Text="Lịch sử lương" CssClass="w1FontSize" Click="@(() => ScrollToSection("section-accordion-13"))"></DxTabPage>                    
+                }
             </DxTabs>
         </div>
     </div>
@@ -28,8 +31,13 @@
             <Items>
                 <DxToolbarItem Text="Làm mới" BeginGroup="true" IconCssClass="@($"{IconClassConstants.ICON_REFRESH}")" CssClass="w1FontSize"
                                Alignment="@ToolbarItemAlignment.Right" />
-                <DxToolbarItem Text="Lưu" BeginGroup="true" IconCssClass="@($"{IconClassConstants.ICON_ADD}")" CssClass="w1FontSize"
-                               Alignment="@ToolbarItemAlignment.Right" Click="@SaveDataHandler" />
+
+                <DxToolbarItem Text="Lưu" BeginGroup="true" IconCssClass="@($"{IconClassConstants.ICON_UPDATE}")" CssClass="w1FontSize"
+                               Alignment="@ToolbarItemAlignment.Right" Click="@(() => SaveDataHandler())" />
+
+                <DxToolbarItem Text="Lưu & tạo tài khoản" BeginGroup="true" IconCssClass="@($"{IconClassConstants.ICON_UPDATE}")" CssClass="w1FontSize"
+                               Alignment="@ToolbarItemAlignment.Right" Click="@(() => SaveDataHandler(isCreateAccount: true))" />
+
                 <DxToolbarItem Text="Xóa" BeginGroup="true" IconCssClass="@($"{IconClassConstants.ICON_DELETE}")" CssClass="w1FontSize"
                                Alignment="@ToolbarItemAlignment.Right" />
             </Items>
@@ -855,6 +863,31 @@
                                     </div>
                                     <div class="col-md-6 col-sm-12">
                                         <div class="d-flex ">
+                                            <W1Label Value="Ca làm việc" Styles="width: 120px" />
+                                            <div style="width: calc(100% - 120px)">
+                                                <DxComboBox Data="@ListCboShift"
+                                                            @bind-Value="@EmployeeUpdate.shiftCode"
+                                                            FilteringMode="DataGridFilteringMode.Contains"
+                                                            TextFieldName="@nameof(ComboboxModel.name)"
+                                                            ValueFieldName="@nameof(ComboboxModel.code)" CssClass="w1FontSize">
+                                                    <Columns>
+                                                        <DxListEditorColumn FieldName="@nameof(ComboboxModel.code)" Width="120px" Caption="Mã" />
+                                                        <DxListEditorColumn FieldName="@nameof(ComboboxModel.name)" Caption="Tên" />
+                                                    </Columns>
+                                                </DxComboBox>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6 col-sm-12">
+                                        <div class="d-flex ">
+                                            <W1Label Value="Tên đăng nhập" Styles="width: 120px" />
+                                            <div style="width: calc(100% - 120px)">
+                                                <DxTextBox @bind-Text="@EmployeeUpdate.userName" CssClass="w1FontSize" ReadOnly="true"></DxTextBox>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6 col-sm-12">
+                                        <div class="d-flex ">
                                             <W1Label Value="Số tài khoản" Styles="width: 120px" />
                                             <div style="width: calc(100% - 120px)">
                                                 <DxTextBox @bind-Text="@EmployeeUpdate.accountNumber" CssClass="w1FontSize"></DxTextBox>
@@ -1014,7 +1047,7 @@
                                                     <DxGridDataColumn FieldName="@nameof(FamilyRelationshipModel.relationshipName)" Caption="Mối quan hệ" MinWidth="110" />
                                                     <DxGridDataColumn FieldName="@nameof(FamilyRelationshipModel.phoneNumber)" Caption="Số điện thoại" MinWidth="110" />
                                                     <DxGridDataColumn FieldName="@nameof(FamilyRelationshipModel.dateOfBirth)" Caption="Ngày sinh" MinWidth="110" DisplayFormat="@GlobalContants.FORMAT_DATE" />
-                                                    <DxGridDataColumn FieldName="@nameof(FamilyRelationshipModel.occupation)" Caption="Nghề nghiệp" MinWidth="140" />
+                                                    @* <DxGridDataColumn FieldName="@nameof(FamilyRelationshipModel.occupation)" Caption="Nghề nghiệp" MinWidth="140" /> *@
                                                     <DxGridDataColumn FieldName="@nameof(FamilyRelationshipModel.contactAddress)" Caption="Địa chỉ" MinWidth="170" />
                                                     <DxGridDataColumn FieldName="@nameof(FamilyRelationshipModel.remark)" Caption="Ghi chú" MinWidth="170" />
                                                 </Columns>
@@ -1142,6 +1175,48 @@
                             <div id="collapse-11" class="accordion-collapse collapse show" data-bs-parent="#accordion-11">
                                 <div class="accordion-body p-1">
                                     <div class="row row-gap-2">
+                                        <div class="col-md-12 col-sm-12">
+                                            <DxGrid Data="ListContract" @ref="GridContract"
+                                                    ShowFilterRow="false"
+                                                    PageSize="500"
+                                                    ColumnResizeMode="GridColumnResizeMode.ColumnsContainer"
+                                                    PagerPosition="GridPagerPosition.Bottom"
+                                                    PageSizeSelectorVisible="false"
+                                                    PageSizeSelectorAllRowsItemVisible="false"
+                                                    PagerSwitchToInputBoxButtonCount="10"
+                                                    PagerVisibleNumericButtonCount="10"
+                                                    TextWrapEnabled="false"
+                                                    KeyFieldName="@nameof(InsuranceModel.id)"
+                                                    ValidationEnabled="true"
+                                                    AllowSelectRowByClick="true"
+                                                    FocusedRowEnabled="true"
+                                                    SelectionMode="GridSelectionMode.Single"
+                                                    CssClass="h-full">
+                                                <ToolbarTemplate>
+                                                    <DxToolbar ItemRenderStyleMode="@ToolbarRenderStyleMode.Plain">
+                                                        <Items>
+                                                            <DxToolbarItem IconCssClass="@IconClassConstants.ICON_REFRESH" BeginGroup="true" Alignment="@ToolbarItemAlignment.Right"
+                                                                           Click="@(async () => await RefreshHandler(nameof(EnumObjType.Contracts)))" />
+                                                        </Items>
+                                                    </DxToolbar>
+                                                </ToolbarTemplate>
+                                                <Columns>
+                                                    <DxGridDataColumn FieldName="@nameof(ContractModel.contractCode)" Caption="Mã hợp đồng" MinWidth="140">
+                                                        <CellDisplayTemplate>
+                                                            @{
+                                                                <a href="@($"chi-tiet-hop-dong?key={(context.DataItem as ContractModel)!.link}")">@context.Value</a>
+                                                            }
+                                                        </CellDisplayTemplate>
+                                                    </DxGridDataColumn>
+                                                    <DxGridDataColumn FieldName="@nameof(ContractModel.contractTypeName)" Caption="Loại hợp đồng" MinWidth="170" />
+                                                    <DxGridDataColumn FieldName="@nameof(ContractModel.statusName)" Caption="Trạng thái" MinWidth="130" />
+                                                    <DxGridDataColumn FieldName="@nameof(ContractModel.contractNumber)" Caption="Lần ký thứ" MinWidth="100" />
+                                                    <DxGridDataColumn FieldName="@nameof(ContractModel.startDate)" Caption="Ngày bắt đầu" DisplayFormat="@GlobalContants.FORMAT_DATE" MinWidth="120" />
+                                                    <DxGridDataColumn FieldName="@nameof(ContractModel.endDate)" Caption="Ngày kết thúc" DisplayFormat="@GlobalContants.FORMAT_DATE" MinWidth="120" />
+                                                    <DxGridDataColumn FieldName="@nameof(ContractModel.remark)" Caption="Ghi chú" MinWidth="140" />
+                                                </Columns>
+                                            </DxGrid>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
@@ -1406,6 +1481,10 @@
     
 
 </div>
+<div class="mb-5"></div>
+<div class="mb-5"></div>
+<div class="mb-5"></div>
+<div class="mb-5"></div>
 <div class="mb-5"></div>
 
 

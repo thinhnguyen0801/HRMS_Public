@@ -7,10 +7,12 @@ using HNOne.Model;
 using HNOne.Model.Entities;
 using HNOne.Model.Models;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.VisualBasic;
 using Newtonsoft.Json;
 using System.Data;
 using static Dapper.SqlMapper;
+using static Microsoft.EntityFrameworkCore.DbLoggerCategory.Database;
 
 namespace HNOne.API.Repositories
 {
@@ -66,6 +68,7 @@ namespace HNOne.API.Repositories
                 parameters.Add("@StatusIds", request.opt, DbType.String);
                 parameters.Add("@FromDate", request.fromDate, DbType.Date);
                 parameters.Add("@ToDate", request.toDate, DbType.Date);
+                parameters.Add("@EmployeeId", request.employeeId, DbType.Int32);
                 IEnumerable<ContractModel>? lstResult = null;
                 var dtResult = await connection.QueryMultipleAsync(StoreConstants.STORE_H1_CONTRACT_SELECT, param: parameters, commandTimeout: GlobalConstants.COMMAND_TIMEOUT, commandType: CommandType.StoredProcedure);
                 if(dtResult != null)
@@ -181,9 +184,10 @@ namespace HNOne.API.Repositories
         /// </summary>
         /// <param name="entity"></param>
         /// <returns></returns>
-        public async Task<ResponseModel> AddEmployee(Employees entity)
+        public async Task<ResponseModel> AddEmployee(Employees entity, bool isCreateAccount = false)
         {
             ResponseModel response = new ResponseModel();
+            bool isTran = false;
             try
             {
                 using (var connection = _dapperDbContext.CreateConnection())
@@ -199,18 +203,61 @@ namespace HNOne.API.Repositories
                         response.message = MessageConstants.MESSAGE_VOUCHER_NO_MISSING;
                         return response;
                     }
+                    DateTime dateTimeNow = _dateTimeHelper.GetCurrentVietnamTime();
                     entity.Id = await _dbContext.Employees.Select(m => m.Id).DefaultIfEmpty().MaxAsync() + 1;
                     entity.Code = voucherNo;
-                    entity.DateTracking = _dateTimeHelper.GetCurrentVietnamTime();
-                    entity.CreateDate = _dateTimeHelper.GetCurrentVietnamTime();
+                    if (isCreateAccount)
+                    {
+                        Users account = new Users();
+                        account.UserName = entity.Code; // lấy mã nhân nhân viên làm tên đăng nhập
+                        account.EmployeeId = entity.Id;
+                        bool isResult = true;
+                        // lấy thông tin công ty
+                        Branchs? branch = await _dbContext.Branchs.FirstOrDefaultAsync(m => m.BranchId == entity.BranchId);
+                        if (branch == null || string.IsNullOrEmpty(branch.DefaultPassword))
+                        {
+                            response.status = StatusCodes.Status409Conflict;
+                            response.message = $"Chi nhánh [{branch?.BranchCode}] chưa được cấu hình mật khẩu mặc định!";
+                            return response;
+                        }
+                        // Tạo mới
+                        isResult = await _dbContext.Users.AnyAsync(m => m.UserName == account.UserName && m.EmployeeId != account.EmployeeId);
+                        if (isResult)
+                        {
+                            // nếu tên đăng nhập là mã số nhân viên đã được tạo
+                            response.status = StatusCodes.Status409Conflict;
+                            response.message = $"Tên đăng nhập [{account.UserName}] đã tồn tại!";
+                            return response;
+                        }
+                        await _dbContext.Database.BeginTransactionAsync();
+                        isTran = true;
+                        account.UserId = await _dbContext.Users.Select(m => m.UserId).DefaultIfEmpty().MaxAsync() + 1;
+                        account.BranchId = entity.BranchId;
+                        account.Password = branch.DefaultPassword;
+                        account.DefaultPassword = branch.DefaultPassword;
+                        account.IsActive = true;
+                        account.DepartmentIds = entity.DepartmentId > 0 ? entity.DepartmentId.ToString() : "";
+                        account.BranchIds = entity.BranchId.ToString();
+                        account.DateTracking = dateTimeNow;
+                        account.CreateDate = dateTimeNow;
+                        account.UserSign = entity.UserSign;
+                        await _dbContext.Users.AddAsync(account);
+                    }
+                    entity.DateTracking = dateTimeNow;
+                    entity.CreateDate = dateTimeNow;
                     await _dbContext.Employees.AddAsync(entity);
                     await _dbContext.SaveChangesAsync();
+                    if (isTran) await _dbContext.Database.CommitTransactionAsync();
                     response.message = MessageConstants.MESSAGE_ADD_SUCCESS;
                     response.data = entity.Id;
                 }
                 return response;
             }
-            catch (Exception) { throw; }
+            catch (Exception)
+            {
+                if (isTran) await _dbContext.Database.RollbackTransactionAsync();
+                throw;
+            }
 
         }
 
@@ -219,119 +266,90 @@ namespace HNOne.API.Repositories
         /// </summary>
         /// <param name="entity"></param>
         /// <returns></returns>
-        public async Task<ResponseModel> UpdateEmployee(Employees entity)
+        public async Task<ResponseModel> UpdateEmployee(Employees entity, bool isCreateAccount = false)
         {
             ResponseModel response = new ResponseModel();
+            bool isTran = false;
             try
             {
-                var data = await _dbContext.Employees.FirstOrDefaultAsync(m => m.Id == entity.Id);
-                if (data == null)
+                using (var connection = _dapperDbContext.CreateConnection())
                 {
-                    response.status = StatusCodes.Status404NotFound;
-                    response.message = MessageConstants.MESSAGE_NOT_FOUNT;
+                    string strQuery = "select * from Employees as T0 with(nolock) where T0.IsDelete = 0 and Id = @EmployeeId";
+                    DynamicParameters parameters = new DynamicParameters();
+                    parameters.Add("@EmployeeId", entity.Id, DbType.Int32);
+                    var data = await connection.QueryFirstOrDefaultAsync<Employees>(strQuery, parameters, commandTimeout: 500, commandType: CommandType.Text);
+                    if (data == null)
+                    {
+                        response.status = StatusCodes.Status404NotFound;
+                        response.message = MessageConstants.MESSAGE_NOT_FOUNT;
+                        return response;
+                    }
+                    if (isCreateAccount)
+                    {
+                        DateTime dateTimeNow = _dateTimeHelper.GetCurrentVietnamTime();
+                        Users account = new Users();
+                        account.UserName = data.Code; // lấy mã nhân nhân viên làm tên đăng nhập
+                        account.EmployeeId = data.Id;
+                        bool isResult = true;
+                        // lấy thông tin công ty
+                        Branchs? branch = await _dbContext.Branchs.FirstOrDefaultAsync(m => m.BranchId == data.BranchId);
+                        if(branch == null || string.IsNullOrEmpty(branch.DefaultPassword))
+                        {
+                            response.status = StatusCodes.Status409Conflict;
+                            response.message = $"Chi nhánh [{branch?.BranchCode}] chưa được cấu hình mật khẩu mặc định!";
+                            return response;
+                        }    
+                        // Tạo mới
+                        isResult = await _dbContext.Users.AnyAsync(m => m.UserName == account.UserName && m.EmployeeId != account.EmployeeId);
+                        if (isResult)
+                        {
+                            // nếu tên đăng nhập là mã số nhân viên đã được tạo
+                            response.status = StatusCodes.Status409Conflict;
+                            response.message = $"Tên đăng nhập [{account.UserName}] đã tồn tại!";
+                            return response;
+                        }
+                        parameters = new DynamicParameters();
+                        parameters.Add("@EmployeeId", account.EmployeeId, DbType.Int32);
+                        strQuery = "select T0.*, T2.[Code] as EmployeeCode, T2.[Name] as EmployeeName" +
+                            " from Users as T0 with(nolock) " +
+                            " inner join Employees as T2 with(nolock) on T0.EmployeeId = T2.Id" +
+                            " where T0.IsDelete = 0 and T0.IsActive = 1 and T0.EmployeeId = @EmployeeId";
+                        var result = await connection.QueryFirstOrDefaultAsync<UserModel>(strQuery, parameters, commandTimeout: 500, commandType: CommandType.Text);
+                        if (result != null)
+                        {
+                            response.status = StatusCodes.Status409Conflict;
+                            response.message = $"Nhân viên [{result.employeeCode}] đã thiết lập tài khoản [{result.userName}]!";
+                            return response;
+                        }
+                        await _dbContext.Database.BeginTransactionAsync();
+                        isTran = true;
+                        account.UserId = await _dbContext.Users.Select(m => m.UserId).DefaultIfEmpty().MaxAsync() + 1;
+                        account.BranchId = data.BranchId;
+                        account.Password = branch.DefaultPassword;
+                        account.DefaultPassword = branch.DefaultPassword;
+                        account.IsActive = true;
+                        account.DepartmentIds = data.DepartmentId > 0 ? data.DepartmentId.ToString() : "";
+                        account.BranchIds = data.BranchId.ToString();
+                        account.DateTracking = dateTimeNow;
+                        account.CreateDate = dateTimeNow;
+                        account.UserSign = entity.UserSign;
+                        await _dbContext.Users.AddAsync(account);
+                    }
+                    employeeUpdate(ref data, entity);
+                    _dbContext.Employees.Attach(data);
+                    _dbContext.Entry(data).State = EntityState.Modified;
+                    await _dbContext.SaveChangesAsync();
+                    if (isTran) await _dbContext.Database.CommitTransactionAsync();
+                    response.message = MessageConstants.MESSAGE_UPDATE_SUCCESS;
+                    response.data = entity.Id;
                     return response;
                 }
-                data.Name = entity.Name;
-                data.DateOfBirth = entity.DateOfBirth;
-                data.IsOnlybirthYear = entity.IsOnlybirthYear;
-                data.StatusId = entity.StatusId;
-                data.Gender = entity.Gender;
-                data.PlaceOfOrigin = entity.PlaceOfOrigin;
-                data.TemporaryAddress = entity.TemporaryAddress;
-                data.ContactAddress = entity.ContactAddress;
-                data.Religion = entity.Religion;
-                data.Ethnicity = entity.Ethnicity;
-                data.ImageUrl = entity.ImageUrl;
-                data.MaritalStatus = entity.MaritalStatus;
-                data.DateOfJoining = entity.DateOfJoining;
-                data.StartDate = entity.StartDate;
-                data.Remark = entity.Remark;
-                data.CIC = entity.CIC;
-                data.IssuanceDateCIC = entity.IssuanceDateCIC;
-                data.PlaceOfIssuanceCIC = entity.PlaceOfIssuanceCIC;
-                data.ExpiryDateCIC = entity.ExpiryDateCIC;
-                data.Phone1 = entity.Phone1;
-                data.Phone2 = entity.Phone2;
-                data.Phone3 = entity.Phone3;
-                data.Email1 = entity.Email1;
-                data.Email2 = entity.Email2;
-                data.AccountNumber = entity.AccountNumber;
-                data.BankName = entity.BankName;
-                data.BankBranch = entity.BankBranch;
-                data.Beneficiary = entity.Beneficiary;
-                data.Nationality = entity.Nationality;
-                data.TaxNumber = entity.TaxNumber;
-                data.LevelOfEducationId1 = entity.LevelOfEducationId1;
-                data.LevelOfEducationId2 = entity.LevelOfEducationId2;
-                data.MajorId1 = entity.MajorId1;
-                data.MajorId2 = entity.MajorId2;
-                data.EducationalInstitution1 = entity.EducationalInstitution1;
-                data.EducationalInstitution2 = entity.EducationalInstitution2;
-                data.Ranking1 = entity.Ranking1;
-                data.Ranking2 = entity.Ranking2;
-                data.LanguageLevel = entity.LanguageLevel;
-                data.LevelOfComputerLiteracy = entity.LevelOfComputerLiteracy;
-                data.OtherSkills = entity.OtherSkills;
-                data.ProbationEndDate = entity.ProbationEndDate;
-                data.BranchId = entity.BranchId;
-                data.DepartmentId = entity.DepartmentId;
-                data.PositionId = entity.PositionId;
-                data.TitleId = entity.TitleId;
-                data.ManagerId = entity.ManagerId;
-                data.AttendanceSheetId = entity.AttendanceSheetId;
-                data.DateTracking = _dateTimeHelper.GetCurrentVietnamTime();
-                data.UpdateDate = _dateTimeHelper.GetCurrentVietnamTime();
-                data.UserSign2 = entity.UserSign2;
-                data.PassportNumber = entity.PassportNumber;
-                data.IssueDatePassport = entity.IssueDatePassport;
-                data.PlaceOfIssuePassport = entity.PlaceOfIssuePassport;
-                data.ExpiryDatePassport = entity.ExpiryDatePassport;
-                data.GraduationYear = entity.GraduationYear;
-                data.Phone4 = entity.Phone4;
-                data.Email3 = entity.Email3;
-                data.ProvinceCode = entity.ProvinceCode;
-                data.ProvinceName = entity.ProvinceName;
-                data.PlaceOfBirth = entity.PlaceOfBirth;
-                data.CountryCode1 = entity.CountryCode1;
-                data.CountryName1 = entity.CountryName1;
-                data.ProvinceCode1 = entity.ProvinceCode1;
-                data.ProvinceName1 = entity.ProvinceName1;
-                data.DistrictCode1 = entity.DistrictCode1;
-                data.DistrictName1 = entity.DistrictName1;
-                data.WardCode1 = entity.WardCode1;
-                data.WardName1 = entity.WardName1;
-                data.HouseNumber1 = entity.HouseNumber1;
-                data.PlaceOfResidence = entity.PlaceOfResidence;
-                data.HouseholdRegistrationNumber = entity.HouseholdRegistrationNumber;
-                data.HouseholdNumber = entity.HouseholdNumber;
-                data.CountryCode2 = entity.CountryCode2;
-                data.CountryName2 = entity.CountryName2;
-                data.ProvinceCode2 = entity.ProvinceCode2;
-                data.ProvinceName2 = entity.ProvinceName2;
-                data.DistrictCode2 = entity.DistrictCode2;
-                data.DistrictName2 = entity.DistrictName2;
-                data.WardCode2 = entity.WardCode2;
-                data.WardName2 = entity.WardName2;
-                data.HouseNumber2 = entity.HouseNumber2;
-                data.FullName1 = entity.FullName1;
-                data.Relationship = entity.Relationship;
-                data.Phone5 = entity.Phone5;
-                data.Phone6 = entity.Phone6;
-                data.Email4 = entity.Email4;
-                data.LevelCode = entity.LevelCode;
-                data.GradeCode = entity.GradeCode;
-                data.TraineeDate = entity.TraineeDate;
-                data.ProbationStartDate = entity.ProbationStartDate;
-                data.ManagerId2 = entity.ManagerId2;
-                data.AttendanceSheetCode = entity.AttendanceSheetCode;
-                _dbContext.Employees.Attach(data);
-                _dbContext.Entry(data).State = EntityState.Modified;
-                await _dbContext.SaveChangesAsync();
-                response.message = MessageConstants.MESSAGE_UPDATE_SUCCESS;
-                response.data = entity.Id;
-                return response;
             }
-            catch (Exception) { throw; }
+            catch (Exception)
+            {
+                if (isTran) await _dbContext.Database.RollbackTransactionAsync();
+                throw;
+            }
         }
 
         /// <summary>
@@ -832,6 +850,113 @@ namespace HNOne.API.Repositories
                 }
                 return response;
             }    
+        }
+        #endregion
+
+        #region Private Functions
+
+        /// <summary>
+        /// gán dữ liệu nhân viên update
+        /// </summary>
+        /// <param name="data"></param>
+        /// <param name="entity"></param>
+        private void employeeUpdate(ref Employees data, Employees entity)
+        {
+            DateTime dateTimeNow = _dateTimeHelper.GetCurrentVietnamTime();
+            data.Name = entity.Name;
+            data.DateOfBirth = entity.DateOfBirth;
+            data.IsOnlybirthYear = entity.IsOnlybirthYear;
+            data.StatusId = entity.StatusId;
+            data.Gender = entity.Gender;
+            data.PlaceOfOrigin = entity.PlaceOfOrigin;
+            data.TemporaryAddress = entity.TemporaryAddress;
+            data.ContactAddress = entity.ContactAddress;
+            data.Religion = entity.Religion;
+            data.Ethnicity = entity.Ethnicity;
+            data.ImageUrl = entity.ImageUrl;
+            data.MaritalStatus = entity.MaritalStatus;
+            data.DateOfJoining = entity.DateOfJoining;
+            data.StartDate = entity.StartDate;
+            data.Remark = entity.Remark;
+            data.CIC = entity.CIC;
+            data.IssuanceDateCIC = entity.IssuanceDateCIC;
+            data.PlaceOfIssuanceCIC = entity.PlaceOfIssuanceCIC;
+            data.ExpiryDateCIC = entity.ExpiryDateCIC;
+            data.Phone1 = entity.Phone1;
+            data.Phone2 = entity.Phone2;
+            data.Phone3 = entity.Phone3;
+            data.Email1 = entity.Email1;
+            data.Email2 = entity.Email2;
+            data.AccountNumber = entity.AccountNumber;
+            data.BankName = entity.BankName;
+            data.BankBranch = entity.BankBranch;
+            data.Beneficiary = entity.Beneficiary;
+            data.Nationality = entity.Nationality;
+            data.TaxNumber = entity.TaxNumber;
+            data.LevelOfEducationId1 = entity.LevelOfEducationId1;
+            data.LevelOfEducationId2 = entity.LevelOfEducationId2;
+            data.MajorId1 = entity.MajorId1;
+            data.MajorId2 = entity.MajorId2;
+            data.EducationalInstitution1 = entity.EducationalInstitution1;
+            data.EducationalInstitution2 = entity.EducationalInstitution2;
+            data.Ranking1 = entity.Ranking1;
+            data.Ranking2 = entity.Ranking2;
+            data.LanguageLevel = entity.LanguageLevel;
+            data.LevelOfComputerLiteracy = entity.LevelOfComputerLiteracy;
+            data.OtherSkills = entity.OtherSkills;
+            data.ProbationEndDate = entity.ProbationEndDate;
+            data.BranchId = entity.BranchId;
+            data.DepartmentId = entity.DepartmentId;
+            data.PositionId = entity.PositionId;
+            data.TitleId = entity.TitleId;
+            data.ManagerId = entity.ManagerId;
+            data.AttendanceSheetId = entity.AttendanceSheetId;
+            data.DateTracking = dateTimeNow;
+            data.UpdateDate = dateTimeNow;
+            data.UserSign2 = entity.UserSign2;
+            data.PassportNumber = entity.PassportNumber;
+            data.IssueDatePassport = entity.IssueDatePassport;
+            data.PlaceOfIssuePassport = entity.PlaceOfIssuePassport;
+            data.ExpiryDatePassport = entity.ExpiryDatePassport;
+            data.GraduationYear = entity.GraduationYear;
+            data.Phone4 = entity.Phone4;
+            data.Email3 = entity.Email3;
+            data.ProvinceCode = entity.ProvinceCode;
+            data.ProvinceName = entity.ProvinceName;
+            data.PlaceOfBirth = entity.PlaceOfBirth;
+            data.CountryCode1 = entity.CountryCode1;
+            data.CountryName1 = entity.CountryName1;
+            data.ProvinceCode1 = entity.ProvinceCode1;
+            data.ProvinceName1 = entity.ProvinceName1;
+            data.DistrictCode1 = entity.DistrictCode1;
+            data.DistrictName1 = entity.DistrictName1;
+            data.WardCode1 = entity.WardCode1;
+            data.WardName1 = entity.WardName1;
+            data.HouseNumber1 = entity.HouseNumber1;
+            data.PlaceOfResidence = entity.PlaceOfResidence;
+            data.HouseholdRegistrationNumber = entity.HouseholdRegistrationNumber;
+            data.HouseholdNumber = entity.HouseholdNumber;
+            data.CountryCode2 = entity.CountryCode2;
+            data.CountryName2 = entity.CountryName2;
+            data.ProvinceCode2 = entity.ProvinceCode2;
+            data.ProvinceName2 = entity.ProvinceName2;
+            data.DistrictCode2 = entity.DistrictCode2;
+            data.DistrictName2 = entity.DistrictName2;
+            data.WardCode2 = entity.WardCode2;
+            data.WardName2 = entity.WardName2;
+            data.HouseNumber2 = entity.HouseNumber2;
+            data.FullName1 = entity.FullName1;
+            data.Relationship = entity.Relationship;
+            data.Phone5 = entity.Phone5;
+            data.Phone6 = entity.Phone6;
+            data.Email4 = entity.Email4;
+            data.LevelCode = entity.LevelCode;
+            data.GradeCode = entity.GradeCode;
+            data.TraineeDate = entity.TraineeDate;
+            data.ProbationStartDate = entity.ProbationStartDate;
+            data.ManagerId2 = entity.ManagerId2;
+            data.AttendanceSheetCode = entity.AttendanceSheetCode;
+            data.ShiftCode = entity.ShiftCode; // ca làm việc
         }
         #endregion
     }

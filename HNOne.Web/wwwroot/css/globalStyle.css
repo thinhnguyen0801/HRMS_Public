@@ -112,7 +112,10 @@
     height: unset;
 }
 
-
+.h1-tab-scroll .dxbl-scroll-viewer > .dxbl-scroll-viewer-content {
+    /*display: flex;
+    justify-content: center;*/
+}
 /*style cho cái lịch làm việc*/
 #dxCalendarWordSchedule table tbody td {
     padding: 0.25rem 0.25rem;

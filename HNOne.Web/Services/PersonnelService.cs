@@ -41,7 +41,7 @@ namespace HNOne.Web.Services
             catch (Exception) { throw; }
         }
 
-        public async Task<int> UpdateEmployeeAsync(string processKey, int userId, string token, string json)
+        public async Task<int> UpdateEmployeeAsync(string processKey, int userId, string token, string json, bool isCreateAccount = false)
         {
             try
             {
@@ -50,6 +50,7 @@ namespace HNOne.Web.Services
                 request.userId = userId;
                 request.token = token;
                 request.json = json;
+                request.opt = isCreateAccount.ToString();
                 HttpResponseMessage httpResponse = await PostAsync(EnpointConstants.PERSONNEL_POST_DATA, request);
                 if (httpResponse.StatusCode == System.Net.HttpStatusCode.Unauthorized)
                 {

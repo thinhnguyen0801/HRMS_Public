@@ -7,7 +7,7 @@ namespace HNOne.API.Services.Interfaces
     public interface IPersonnelService
     {
         Task<IEnumerable<EmployeeModel>> GetEmployee(RequestModel request);
-        Task<ResponseModel> UpdateEmployee(string actionType, Employees entity);
+        Task<ResponseModel> UpdateEmployee(string actionType, Employees entity, bool isCreateAccount = false);
         Task<ResponseModel> UpdateContract(string actionType, Contracts entity, IEnumerable<SalaryAdjustments>? lstSalaryConfig);
         Task<IEnumerable<ContractModel>> GetContract(RequestModel request);
         Task<IEnumerable<FamilyRelationshipModel>> GetFamilyRelationship(int employeeId);

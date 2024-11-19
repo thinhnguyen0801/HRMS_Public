@@ -7,8 +7,8 @@ namespace HNOne.API.Repositories.Interfaces
     public interface IPersonnelRepository
     {
         Task<IEnumerable<EmployeeModel>> GetEmployee(RequestModel request);
-        Task<ResponseModel> AddEmployee(Employees entity);
-        Task<ResponseModel> UpdateEmployee(Employees entity);
+        Task<ResponseModel> AddEmployee(Employees entity, bool isCreateAccount = false);
+        Task<ResponseModel> UpdateEmployee(Employees entity, bool isCreateAccount = false);
         Task<ResponseModel> AddContract(Contracts entity, IEnumerable<SalaryAdjustments>? lstSalaryConfig);
         Task<ResponseModel> UpdateContract(Contracts entity, IEnumerable<SalaryAdjustments>? lstSalaryConfig);
         Task<IEnumerable<ContractModel>> GetContract(RequestModel request);

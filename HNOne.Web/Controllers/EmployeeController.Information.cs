@@ -2,6 +2,7 @@
 using HNOne.Common;
 using HNOne.Model;
 using HNOne.Model.Models;
+using HNOne.Web.Commons;
 using Microsoft.JSInterop;
 using Newtonsoft.Json;
 
@@ -29,6 +30,9 @@ namespace HNOne.Web.Controllers
 
         public List<InsuranceModel>? ListHistory { get; set; } // danh sách lịch sử công tác
         public IGrid? GridHistory { get; set; }
+
+        public List<ContractModel>? ListContract { get; set; } // danh sách hợp đồng
+        public IGrid? GridContract { get; set; }
 
         public List<EnumCatagoryModel>? ListCboInsuranceType { get; set; } // loại bảo hiểm
         public List<EnumCatagoryModel>? ListCboRank { get; set; } // cbo xếp loại
@@ -144,6 +148,31 @@ namespace HNOne.Web.Controllers
             request.branchId = BranchId;
             ListEducation = new List<LevelOfEducationModel>();
             ListEducation = await _personnelService.GetEducationAsync(request);
+        }
+
+        /// <summary>
+        /// lấy danh sách hợp đồng theo nhân viên
+        /// </summary>
+        /// <returns></returns>
+        private async Task getContractList()
+        {
+            RequestModel request = new RequestModel();
+            request.userId = UserId;
+            request.branchId = BranchId;
+            request.token = Token;
+            request.opt = ActiveTabIndex == 0 ? "ACTIVE" : "";
+            request.employeeId = EmployeeUpdate.id;
+            var lstContract = await _personnelService.GetContractAsync(request, isShowToast: false);
+            lstContract = lstContract?.Update(m =>
+            {
+                Dictionary<string, string> pParams = new Dictionary<string, string>
+                {
+                    { "pActionType", nameof(EnumType.Update) },
+                    { "pDocEntry", $"{m.id}" },
+                };
+                m.link = _encryptHelper.Encrypt(JsonConvert.SerializeObject(pParams));
+            })?.ToList();
+            ListContract = lstContract;
         }
         #endregion
 
@@ -306,6 +335,9 @@ namespace HNOne.Web.Controllers
                         break;
                     case nameof(IsShowPopupFamily):
                         await getFamilyRelationship();
+                        break;
+                    case nameof(EnumObjType.Contracts):
+                        await getContractList();
                         break;
                 }
             }

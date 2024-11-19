@@ -54,7 +54,7 @@ namespace HNOne.API.Services
 
 
         #region Command
-        public async Task<ResponseModel> UpdateEmployee(string actionType, Employees entity)
+        public async Task<ResponseModel> UpdateEmployee(string actionType, Employees entity, bool isCreateAccount = false)
         {
             ResponseModel response = new ResponseModel();
             try
@@ -62,10 +62,10 @@ namespace HNOne.API.Services
                 switch (actionType)
                 {
                     case ProcessConstants.POST_EMPLOYEE:
-                        response = await _personnelRepository.AddEmployee(entity);
+                        response = await _personnelRepository.AddEmployee(entity, isCreateAccount);
                         break;
                     case ProcessConstants.PUT_EMPLOYEE:
-                        response = await _personnelRepository.UpdateEmployee(entity);
+                        response = await _personnelRepository.UpdateEmployee(entity, isCreateAccount);
                         break;
                 }
                 return response;
