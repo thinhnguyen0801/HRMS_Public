@@ -57,14 +57,17 @@
         public const string GET_INSURANCE = "get-insurance";
         public const string POST_INSURANCE = "post-insurance";
         public const string PUT_INSURANCE = "put-insurance";
+
         public const string GET_COMBO_MASTER_DATA = "get-combo-master-data";
         public const string GET_FUN_ENUM = "get-fun-enum";
         public const string GET_CONTRACT_APPENDIX = "get-contract-appendix";
         public const string POST_CONTRACT_APPENDIX = "post-contract-appendix";
         public const string PUT_CONTRACT_APPENDIX = "put-contract-appendix";
+
         public const string GET_EDUCATION = "get-education";
         public const string POST_EDUCATION = "post-education";
         public const string PUT_EDUCATION = "put-education";
+
         public const string GET_PER_GROUP_ACCESS_CONTROL = "get-per-group-access-control";
         public const string POST_PER_GROUP_ACCESS_CONTROL = "post-per-group-access-control";
 
@@ -75,13 +78,20 @@
         public const string GET_APPROVAL = "get-approval";
         public const string POST_APPROVAL = "post-approval";
         public const string PUT_APPROVAL = "put-approval";
+
         public const string GET_WORKFORCE_MASTER_DATA = "get-workforce-master-data";
+
         public const string GET_LEAVE_REQUEST = "get-leave-request";
         public const string POST_LEAVE_REQUEST = "post-leave-request";
         public const string PUT_LEAVE_REQUEST = "put-leave-request";
+
         public const string GET_LEAVE_WORKING_HOUR = "get-leave-working-hour";
         public const string POST_LEAVE_WORKING_HOUR = "post-leave-working-hour";
         public const string PUT_LEAVE_WORKING_HOUR = "put-leave-working-hour";
+
+        public const string GET_HOILDAY_CATAGORY = "get-hoilday_catagory";
+        public const string POST_HOILDAY_CATAGORY = "post-hoilday_catagory";
+        public const string PUT_HOILDAY_CATAGORY = "put-hoilday_catagory";
 
         #region Loại dưới store
         public const string GET_COMBO_TYPE_CONTRACT_BY_EMPLOYEEID = "CONTRACT_BY_EMPLOYEEID";

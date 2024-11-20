@@ -99,25 +99,25 @@ namespace HNOne.Web.Controllers
         {
             if (string.IsNullOrEmpty(ContractTypeUpdate.code))
             {
-                errorMessage = String.Format(MessageConstants.MESSAGE_STRING_REQUIRE, "Mã loại hợp đồng");
+                errorMessage = string.Format(MessageConstants.MESSAGE_STRING_REQUIRE, "Mã loại hợp đồng");
                 fieldName = "txtCode";
                 return;
             }
             if (string.IsNullOrEmpty(ContractTypeUpdate.name))
             {
-                errorMessage = String.Format(MessageConstants.MESSAGE_STRING_REQUIRE, "Tên loại hợp đồng");
+                errorMessage = string.Format(MessageConstants.MESSAGE_STRING_REQUIRE, "Tên loại hợp đồng");
                 fieldName = "txtName";
                 return;
             }
             if (ContractTypeUpdate.branchId < 1)
             {
-                errorMessage = String.Format(MessageConstants.MESSAGE_COMBOBOX_REQUIRE, "Chi nhánh");
+                errorMessage = string.Format(MessageConstants.MESSAGE_COMBOBOX_REQUIRE, "Chi nhánh");
                 fieldName = "txtBranchId";
                 return;
             }
             if (string.IsNullOrEmpty(ContractTypeUpdate.statusCode))
             {
-                errorMessage = String.Format(MessageConstants.MESSAGE_COMBOBOX_REQUIRE, "Trạng thái nhân viên");
+                errorMessage = string.Format(MessageConstants.MESSAGE_COMBOBOX_REQUIRE, "Trạng thái nhân viên");
                 fieldName = "txtStatusCode";
                 return;
             }

@@ -312,10 +312,10 @@ namespace HNOne.API.Repositories
                 parameters.Add("@EnumType", request.type, DbType.String);
                 parameters.Add("@Opt", $"{request.opt}", DbType.String);
                 parameters.Add("@Opt1", $"{request.opt1}", DbType.String);
-                string commandText = @$"select * from {StoreConstants.FUNC_GET_ENUM}(@EnumType, @Opt, @Opt1)";
+                string commandText = @$"select * from {StoreConstants.FUNC_GET_ENUM}(@EnumType, @Opt, @Opt1) order by RowOrder asc";
                 var results = await connection.QueryAsync<EnumCatagoryModel>(commandText, parameters
                     , commandTimeout: GlobalConstants.COMMAND_TIMEOUT, commandType: CommandType.Text);
-                return results;
+                return results?.OrderBy(m=>m.rowOrder)?.ToList() ?? new List<EnumCatagoryModel>();
             }
         }
         #endregion 

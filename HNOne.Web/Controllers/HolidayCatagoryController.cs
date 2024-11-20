@@ -1,0 +1,234 @@
+﻿using DevExpress.Blazor;
+using HNOne.Common;
+using HNOne.Model;
+using HNOne.Model.Models;
+using HNOne.Web.Commons;
+using HNOne.Web.Components.Controls;
+using HNOne.Web.Models;
+using HNOne.Web.Services.Interfaces;
+using Microsoft.AspNetCore.Components;
+using Microsoft.JSInterop;
+using Newtonsoft.Json;
+
+namespace HNOne.Web.Controllers
+{
+    public class HolidayCatagoryController : DocumentControllerBase
+    {
+        [Inject] IMasterDataService _masterDataService { get; init; }
+        [Inject] IWorkforceService _workforceService { get; init; }
+        [Inject] IJSRuntime _jsRuntime { get; set; }
+        public W1Confirm confirm { get; set; }
+
+        const string STRING_KEY_EVENT_POST = "BRANCH_CONTROLLER_POST";
+        const string STRING_KEY_EVENT_PUT = "BRANCH_CONTROLLER_PUT";
+        const string STRING_KEY_EVENT_DELETE = "BRANCH_CONTROLLER_DELETE";
+
+        #region Properties
+        public List<HolidayCatagoryModel>? ListHoliday { get; set; }
+        public IGrid? GridHoliday { get; set; }
+        public IReadOnlyList<object>? SelectedItems { get; set; } = null;
+        public HolidayCatagoryModel HolidayUpdate { get; set; } = new HolidayCatagoryModel();
+
+        public List<EnumCatagoryModel>? ListCboType { get; set; } // cbo ds loại ngày nghỉ
+        public bool IsShowDialog { get; set; }
+        public bool IsCreate { get; set; } = true;
+
+        // nút quyền
+        public bool IsAllowPost { get; set; }
+        public bool IsAllowDelete { get; set; }
+        public bool IsAllowPut { get; set; }
+        #endregion
+
+        protected override async Task OnAfterRenderAsync(bool firstRender)
+        {
+            await base.OnAfterRenderAsync(firstRender);
+            if (firstRender)
+            {
+                try
+                {
+                    //string errMessage = await CheckMenuPermissionAsync("chi-nhanh");
+                    //if (errMessage == "401") return; // kiểm quyền menu page danh sách
+                    //await ShowLoading();
+                    //await checkPermission(errMessage);
+                    ListBreadcrumbs = new List<BreadcrumbModel>()
+                    {
+                        new BreadcrumbModel("Danh mục"),
+                        new BreadcrumbModel("Danh mục ngày nghỉ phép", isActive: true)
+                    };
+                    await NotifyBreadcrumb.InvokeAsync(ListBreadcrumbs);
+                    ListCboType = await _masterDataService.GetFunEnumAsync(UserId, Token, nameof(EnumCatagory.LoaiNgayNghi)); // ds trạng thái
+                    await getHolidayCatagory();
+
+                }
+                catch (Exception ex)
+                {
+                    _logger.LogError(ex, "OnAfterRenderAsync");
+                    ShowError(ex.Message);
+                }
+                finally
+                {
+                    await ShowLoading(false);
+                    //await _progressService!.Done();
+                    await InvokeAsync(StateHasChanged);
+                }
+            }
+        }
+
+        #region Private Functions
+        /// <summary>
+        /// kiểm tra quyền nút
+        /// </summary>
+        /// <returns></returns>
+        private async Task checkPermission(string menuId)
+        {
+            List<string> lstKey = await CheckEventPermission(menuId);
+            IsAllowPost = lstKey.FirstOrDefault(m => m == STRING_KEY_EVENT_POST) != null;
+            IsAllowDelete = lstKey.FirstOrDefault(m => m == STRING_KEY_EVENT_DELETE) != null;
+            IsAllowPut = lstKey.FirstOrDefault(m => m == STRING_KEY_EVENT_PUT) != null;
+        }
+
+        private async Task getHolidayCatagory()
+        {
+            RequestModel request = new RequestModel();
+            request.userId = UserId;
+            request.branchId = BranchId;
+            request.process = ProcessConstants.GET_HOILDAY_CATAGORY;
+            ListHoliday = new List<HolidayCatagoryModel>();
+            ListHoliday = await _workforceService.GetMasterDataAsync<HolidayCatagoryModel>(request, isShowToast: true);
+        }
+
+        private void validateForSave(ref string errorMessage, ref string fieldName)
+        {
+            if (string.IsNullOrEmpty(HolidayUpdate.type))
+            {
+                errorMessage = string.Format(MessageConstants.MESSAGE_COMBOBOX_REQUIRE, "Loại ngày nghỉ");
+                fieldName = "txtType";
+                return;
+            }
+            if (string.IsNullOrEmpty(HolidayUpdate.name))
+            {
+                errorMessage = string.Format(MessageConstants.MESSAGE_STRING_REQUIRE, "Tên ngày nghỉ");
+                fieldName = "txtName";
+                return;
+            }
+            if (HolidayUpdate.toDate.Date < HolidayUpdate.fromDate.Date)
+            {
+                errorMessage = MessageConstants.MESSAGE_FROM_DATE_TO_DATE_INVALID;
+                fieldName = "endDate";
+                return;
+            }
+
+        }
+        #endregion
+
+        #region Protected Functions
+        protected async Task RefreshHandler()
+        {
+            try
+            {
+                await ShowLoading();
+                await getHolidayCatagory();
+            }
+            catch (Exception ex)
+            {
+                _logger!.LogError(ex, "ReLoadDataHandler");
+                ShowError(ex.Message);
+            }
+            finally
+            {
+                await Task.Delay(50);
+                await ShowLoading(false);
+                await InvokeAsync(StateHasChanged);
+            }
+        }
+
+        protected async Task OnOpenDialogHandler(EnumType pAction = EnumType.Add, HolidayCatagoryModel? pItemDetails = null)
+        {
+            try
+            {
+                //await checkPermission(MenuId);
+                if (pAction == EnumType.Add)
+                {
+                    //if (!IsAllowPost)
+                    //{
+                    //    ShowInfo(MessageConstants.MESSAGE_NO_PERMISSION);
+                    //    return;
+                    //}
+                    IsCreate = true;
+                    HolidayUpdate = new HolidayCatagoryModel();
+                    HolidayUpdate.fromDate = DateTime.Now;
+                    HolidayUpdate.toDate = DateTime.Now;
+                }
+                else
+                {
+                    //if (!IsAllowPut)
+                    //{
+                    //    ShowInfo(MessageConstants.MESSAGE_NO_PERMISSION);
+                    //    return;
+                    //}
+                    HolidayUpdate.id = pItemDetails!.id;
+                    HolidayUpdate.name = pItemDetails!.name;
+                    HolidayUpdate.fromDate = pItemDetails!.fromDate;
+                    HolidayUpdate.toDate = pItemDetails!.toDate;
+                    HolidayUpdate.color = pItemDetails!.color;
+                    HolidayUpdate.color = pItemDetails!.color;
+                    HolidayUpdate.type = pItemDetails!.type;
+                    IsCreate = false;
+                }
+                IsShowDialog = true;
+            }
+            catch (Exception ex)
+            {
+                _logger!.LogError(ex, "OnOpenDialogHandler");
+                ShowError(ex.Message);
+            }
+        }
+
+        protected async Task SaveDataHandler()
+        {
+            try
+            {
+                string errorMessage = string.Empty;
+                string fieldName = string.Empty;
+                validateForSave(ref errorMessage, ref fieldName);
+                if (!string.IsNullOrEmpty(errorMessage))
+                {
+                    ShowWarning(errorMessage);
+                    await _jsRuntime.InvokeVoidAsync("focusInput", fieldName);
+                    return;
+                }
+                errorMessage = IsCreate ? MessageConstants.MESSAGE_CONFIRM_ADD : MessageConstants.MESSAGE_CONFIRM_UPDATE;
+                bool isConfirm = await confirm.SetConfirm(MessageConstants.MESSAGE_TITLE, errorMessage);
+                if (!isConfirm) return;
+                await ShowLoading();
+                HolidayUpdate.userSign = UserId;
+                HolidayUpdate.userSign2 = UserId;
+                RequestModel request = new RequestModel();
+                request.userId = UserId;
+                request.token = Token;
+                request.branchId = BranchId;
+                request.process = IsCreate ? ProcessConstants.POST_HOILDAY_CATAGORY : ProcessConstants.PUT_HOILDAY_CATAGORY;
+                request.json = JsonConvert.SerializeObject(HolidayUpdate);
+                isConfirm = await _workforceService.UpdateMasterDataAsync(request);
+                if (isConfirm)
+                {
+                    await getHolidayCatagory();
+                    IsShowDialog = false;
+                    SelectedItems = null;
+                }
+            }
+            catch (Exception ex)
+            {
+                _logger!.LogError(ex, "SaveDataHandler");
+                ShowError(ex.Message);
+            }
+            finally
+            {
+                await Task.Delay(50);
+                await ShowLoading(false);
+                await InvokeAsync(StateHasChanged);
+            }
+        }
+        #endregion
+    }
+}

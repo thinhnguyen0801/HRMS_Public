@@ -77,6 +77,11 @@ namespace HNOne.Web.Services
                         _toastService.ShowSuccess(response.message);
                         return true;
                     }
+                    if (response?.status == StatusCodes.Status409Conflict)
+                    {
+                        _toastService.ShowInfo(response?.message ?? MessageConstants.MESSAGE_IT_SUPPORT);
+                        return false;
+                    }
                     _toastService.ShowError(response?.message ?? MessageConstants.MESSAGE_IT_SUPPORT);
                 }
                 return false;

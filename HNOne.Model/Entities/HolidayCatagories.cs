@@ -7,7 +7,7 @@ namespace HNOne.Model.Entities
     /// Danh mục ngày nghỉ lễ
     /// </summary>
     [Table("HolidayCatagories")]
-    public sealed class HolidayCatagories
+    public sealed class HolidayCatagories : Auditable
     {
         [Key]
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)] // tự tăng

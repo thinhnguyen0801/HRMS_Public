@@ -1,0 +1,137 @@
+﻿@page "/danh-muc-ngay-nghi"
+@inherits Controllers.HolidayCatagoryController
+
+<PageTitle>Danh mục ngày nghỉ</PageTitle>
+
+<div class="h-content-filter">
+    <div class="row row-gap-2">
+        <div class="col-12">
+            <div class="card w1FontSize">
+                <div class="card-header p-1">
+                    <DxToolbar ItemRenderStyleMode="@ToolbarRenderStyleMode.Contained">
+                        <Items>
+                            <DxToolbarItem Text="Làm mới" BeginGroup="true" IconCssClass="@($"{IconClassConstants.ICON_REFRESH}")" CssClass="w1FontSize"
+                                           Alignment="@ToolbarItemAlignment.Right" Click="@(()=> RefreshHandler())" />
+
+                            <DxToolbarItem Text="Thêm mới" BeginGroup="true" IconCssClass="@($"{IconClassConstants.ICON_ADD}")" CssClass="w1FontSize"
+                                           Alignment="@ToolbarItemAlignment.Right" Click="@(()=> OnOpenDialogHandler())" />
+
+                            <DxToolbarItem Text="Xóa" BeginGroup="true" IconCssClass="@($"{IconClassConstants.ICON_DELETE}")" CssClass="w1FontSize"
+                                           Alignment="@ToolbarItemAlignment.Right" />
+                        </Items>
+                    </DxToolbar>
+                </div>
+                <div class="card-body p-1" style="height: calc(100vh - 155px); min-height: 350px">
+                    <DxGrid Data="ListHoliday" @ref="GridHoliday"
+                            ShowFilterRow="true"
+                            ColumnResizeMode="GridColumnResizeMode.ColumnsContainer"
+                            PagerPosition="GridPagerPosition.Bottom"
+                            PageSizeSelectorVisible="true"
+                            PageSize="@GlobalContants.PageSize"
+                            PageSizeSelectorItems="@(GlobalContants.PageSizeList)"
+                            PageSizeSelectorAllRowsItemVisible="true"
+                            PagerSwitchToInputBoxButtonCount="10"
+                            PagerVisibleNumericButtonCount="10"
+                            TextWrapEnabled="false"
+                            FocusedRowEnabled="true"
+                            SelectionMode="@GridSelectionMode.Multiple"
+                            @bind-SelectedDataItems="@SelectedItems"
+                            KeyFieldName="@nameof(HolidayCatagoryModel.id)"
+                            CssClass="h-full">
+                        <Columns>
+                            <DxGridSelectionColumn Width="35px" />
+                            <DxGridDataColumn FieldName="@nameof(HolidayCatagoryModel.name)" Caption="Tên ngày nghỉ" MinWidth="180">
+                                <CellDisplayTemplate>
+                                    @{
+                                        <a @onclick="@(() => OnOpenDialogHandler(EnumType.Update, (context.DataItem as HolidayCatagoryModel)))">@context.Value</a>
+                                    }
+                                </CellDisplayTemplate>
+                            </DxGridDataColumn>/>
+                            <DxGridDataColumn FieldName="@nameof(HolidayCatagoryModel.typeName)" Caption="Loại ngày nghỉ" MinWidth="130" />
+                            <DxGridDataColumn FieldName="@nameof(HolidayCatagoryModel.fromDate)" Caption="Từ ngày" MinWidth="110" DisplayFormat="@GlobalContants.FORMAT_DATE" />
+                            <DxGridDataColumn FieldName="@nameof(HolidayCatagoryModel.toDate)" Caption="Đến ngày" MinWidth="110" DisplayFormat="@GlobalContants.FORMAT_DATE" />
+                            <DxGridDataColumn FieldName="@nameof(HolidayCatagoryModel.color)" Caption="Màu hiển thị" MinWidth="110" />
+                            <DxGridDataColumn FieldName="@nameof(HolidayCatagoryModel.remark)" Caption="Ghi chú" MinWidth="150" />
+                            <DxGridDataColumn FieldName="@nameof(HolidayCatagoryModel.dateTracking)" Caption="Ngày cập nhật" MinWidth="120" DisplayFormat="@GlobalContants.FORMAT_DATE_TIME" />
+                            <DxGridDataColumn FieldName="@nameof(HolidayCatagoryModel.userSignName)" Caption="Người tạo" MinWidth="120" />
+                            <DxGridDataColumn FieldName="@nameof(HolidayCatagoryModel.userSign2Name)" Caption="Người cập nhật" MinWidth="120" />
+                        </Columns>
+                        <TotalSummary>
+                            <DxGridSummaryItem DisplayText="@GlobalContants.FORMAT_GRID_DISPLAYTEXT_COUNT" SummaryType="GridSummaryItemType.Count"
+                                               FieldName="@nameof(HolidayCatagoryModel.name)" ValueDisplayFormat="@GlobalContants.FORMAT_CURRENCY"
+                                               FooterColumnName="@nameof(HolidayCatagoryModel.name)" />
+                        </TotalSummary>
+                    </DxGrid>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<W1Popup @bind-IsOpenModal="@IsShowDialog"
+         Width="60%" TextBtnAccept="Cập nhật"
+         HeaderText="@(IsCreate ? "Thêm mới ngày nghỉ lễ" : $"Cập nhật ngày nghỉ lễ")"
+         HandleClickAccept="@SaveDataHandler">
+    <div class="row row-gap-2">
+        <div class="col-sm-12">
+            <div class="d-flex ">
+                <W1Label Value="Loại ngày nghỉ" Styles="width: 120px" IsRequired="true" />
+                <div style="width: calc(100% - 120px)">
+                    <DxComboBox Data="@ListCboType"
+                                @bind-Value="@HolidayUpdate.type"
+                                FilteringMode="DataGridFilteringMode.Contains"
+                                TextFieldName="@nameof(ComboboxModel.name)"
+                                ValueFieldName="@nameof(ComboboxModel.code)"
+                                Id="txtType" CssClass="w1FontSize">
+                    </DxComboBox>
+                </div>
+            </div>
+        </div>
+        <div class="col-sm-12">
+            <div class="d-flex ">
+                <W1Label Value="Tên ngày nghỉ" Styles="width: 120px" IsRequired="true" />
+                <div style="width: calc(100% - 120px)">
+                    <DxTextBox @bind-Text="@HolidayUpdate.name" CssClass="w1FontSize" Id="txtName"></DxTextBox>
+                </div>
+            </div>
+        </div>
+        <div class="col-sm-12">
+            <div class="d-flex ">
+                <W1Label Value="Ngày BĐ/KT" Styles="width: 120px" IsRequired="true" />
+                <div style="width: calc(100% - 120px)">
+                    <div class="grid gap-1 row-gap-2">
+                        <div class="g-col-md-6 g-col-sm-12 g-col-12">
+                            <DxDateEdit @bind-Date="@HolidayUpdate.fromDate"
+                                        CssClass="w1FontSize" Id="startDate"
+                                        Mask="@GlobalContants.FORMAT_DATE" Format="@GlobalContants.FORMAT_DATE"
+                                        DisplayFormat="@GlobalContants.FORMAT_DATE" />
+                        </div>
+                        <div class="g-col-md-6 g-col-sm-12 g-col-12">
+                            <DxDateEdit @bind-Date="@HolidayUpdate.toDate" CssClass="w1FontSize" Id="endDate"
+                                        Mask="@GlobalContants.FORMAT_DATE" Format="@GlobalContants.FORMAT_DATE"
+                                        DisplayFormat="@GlobalContants.FORMAT_DATE" />
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-sm-12">
+            <div class="d-flex ">
+                <W1Label Value="Màu hiển thị" Styles="width: 120px" />
+                <div style="width: calc(100% - 120px)">
+                    <DxTextBox @bind-Text="@HolidayUpdate.color" CssClass="w1FontSize"></DxTextBox>
+                </div>
+            </div>
+        </div>
+        <div class="col-sm-12">
+            <div class="d-flex ">
+                <W1Label Value="Ghi chú" Styles="width: 120px" />
+                <div style="width: calc(100% - 120px)">
+                    <DxMemo @bind-Text="@HolidayUpdate.remark" CssClass="w1FontSize" BindValueMode="@BindValueMode.OnInput" Rows="2" />
+                </div>
+            </div>
+        </div>
+    </div>
+</W1Popup>
+
+<W1Confirm @ref="confirm" />

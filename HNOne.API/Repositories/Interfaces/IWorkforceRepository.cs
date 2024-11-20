@@ -14,5 +14,7 @@ namespace HNOne.API.Repositories.Interfaces
         Task<IEnumerable<LeaveRequestModel>> GetLeaveRequest(RequestModel request);
         Task<IEnumerable<LeaveRequestModel>> GetLeaveWorkingHour(RequestModel request);
         Task<ResponseModel> UpdateLeaveWorkingHours(string actionType, LeaveWorkingHours entity);
+        Task<ResponseModel> UpdateHolidayCatagory(string actionType, HolidayCatagories entity);
+        Task<IEnumerable<HolidayCatagoryModel>> GetHolidayCatagory(RequestModel request);
     }
 }

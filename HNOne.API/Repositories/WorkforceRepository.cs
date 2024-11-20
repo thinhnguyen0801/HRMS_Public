@@ -37,7 +37,7 @@ namespace HNOne.API.Repositories
         {
             using (var connection = _dapperDbContext.CreateConnection())
             {
-                string query = "select T0.* from LeaveConfigs as T0 with(nolock)";
+                string query = "select T0.* from LeaveConfigs as T0 with(nolock) where T0.IsDelete = 0";
                 var lstResult = await connection.QueryAsync<LeaveConfigModel>(query, commandTimeout: GlobalConstants.COMMAND_TIMEOUT, commandType: CommandType.Text);
                 return lstResult;
             }    
@@ -133,6 +133,25 @@ namespace HNOne.API.Repositories
                     //}
                 }
                 return lstResult ?? new List<LeaveRequestModel>();
+            }
+        }
+
+        /// <summary>
+        /// lấy danh mục ngày nghỉ lễ trong năm
+        /// </summary>
+        /// <param name="request"></param>
+        /// <returns></returns>
+        public async Task<IEnumerable<HolidayCatagoryModel>> GetHolidayCatagory(RequestModel request)
+        {
+            using (var connection = _dapperDbContext.CreateConnection())
+            {
+                string query = "select T0.*" +
+                    " ,T1.[Name] as TypeName" +
+                    " from HolidayCatagories as T0 with(nolock)" +
+                    " inner join dbo.HRM_FN_GET_ENUM('LoaiNgayNghi', '', '' ) as T1 on T0.Type = T1.Code" +
+                    " where T0.IsDelete = 0";
+                var lstResult = await connection.QueryAsync<HolidayCatagoryModel>(query, commandTimeout: GlobalConstants.COMMAND_TIMEOUT, commandType: CommandType.Text);
+                return lstResult;
             }
         }
         #endregion
@@ -387,6 +406,64 @@ namespace HNOne.API.Repositories
                 if (isTrans) await _dbContext.Database.RollbackTransactionAsync();
                 throw;
             }
+        }
+        
+        /// <summary>
+        /// cập nhật thông tin số ngày nghỉ lễ trong năm
+        /// </summary>
+        /// <param name="actionType"></param>
+        /// <param name="entity"></param>
+        /// <returns></returns>
+        public async Task<ResponseModel> UpdateHolidayCatagory(string actionType, HolidayCatagories entity)
+        {
+            ResponseModel response = new ResponseModel();
+            try
+            {
+                DateTime dateTimeNow = _dateTimeHelper.GetCurrentVietnamTime();
+                if (actionType == ProcessConstants.POST_HOILDAY_CATAGORY)
+                {
+                    // kiểm tra có ngày trùng không
+                    //var checkExists = await _dbContext.HolidayCatagories.AnyAsync(m => (m.FromDate.Date <= entity.FromDate.Date && entity.FromDate.Date <= entity.ToDate.Date)
+                    //    || (m.FromDate.Date <= entity.ToDate.Date && entity.ToDate.Date <= m.ToDate.Date));
+                    var checkExists = await _dbContext.HolidayCatagories.AnyAsync(m => !(entity.ToDate.Date < m.FromDate.Date || entity.FromDate.Date > m.ToDate.Date));
+                    if (checkExists)
+                    {
+                        response.status = StatusCodes.Status409Conflict;
+                        response.message = "Từ ngày hoặc đến ngày đã tồn tại trong hệ thống";
+                        return response;
+                    }    
+                    // Tạo mới
+                    entity.DateTracking = dateTimeNow;
+                    entity.CreateDate = dateTimeNow;
+                    await _dbContext.HolidayCatagories.AddAsync(entity);
+                    await _dbContext.SaveChangesAsync();
+                    response.message = MessageConstants.MESSAGE_ADD_SUCCESS;
+                    return response;
+                }
+                // cập nhật
+                var data = await _dbContext.HolidayCatagories.FirstOrDefaultAsync(m => m.Id == entity.Id);
+                if (data == null)
+                {
+                    response.status = StatusCodes.Status404NotFound;
+                    response.message = MessageConstants.MESSAGE_NOT_FOUNT;
+                    return response;
+                }
+                data.Name = entity.Name;
+                data.FromDate = entity.FromDate;
+                data.ToDate = entity.ToDate;
+                data.Color = entity.Color;
+                data.Type = entity.Type;
+                data.Remark = entity.Remark;
+                data.DateTracking = dateTimeNow;
+                data.UpdateDate = dateTimeNow;
+                data.UserSign2 = entity.UserSign2;
+                _dbContext.HolidayCatagories.Attach(data);
+                _dbContext.Entry(data).State = EntityState.Modified;
+                await _dbContext.SaveChangesAsync();
+                response.message = MessageConstants.MESSAGE_UPDATE_SUCCESS;
+                return response;
+            }
+            catch(Exception) { throw; }
         }
         #endregion
     }
