@@ -3,25 +3,28 @@
 <PageTitle>Chi tiết hợp đồng</PageTitle>
 
 <div class="h-content-filter">
-    <div class="card p-1">
-        <DxToolbar ItemRenderStyleMode="@ToolbarRenderStyleMode.Contained">
-            <Items>
-                
-                <DxToolbarItem Text="Lưu" BeginGroup="true" IconCssClass="@($"{IconClassConstants.ICON_UPDATE}")" CssClass="w1FontSize"
-                               Alignment="@ToolbarItemAlignment.Right" Click="@SaveDataHandler" />
+    @if(!IsReadonlyControl)
+    {
+        <div class="card p-1">
+            <DxToolbar ItemRenderStyleMode="@ToolbarRenderStyleMode.Contained">
+                <Items>
 
-                <DxToolbarItem Text="Gửi phê duyệt" BeginGroup="true" IconCssClass="@($"{IconClassConstants.ICON_SHARE}")" CssClass="w1FontSize"
-                               Alignment="@ToolbarItemAlignment.Right" Click="@(()=> SubmitForApprovalHandler())" 
-                               Visible="@(ContractDocument.statusCode == CommonConstants.STATUS_CODE_ADD)"/>
+                    <DxToolbarItem Text="Lưu" BeginGroup="true" IconCssClass="@($"{IconClassConstants.ICON_UPDATE}")" CssClass="w1FontSize"
+                                   Alignment="@ToolbarItemAlignment.Right" Click="@SaveDataHandler" />
 
-                <DxToolbarItem Text="Hủy" BeginGroup="true" IconCssClass="@($"{IconClassConstants.ICON_DELETE}")" CssClass="w1FontSize"
-                               Alignment="@ToolbarItemAlignment.Right" />
+                    <DxToolbarItem Text="Gửi phê duyệt" BeginGroup="true" IconCssClass="@($"{IconClassConstants.ICON_SHARE}")" CssClass="w1FontSize"
+                                   Alignment="@ToolbarItemAlignment.Right" Click="@(()=> SubmitForApprovalHandler())"
+                                   Visible="@(ContractDocument.statusCode == CommonConstants.STATUS_CODE_ADD)" />
 
-                <DxToolbarItem Text="Làm mới" BeginGroup="true" IconCssClass="@($"{IconClassConstants.ICON_REFRESH}")" CssClass="w1FontSize"
-                               Alignment="@ToolbarItemAlignment.Right" />
-            </Items>
-        </DxToolbar>
-    </div>
+                    <DxToolbarItem Text="Hủy" BeginGroup="true" IconCssClass="@($"{IconClassConstants.ICON_DELETE}")" CssClass="w1FontSize"
+                                   Alignment="@ToolbarItemAlignment.Right" />
+
+                    <DxToolbarItem Text="Làm mới" BeginGroup="true" IconCssClass="@($"{IconClassConstants.ICON_REFRESH}")" CssClass="w1FontSize"
+                                   Alignment="@ToolbarItemAlignment.Right" Click="@RefreshDataHandler" />
+                </Items>
+            </DxToolbar>
+        </div>
+    }
 
     <div class="card card-lg mt-1" style="padding: 5px">
         <div class="row row-gap-2">
@@ -59,11 +62,12 @@
                                         <div class="d-flex ">
                                             <W1Label Value="Mã hợp đồng" Styles="width: 120px" IsRequired="true" />
                                             <div style="width: calc(100% - 120px)">
-                                                <DxTextBox @bind-Text="@ContractDocument.contractCode" CssClass="w1FontSize" Id="contractCode">
+                                                <DxTextBox @bind-Text="@ContractDocument.contractCode" CssClass="w1FontSize" Id="contractCode" ReadOnly="true">
                                                     <Buttons>
                                                         <DxEditorButton style="width: 29px" CssClass="w1FontSize" 
                                                             IconCssClass="@IconClassConstants.ICON_REFRESH" 
                                                             Tooltip="Làm mới mã hợp đồng"
+                                                            Visible="@(!IsReadonlyControl)"
                                                             Click="@RefreshContractNoHandler" />
                                                     </Buttons>
                                                 </DxTextBox>
@@ -99,6 +103,7 @@
                                                         <DxTextBox @bind-Text="@ContractDocument.employeeName" CssClass="w1FontSize" ReadOnly="true">
                                                             <Buttons>
                                                                 <DxEditorButton style="width: 29px" CssClass="w1FontSize" IconCssClass="fas fa-search" Tooltip="Tìm kiếm nhân viên"
+                                                                                Visible="@(!IsReadonlyControl)"
                                                                                 Click="@(async () => await OpenPopupHandler(nameof(EmployeeSelected), nameof(ContractDocument.employeeCode)))" />
                                                             </Buttons>
                                                         </DxTextBox>
@@ -114,7 +119,7 @@
                                             <div style="width: calc(100% - 120px)">
                                                 <DxSpinEdit Value="@ContractDocument.numberOfMonths"
                                                             ValueChanged="@((double value) => SpinEditValueChangedHandler(value, controlID: nameof(ContractDocument.numberOfMonths)))"
-                                                            MinValue="1.0" Increment="1"
+                                                            MinValue="1.0" Increment="1" ReadOnly="@IsReadonlyControl"
                                                             InputCssClass="text-end" ShowSpinButtons="true" CssClass="w1FontSize" />
                                             </div>
                                         </div>
@@ -126,7 +131,7 @@
                                             <div style="width: calc(100% - 80px)">
                                                 <DxSpinEdit Value="@ContractDocument.numberOfDaysReduced" 
                                                             ValueChanged="@((int value) => SpinEditValueChangedHandler((double)value, controlID: nameof(ContractDocument.numberOfDaysReduced)))"
-                                                            MinValue="0" Increment="1"
+                                                            MinValue="0" Increment="1" ReadOnly="@IsReadonlyControl"
                                                             InputCssClass="text-end" ShowSpinButtons="true" CssClass="w1FontSize" />
                                             </div>
                                         </div>
@@ -144,6 +149,7 @@
                                                         <DxTextBox @bind-Text="@ContractDocument.employeeSignatureName" CssClass="w1FontSize" ReadOnly="true">
                                                             <Buttons>
                                                                 <DxEditorButton style="width: 29px" CssClass="w1FontSize" IconCssClass="fas fa-search" Tooltip="Tìm kiếm nhân viên"
+                                                                                Visible="@(!IsReadonlyControl)"
                                                                                 Click="@(async () => await OpenPopupHandler(nameof(EmployeeSelected), nameof(ContractDocument.employeeSignatureCode)))" />
                                                             </Buttons>
                                                         </DxTextBox>
@@ -157,7 +163,7 @@
                                         <div class="d-flex ">
                                             <W1Label Value="Ngày ký" Styles="width: 120px" />
                                             <div style="width: calc(100% - 120px)">
-                                                <DxDateEdit @bind-Date="@ContractDocument.dateOfSigning" DisplayFormat="@GlobalContants.FORMAT_DATE"
+                                                <DxDateEdit @bind-Date="@ContractDocument.dateOfSigning" DisplayFormat="@GlobalContants.FORMAT_DATE" ReadOnly="@IsReadonlyControl"
                                                             Mask="@GlobalContants.FORMAT_DATE" Format="@GlobalContants.FORMAT_DATE" CssClass="w1FontSize" />
                                             </div>
                                         </div>
@@ -182,8 +188,8 @@
                                                             FilteringMode="DataGridFilteringMode.Contains"
                                                             TextFieldName="@nameof(ComboboxModel.name)"
                                                             ValueFieldName="@nameof(ComboboxModel.id)" 
-                                                            Id="positionId"
-                                                            CssClass="w1FontSize">
+                                                            ReadOnly="@IsReadonlyControl"
+                                                            Id="positionId" CssClass="w1FontSize">
                                                 </DxComboBox>
                                             </div>
                                         </div>
@@ -198,8 +204,8 @@
                                                             FilteringMode="DataGridFilteringMode.Contains"
                                                             TextFieldName="@nameof(ComboboxModel.name)"
                                                             ValueFieldName="@nameof(ComboboxModel.id)"
-                                                            Id="titleId"
-                                                            CssClass="w1FontSize">
+                                                            ReadOnly="@IsReadonlyControl"
+                                                            Id="titleId" CssClass="w1FontSize">
                                                 </DxComboBox>
                                             </div>
                                         </div>
@@ -209,7 +215,7 @@
                                         <div class="d-flex ">
                                             <W1Label Value="Số quyết định" Styles="width: 120px" />
                                             <div style="width: calc(100% - 120px)">
-                                                <DxTextBox @bind-Text="@ContractDocument.decisionNo" CssClass="w1FontSize"></DxTextBox>
+                                                <DxTextBox @bind-Text="@ContractDocument.decisionNo" CssClass="w1FontSize" ReadOnly="@IsReadonlyControl" />
                                             </div>
                                         </div>
                                     </div>
@@ -222,7 +228,7 @@
                                                     <div class="g-col-md-6 g-col-sm-12 g-col-12">
                                                         <DxDateEdit Date="@ContractDocument.startDate" 
                                                                     DateChanged="@((DateTime? date)=>DateEditValueChangedHandler(date, controlID: nameof(ContractDocument.startDate)))"
-                                                                    CssClass="w1FontSize" Id="startDate"
+                                                                    CssClass="w1FontSize" Id="startDate" ReadOnly="@IsReadonlyControl"
                                                                     Mask="@GlobalContants.FORMAT_DATE" Format="@GlobalContants.FORMAT_DATE" 
                                                                     DisplayFormat="@GlobalContants.FORMAT_DATE" />
                                                     </div>
@@ -240,7 +246,7 @@
                                         <div class="d-flex ">
                                             <W1Label Value="Ghi chú" Styles="width: 120px" />
                                             <div style="width: calc(100% - 120px)">
-                                                <DxMemo @bind-Text="@ContractDocument.remark" BindValueMode="@BindValueMode.OnInput" Rows="1" InputId="txtghiChu" CssClass="w1FontSize" />
+                                                <DxMemo @bind-Text="@ContractDocument.remark" BindValueMode="@BindValueMode.OnInput" Rows="1" InputId="txtghiChu" CssClass="w1FontSize" ReadOnly="@IsReadonlyControl" />
                                             </div>
                                         </div>
                                     </div>
@@ -281,8 +287,8 @@
                                                                     FilteringMode="DataGridFilteringMode.Contains"
                                                                     TextFieldName="@nameof(ComboboxModel.name)"
                                                                     ValueFieldName="@nameof(ComboboxModel.code)"
-                                                                    Id="taxTypeCode"
-                                                                    CssClass="w1FontSize">
+                                                                    ReadOnly="@IsReadonlyControl"
+                                                                    Id="taxTypeCode" CssClass="w1FontSize">
                                                         </DxComboBox>
                                                     </div>
                                                 </div>
@@ -291,7 +297,7 @@
                                                 <div class="d-flex ">
                                                     <W1Label Value="Ngày trích nộp" Styles="width: 120px" IsRequired="true" />
                                                     <div style="width: calc(100% - 120px)">
-                                                        <DxDateEdit @bind-Date="@ContractDocument.deductionDate" DisplayFormat="@GlobalContants.FORMAT_DATE"
+                                                        <DxDateEdit @bind-Date="@ContractDocument.deductionDate" DisplayFormat="@GlobalContants.FORMAT_DATE" ReadOnly="@IsReadonlyControl"
                                                                     Mask="@GlobalContants.FORMAT_DATE" Format="@GlobalContants.FORMAT_DATE" CssClass="w1FontSize" Id="deductionDate" />
                                                     </div>
                                                 </div>
@@ -299,12 +305,14 @@
                                             <div class="col-md-6 col-sm-12">
                                                 <DxCheckBox CssClass="w-100 w1FontSize"
                                                             SizeMode="@SizeMode.Small"
+                                                            ReadOnly="@IsReadonlyControl"
                                                             @bind-Checked="@ContractDocument.isCompanyDeduction"
                                                             LabelPosition="@LabelPosition.Right">
                                                     Công ty đóng trích nộp thay?
                                                 </DxCheckBox>
                                                 <DxCheckBox CssClass="w-100 w1FontSize"
                                                             SizeMode="@SizeMode.Small"
+                                                            ReadOnly="@IsReadonlyControl"
                                                             @bind-Checked="@ContractDocument.isCompanyInsurance"
                                                             LabelPosition="@LabelPosition.Right">
                                                     Công ty đóng thuế TNCN thay?
@@ -330,7 +338,7 @@
                                                     <div style="width: calc(100% - 120px)">
                                                         <DxSpinEdit Value="@ContractDocument.salaryCoefficient"
                                                                     ValueChanged="@((double value) => SpinEditValueChangedHandler(value, controlID: nameof(ContractDocument.salaryCoefficient)))"
-                                                                    InputCssClass="text-end"
+                                                                    InputCssClass="text-end" ReadOnly="@IsReadonlyControl"
                                                                     Increment="1" MinValue="0.0" MaxValue="1.0"
                                                                     DisplayFormat="@GlobalContants.FORMAT_NUMBER" Mask="@GlobalContants.FORMAT_NUMBER" CssClass="w1FontSize" />
                                                     </div>
@@ -372,9 +380,9 @@
                                         CssClass="h-full">
                                     <Columns>
                                         <DxGridDataColumn FieldName="@nameof(SalaryConfigurationModel.salaryCategoryName)" Caption="Tên loại lương" MinWidth="210" DataRowEditorVisible="false" />
-                                        <DxGridDataColumn FieldName="@nameof(SalaryConfigurationModel.amount)" Caption="Số tiền" MinWidth="120" DisplayFormat="@GlobalContants.FORMAT_CURRENCY">
+                                        <DxGridDataColumn FieldName="@nameof(SalaryConfigurationModel.amount)" Caption="Số tiền" MinWidth="120" DisplayFormat="@GlobalContants.FORMAT_CURRENCY" >
                                             <EditSettings>
-                                                <DxSpinEditSettings DisplayFormat="@GlobalContants.FORMAT_CURRENCY" InputCssClass="text-end" Mask="@GlobalContants.FORMAT_CURRENCY" />
+                                                <DxSpinEditSettings DisplayFormat="@GlobalContants.FORMAT_CURRENCY" InputCssClass="text-end" Mask="@GlobalContants.FORMAT_CURRENCY" ReadOnly="@IsReadonlyControl" />
                                             </EditSettings>
                                         </DxGridDataColumn>
                                         <DxGridDataColumn FieldName="@nameof(SalaryConfigurationModel.isProbationaryPeriod)" Caption="Thử việc" MinWidth="80" DataRowEditorVisible="false" />

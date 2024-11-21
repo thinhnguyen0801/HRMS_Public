@@ -4,7 +4,7 @@
 <div class="h-content-filter">
     <div class="row row-gap-2">
         <div class="col-12">
-            <div class="card w1FontSize">
+            <div class="card w1FontSize">       
                 <div class="card-header p-1">
                     <DxToolbar ItemRenderStyleMode="@ToolbarRenderStyleMode.Contained">
                         <Items>
@@ -63,7 +63,11 @@
                                     <DxGridDataColumn FieldName="@nameof(ApprovalModel.employeeCode)" Caption="Mã nhân viên" MinWidth="110" DataRowEditorVisible="false" />
                                     <DxGridDataColumn FieldName="@nameof(ApprovalModel.employeeName)" Caption="Tên nhân viên" MinWidth="150" DataRowEditorVisible="false" />
                                     <DxGridDataColumn FieldName="@nameof(ApprovalModel.remark)" Caption="Ghi chú chứng từ" MinWidth="150" DataRowEditorVisible="false" />
-                                    <DxGridDataColumn FieldName="@nameof(ApprovalModel.approvalRemark)" Caption="Ghi chú phê duyệt" MinWidth="160" />
+                                    <DxGridDataColumn FieldName="@nameof(ApprovalModel.approvalRemark)" Caption="Ghi chú phê duyệt" MinWidth="160">
+                                        <HeaderCaptionTemplate>
+                                            <span>Ghi chú phê duyệt <span style="color: red;">&nbsp;(*)</span></span>
+                                        </HeaderCaptionTemplate>
+                                    </DxGridDataColumn>
                                     <DxGridDataColumn FieldName="@nameof(ApprovalModel.departmentName)" Caption="Phòng ban" MinWidth="150" DataRowEditorVisible="false" />
                                     <DxGridDataColumn FieldName="@nameof(ApprovalModel.branchName)" Caption="Chi nhánh" MinWidth="160" DataRowEditorVisible="false" />
                                 </Columns>
@@ -108,11 +112,7 @@
                                     <DxGridDataColumn FieldName="@nameof(ApprovalModel.employeeCode)" Caption="Mã nhân viên" MinWidth="110" DataRowEditorVisible="false" />
                                     <DxGridDataColumn FieldName="@nameof(ApprovalModel.employeeName)" Caption="Tên nhân viên" MinWidth="150" DataRowEditorVisible="false" />
                                     <DxGridDataColumn FieldName="@nameof(ApprovalModel.remark)" Caption="Ghi chú chứng từ" MinWidth="150" DataRowEditorVisible="false" />
-                                    <DxGridDataColumn FieldName="@nameof(ApprovalModel.approvalRemark)" Caption="Ghi chú phê duyệt" MinWidth="160">
-                                        <HeaderCaptionTemplate>
-                                            <span>Ghi chú phê duyệt <span style="color: red;">&nbsp;(*)</span></span>
-                                        </HeaderCaptionTemplate>
-                                    </DxGridDataColumn>
+                                    <DxGridDataColumn FieldName="@nameof(ApprovalModel.approvalRemark)" Caption="Ghi chú phê duyệt" MinWidth="160" />
                                     <DxGridDataColumn FieldName="@nameof(ApprovalModel.departmentName)" Caption="Phòng ban" MinWidth="150" DataRowEditorVisible="false" />
                                     <DxGridDataColumn FieldName="@nameof(ApprovalModel.branchName)" Caption="Tên chi nhánh" MinWidth="160" DataRowEditorVisible="false" />
                                 </Columns>

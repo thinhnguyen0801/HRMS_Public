@@ -32,5 +32,6 @@ namespace HNOne.Common
         public const string MESSAGE_FROM_TIME_TO_TIME_INVALID = "Giờ đến không hợp lệ. [Từ giờ] phải nhỏ hơn [Đến giờ]";
         public const string MESSAGE_CONFIRM_APPROVAL = "Bạn có chắc muốn phê duyệt các dòng được chọn?";
         public const string MESSAGE_CONFIRM_REJECT = "Bạn có chắc muốn từ chối các dòng được chọn?";
+        public const string MESSAGE_DATA_CHECKING_MODIFIED = "Dữ liệu đã được thay đổi. Vui lòng làm mới lại trang!!!";
     }
 }

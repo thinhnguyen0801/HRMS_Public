@@ -223,6 +223,7 @@ namespace HNOne.API.Repositories
                             }
                             contract.StatusCode = entity.StatusCode; // tình trạng chứng từ "D": Đã duyệt, "T": từ chối, "C": đã hủy
                             contract.DateOfSigning = dateTimeNow; // cập nhật ngày ký
+                            contract.DateTracking = dateTimeNow; // cập nhật ngày tracking
                             _dbContext.Contracts.Attach(contract);
                             _dbContext.Entry(contract).State = EntityState.Modified;
                             break;
@@ -237,6 +238,7 @@ namespace HNOne.API.Repositories
                             }
                             contractAppendix.StatusCode = entity.StatusCode; // tình trạng chứng từ "D": Đã duyệt, "T": từ chối, "C": đã hủy
                             contractAppendix.DateOfSigning = dateTimeNow; // cập nhật ngày ký
+                            contractAppendix.DateTracking = dateTimeNow; // cập nhật ngày tracking
                             _dbContext.ContractAppendices.Attach(contractAppendix);
                             _dbContext.Entry(contractAppendix).State = EntityState.Modified;
                             break;
@@ -251,6 +253,7 @@ namespace HNOne.API.Repositories
                             }
                             leaveRequest.StatusCode = entity.StatusCode; // tình trạng chứng từ "D": Đã duyệt, "T": từ chối, "C": đã hủy
                             leaveRequest.DateOfSigning = dateTimeNow; // cập nhật ngày ký
+                            leaveRequest.DateTracking = dateTimeNow; // cập nhật ngày tracking
                             _dbContext.LeaveRequests.Attach(leaveRequest);
                             _dbContext.Entry(leaveRequest).State = EntityState.Modified;
                             break;
@@ -265,6 +268,7 @@ namespace HNOne.API.Repositories
                             }
                             leaveWorkingHour.StatusCode = entity.StatusCode; // tình trạng chứng từ "D": Đã duyệt, "T": từ chối, "C": đã hủy
                             leaveWorkingHour.DateOfSigning = dateTimeNow;
+                            leaveWorkingHour.DateTracking = dateTimeNow; // cập nhật ngày tracking
                             _dbContext.LeaveWorkingHours.Attach(leaveWorkingHour);
                             _dbContext.Entry(leaveWorkingHour).State = EntityState.Modified;
                             break;

@@ -450,6 +450,12 @@ namespace HNOne.API.Repositories
                     response.message = MessageConstants.MESSAGE_NOT_FOUNT;
                     return response;
                 }
+                if(data.DateTracking != entity.DateTracking)
+                {
+                    response.status = StatusCodes.Status409Conflict;
+                    response.message = MessageConstants.MESSAGE_DATA_CHECKING_MODIFIED;
+                    return response;
+                }    
                 DateTime dateTimeNow = _dateTimeHelper.GetCurrentVietnamTime();
                 data.EmployeeId = entity.EmployeeId;
                 data.TimesheetId = entity.TimesheetId;

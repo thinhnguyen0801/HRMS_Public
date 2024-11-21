@@ -25,7 +25,6 @@ namespace HNOne.Web.Controllers
         public string? pActionType { get; set; } = nameof(EnumType.Add);
         private int pDocEntry { get; set; } = 0;
         public int ActiveTabIndex { get; set; } = 0;
-        public bool IsReadonlyControl { get; set; } = false;
         public ContractModel ContractDocument { get; set; } = new ContractModel();
         public List<SalaryConfigurationModel>? ListSalaryInfoConfig { get; set; } // danh sách thông tin lương
         public IGrid? GridSalaryInfoConfig { get; set; }
@@ -44,6 +43,9 @@ namespace HNOne.Web.Controllers
         public object? EmployeeSelected { get; set; } // Nhân viên được chọn
         public bool firstRender = true;
         public string? VoucherHistory { get; set; } = string.Empty; // lịch sử chứng từ
+
+        // lock control lại
+        public bool IsReadonlyControl { get; set; } = false;
         #endregion
 
         protected override async Task OnAfterRenderAsync(bool firstRender)
@@ -57,14 +59,19 @@ namespace HNOne.Web.Controllers
                     if (errMessage == "401") return; // kiểm quyền menu page danh sách
                     this.firstRender = firstRender;
                     await ShowLoading();
-                    await initDataAsync();
+                    ListBreadcrumbs = new List<BreadcrumbModel>()
+                    {
+                        new BreadcrumbModel("Nhân sự"),
+                        new BreadcrumbModel("Danh sách hợp đồng", "danh-sach-hop-dong"),
+                        new BreadcrumbModel("Chi tiết hợp đồng", isActive: true),
+                    };
+                    await NotifyBreadcrumb.InvokeAsync(ListBreadcrumbs);
+                    initDataAsync();
                     await buildComboAsync();
                     if (pDocEntry < 1) await getSalaryConfigDefault();
                     else
                     {
-                        Task task1 = showVoucher();
-                        Task task2 = getDocumentHistory();
-                        await Task.WhenAll(task1, task2);
+                        await showVoucher();
                     }
                 }
                 catch (Exception ex)
@@ -82,26 +89,17 @@ namespace HNOne.Web.Controllers
         }
 
         #region Private Functions
-        private async Task initDataAsync(bool isRefresh = false)
+        private void initDataAsync(bool isRefresh = false)
         {
-            ListBreadcrumbs = new List<BreadcrumbModel>()
-            {
-                new BreadcrumbModel("Nhân sự"),
-                new BreadcrumbModel("Danh sách hợp đồng", "danh-sach-hop-dong"),
-                new BreadcrumbModel("Chi tiết hợp đồng", isActive: true),
-            };
-            await NotifyBreadcrumb.InvokeAsync(ListBreadcrumbs);
-
-            //
+            
             ContractDocument.salaryCoefficient = 1.0;
             ContractDocument.startDate = DateTime.Now;
-            ContractDocument.dateOfSigning = DateTime.Now;
             ContractDocument.numberOfMonths = 1;
             ContractDocument.contractNumber = 1;
             ContractDocument.numberOfDaysReduced = 1;
             ContractDocument.statusCode = CommonConstants.STATUS_CODE_ADD; // mặc định là chờ xử lý
             var uri = _navigationManager?.ToAbsoluteUri(_navigationManager.Uri);
-            if (uri != null && QueryHelpers.ParseQuery(uri.Query).Count > 0)
+            if (!isRefresh && uri != null && QueryHelpers.ParseQuery(uri.Query).Count > 0)
             {
                 string key = uri.Query.Substring(5); // bỏ ?key=
                 Dictionary<string, string> pParams = JsonConvert.DeserializeObject<Dictionary<string, string>>(_encryptHelper.Decrypt(key))!;
@@ -248,14 +246,19 @@ namespace HNOne.Web.Controllers
                 request.userId = UserId;
                 request.branchId = BranchId;
                 request.token = Token;
-                var lstData = await _personnelService.GetContractAsync(request);
+                var task1 = _personnelService.GetContractAsync(request);
+                var task2 = getDocumentHistory();
+                await Task.WhenAll(task1, task2);
+                List<ContractModel>? lstData = await task1;
                 if (!lstData.IsNullOrEmpty())
                 {
                     ContractDocument = lstData![0];
-                    if(!string.IsNullOrEmpty(ContractDocument.jsonDetail))
+                    //cho phép chỉnh sữa khi tình trạng là: A (Tạo mới), Y (Đã gửi yêu cầu phê duyệt)
+                    IsReadonlyControl = ContractDocument.statusCode != CommonConstants.STATUS_CODE_ADD 
+                        && ContractDocument.statusCode != CommonConstants.STATUS_CODE_APPROVAL_PENDING;
+                    if (!string.IsNullOrEmpty(ContractDocument.jsonDetail))
                     {
                         ListSalaryInfoConfig = JsonConvert.DeserializeObject<List<SalaryConfigurationModel>>(ContractDocument.jsonDetail);
-                        GridSalaryInfoConfig?.Reload();
                     }    
                 }    
             }
@@ -293,7 +296,7 @@ namespace HNOne.Web.Controllers
                 fieldName = "zzzz";
                 return;
             }
-            if (ContractDocument.employeeId < 1)
+            if (ContractDocument.employeeSignatureId < 1)
             {
                 errorMessage = string.Format(MessageConstants.MESSAGE_COMBOBOX_REQUIRE, "Người ký");
                 fieldName = nameof(ContractDocument.employeeSignatureId);
@@ -581,6 +584,7 @@ namespace HNOne.Web.Controllers
                     if (!isConfirm) return;
                 }    
                 await ShowLoading();
+                calcTotalSalary();
                 string processKey = pActionType == nameof(EnumType.Add) ? ProcessConstants.POST_CONTRACT : ProcessConstants.PUT_CONTRACT;
                 ContractDocument.branchId = BranchId;
                 ContractDocument.userSign = UserId;
@@ -646,6 +650,43 @@ namespace HNOne.Web.Controllers
             {
                 ShowError(ex.Message);
                 _logger.LogError(ex, "SubmitForApprovalHandler");
+            }
+            finally
+            {
+                await ShowLoading(false);
+                await InvokeAsync(StateHasChanged);
+            }
+        }
+        
+        /// <summary>
+        /// làm mới dữ liệu
+        /// </summary>
+        /// <returns></returns>
+        protected async Task RefreshDataHandler()
+        {
+            try
+            {
+                await ShowLoading();
+                Dictionary<string, string> pParams = new Dictionary<string, string>
+                {
+                    { "pActionType", $"{nameof(EnumType.Add)}" },
+                    { "pDocEntry", $"{-1}" },
+                };
+                string key = _encryptHelper.Encrypt(JsonConvert.SerializeObject(pParams)); // mã hóa key
+                _navigationManager.NavigateTo($"/chi-tiet-hop-dong?key={key}");
+                ContractDocument = new ContractModel();
+                ListSalaryInfoConfig = new List<SalaryConfigurationModel>();
+                pActionType = nameof(EnumType.Add);
+                pDocEntry = -1;
+                VoucherHistory = string.Empty;
+                initDataAsync(isRefresh: true);
+                await buildComboAsync();
+                await getSalaryConfigDefault();
+            }
+            catch (Exception ex)
+            {
+                ShowError(ex.Message);
+                _logger.LogError(ex, "RefreshDataHandler");
             }
             finally
             {
