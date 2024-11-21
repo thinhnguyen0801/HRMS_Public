@@ -43,6 +43,7 @@ namespace HNOne.Web.Controllers
         public string? StatusIds { get; set; } // Tình trạng nào
         public object? EmployeeSelected { get; set; } // Nhân viên được chọn
         public bool firstRender = true;
+        public string? VoucherHistory { get; set; } = string.Empty; // lịch sử chứng từ
         #endregion
 
         protected override async Task OnAfterRenderAsync(bool firstRender)
@@ -61,7 +62,9 @@ namespace HNOne.Web.Controllers
                     if (pDocEntry < 1) await getSalaryConfigDefault();
                     else
                     {
-                        await showVoucher();
+                        Task task1 = showVoucher();
+                        Task task2 = getDocumentHistory();
+                        await Task.WhenAll(task1, task2);
                     }
                 }
                 catch (Exception ex)
@@ -73,7 +76,6 @@ namespace HNOne.Web.Controllers
                 {
                     this.firstRender = false;
                     await ShowLoading(false);
-                    //await _progressService!.Done();
                     await InvokeAsync(StateHasChanged);
                 }
             }
@@ -298,6 +300,13 @@ namespace HNOne.Web.Controllers
                 return;
             }
         }
+        
+        /// <summary>
+        /// lấy lịch sử chứng từ
+        /// </summary>
+        /// <returns></returns>
+        private async Task getDocumentHistory()
+            => VoucherHistory = await _approvalService.GetFunDocumentHistoryAsync(UserId, BranchId, Token, nameof(EnumObjType.Contracts), pDocEntry);
         #endregion
 
         #region Protected Functions
@@ -545,20 +554,24 @@ namespace HNOne.Web.Controllers
                 }
                 int check = 0; // 0 là thay đổi lương
                 bool isConfirm = true;
-                RequestModel request = new RequestModel();
-                request.userId = UserId;
-                request.token = Token;
-                request.process = ProcessConstants.POST_CONTRACT;
-                request.employeeId = ContractDocument.employeeId;
-                request.type = ContractDocument.contractTypeId.ToString();
-                var checkContract = await _personnelService.CheckDataAsync(request);
-                if(checkContract?.status == StatusCodes.Status409Conflict)
+                if(pActionType == nameof(EnumType.Add))
                 {
-                    errorMessage = checkContract.message;
-                    await Task.Yield();
-                    isConfirm = await confirm.SetConfirm(MessageConstants.MESSAGE_TITLE, errorMessage);
-                    if (!isConfirm) return;
-                    check = 1;
+                    RequestModel request = new RequestModel();
+                    request.userId = UserId;
+                    request.token = Token;
+                    request.process = ProcessConstants.POST_CONTRACT;
+                    request.employeeId = ContractDocument.employeeId;
+                    request.type = ContractDocument.contractTypeId.ToString();
+                    request.fromDate = ContractDocument.startDate;
+                    var checkContract = await _personnelService.CheckDataAsync(request); // kiểm tra ông này có hợp đồng nào nữa không
+                    if (checkContract?.status == StatusCodes.Status409Conflict)
+                    {
+                        errorMessage = checkContract.message;
+                        await Task.Yield();
+                        isConfirm = await confirm.SetConfirm(MessageConstants.MESSAGE_TITLE, errorMessage);
+                        if (!isConfirm) return;
+                        check = 1;
+                    }
                 }    
                 if(check == 0)
                 {

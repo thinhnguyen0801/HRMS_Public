@@ -11,7 +11,10 @@ using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.VisualBasic;
 using Newtonsoft.Json;
 using System.Data;
+using System.Diagnostics;
+using System.Diagnostics.Contracts;
 using static Dapper.SqlMapper;
+using static Microsoft.EntityFrameworkCore.DbLoggerCategory;
 using static Microsoft.EntityFrameworkCore.DbLoggerCategory.Database;
 
 namespace HNOne.API.Repositories
@@ -367,12 +370,28 @@ namespace HNOne.API.Repositories
                 {
                     DateTime dateTimeNow = _dateTimeHelper.GetCurrentVietnamTime();
                     DynamicParameters parameters = new DynamicParameters();
+                    string strQuery = string.Empty;
                     bool isResult = true;   
-                    isResult = await _dbContext.Contracts.FirstOrDefaultAsync(m => m.ContractCode == entity.ContractCode) != null;
+                    isResult = await _dbContext.Contracts.AnyAsync(m => m.ContractCode == entity.ContractCode);
                     if (isResult)
                     {
                         response.status = StatusCodes.Status409Conflict;
                         response.message = "Số hợp đồng đã tồn tại!";
+                        return response;
+                    }
+                    // kiểm tra có hợp đồng nào dỡ dang không
+                    // nếu có thì không cho lưu
+                    parameters.Add("@EmployeeId", entity.EmployeeId);
+                    parameters.Add("@ContractTypeId", entity.ContractTypeId);
+                    strQuery = "select top 1 T0.ContractCode as Code, T1.Name from Contracts as T0 with(nolock)" +
+                        " inner join Employees as T1 with(nolock) on T0.EmployeeId = T1.Id" +
+                        " where T0.IsDelete = 0 and T0.StatusCode in ('A', 'Y')" +
+                        " and T0.EmployeeId = @EmployeeId and T0.ContractTypeId = @ContractTypeId";
+                    var contractPending = await connection.QueryFirstOrDefaultAsync<ComboboxModel>(strQuery, parameters, commandTimeout: GlobalConstants.COMMAND_TIMEOUT, commandType: CommandType.Text);
+                    if (contractPending != null)
+                    {
+                        response.message = $"Nhân viên [{contractPending.name}] đang có hợp đồng số [{contractPending.code}] chờ xử lý.";
+                        response.status = StatusCodes.Status409Conflict;
                         return response;
                     }
                     entity.Id = await _dbContext.Contracts.Select(m => m.Id).DefaultIfEmpty().MaxAsync() + 1;
@@ -831,9 +850,13 @@ namespace HNOne.API.Repositories
                     case ProcessConstants.POST_CONTRACT:
                         parameters.Add("@EmployeeId", request.employeeId);
                         parameters.Add("@ContractTypeId", request.type);
+                        parameters.Add("@StatusCode", CommonConstants.STATUS_CODE_APPROVED); // kiểm tra đã duyệt chưa
+                        parameters.Add("@FromDate", request.fromDate); // kiểm tra đã duyệt chưa
                         query = "select top 1 T0.ContractCode as Code, T1.Name from Contracts as T0 with(nolock) " +
                             " inner join Employees as T1 with(nolock) on T0.EmployeeId = T1.Id" +
-                            " where T0.EmployeeId = @EmployeeId and T0.ContractTypeId = @ContractTypeId";
+                            " where T0.IsDelete = 0 and T0.StatusCode = @StatusCode" + // tình trạng là đã duyệt
+                            " and cast(@FromDate as date) <= cast(T0.EndDate as date)" + // ngày bắt đầu nhỏ hơn ngày kết thúc
+                            " and T0.EmployeeId = @EmployeeId and T0.ContractTypeId = @ContractTypeId";
                         var contract = await connection.QueryFirstOrDefaultAsync<ComboboxModel>(query, parameters, commandTimeout: GlobalConstants.COMMAND_TIMEOUT, commandType: CommandType.Text);
                         if(contract != null)
                         {

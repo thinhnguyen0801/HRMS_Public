@@ -4,6 +4,8 @@
     {
         public const string FUNC_GET_VOUCHER = "[dbo].[HRM_GET_VOUCHERNO]";
         public const string FUNC_GET_ENUM = "[dbo].[HRM_FN_GET_ENUM]";
+        public const string FUNC_GET_DOCUMENT_HISTORY = "[dbo].[HRM_FN_GET_DOCUMENT_HISTORY]";
+
         public const string STORE_H1_EMPLOYEE_SELECT = "[dbo].[H1_EMPLOYEE_SELECT]";
         public const string STORE_H1_CONTRACT_SELECT = "[dbo].[H1_CONTRACT_SELECT]";
         public const string STORE_H1_MENU_SELECT = "[dbo].[H1_MENU_SELECT]";

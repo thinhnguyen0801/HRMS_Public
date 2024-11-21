@@ -8,6 +8,7 @@ namespace HNOne.API.Repositories.Interfaces
     {
         Task<IEnumerable<ApprovalModel>> GetApproval(RequestModel request);
         Task<ResponseModel> AddApproval(Approvals entity);
-        Task<ResponseModel> UpdateApproval(string actionType, Approvals entity);
+        Task<ResponseModel> UpdateApproval(string actionType, IEnumerable<Approvals> lstEntity);
+        Task<ResponseModel> GetFnDocumentHistory(RequestModel request);
     }
 }

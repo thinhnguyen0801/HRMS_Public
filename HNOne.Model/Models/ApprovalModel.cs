@@ -5,8 +5,8 @@ namespace HNOne.Model.Models
     {
         public int id { get; set; }
         public int branchId { get; set; }
-        public string branchCode { get; set; }
-        public string branchName { get; set; }
+        public string? branchCode { get; set; }
+        public string? branchName { get; set; }
         public int docEntry { get; set; }
         public string? voucherNo { get; set; }
         public string? objType { get; set; } // loại chứng từ

@@ -150,7 +150,6 @@ namespace HNOne.API.Controllers
             try
             {
                 string? processKey = request.process?.Trim();
-                var approval = JsonConvert.DeserializeObject<Approvals>($"{request.json}")!;
                 switch (processKey)
                 {
                     case ProcessConstants.GET_APPROVAL:
@@ -163,11 +162,16 @@ namespace HNOne.API.Controllers
                         break;
                     case ProcessConstants.POST_APPROVAL:
                         // gửi phê duyệt
+                        var approval = JsonConvert.DeserializeObject<Approvals>($"{request.json}")!;
                         response = await _approvalRepository.AddApproval(approval);
                         break;
                     case ProcessConstants.PUT_APPROVAL:
                         // duyệt/từ chối
-                        response = await _approvalRepository.UpdateApproval($"{request.type}", approval);
+                        var approvalList = JsonConvert.DeserializeObject<List<Approvals>>($"{request.json}");
+                        response = await _approvalRepository.UpdateApproval($"{request.type}", approvalList!);
+                        break;
+                    case ProcessConstants.GET_DOCUMENT_HISTORY:
+                        response = await _approvalRepository.GetFnDocumentHistory(request);
                         break;
                     default:
                         response.status = StatusCodes.Status404NotFound;

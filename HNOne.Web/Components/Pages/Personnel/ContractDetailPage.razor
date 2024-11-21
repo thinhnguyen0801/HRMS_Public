@@ -261,6 +261,7 @@
                     <DxTabs @bind-ActiveTabIndex="@ActiveTabIndex" Id="tabActive" CssClass="w-full w1FontSize">
                         <DxTabPage Text="Thông tin lương" Id="tabTTL" CssClass="w1FontSize"></DxTabPage>
                         <DxTabPage Text="Phụ lục hợp đồng" Id="tabPLHD" CssClass="w1FontSize" Visible="@(pActionType != nameof(EnumType.Add))"></DxTabPage>
+                        <DxTabPage Text="Lịch sử chứng từ" Id="tabLSCT" CssClass="w1FontSize" Visible="@(pActionType != nameof(EnumType.Add))"></DxTabPage>
                     </DxTabs>
                 </div>
                 <div class="card-body p-1">
@@ -387,6 +388,11 @@
                             </div>
                             break;
                         case 1:
+                            break;
+                        case 2:
+                            <div style="height: 350px; min-height: 350px; line-height: 20px" class="w1FontSize px-2 py-1 text-truncate">
+                                @((MarkupString)$"{VoucherHistory}")
+                            </div>
                             break;
                     }
                 </div>

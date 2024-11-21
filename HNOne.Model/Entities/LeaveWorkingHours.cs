@@ -14,6 +14,7 @@ namespace HNOne.Model.Entities
         public string? VoucherNo { get; set; } // số chứng từ
         public int EmployeeId { get; set; } // nhân viên
         public int EmployeeSignatureId { get; set; } // nhân viên kí
+        public DateTime? DateOfSigning { get; set; } // ngày kí
         public int BranchId { get; set; } // chi nhánh
         public int DepartmentId { get; set; } // chức vụ
         [MaxLength(50)]

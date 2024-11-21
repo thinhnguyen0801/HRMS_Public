@@ -6,6 +6,7 @@ namespace HNOne.Common
         public const string MESSAGE_JSON_INVALID = "Không đúng định dạng dữ liệu!";
         public const string MESSAGE_IT_SUPPORT = "Vui lòng liên hệ bộ phận IT để được hổ trợ";
         public const string MESSAGE_VOUCHER_NO_MISSING = "Không đánh được số chứng từ";
+        public const string MESSAGE_DOCUMENT_HISTORY_MISSING = "Không tìm thấy thông tin lịch sử chứng từ";
         public const string MESSAGE_NOT_FOUNT = "Không tìm thấy dữ liệu";
         public const string MESSAGE_ADD_SUCCESS = "Thêm mới thành công";
         public const string MESSAGE_UPDATE_SUCCESS = "Cập nhật thành công";
@@ -26,7 +27,10 @@ namespace HNOne.Common
         public const string MESSAGE_SEND_APPROVAL_SUCCESS = "Gửi phê duyệt thành công";
         public const string MESSAGE_APPROVAL_SUCCESS = "Phê duyệt thành công";
         public const string MESSAGE_DENY_SUCCESS = "Từ chối thành công";
+        public const string MESSAGE_CANCEL_SUCCESS = "Hủy thành công";
         public const string MESSAGE_FROM_DATE_TO_DATE_INVALID = "Ngày đến không hợp lệ. [Từ ngày] phải nhỏ hơn [Đến ngày]";
         public const string MESSAGE_FROM_TIME_TO_TIME_INVALID = "Giờ đến không hợp lệ. [Từ giờ] phải nhỏ hơn [Đến giờ]";
+        public const string MESSAGE_CONFIRM_APPROVAL = "Bạn có chắc muốn phê duyệt các dòng được chọn?";
+        public const string MESSAGE_CONFIRM_REJECT = "Bạn có chắc muốn từ chối các dòng được chọn?";
     }
 }

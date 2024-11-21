@@ -14,7 +14,8 @@
         public const string TABLE_REASON_CATEGORY = "ReasonCategories";
         public const string TABLE_USER = "Users";
         public const string TABLE_PERMISSION_GROUP = "PermissionGroups";
-        public const string TABLE_CONTRACT = "Contracts";
+        public const string TABLE_CONTRACT = "Contracts"; // hợp đồng
+        public const string TABLE_CONTRACT_APPENDIX = "ContractAppendices"; // phụ lục hợp đồng
         public const string TABLE_LEAVE_REQUEST = "LeaveRequests";
         public const string TABLE_LEAVE_WORKING_HOURS = "LeaveWorkingHours";
         #endregion

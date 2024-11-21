@@ -7,7 +7,6 @@ using System.Data;
 using HNOne.Model.Entities;
 using Microsoft.EntityFrameworkCore;
 using HNOne.API.Repositories.Interfaces;
-using System.Diagnostics.Contracts;
 
 namespace HNOne.API.Repositories
 {
@@ -49,6 +48,33 @@ namespace HNOne.API.Repositories
             }
         }
 
+        /// <summary>
+        /// lấy thông tin lịch sử chứng từ
+        /// </summary>
+        /// <param name="request"></param>
+        /// <returns></returns>
+        public async Task<ResponseModel> GetFnDocumentHistory(RequestModel request)
+        {
+            using (var connection = _dapperDbContext.CreateConnection())
+            {
+                ResponseModel response = new ResponseModel();
+                var parameters = new DynamicParameters();
+                parameters.Add("@ObjType", request.type, DbType.String);
+                parameters.Add("@DocEntry", request.documentId, DbType.Int32);
+                parameters.Add("@Opt", $"{request.opt}", DbType.String);
+                parameters.Add("@Opt1", $"{request.opt1}", DbType.String);
+                string commandText = @$"select {StoreConstants.FUNC_GET_DOCUMENT_HISTORY}(@ObjType, @DocEntry, @Opt, @Opt1)";
+                string? voucherNo = await connection.QueryFirstOrDefaultAsync<string>(commandText, param: parameters, commandTimeout: GlobalConstants.COMMAND_TIMEOUT, commandType: CommandType.Text);
+                if (string.IsNullOrEmpty(voucherNo))
+                {
+                    response.status = StatusCodes.Status204NoContent;
+                    response.message = MessageConstants.MESSAGE_DOCUMENT_HISTORY_MISSING;
+                    return response;
+                }
+                response.data = voucherNo;
+                return response;
+            }    
+        }
         #endregion
 
         #region Command
@@ -62,7 +88,6 @@ namespace HNOne.API.Repositories
         public async Task<ResponseModel> AddApproval(Approvals entity)
         {
             bool isTran = false;
-            bool isRollback = false;
             ResponseModel response = new ResponseModel();
             try
             {
@@ -73,12 +98,6 @@ namespace HNOne.API.Repositories
                     response.message = MessageConstants.MESSAGE_NOT_FOUNT;
                     return response;
                 }
-                await _dbContext.Database.BeginTransactionAsync();
-                // Tạo mới
-                isTran = true;
-                entity.DateTracking = dateTimeNow;
-                entity.CreateDate = dateTimeNow;
-                await _dbContext.Approvals.AddAsync(entity);
                 // cập nhật tình trạng chứng từ
                 switch(entity.ObjType)
                 {
@@ -87,24 +106,41 @@ namespace HNOne.API.Repositories
                         if(contract == null)
                         {
                             response.status = StatusCodes.Status404NotFound;
-                            response.message = $"ObjType {entity.ObjType} was not provider!!!";
-                            await _dbContext.Database.RollbackTransactionAsync();
+                            response.message = string.Format(MessageConstants.MESSAGE_NOT_FOUNT_FORMAT, "Hợp đồng");
                             return response;
                         }
+                        await _dbContext.Database.BeginTransactionAsync();
+                        isTran = true;
                         contract.StatusCode = CommonConstants.STATUS_CODE_APPROVAL_PENDING; // ĐÃ GỬI YÊU CẦU PHÊ DUYỆT
                         contract.DateTracking = dateTimeNow;
                         _dbContext.Contracts.Attach(contract);
                         _dbContext.Entry(contract).State = EntityState.Modified;
+                        break;
+                    case GlobalConstants.TABLE_CONTRACT_APPENDIX:
+                        var contractAppendix = await _dbContext.ContractAppendices.FirstOrDefaultAsync(m => m.Id == entity.DocEntry);
+                        if (contractAppendix == null)
+                        {
+                            response.status = StatusCodes.Status404NotFound;
+                            response.message = string.Format(MessageConstants.MESSAGE_NOT_FOUNT_FORMAT, "Phụ lục hợp đồng");
+                            return response;
+                        }
+                        await _dbContext.Database.BeginTransactionAsync();
+                        isTran = true;
+                        contractAppendix.StatusCode = CommonConstants.STATUS_CODE_APPROVAL_PENDING; // ĐÃ GỬI YÊU CẦU PHÊ DUYỆT
+                        contractAppendix.DateTracking = dateTimeNow;
+                        _dbContext.ContractAppendices.Attach(contractAppendix);
+                        _dbContext.Entry(contractAppendix).State = EntityState.Modified;
                         break;
                     case GlobalConstants.TABLE_LEAVE_REQUEST:
                         var leaveRequest = await _dbContext.LeaveRequests.FirstOrDefaultAsync(m => m.Id == entity.DocEntry);
                         if (leaveRequest == null)
                         {
                             response.status = StatusCodes.Status404NotFound;
-                            response.message = $"ObjType {entity.ObjType} was not provider!!!";
-                            await _dbContext.Database.RollbackTransactionAsync();
+                            response.message = string.Format(MessageConstants.MESSAGE_NOT_FOUNT_FORMAT, "Đề nghị nghỉ phép");
                             return response;
                         }
+                        await _dbContext.Database.BeginTransactionAsync();
+                        isTran = true;
                         leaveRequest.StatusCode = CommonConstants.STATUS_CODE_APPROVAL_PENDING; // ĐÃ GỬI YÊU CẦU PHÊ DUYỆT
                         leaveRequest.DateTracking = dateTimeNow;
                         _dbContext.LeaveRequests.Attach(leaveRequest);
@@ -115,10 +151,11 @@ namespace HNOne.API.Repositories
                         if (leaveWorkingHour == null)
                         {
                             response.status = StatusCodes.Status404NotFound;
-                            response.message = $"ObjType {entity.ObjType} was not provider!!!";
-                            await _dbContext.Database.RollbackTransactionAsync();
+                            response.message = string.Format(MessageConstants.MESSAGE_NOT_FOUNT_FORMAT, "Xin nghỉ trong giờ");
                             return response;
                         }
+                        await _dbContext.Database.BeginTransactionAsync();
+                        isTran = true;
                         leaveWorkingHour.StatusCode = CommonConstants.STATUS_CODE_APPROVAL_PENDING; // ĐÃ GỬI YÊU CẦU PHÊ DUYỆT
                         leaveWorkingHour.DateTracking = dateTimeNow;
                         _dbContext.LeaveWorkingHours.Attach(leaveWorkingHour);
@@ -127,9 +164,12 @@ namespace HNOne.API.Repositories
                     default:
                         response.status = StatusCodes.Status404NotFound;
                         response.message = $"ObjType {entity.ObjType} was not provider!!!";
-                        await _dbContext.Database.RollbackTransactionAsync();
                         return response;
                 }
+                // Tạo mới
+                entity.DateTracking = dateTimeNow;
+                entity.CreateDate = dateTimeNow;
+                await _dbContext.Approvals.AddAsync(entity);
                 await _dbContext.SaveChangesAsync();
                 await _dbContext.Database.CommitTransactionAsync();
                 response.message = MessageConstants.MESSAGE_SEND_APPROVAL_SUCCESS;
@@ -144,32 +184,117 @@ namespace HNOne.API.Repositories
             return response;
         }
 
-        public async Task<ResponseModel> UpdateApproval(string actionType, Approvals entity)
+        /// <summary>
+        /// cập nhật tình trạng chứng từ
+        /// </summary>
+        /// <param name="actionType"></param>
+        /// <param name="entity"></param>
+        /// <returns></returns>
+        public async Task<ResponseModel> UpdateApproval(string actionType, IEnumerable<Approvals> lstEntity)
         {
             ResponseModel response = new ResponseModel();
+            bool isTran = false;
             try
             {
-                // cập nhật
-                var data = await _dbContext.Approvals.FirstOrDefaultAsync(m => m.Id == entity.Id);
-                if (data == null)
-                {
-                    response.status = StatusCodes.Status404NotFound;
-                    response.message = MessageConstants.MESSAGE_NOT_FOUNT;
-                    return response;
-                }
+                await _dbContext.Database.BeginTransactionAsync();
+                isTran = true;
                 DateTime dateTimeNow = _dateTimeHelper.GetCurrentVietnamTime();
-                data.StatusCode = entity.StatusCode;
-                data.ApprovalRemark = entity.ApprovalRemark;
-                data.DateTracking = dateTimeNow;
-                data.UpdateDate = dateTimeNow;
-                data.UserSign2 = entity.UserSign2;
-                _dbContext.Approvals.Attach(data);
-                _dbContext.Entry(data).State = EntityState.Modified;
+                foreach (var entity in lstEntity)
+                {
+                    // cập nhật
+                    var data = await _dbContext.Approvals.FirstOrDefaultAsync(m => m.Id == entity.Id);
+                    if (data == null)
+                    {
+                        response.status = StatusCodes.Status404NotFound;
+                        response.message = MessageConstants.MESSAGE_NOT_FOUNT;
+                        return response;
+                    }
+                    // dựa vào objtype đi kiếm phiếu và cập nhật tình trạng chứng từ
+                    switch (entity.ObjType)
+                    {
+                        case GlobalConstants.TABLE_CONTRACT:
+                            var contract = await _dbContext.Contracts.FirstOrDefaultAsync(m => m.Id == entity.DocEntry);
+                            if (contract == null)
+                            {
+                                response.status = StatusCodes.Status404NotFound;
+                                response.message = string.Format(MessageConstants.MESSAGE_NOT_FOUNT_FORMAT, $"Hợp đồng");
+                                await _dbContext.Database.RollbackTransactionAsync(); // nếu không tìm thấy thì rollback hết
+                                return response;
+                            }
+                            contract.StatusCode = entity.StatusCode; // tình trạng chứng từ "D": Đã duyệt, "T": từ chối, "C": đã hủy
+                            contract.DateOfSigning = dateTimeNow; // cập nhật ngày ký
+                            _dbContext.Contracts.Attach(contract);
+                            _dbContext.Entry(contract).State = EntityState.Modified;
+                            break;
+                        case GlobalConstants.TABLE_CONTRACT_APPENDIX:
+                            var contractAppendix = await _dbContext.ContractAppendices.FirstOrDefaultAsync(m => m.Id == entity.DocEntry);
+                            if (contractAppendix == null)
+                            {
+                                response.status = StatusCodes.Status404NotFound;
+                                response.message = string.Format(MessageConstants.MESSAGE_NOT_FOUNT_FORMAT, "Phụ lục hợp đồng");
+                                await _dbContext.Database.RollbackTransactionAsync(); // nếu không tìm thấy thì rollback hết
+                                return response;
+                            }
+                            contractAppendix.StatusCode = entity.StatusCode; // tình trạng chứng từ "D": Đã duyệt, "T": từ chối, "C": đã hủy
+                            contractAppendix.DateOfSigning = dateTimeNow; // cập nhật ngày ký
+                            _dbContext.ContractAppendices.Attach(contractAppendix);
+                            _dbContext.Entry(contractAppendix).State = EntityState.Modified;
+                            break;
+                        case GlobalConstants.TABLE_LEAVE_REQUEST:
+                            var leaveRequest = await _dbContext.LeaveRequests.FirstOrDefaultAsync(m => m.Id == entity.DocEntry);
+                            if (leaveRequest == null)
+                            {
+                                response.status = StatusCodes.Status404NotFound;
+                                response.message = string.Format(MessageConstants.MESSAGE_NOT_FOUNT_FORMAT, "Đề nghị nghỉ phép");
+                                await _dbContext.Database.RollbackTransactionAsync(); // nếu không tìm thấy thì rollback hết
+                                return response;
+                            }
+                            leaveRequest.StatusCode = entity.StatusCode; // tình trạng chứng từ "D": Đã duyệt, "T": từ chối, "C": đã hủy
+                            leaveRequest.DateOfSigning = dateTimeNow; // cập nhật ngày ký
+                            _dbContext.LeaveRequests.Attach(leaveRequest);
+                            _dbContext.Entry(leaveRequest).State = EntityState.Modified;
+                            break;
+                        case GlobalConstants.TABLE_LEAVE_WORKING_HOURS:
+                            var leaveWorkingHour = await _dbContext.LeaveWorkingHours.FirstOrDefaultAsync(m => m.Id == entity.DocEntry);
+                            if (leaveWorkingHour == null)
+                            {
+                                response.status = StatusCodes.Status404NotFound;
+                                response.message = string.Format(MessageConstants.MESSAGE_NOT_FOUNT_FORMAT, "Xin nghỉ trong giờ");
+                                await _dbContext.Database.RollbackTransactionAsync(); // nếu không tìm thấy thì rollback hết
+                                return response;
+                            }
+                            leaveWorkingHour.StatusCode = entity.StatusCode; // tình trạng chứng từ "D": Đã duyệt, "T": từ chối, "C": đã hủy
+                            leaveWorkingHour.DateOfSigning = dateTimeNow;
+                            _dbContext.LeaveWorkingHours.Attach(leaveWorkingHour);
+                            _dbContext.Entry(leaveWorkingHour).State = EntityState.Modified;
+                            break;
+                        default:
+                            response.status = StatusCodes.Status404NotFound;
+                            response.message = $"ObjType {entity.ObjType} was not provider!!!";
+                            await _dbContext.Database.RollbackTransactionAsync(); // nếu không tìm thấy thì rollback hết
+                            return response;
+                    }
+                    data.StatusCode = entity.StatusCode;
+                    data.ApprovalRemark = entity.ApprovalRemark?.Trim();
+                    data.DateTracking = dateTimeNow;
+                    data.UpdateDate = dateTimeNow;
+                    data.UserSign2 = entity.UserSign2;
+                    _dbContext.Approvals.Attach(data);
+                    _dbContext.Entry(data).State = EntityState.Modified;
+                }    
                 await _dbContext.SaveChangesAsync();
-                response.message = MessageConstants.MESSAGE_UPDATE_SUCCESS;
+                await _dbContext.Database.CommitTransactionAsync();
+                if (actionType == CommonConstants.STATUS_CODE_APPROVED) response.message = MessageConstants.MESSAGE_APPROVAL_SUCCESS;
+                else if (actionType == CommonConstants.STATUS_CODE_DENY) response.message = MessageConstants.MESSAGE_DENY_SUCCESS;
+                else if (actionType == CommonConstants.STATUS_CODE_CANCELED) response.message = MessageConstants.MESSAGE_CANCEL_SUCCESS;
+                else 
+                {
+
+                }
             }
             catch (Exception ex)
             {
+                if (isTran) await _dbContext.Database.RollbackTransactionAsync();
                 response.status = StatusCodes.Status400BadRequest;
                 response.message = ex.Message;
             }

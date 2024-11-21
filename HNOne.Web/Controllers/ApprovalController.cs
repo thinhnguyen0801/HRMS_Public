@@ -8,6 +8,7 @@ using HNOne.Web.Services;
 using HNOne.Web.Services.Interfaces;
 using Microsoft.AspNetCore.Components;
 using Microsoft.JSInterop;
+using Newtonsoft.Json;
 
 namespace HNOne.Web.Controllers
 {
@@ -94,6 +95,63 @@ namespace HNOne.Web.Controllers
                 }
             }
         }
+
+        private async Task saveDataApproval(string statusCode, string messageConfirm)
+        {
+            try
+            {
+                if (SelectedPendings.IsNullOrEmpty())
+                {
+                    ShowWarning(MessageConstants.MESSAGE_NO_CHOSE_DATA);
+                    return;
+                }
+                if(statusCode == CommonConstants.STATUS_CODE_DENY
+                    || statusCode == CommonConstants.STATUS_CODE_CANCELED)
+                {
+                    // kiểm tra bắt nhập ghi chú phê duyệt
+                    var checkItem = SelectedPendings!.Cast<ApprovalModel>().FirstOrDefault(m => string.IsNullOrWhiteSpace(m.approvalRemark));
+                    if(checkItem != null)
+                    {
+                        ShowWarning(string.Format(MessageConstants.MESSAGE_STRING_REQUIRE, $"Ghi chú phê duyệt chứng từ số [{checkItem.voucherNo}]"));
+                        return;
+                    }    
+                }    
+                bool isConfirm = false;
+                isConfirm = await confirm.SetConfirm(MessageConstants.MESSAGE_TITLE, messageConfirm);
+                if (!isConfirm) return;
+                await ShowLoading();
+                await Task.Yield();
+                var lstApproval = SelectedPendings!.Cast<ApprovalModel>().Select(m => new ApprovalModel()
+                {
+                    id = m.id,
+                    branchId = m.branchId,
+                    docEntry = m.docEntry,
+                    statusCode = statusCode,
+                    objType = m.objType,
+                    approvalRemark = m.approvalRemark,
+                    remark = m.remark,
+                    employeeSignatureId = m.employeeSignatureId,
+                    userSign2 = UserId
+                });
+                string content = JsonConvert.SerializeObject(lstApproval);
+                var result = await _approvalService.UpdateApprovalAsync(ProcessConstants.PUT_APPROVAL, UserId, Token, content, approvalType: statusCode);
+                if(result)
+                {
+                    SelectedPendings = null;
+                    await getApprovalList();
+                }    
+            }
+            catch (Exception ex)
+            {
+                _logger!.LogError(ex, "RefreshHandler");
+                ShowError(ex.Message);
+            }
+            finally
+            {
+                await ShowLoading(false);
+                await InvokeAsync(StateHasChanged);
+            }
+        }
         #endregion
 
         #region Protected Functions
@@ -118,11 +176,37 @@ namespace HNOne.Web.Controllers
             }
             finally
             {
-                await Task.Delay(50);
                 await ShowLoading(false);
                 await InvokeAsync(StateHasChanged);
             }
         }
+
+        protected void GridPendingEditSavingHandler(GridEditModelSavingEventArgs e)
+        {
+            try
+            {
+                var itemEdit = (ApprovalModel)e.EditModel;
+                var itemFind = ListPending?.FirstOrDefault(m => m.id == itemEdit.id);
+                if (itemFind == null) return;
+                itemFind.approvalRemark = itemEdit.approvalRemark;
+                StateHasChanged();
+            }
+            catch (Exception) { }
+        }
+
+        /// <summary>
+        /// phê duyệt chứng từ
+        /// </summary>
+        /// <returns></returns>
+        protected async Task ApprovalHandler()
+            => await saveDataApproval(CommonConstants.STATUS_CODE_APPROVED, MessageConstants.MESSAGE_CONFIRM_APPROVAL);
+
+        /// <summary>
+        /// từ chối chứng từ
+        /// </summary>
+        /// <returns></returns>
+        protected async Task RejectHandler()
+            => await saveDataApproval(CommonConstants.STATUS_CODE_DENY, MessageConstants.MESSAGE_CONFIRM_REJECT);
         #endregion
 
     }

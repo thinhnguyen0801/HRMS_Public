@@ -11,9 +11,9 @@
                             <DxToolbarItem Text="Làm mới" BeginGroup="true" IconCssClass="@($"{IconClassConstants.ICON_REFRESH}")" CssClass="w1FontSize"
                                            Alignment="@ToolbarItemAlignment.Right" Click="@RefreshHandler" />
                             <DxToolbarItem Text="Duyệt" BeginGroup="true" IconCssClass="@($"{IconClassConstants.ICON_APPROVAL}")" CssClass="w1FontSize"
-                                           Alignment="@ToolbarItemAlignment.Right"  />
+                                           Alignment="@ToolbarItemAlignment.Right" Click="@ApprovalHandler" />
                             <DxToolbarItem Text="Từ chối" BeginGroup="true" IconCssClass="@($"{IconClassConstants.ICON_REJECT}")" CssClass="w1FontSize"
-                                           Alignment="@ToolbarItemAlignment.Right" />
+                                           Alignment="@ToolbarItemAlignment.Right" Click="@RejectHandler" />
                             <DxToolbarItem Text="Trả về" BeginGroup="true" IconCssClass="@($"{IconClassConstants.ICON_RETURN}")" CssClass="w1FontSize"
                                            Alignment="@ToolbarItemAlignment.Right" />
                         </Items>
@@ -46,6 +46,7 @@
                                     SelectionMode="@GridSelectionMode.Multiple"
                                     @bind-SelectedDataItems="@SelectedPendings"
                                     EditMode="GridEditMode.EditCell"
+                                    EditModelSaving="@GridPendingEditSavingHandler"
                                     KeyFieldName="@nameof(ApprovalModel.id)"
                                     CssClass="h-full">
                                 <Columns>
@@ -54,7 +55,7 @@
                                     <DxGridDataColumn FieldName="@nameof(ApprovalModel.voucherNo)" Caption="Mã chứng từ" MinWidth="130" DataRowEditorVisible="false">
                                         <CellDisplayTemplate>
                                             @{
-                                                <a href="@($"chi-tiet-phu-luc-hop-dong?key={(context.DataItem as ApprovalModel)!.voucherNo}")">@context.Value</a>
+                                                <a href="@($"{(context.DataItem as ApprovalModel)!.voucherNo}")">@context.Value</a>
                                             }
                                         </CellDisplayTemplate>
                                     </DxGridDataColumn>
@@ -89,8 +90,6 @@
                                     AutoExpandAllGroupRows="true"
                                     KeyboardNavigationEnabled="true"
                                     SelectionMode="@GridSelectionMode.Multiple"
-                                    @bind-SelectedDataItems="@SelectedPendings"
-                                    EditMode="GridEditMode.EditCell"
                                     KeyFieldName="@nameof(ApprovalModel.id)"
                                     CssClass="h-full">
                                 <Columns>
@@ -99,7 +98,7 @@
                                     <DxGridDataColumn FieldName="@nameof(ApprovalModel.voucherNo)" Caption="Mã chứng từ" MinWidth="140" DataRowEditorVisible="false">
                                         <CellDisplayTemplate>
                                             @{
-                                                <a href="@($"chi-tiet-phu-luc-hop-dong?key={(context.DataItem as ApprovalModel)!.voucherNo}")">@context.Value</a>
+                                                <a href="@($"{(context.DataItem as ApprovalModel)!.voucherNo}")">@context.Value</a>
                                             }
                                         </CellDisplayTemplate>
                                     </DxGridDataColumn>
@@ -109,7 +108,11 @@
                                     <DxGridDataColumn FieldName="@nameof(ApprovalModel.employeeCode)" Caption="Mã nhân viên" MinWidth="110" DataRowEditorVisible="false" />
                                     <DxGridDataColumn FieldName="@nameof(ApprovalModel.employeeName)" Caption="Tên nhân viên" MinWidth="150" DataRowEditorVisible="false" />
                                     <DxGridDataColumn FieldName="@nameof(ApprovalModel.remark)" Caption="Ghi chú chứng từ" MinWidth="150" DataRowEditorVisible="false" />
-                                    <DxGridDataColumn FieldName="@nameof(ApprovalModel.approvalRemark)" Caption="Ghi chú phê duyệt" MinWidth="160" />
+                                    <DxGridDataColumn FieldName="@nameof(ApprovalModel.approvalRemark)" Caption="Ghi chú phê duyệt" MinWidth="160">
+                                        <HeaderCaptionTemplate>
+                                            <span>Ghi chú phê duyệt <span style="color: red;">&nbsp;(*)</span></span>
+                                        </HeaderCaptionTemplate>
+                                    </DxGridDataColumn>
                                     <DxGridDataColumn FieldName="@nameof(ApprovalModel.departmentName)" Caption="Phòng ban" MinWidth="150" DataRowEditorVisible="false" />
                                     <DxGridDataColumn FieldName="@nameof(ApprovalModel.branchName)" Caption="Tên chi nhánh" MinWidth="160" DataRowEditorVisible="false" />
                                 </Columns>
@@ -126,3 +129,5 @@
         </div>
     </div>
 </div>
+
+<W1Confirm @ref="confirm" />

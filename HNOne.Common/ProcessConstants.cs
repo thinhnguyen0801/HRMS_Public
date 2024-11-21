@@ -38,28 +38,36 @@
         public const string GET_SALARY_CATEGORY = "get-salary-category";
         public const string POST_SALARY_CATEGORY = "post-salary-category";
         public const string PUT_SALARY_CATEGORY = "put-salary-category";
+
         public const string GET_SALARY_CONFIG = "get-salary-config";
         public const string POST_SALARY_CONFIG = "post-salary-config";
         public const string PUT_SALARY_CONFIG = "put-salary-config";
+
         public const string GET_DOCUMENT_NO = "get-document-no";
 
         public const string GET_CONTRACT = "get-contract";
         public const string POST_CONTRACT = "post-contract";
         public const string PUT_CONTRACT = "put-contract";
+
         public const string GET_PER_GROUP = "get-per-group";
         public const string POST_PER_GROUP = "post-per-group";
         public const string PUT_PER_GROUP = "put-per-group";
         public const string DELETE_PER_GROUP = "delete-per_group";
+
         public const string GET_FAMILYRELATIONSHIP = "get-familyrelationship";
         public const string POST_FAMILYRELATIONSHIP = "post-familyrelationship";
         public const string PUT_FAMILYRELATIONSHIP = "put-familyrelationship";
+
         public const string GET_LOCATION = "get-location";
+
         public const string GET_INSURANCE = "get-insurance";
         public const string POST_INSURANCE = "post-insurance";
         public const string PUT_INSURANCE = "put-insurance";
 
         public const string GET_COMBO_MASTER_DATA = "get-combo-master-data";
+
         public const string GET_FUN_ENUM = "get-fun-enum";
+
         public const string GET_CONTRACT_APPENDIX = "get-contract-appendix";
         public const string POST_CONTRACT_APPENDIX = "post-contract-appendix";
         public const string PUT_CONTRACT_APPENDIX = "put-contract-appendix";
@@ -78,6 +86,7 @@
         public const string GET_APPROVAL = "get-approval";
         public const string POST_APPROVAL = "post-approval";
         public const string PUT_APPROVAL = "put-approval";
+        public const string GET_DOCUMENT_HISTORY = "get-document-history";
 
         public const string GET_WORKFORCE_MASTER_DATA = "get-workforce-master-data";
 
