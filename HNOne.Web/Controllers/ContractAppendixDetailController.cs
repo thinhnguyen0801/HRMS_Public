@@ -12,6 +12,7 @@ using Newtonsoft.Json;
 using HNOne.Common;
 using HNOne.Web.Services;
 using static DevExpress.ReportServer.Printing.RemoteDocumentSource;
+using Newtonsoft.Json.Linq;
 
 namespace HNOne.Web.Controllers
 {
@@ -396,11 +397,18 @@ namespace HNOne.Web.Controllers
                         ContractDocument.positionId = employee.positionId;
                         ContractDocument.titleId = employee.titleId ?? -1;
                         IsShowDialogEmpSearch = false;
-                        ContractDocument.contractCode = ListCboContract?.FirstOrDefault()?.code;
-                        if (string.IsNullOrEmpty(ContractDocument.contractCode))
+                        if (ListCboContract.IsNullOrEmpty())
                         {
                             ShowWarning($"Nhân viên {ContractDocument.employeeName} hiện chưa có hợp đồng, nên không thể tạo phụ lục hợp đồng.");
-                        }    
+                            break;
+                        }
+                        ContractDocument.contractCode = ListCboContract![0].code;
+                        var contractNum = ListCboContract!.FirstOrDefault(m => m.code == ContractDocument.contractCode)?.value;
+                        int.TryParse(contractNum, out int contractNumber);
+                        ContractDocument.contractNumber = contractNumber < 1 ? 1 : contractNumber; // lấy số hợp đồng
+                        ContractDocument.contractAppendixCode = await getDocumentNo(); // đánh mã hợp đồng
+                        ListSalaryInfoConfig = new List<SalaryConfigurationModel>();
+                        ContractDocument.isSalaryAdjustment = false;
                         break;
                     case nameof(ContractDocument.employeeSignatureCode):
                         ContractDocument.employeeSignatureId = employee.id;

@@ -565,7 +565,7 @@ namespace HNOne.API.Repositories
                     isTrans = true;
                     await _dbContext.ContractAppendices.AddAsync(entity);
                     // Thêm thông tin lương
-                    if (!lstSalaryConfig.IsNullOrEmpty())
+                    if (entity.IsSalaryAdjustment && !lstSalaryConfig.IsNullOrEmpty())
                     {
                         lstSalaryConfig = lstSalaryConfig!.Update(m =>
                         {
@@ -624,51 +624,25 @@ namespace HNOne.API.Repositories
                 DateTime dateTimeNow = _dateTimeHelper.GetCurrentVietnamTime();
                 await _dbContext.Database.BeginTransactionAsync();
                 isTrans = true;
-                if (data.IsSalaryAdjustment && !entity.IsSalaryAdjustment)
+                // xóa thông tin điều chỉnh lương
+                var dataSalary = await _dbContext.SalaryAdjustments.Where(m => m.ContractAppendixId == entity.Id && m.ContractId == entity.ContractId).ToListAsync();
+                _dbContext.SalaryAdjustments.RemoveRange(dataSalary);
+                // Thêm thông tin lương
+                if (entity.IsSalaryAdjustment && !lstSalaryConfig.IsNullOrEmpty())
                 {
-                    // xóa thông tin điều chỉnh lương
-                    var dataSalary = await _dbContext.SalaryAdjustments.Where(m => m.ContractAppendixId == entity.Id && m.ContractId == entity.ContractId).ToListAsync();
-                    _dbContext.SalaryAdjustments.RemoveRange(dataSalary);
-                }
-                else if (data.IsSalaryAdjustment && entity.IsSalaryAdjustment)
-                {
-                    // cập nhật điều chỉnh lương
-                    // Nếu có điều chỉnh lương
-                    if (!lstSalaryConfig.IsNullOrEmpty())
+                    lstSalaryConfig = lstSalaryConfig!.Update(m =>
                     {
-                        foreach (var item in lstSalaryConfig!)
-                        {
-                            var dataSalary = await _dbContext.SalaryAdjustments.FirstOrDefaultAsync(m => m.Id == item.Id);
-                            if (dataSalary == null) continue;
-                            dataSalary.Amount = item.Amount;
-                            dataSalary.SalaryCoefficient = item.SalaryCoefficient;
-                            dataSalary.DateTracking = dateTimeNow;
-                            dataSalary.UpdateDate = dateTimeNow;
-                            dataSalary.UserSign2 = entity.UserSign2;
-                            _dbContext.SalaryAdjustments.Attach(dataSalary);
-                            _dbContext.Entry(dataSalary).State = EntityState.Modified;
-                        }
-                    }
-                }    
-                else
-                {
-                    // Thêm thông tin lương
-                    if (!lstSalaryConfig.IsNullOrEmpty())
-                    {
-                        lstSalaryConfig = lstSalaryConfig!.Update(m =>
-                        {
-                            m.Id = 0;
-                            m.ContractId = entity.ContractId;
-                            m.ContractAppendixId = entity.Id;
-                            m.BranchId = entity.BranchId;
-                            m.EmployeeId = entity.EmployeeId;
-                            m.UpdateDate = null;
-                            m.CreateDate = dateTimeNow;
-                            m.DateTracking = dateTimeNow;
-                            m.UserSign = entity.UserSign;
-                        });
-                        await _dbContext.SalaryAdjustments.AddRangeAsync(lstSalaryConfig!);
-                    }
+                        m.Id = 0;
+                        m.ContractId = entity.ContractId;
+                        m.ContractAppendixId = entity.Id;
+                        m.BranchId = entity.BranchId;
+                        m.EmployeeId = entity.EmployeeId;
+                        m.UpdateDate = null;
+                        m.CreateDate = dateTimeNow;
+                        m.DateTracking = dateTimeNow;
+                        m.UserSign = entity.UserSign;
+                    });
+                    await _dbContext.SalaryAdjustments.AddRangeAsync(lstSalaryConfig!);
                 }
                 data.EmployeeId = entity.EmployeeId;
                 data.TimesheetId = entity.TimesheetId;
