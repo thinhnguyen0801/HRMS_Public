@@ -18,6 +18,7 @@
         public string? employeeSignatureName { get; set; }
         public int contractTypeId { get; set; } // Loại hợp đồng
         public string? contractTypeName { get; set; } // Loại hợp đồng
+        public int departmentId { get; set; }
         public int positionId { get; set; } // chức vụ
         public int titleId { get; set; } // chức danh
         public int contractNumber { get; set; } // kí lần thứ mấy rồi

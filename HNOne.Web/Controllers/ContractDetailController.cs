@@ -29,6 +29,9 @@ namespace HNOne.Web.Controllers
         public List<SalaryConfigurationModel>? ListSalaryInfoConfig { get; set; } // danh sách thông tin lương
         public IGrid? GridSalaryInfoConfig { get; set; }
 
+        public List<ContractAppendixModel>? ListContractAppendix { get; set; } // ds phụ lục theo hợp đồng
+        public IGrid? GridContractAppendix { get; set; }
+
         public List<ComboboxModel>? ListCboDepartment { get; set; } // cbo ds phòng ban
         public List<ComboboxModel>? ListCboPosition { get; set; } // cbo ds chức vụ
         public List<ComboboxModel>? ListCboTitle { get; set; } // cbo ds chức danh
@@ -185,7 +188,7 @@ namespace HNOne.Web.Controllers
             }
             if (string.IsNullOrWhiteSpace(ContractDocument.contractCode))
             {
-                errorMessage = string.Format(MessageConstants.MESSAGE_COMBOBOX_REQUIRE, "Mã hợp đồng");
+                errorMessage = string.Format(MessageConstants.MESSAGE_STRING_REQUIRE, "Mã hợp đồng");
                 fieldName = nameof(ContractDocument.contractCode);
                 return;
             }
@@ -687,6 +690,38 @@ namespace HNOne.Web.Controllers
             {
                 ShowError(ex.Message);
                 _logger.LogError(ex, "RefreshDataHandler");
+            }
+            finally
+            {
+                await ShowLoading(false);
+                await InvokeAsync(StateHasChanged);
+            }
+        }
+        
+        /// <summary>
+        /// Tạo phụ lục hợp đồng
+        /// </summary>
+        /// <returns></returns>
+        protected async Task CreateContractAppendixHandler()
+        {
+            try
+            {
+                if (ContractDocument.id < 1) return;
+                Dictionary<string, string> pParams = new Dictionary<string, string>
+                {
+                    { "pActionType", $"{nameof(EnumType.Add)}" },
+                    { "pDocEntry", $"{-1}" },
+                    { "pContractId", $"{ContractDocument.id}" },
+                    { "pEmployeeId", $"{ContractDocument.employeeId}" },
+                    { "pIsPageContract", $"Y" }, // là tạo từ hợp đồng
+                };
+                string key = _encryptHelper.Encrypt(JsonConvert.SerializeObject(pParams)); // mã hóa key
+                _navigationManager.NavigateTo($"/chi-tiet-phu-luc-hop-dong?key={key}");
+            }
+            catch (Exception ex)
+            {
+                ShowError(ex.Message);
+                _logger.LogError(ex, "CreateContractAppendixHandler");
             }
             finally
             {

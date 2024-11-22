@@ -10,6 +10,8 @@ using HNOne.Web.Models;
 using Microsoft.AspNetCore.WebUtilities;
 using Newtonsoft.Json;
 using HNOne.Common;
+using HNOne.Web.Services;
+using static DevExpress.ReportServer.Printing.RemoteDocumentSource;
 
 namespace HNOne.Web.Controllers
 {
@@ -18,6 +20,7 @@ namespace HNOne.Web.Controllers
         [Inject] IMasterDataService _masterDataService { get; init; }
         [Inject] IPersonnelService _personnelService { get; init; }
         [Inject] IJSRuntime _jsRuntime { get; set; }
+        [Inject] IApprovalService _approvalService { get; init; }
         public W1Confirm confirm { get; set; }
 
         #region Properties
@@ -25,6 +28,7 @@ namespace HNOne.Web.Controllers
         private int pDocEntry { get; set; } = 0;
         private int pContractId { get; set; } = 0; // id của hợp dồng
         public bool IsReadonlyControl { get; set; } = false;
+        public int ActiveTabIndex { get; set; } = 0;
         public bool firstRender = true;
         public ContractAppendixModel ContractDocument { get; set; } = new ContractAppendixModel();
         public List<SalaryConfigurationModel>? ListSalaryInfoConfig { get; set; } // danh sách thông tin lương
@@ -42,6 +46,7 @@ namespace HNOne.Web.Controllers
         public string? DepartmentIds { get; set; }
         public string? StatusIds { get; set; } // Tình trạng nào
         public object? EmployeeSelected { get; set; } // Nhân viên được chọn
+        public string? VoucherHistory { get; set; } = string.Empty; // lịch sử chứng từ
         #endregion
 
         protected override async Task OnAfterRenderAsync(bool firstRender)
@@ -54,6 +59,14 @@ namespace HNOne.Web.Controllers
                     string errMessage = await CheckMenuPermissionAsync("danh-sach-phu-luc-hop-dong");
                     if (errMessage == "401") return; // kiểm quyền menu page danh sách
                     this.firstRender = firstRender;
+                    ListBreadcrumbs = new List<BreadcrumbModel>()
+                    {
+                        new BreadcrumbModel("Nhân sự"),
+                        new BreadcrumbModel("Danh sách phụ lục hợp đồng", "danh-sach-phu-luc-hop-dong"),
+                        new BreadcrumbModel("Chi tiết phụ lục hợp đồng", isActive: true),
+                    };
+                    await NotifyBreadcrumb.InvokeAsync(ListBreadcrumbs);
+                    //
                     await ShowLoading();
                     await initDataAsync();
                     await buildComboAsync();
@@ -79,17 +92,11 @@ namespace HNOne.Web.Controllers
         #region Private Functions
         private async Task initDataAsync(bool isRefresh = false)
         {
-            ListBreadcrumbs = new List<BreadcrumbModel>()
-            {
-                new BreadcrumbModel("Nhân sự"),
-                new BreadcrumbModel("Danh sách phụ lục hợp đồng", "danh-sach-phu-luc-hop-dong"),
-                new BreadcrumbModel("Chi tiết phụ lục hợp đồng", isActive: true),
-            };
-            await NotifyBreadcrumb.InvokeAsync(ListBreadcrumbs);
+            
             //
             ContractDocument.salaryCoefficient = 1.0;
-            ContractDocument.dateOfSigning = DateTime.Now;
-            ContractDocument.statusCode = "1"; // mặc định là chờ xử lý
+            ContractDocument.effectiveDate = DateTime.Now;
+            ContractDocument.statusCode = CommonConstants.STATUS_CODE_ADD; // mặc định là chờ xử lý
             var uri = _navigationManager?.ToAbsoluteUri(_navigationManager.Uri);
             if (uri != null && QueryHelpers.ParseQuery(uri.Query).Count > 0)
             {
@@ -100,6 +107,11 @@ namespace HNOne.Web.Controllers
                     if (pParams.ContainsKey("pActionType")) pActionType = Convert.ToString(pParams["pActionType"]);
                     if (pParams.ContainsKey("pDocEntry")) pDocEntry = Convert.ToInt32(pParams["pDocEntry"]);
                     if (pParams.ContainsKey("pContractId")) pContractId = Convert.ToInt32(pParams["pContractId"]);
+                    if (pParams.ContainsKey("pIsPageContract") 
+                        && Convert.ToString(pParams["pIsPageContract"]) == "Y")
+                    {
+                        await getContractById(pContractId);
+                    }    
                 }
             }
             IsReadonlyControl = pActionType == nameof(EnumType.Update);
@@ -158,15 +170,20 @@ namespace HNOne.Web.Controllers
                 request.branchId = BranchId;
                 request.token = Token;
                 request.opt1 = pContractId.ToString();
-                var lstData = await _personnelService.GetContractAppendixAsync(request, true);
+                var task1 = _personnelService.GetContractAppendixAsync(request, true);
+                var task2 = getDocumentHistory();
+                await Task.WhenAll(task1, task2);
+                List<ContractAppendixModel>? lstData = await task1;
                 if (!lstData.IsNullOrEmpty())
                 {
                     ContractDocument = lstData![0];
                     ListCboContract = new List<ComboboxModel>() { new ComboboxModel() { id = ContractDocument.contractId, code = ContractDocument.contractCode, name = ContractDocument.contractCode} };
+                    //cho phép chỉnh sữa khi tình trạng là: A (Tạo mới), Y (Đã gửi yêu cầu phê duyệt)
+                    IsReadonlyControl = ContractDocument.statusCode != CommonConstants.STATUS_CODE_ADD
+                        && ContractDocument.statusCode != CommonConstants.STATUS_CODE_APPROVAL_PENDING;
                     if (!string.IsNullOrEmpty(ContractDocument.jsonDetail))
                     {
                         ListSalaryInfoConfig = JsonConvert.DeserializeObject<List<SalaryConfigurationModel>>(ContractDocument.jsonDetail);
-                        GridSalaryInfoConfig?.Reload();
                     }
                 }
             }
@@ -175,6 +192,13 @@ namespace HNOne.Web.Controllers
                 throw ex;
             }
         }
+
+        /// <summary>
+        /// lấy lịch sử chứng từ
+        /// </summary>
+        /// <returns></returns>
+        private async Task getDocumentHistory()
+            => VoucherHistory = await _approvalService.GetFunDocumentHistoryAsync(UserId, BranchId, Token, nameof(EnumObjType.ContractAppendices), pDocEntry);
 
         private void validateForSalaryAdjustment(ref string errorMessage, ref string fieldName)
         {
@@ -194,6 +218,12 @@ namespace HNOne.Web.Controllers
             {
                 errorMessage = string.Format(MessageConstants.MESSAGE_COMBOBOX_REQUIRE, "Người ký");
                 fieldName = nameof(ContractDocument.employeeSignatureCode);
+                return;
+            }
+            if (string.IsNullOrWhiteSpace(ContractDocument.contractAppendixCode))
+            {
+                errorMessage = string.Format(MessageConstants.MESSAGE_STRING_REQUIRE, "Số phục lục");
+                fieldName = nameof(ContractDocument.contractAppendixCode);
                 return;
             }
         }
@@ -247,6 +277,67 @@ namespace HNOne.Web.Controllers
             ListCboContract = await _masterDataService.GetMasterDataAsync<ComboboxModel>(request);
         }
 
+        /// <summary>
+        /// lấy chi tiết hợp đồng
+        /// </summary>
+        /// <param name="contractId"></param>
+        /// <returns></returns>
+        private async Task getContractById(int contractId)
+        {
+            try
+            {
+                RequestModel request = new RequestModel();
+                request.documentId = contractId;
+                request.userId = UserId;
+                request.branchId = BranchId;
+                request.token = Token;
+                var lstData = await _personnelService.GetContractAsync(request);
+                if (!lstData.IsNullOrEmpty())
+                {
+                    var contract = lstData![0];
+                    await getContractByEmpId(contract.employeeId);
+                    ContractDocument.contractId = contract.id;
+                    ContractDocument.employeeId = contract.employeeId;
+                    ContractDocument.employeeCode = contract.employeeCode;
+                    ContractDocument.employeeName = contract.employeeName;
+                    ContractDocument.employeeSignatureId = contract.employeeSignatureId;
+                    ContractDocument.employeeSignatureCode = contract.employeeSignatureCode;
+                    ContractDocument.employeeSignatureName = contract.employeeSignatureName;
+                    ContractDocument.departmentId = contract.departmentId;
+                    ContractDocument.positionId = contract.positionId;
+                    ContractDocument.titleId = contract.titleId;
+                    ContractDocument.contractCode = contract.contractCode;
+                    var contractNum = ListCboContract?.FirstOrDefault(m => m.code == ContractDocument.contractCode)?.value;
+                    int.TryParse(contractNum, out int contractNumber);
+                    ContractDocument.contractNumber = contractNumber < 1 ? 1 : contractNumber; // lấy số hợp đồng
+                }    
+            }
+            catch(Exception){ throw; }
+        }
+
+        /// <summary>
+        /// kiểm tra dữ liệu trươc khi gửi phê duyệt
+        /// </summary>
+        /// <param name="errorMessage"></param>
+        /// <param name="fieldName"></param>
+        private void validateForSaveApproval(ref string errorMessage, ref string fieldName)
+        {
+            if (ContractDocument.id < 1)
+            {
+                errorMessage = "Vui lòng lưu thông tin chứng từ trước khi gửi phê duyệt";
+                fieldName = "zzzz";
+                return;
+            }
+            if (ContractDocument.employeeSignatureId < 1)
+            {
+                errorMessage = string.Format(MessageConstants.MESSAGE_COMBOBOX_REQUIRE, "Người ký");
+                fieldName = nameof(ContractDocument.employeeSignatureCode);
+                return;
+            }
+        }
+
+        private async Task<string?> getDocumentNo()
+            => await _masterDataService.GetDocumentNo(UserId, Token, BranchId, GlobalContants.CONTRACT_APPENDIX_NO, "", ContractDocument.effectiveDate.FormatDateTimeSql());
         #endregion
 
         #region Protected Functions
@@ -305,6 +396,11 @@ namespace HNOne.Web.Controllers
                         ContractDocument.positionId = employee.positionId;
                         ContractDocument.titleId = employee.titleId ?? -1;
                         IsShowDialogEmpSearch = false;
+                        ContractDocument.contractCode = ListCboContract?.FirstOrDefault()?.code;
+                        if (string.IsNullOrEmpty(ContractDocument.contractCode))
+                        {
+                            ShowWarning($"Nhân viên {ContractDocument.employeeName} hiện chưa có hợp đồng, nên không thể tạo phụ lục hợp đồng.");
+                        }    
                         break;
                     case nameof(ContractDocument.employeeSignatureCode):
                         ContractDocument.employeeSignatureId = employee.id;
@@ -356,6 +452,7 @@ namespace HNOne.Web.Controllers
                 await ShowLoading();
                 string processKey = pActionType == nameof(EnumType.Add) ? ProcessConstants.POST_CONTRACT_APPENDIX : ProcessConstants.PUT_CONTRACT_APPENDIX;
                 int contractId = ListCboContract?.FirstOrDefault(m => m.code == ContractDocument.contractCode)?.id ?? -1;
+                calcTotalSalary();
                 ContractDocument.contractId = contractId;
                 ContractDocument.branchId = BranchId;
                 ContractDocument.userSign = UserId;
@@ -450,7 +547,13 @@ namespace HNOne.Web.Controllers
                 switch (controlID)
                 {
                     case nameof(ContractDocument.contractCode):
+                        await ShowLoading();
+                        await Task.Delay(75);
                         ContractDocument.contractCode = value?.ToString();
+                        var contractNum = ListCboContract?.FirstOrDefault(m => m.code == ContractDocument.contractCode)?.value;
+                        int.TryParse(contractNum, out int contractNumber);
+                        ContractDocument.contractNumber = contractNumber < 1 ? 1 : contractNumber; // lấy số hợp đồng
+                        ContractDocument.contractAppendixCode = await getDocumentNo();
                         ListSalaryInfoConfig = new List<SalaryConfigurationModel>();
                         ContractDocument.isSalaryAdjustment = false;
                         break;
@@ -479,9 +582,75 @@ namespace HNOne.Web.Controllers
             calcTotalSalary();
         }
         
+        /// <summary>
+        /// gửi phê duyệt
+        /// </summary>
+        /// <returns></returns>
         protected async Task SubmitForApprovalHandler()
         {
+            try
+            {
+                string errorMessage = string.Empty;
+                string fieldName = string.Empty; // trả ra trường nào cần validate
+                bool isConfirm = true;
+                validateForSaveApproval(ref errorMessage, ref fieldName);
+                if (!string.IsNullOrEmpty(errorMessage))
+                {
+                    ShowWarning(errorMessage);
+                    await _jsRuntime.InvokeVoidAsync("focusInput", fieldName);
+                    return;
+                }
+                await Task.Yield();
+                errorMessage = string.Format(MessageConstants.MESSAGE_CONFIRM_SEND_APPROVAL_FORMAT, $"đến nhân viên {ContractDocument.employeeSignatureName}");
+                isConfirm = await confirm.SetConfirm(MessageConstants.MESSAGE_TITLE, $"{errorMessage}");
+                if (!isConfirm) return;
+                await ShowLoading();
+                string processKey = ProcessConstants.POST_APPROVAL;
+                ApprovalModel approval = new ApprovalModel();
+                approval.docEntry = ContractDocument.id;
+                approval.objType = nameof(EnumObjType.ContractAppendices);
+                approval.branchId = BranchId;
+                approval.statusCode = CommonConstants.STATUS_CODE_APPROVAL_PENDING;
+                approval.userSign = UserId;
+                approval.employeeSignatureId = ContractDocument.employeeSignatureId;
+                string content = JsonConvert.SerializeObject(approval);
+                isConfirm = await _approvalService.UpdateApprovalAsync(processKey, UserId, Token, json: content);
+                if (isConfirm) await showVoucher();
+            }
+            catch (Exception ex)
+            {
+                ShowError(ex.Message);
+                _logger.LogError(ex, "SubmitForApprovalHandler");
+            }
+            finally
+            {
+                await ShowLoading(false);
+                await InvokeAsync(StateHasChanged);
+            }
+        }
 
+        /// <summary>
+        /// làm mới mã hợp đồng
+        /// </summary>
+        /// <returns></returns>
+        protected async Task RefreshContractAppendixNoHandler()
+        {
+            try
+            {
+                await ShowLoading();
+                ContractDocument.contractAppendixCode = await getDocumentNo();
+            }
+            catch (Exception ex)
+            {
+                ShowError(ex.Message);
+                _logger.LogError(ex, "OpenPopupHandler");
+            }
+            finally
+            {
+                await Task.Delay(100);
+                await ShowLoading(false);
+                await InvokeAsync(StateHasChanged);
+            }
         }
         #endregion
     }

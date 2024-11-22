@@ -3,25 +3,28 @@
 <PageTitle>Chi tiết phụ lục hợp đồng</PageTitle>
 
 <div class="h-content-filter">
-    <div class="card p-1">
-        <DxToolbar ItemRenderStyleMode="@ToolbarRenderStyleMode.Contained">
-            <Items>
+    @if(!IsReadonlyControl)
+    {
+        <div class="card p-1">
+            <DxToolbar ItemRenderStyleMode="@ToolbarRenderStyleMode.Contained">
+                <Items>
 
-                <DxToolbarItem Text="Lưu" BeginGroup="true" IconCssClass="@($"{IconClassConstants.ICON_UPDATE}")" CssClass="w1FontSize"
-                               Alignment="@ToolbarItemAlignment.Right" Click="@SaveDataHandler" />
+                    <DxToolbarItem Text="Lưu" BeginGroup="true" IconCssClass="@($"{IconClassConstants.ICON_UPDATE}")" CssClass="w1FontSize"
+                                   Alignment="@ToolbarItemAlignment.Right" Click="@SaveDataHandler" />
 
-                <DxToolbarItem Text="Gửi phê duyệt" BeginGroup="true" IconCssClass="@($"{IconClassConstants.ICON_SHARE}")" CssClass="w1FontSize"
-                               Alignment="@ToolbarItemAlignment.Right" Click="@(()=> SubmitForApprovalHandler())" />
+                    <DxToolbarItem Text="Gửi phê duyệt" BeginGroup="true" IconCssClass="@($"{IconClassConstants.ICON_SHARE}")" CssClass="w1FontSize"
+                                   Alignment="@ToolbarItemAlignment.Right" Click="@(()=> SubmitForApprovalHandler())" />
 
-                <DxToolbarItem Text="Hủy" BeginGroup="true" IconCssClass="@($"{IconClassConstants.ICON_DELETE}")" CssClass="w1FontSize"
-                               Alignment="@ToolbarItemAlignment.Right" />
+                    <DxToolbarItem Text="Hủy" BeginGroup="true" IconCssClass="@($"{IconClassConstants.ICON_DELETE}")" CssClass="w1FontSize"
+                                   Alignment="@ToolbarItemAlignment.Right" />
 
-                <DxToolbarItem Text="Làm mới" BeginGroup="true" IconCssClass="@($"{IconClassConstants.ICON_REFRESH}")" CssClass="w1FontSize"
-                               Alignment="@ToolbarItemAlignment.Right" />
-            </Items>
-        </DxToolbar>
-    </div>
-
+                    <DxToolbarItem Text="Làm mới" BeginGroup="true" IconCssClass="@($"{IconClassConstants.ICON_REFRESH}")" CssClass="w1FontSize"
+                                   Alignment="@ToolbarItemAlignment.Right" />
+                </Items>
+            </DxToolbar>
+        </div>
+    }
+    
     <div class="card card-lg mt-1" style="padding: 5px">
         <div class="row row-gap-2">
             <div class="col-12">
@@ -51,6 +54,7 @@
                                                         <DxTextBox @bind-Text="@ContractDocument.employeeName" CssClass="w1FontSize" ReadOnly="true">
                                                             <Buttons>
                                                                 <DxEditorButton style="width: 29px" CssClass="w1FontSize" IconCssClass="fas fa-search" Tooltip="Tìm kiếm nhân viên"
+                                                                                Visible="@(!IsReadonlyControl)"
                                                                                 Click="@(async () => await OpenPopupHandler(nameof(EmployeeSelected), nameof(ContractDocument.employeeCode)))" />
                                                             </Buttons>
                                                         </DxTextBox>
@@ -113,6 +117,7 @@
                                                         <DxTextBox @bind-Text="@ContractDocument.employeeSignatureName" CssClass="w1FontSize" ReadOnly="true">
                                                             <Buttons>
                                                                 <DxEditorButton style="width: 29px" CssClass="w1FontSize" IconCssClass="fas fa-search" Tooltip="Tìm kiếm nhân viên"
+                                                                                Visible="@(!IsReadonlyControl)"
                                                                                 Click="@(async () => await OpenPopupHandler(nameof(EmployeeSelected), nameof(ContractDocument.employeeSignatureCode)))" />
                                                             </Buttons>
                                                         </DxTextBox>
@@ -126,6 +131,7 @@
                                             <W1Label Value="Ngày ký" Styles="width: 110px" />
                                             <div style="width: calc(100% - 110px)">
                                                 <DxDateEdit @bind-Date="@ContractDocument.dateOfSigning" DisplayFormat="@GlobalContants.FORMAT_DATE"
+                                                            ReadOnly="@IsReadonlyControl"
                                                             Mask="@GlobalContants.FORMAT_DATE" Format="@GlobalContants.FORMAT_DATE" CssClass="w1FontSize" />
                                             </div>
                                         </div>
@@ -135,15 +141,23 @@
                                             <W1Label Value="Ngày áp dụng" Styles="width: 110px" />
                                             <div style="width: calc(100% - 110px)">
                                                 <DxDateEdit @bind-Date="@ContractDocument.effectiveDate" DisplayFormat="@GlobalContants.FORMAT_DATE"
+                                                            ReadOnly="@IsReadonlyControl"
                                                             Mask="@GlobalContants.FORMAT_DATE" Format="@GlobalContants.FORMAT_DATE" CssClass="w1FontSize" />
                                             </div>
                                         </div>
                                     </div>
                                     <div class="col-md-6 col-sm-12">
                                         <div class="d-flex ">
-                                            <W1Label Value="Số phụ lục" Styles="width: 110px" />
+                                            <W1Label Value="Số phụ lục" Styles="width: 110px" IsRequired="true" />
                                             <div style="width: calc(100% - 110px)">
-                                                <DxTextBox @bind-Text="@ContractDocument.contractAppendixCode" CssClass="w1FontSize" ReadOnly="@(pActionType != nameof(EnumType.Add))"></DxTextBox>
+                                                <DxTextBox @bind-Text="@ContractDocument.contractAppendixCode" CssClass="w1FontSize" ReadOnly="true">
+                                                    <Buttons>
+                                                        <DxEditorButton style="width: 29px" CssClass="w1FontSize" Id="contractAppendixCode"
+                                                                        IconCssClass="@IconClassConstants.ICON_REFRESH"
+                                                                        Tooltip="Làm mới số phụ lục" Click="@RefreshContractAppendixNoHandler"
+                                                                        Visible="@(!IsReadonlyControl)" />
+                                                    </Buttons>
+                                                </DxTextBox>
                                             </div>
                                         </div>
                                     </div>
@@ -157,8 +171,8 @@
                                                             FilteringMode="DataGridFilteringMode.Contains"
                                                             TextFieldName="@nameof(ComboboxModel.name)"
                                                             ValueFieldName="@nameof(ComboboxModel.id)"
-                                                            Id="departmentId"
-                                                            CssClass="w1FontSize">
+                                                            ReadOnly="@IsReadonlyControl"
+                                                            Id="departmentId" CssClass="w1FontSize">
                                                 </DxComboBox>
                                             </div>
                                         </div>
@@ -173,8 +187,8 @@
                                                             FilteringMode="DataGridFilteringMode.Contains"
                                                             TextFieldName="@nameof(ComboboxModel.name)"
                                                             ValueFieldName="@nameof(ComboboxModel.id)"
-                                                            Id="positionId"
-                                                            CssClass="w1FontSize">
+                                                            ReadOnly="@IsReadonlyControl"
+                                                            Id="positionId" CssClass="w1FontSize">
                                                 </DxComboBox>
                                             </div>
                                         </div>
@@ -189,8 +203,8 @@
                                                             FilteringMode="DataGridFilteringMode.Contains"
                                                             TextFieldName="@nameof(ComboboxModel.name)"
                                                             ValueFieldName="@nameof(ComboboxModel.id)"
-                                                            Id="titleId"
-                                                            CssClass="w1FontSize">
+                                                            ReadOnly="@IsReadonlyControl"
+                                                            Id="titleId" CssClass="w1FontSize">
                                                 </DxComboBox>
                                             </div>
                                         </div>
@@ -199,7 +213,8 @@
                                         <div class="d-flex ">
                                             <W1Label Value="Ghi chú" Styles="width: 110px" />
                                             <div style="width: calc(100% - 110px)">
-                                                <DxMemo @bind-Text="@ContractDocument.remark" BindValueMode="@BindValueMode.OnInput" Rows="1" InputId="txtghiChu" CssClass="w1FontSize" />
+                                                <DxMemo @bind-Text="@ContractDocument.remark" BindValueMode="@BindValueMode.OnInput"
+                                                        Rows="1" InputId="txtghiChu" CssClass="w1FontSize" ReadOnly="@IsReadonlyControl" />
                                             </div>
                                         </div>
                                     </div>
@@ -230,125 +245,145 @@
 
     @if (ContractDocument.isSalaryAdjustment)
     {
-        <div class="card card-lg mt-1" style="padding: 4px">
-            <div class="row row-gap-2 mt-1 mb-3">
-                <div class="col-12">
-                    <div class="header-grid-template">
-                        <div class="grid gap-3 row-gap-2">
-                            <div class="g-col-md-8 g-col-sm-12 g-col-12">
-                                <div class="row row-gap-2">
-                                    <div class="col-md-6 col-sm-12">
-                                        <div class="d-flex ">
-                                            <W1Label Value="Loại thuế TNCN" Styles="width: 110px" IsRequired="true" />
-                                            <div style="width: calc(100% - 110px)">
-                                                <DxComboBox Data="@ListCboEnumTax"
-                                                            @bind-Value="@ContractDocument.taxTypeCode"
-                                                            FilteringMode="DataGridFilteringMode.Contains"
-                                                            TextFieldName="@nameof(ComboboxModel.name)"
-                                                            ValueFieldName="@nameof(ComboboxModel.code)"
-                                                            Id="taxTypeCode"
-                                                            CssClass="w1FontSize">
-                                                </DxComboBox>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <div class="col-md-6 col-sm-12">
-                                        <div class="d-flex ">
-                                            <W1Label Value="Ngày trích nộp" Styles="width: 110px" IsRequired="true" />
-                                            <div style="width: calc(100% - 110px)">
-                                                <DxDateEdit @bind-Date="@ContractDocument.deductionDate" DisplayFormat="@GlobalContants.FORMAT_DATE"
-                                                            Mask="@GlobalContants.FORMAT_DATE" Format="@GlobalContants.FORMAT_DATE" CssClass="w1FontSize" Id="deductionDate" />
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <div class="col-md-6 col-sm-12">
-                                        <DxCheckBox CssClass="w-100 w1FontSize"
-                                                    SizeMode="@SizeMode.Small"
-                                                    @bind-Checked="@ContractDocument.isCompanyDeduction"
-                                                    LabelPosition="@LabelPosition.Right">
-                                            Công ty đóng trích nộp thay?
-                                        </DxCheckBox>
-                                        <DxCheckBox CssClass="w-100 w1FontSize"
-                                                    SizeMode="@SizeMode.Small"
-                                                    @bind-Checked="@ContractDocument.isCompanyInsurance"
-                                                    LabelPosition="@LabelPosition.Right">
-                                            Công ty đóng thuế TNCN thay?
-                                        </DxCheckBox>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="g-col-md-4 g-col-sm-12 g-col-12">
-                                <div class="row row-gap-2">
-                                    <div class="col-12">
-                                        <div class="d-flex ">
-                                            <W1Label Value="Tổng lương" Id="toDate" Styles="width: 110px" />
-                                            <div style="width: calc(100% - 110px)">
-                                                <DxSpinEdit @bind-Value="@ContractDocument.totalSalary" InputCssClass="text-end"
-                                                            ShowSpinButtons="false" ReadOnly="true"
-                                                            DisplayFormat="@GlobalContants.FORMAT_CURRENCY" Mask="@GlobalContants.FORMAT_CURRENCY" CssClass="w1FontSize" />
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <div class="col-12">
-                                        <div class="d-flex ">
-                                            <W1Label Value="Hệ số lương" Id="toDate" Styles="width: 110px" />
-                                            <div style="width: calc(100% - 110px)">
-                                                <DxSpinEdit Value="@ContractDocument.salaryCoefficient"
-                                                            InputCssClass="text-end"
-                                                            Increment="1" MinValue="0.0" MaxValue="1.0"
-                                                            DisplayFormat="@GlobalContants.FORMAT_NUMBER" Mask="@GlobalContants.FORMAT_NUMBER" CssClass="w1FontSize" />
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <div class="col-12">
-                                        <div class="d-flex ">
-                                            <W1Label Value="Tổng thực nhận" Id="toDate" Styles="width: 110px" />
-                                            <div style="width: calc(100% - 110px)">
-                                                <DxSpinEdit @bind-Value="@ContractDocument.netSalary" InputCssClass="text-end"
-                                                            ShowSpinButtons="false" Enabled="false"
-                                                            DisplayFormat="@GlobalContants.FORMAT_CURRENCY" Mask="@GlobalContants.FORMAT_CURRENCY" CssClass="w1FontSize" />
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
+        <div class="row row-gap-2 mt-1 mb-3">
+            <div class="col-12">
+                <div class="card w1FontSize">
+                    <div class="card-header p-0 border-bottom-0">
+                        <DxTabs @bind-ActiveTabIndex="@ActiveTabIndex" Id="tabActive" CssClass="w-full w1FontSize">
+                            <DxTabPage Text="Thông tin lương" Id="tabTTL" CssClass="w1FontSize"></DxTabPage>
+                            <DxTabPage Text="Lịch sử chứng từ" Id="tabLSCT" CssClass="w1FontSize" Visible="@(pActionType != nameof(EnumType.Add))"></DxTabPage>
+                        </DxTabs>
                     </div>
-                    <div style="height: 350px; min-height: 350px">
-                        <DxGrid Data="ListSalaryInfoConfig" @ref="GridSalaryInfoConfig"
-                                ShowFilterRow="false"
-                                PageSize="500"
-                                ColumnResizeMode="GridColumnResizeMode.ColumnsContainer"
-                                PagerPosition="GridPagerPosition.Bottom"
-                                PageSizeSelectorVisible="false"
-                                PageSizeSelectorAllRowsItemVisible="false"
-                                PagerSwitchToInputBoxButtonCount="10"
-                                PagerVisibleNumericButtonCount="10"
-                                TextWrapEnabled="false"
-                                KeyFieldName="@nameof(SalaryConfigurationModel.id)"
-                                ValidationEnabled="true"
-                                EditMode="GridEditMode.EditCell"
-                                EditModelSaving="@GridSalaryInfoConfigEditSavingHandler"
-                                KeyboardNavigationEnabled="true"
-                                AllowSelectRowByClick="true"
-                                FocusedRowEnabled="true"
-                                SelectionMode="GridSelectionMode.Single"
-                                CssClass="h-full">
-                            <Columns>
-                                <DxGridDataColumn FieldName="@nameof(SalaryConfigurationModel.salaryCategoryName)" Caption="Tên loại lương" MinWidth="210" DataRowEditorVisible="false" />
-                                <DxGridDataColumn FieldName="@nameof(SalaryConfigurationModel.amount)" Caption="Số tiền" MinWidth="120" DisplayFormat="@GlobalContants.FORMAT_CURRENCY">
-                                    <EditSettings>
-                                        <DxSpinEditSettings DisplayFormat="@GlobalContants.FORMAT_CURRENCY" InputCssClass="text-end" Mask="@GlobalContants.FORMAT_CURRENCY" />
-                                    </EditSettings>
-                                </DxGridDataColumn>
-                                <DxGridDataColumn FieldName="@nameof(SalaryConfigurationModel.isProbationaryPeriod)" Caption="Thử việc" MinWidth="80" DataRowEditorVisible="false" />
-                                <DxGridDataColumn FieldName="@nameof(SalaryConfigurationModel.isSocialInsurance)" Caption="BHXH" MinWidth="80" DataRowEditorVisible="false" />
-                                <DxGridDataColumn FieldName="@nameof(SalaryConfigurationModel.isHealthInsurance)" Caption="BHYT" MinWidth="80" DataRowEditorVisible="false" />
-                                <DxGridDataColumn FieldName="@nameof(SalaryConfigurationModel.isAccidentInsurance)" Caption="BHTN" MinWidth="80" DataRowEditorVisible="false" />
-                                <DxGridDataColumn FieldName="@nameof(SalaryConfigurationModel.isOccupationalAccidentInsurance)" Caption="BHTNLD" MinWidth="80" DataRowEditorVisible="false" />
-                                @* <DxGridDataColumn FieldName="@nameof(SalaryConfigurationModel.isUnionFee)" Caption="Phí công đoàn" MinWidth="100" DataRowEditorVisible="false" /> *@
-                            </Columns>
-                        </DxGrid>
+                    <div class="card-body p-1">
+                        @switch (ActiveTabIndex)
+                        {
+                            case 0:
+                                <div class="header-grid-template">
+                                    <div class="grid gap-3 row-gap-2">
+                                        <div class="g-col-md-8 g-col-sm-12 g-col-12">
+                                            <div class="row row-gap-2">
+                                                <div class="col-md-6 col-sm-12">
+                                                    <div class="d-flex ">
+                                                        <W1Label Value="Loại thuế TNCN" Styles="width: 110px" IsRequired="true" />
+                                                        <div style="width: calc(100% - 110px)">
+                                                            <DxComboBox Data="@ListCboEnumTax"
+                                                                        @bind-Value="@ContractDocument.taxTypeCode"
+                                                                        FilteringMode="DataGridFilteringMode.Contains"
+                                                                        TextFieldName="@nameof(ComboboxModel.name)"
+                                                                        ValueFieldName="@nameof(ComboboxModel.code)"
+                                                                        ReadOnly="@IsReadonlyControl"
+                                                                        Id="taxTypeCode" CssClass="w1FontSize">
+                                                            </DxComboBox>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div class="col-md-6 col-sm-12">
+                                                    <div class="d-flex ">
+                                                        <W1Label Value="Ngày trích nộp" Styles="width: 110px" IsRequired="true" />
+                                                        <div style="width: calc(100% - 110px)">
+                                                            <DxDateEdit @bind-Date="@ContractDocument.deductionDate" DisplayFormat="@GlobalContants.FORMAT_DATE" ReadOnly="@IsReadonlyControl"
+                                                                        Mask="@GlobalContants.FORMAT_DATE" Format="@GlobalContants.FORMAT_DATE" CssClass="w1FontSize" Id="deductionDate" />
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div class="col-md-6 col-sm-12">
+                                                    <DxCheckBox CssClass="w-100 w1FontSize"
+                                                                SizeMode="@SizeMode.Small"
+                                                                @bind-Checked="@ContractDocument.isCompanyDeduction"
+                                                                ReadOnly="@IsReadonlyControl"
+                                                                LabelPosition="@LabelPosition.Right">
+                                                        Công ty đóng trích nộp thay?
+                                                    </DxCheckBox>
+                                                    <DxCheckBox CssClass="w-100 w1FontSize"
+                                                                SizeMode="@SizeMode.Small"
+                                                                @bind-Checked="@ContractDocument.isCompanyInsurance"
+                                                                ReadOnly="@IsReadonlyControl"
+                                                                LabelPosition="@LabelPosition.Right">
+                                                        Công ty đóng thuế TNCN thay?
+                                                    </DxCheckBox>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="g-col-md-4 g-col-sm-12 g-col-12">
+                                            <div class="row row-gap-2">
+                                                <div class="col-12">
+                                                    <div class="d-flex ">
+                                                        <W1Label Value="Tổng lương" Id="toDate" Styles="width: 110px" />
+                                                        <div style="width: calc(100% - 110px)">
+                                                            <DxSpinEdit @bind-Value="@ContractDocument.totalSalary" InputCssClass="text-end"
+                                                                        ShowSpinButtons="false" ReadOnly="true"
+                                                                        DisplayFormat="@GlobalContants.FORMAT_CURRENCY" Mask="@GlobalContants.FORMAT_CURRENCY" CssClass="w1FontSize" />
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div class="col-12">
+                                                    <div class="d-flex ">
+                                                        <W1Label Value="Hệ số lương" Id="toDate" Styles="width: 110px" />
+                                                        <div style="width: calc(100% - 110px)">
+                                                            <DxSpinEdit Value="@ContractDocument.salaryCoefficient"
+                                                                        InputCssClass="text-end" ReadOnly="@IsReadonlyControl"
+                                                                        Increment="1" MinValue="0.0" MaxValue="1.0"
+                                                                        DisplayFormat="@GlobalContants.FORMAT_NUMBER" Mask="@GlobalContants.FORMAT_NUMBER" CssClass="w1FontSize" />
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div class="col-12">
+                                                    <div class="d-flex ">
+                                                        <W1Label Value="Tổng thực nhận" Id="toDate" Styles="width: 110px" />
+                                                        <div style="width: calc(100% - 110px)">
+                                                            <DxSpinEdit @bind-Value="@ContractDocument.netSalary" InputCssClass="text-end"
+                                                                        ShowSpinButtons="false" Enabled="false"
+                                                                        DisplayFormat="@GlobalContants.FORMAT_CURRENCY" Mask="@GlobalContants.FORMAT_CURRENCY" CssClass="w1FontSize" />
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div style="height: 350px; min-height: 350px">
+                                    <DxGrid Data="ListSalaryInfoConfig" @ref="GridSalaryInfoConfig"
+                                            ShowFilterRow="false"
+                                            PageSize="500"
+                                            ColumnResizeMode="GridColumnResizeMode.ColumnsContainer"
+                                            PagerPosition="GridPagerPosition.Bottom"
+                                            PageSizeSelectorVisible="false"
+                                            PageSizeSelectorAllRowsItemVisible="false"
+                                            PagerSwitchToInputBoxButtonCount="10"
+                                            PagerVisibleNumericButtonCount="10"
+                                            TextWrapEnabled="false"
+                                            KeyFieldName="@nameof(SalaryConfigurationModel.id)"
+                                            ValidationEnabled="true"
+                                            EditMode="GridEditMode.EditCell"
+                                            EditModelSaving="@GridSalaryInfoConfigEditSavingHandler"
+                                            KeyboardNavigationEnabled="true"
+                                            AllowSelectRowByClick="true"
+                                            FocusedRowEnabled="true"
+                                            SelectionMode="GridSelectionMode.Single"
+                                            CssClass="h-full">
+                                        <Columns>
+                                            <DxGridDataColumn FieldName="@nameof(SalaryConfigurationModel.salaryCategoryName)" Caption="Tên loại lương" MinWidth="210" DataRowEditorVisible="false" />
+                                            <DxGridDataColumn FieldName="@nameof(SalaryConfigurationModel.amount)" Caption="Số tiền" MinWidth="120" DisplayFormat="@GlobalContants.FORMAT_CURRENCY">
+                                                <EditSettings>
+                                                    <DxSpinEditSettings DisplayFormat="@GlobalContants.FORMAT_CURRENCY" InputCssClass="text-end" Mask="@GlobalContants.FORMAT_CURRENCY" />
+                                                </EditSettings>
+                                            </DxGridDataColumn>
+                                            <DxGridDataColumn FieldName="@nameof(SalaryConfigurationModel.isProbationaryPeriod)" Caption="Thử việc" MinWidth="80" DataRowEditorVisible="false" />
+                                            <DxGridDataColumn FieldName="@nameof(SalaryConfigurationModel.isSocialInsurance)" Caption="BHXH" MinWidth="80" DataRowEditorVisible="false" />
+                                            <DxGridDataColumn FieldName="@nameof(SalaryConfigurationModel.isHealthInsurance)" Caption="BHYT" MinWidth="80" DataRowEditorVisible="false" />
+                                            <DxGridDataColumn FieldName="@nameof(SalaryConfigurationModel.isAccidentInsurance)" Caption="BHTN" MinWidth="80" DataRowEditorVisible="false" />
+                                            <DxGridDataColumn FieldName="@nameof(SalaryConfigurationModel.isOccupationalAccidentInsurance)" Caption="BHTNLD" MinWidth="80" DataRowEditorVisible="false" />
+                                            @* <DxGridDataColumn FieldName="@nameof(SalaryConfigurationModel.isUnionFee)" Caption="Phí công đoàn" MinWidth="100" DataRowEditorVisible="false" /> *@
+                                        </Columns>
+                                    </DxGrid>
+                                </div>
+                                break;
+                            case 1:
+                                <div style="height: 350px; min-height: 350px; line-height: 20px" class="w1FontSize px-2 py-1 text-truncate">
+                                    @((MarkupString)$"{VoucherHistory}")
+                                </div>
+                                break;
+                        }
                     </div>
                 </div>
             </div>

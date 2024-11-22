@@ -369,8 +369,6 @@ namespace HNOne.API.Repositories
                 using (var connection = _dapperDbContext.CreateConnection())
                 {
                     DateTime dateTimeNow = _dateTimeHelper.GetCurrentVietnamTime();
-                    DynamicParameters parameters = new DynamicParameters();
-                    string strQuery = string.Empty;
                     bool isResult = true;   
                     isResult = await _dbContext.Contracts.AnyAsync(m => m.ContractCode == entity.ContractCode);
                     if (isResult)
@@ -381,6 +379,8 @@ namespace HNOne.API.Repositories
                     }
                     // kiểm tra có hợp đồng nào dỡ dang không
                     // nếu có thì không cho lưu
+                    DynamicParameters parameters = new DynamicParameters();
+                    string strQuery = string.Empty;
                     parameters.Add("@EmployeeId", entity.EmployeeId);
                     parameters.Add("@ContractTypeId", entity.ContractTypeId);
                     strQuery = "select top 1 T0.ContractCode as Code, T1.Name from Contracts as T0 with(nolock)" +
@@ -390,7 +390,7 @@ namespace HNOne.API.Repositories
                     var contractPending = await connection.QueryFirstOrDefaultAsync<ComboboxModel>(strQuery, parameters, commandTimeout: GlobalConstants.COMMAND_TIMEOUT, commandType: CommandType.Text);
                     if (contractPending != null)
                     {
-                        response.message = $"Nhân viên [{contractPending.name}] đang có hợp đồng số [{contractPending.code}] chờ xử lý.";
+                        response.message = $"Nhân viên [{contractPending.name}] đang có hợp đồng số [{contractPending.code}] đang chờ xử lý.";
                         response.status = StatusCodes.Status409Conflict;
                         return response;
                     }
@@ -532,13 +532,30 @@ namespace HNOne.API.Repositories
                 using (var connection = _dapperDbContext.CreateConnection())
                 {
                     DateTime dateTimeNow = _dateTimeHelper.GetCurrentVietnamTime();
-                    DynamicParameters parameters = new DynamicParameters();
+                    
                     bool isResult = true;
                     isResult = await _dbContext.ContractAppendices.FirstOrDefaultAsync(m => m.ContractCode == entity.ContractCode && m.ContractAppendixCode == entity.ContractAppendixCode) != null;
                     if (isResult)
                     {
                         response.status = StatusCodes.Status409Conflict;
                         response.message = "Số phụ lục hợp đồng đã tồn tại!";
+                        return response;
+                    }
+                    DynamicParameters parameters = new DynamicParameters();
+                    string strQuery = string.Empty;
+                    // kiểm tra có phụ lục nào của hợp đồng x còn dỡ dang không
+                    // nếu có thì không cho lưu
+                    parameters.Add("@EmployeeId", entity.EmployeeId);
+                    parameters.Add("@ContractId", entity.ContractId);
+                    strQuery = "select top 1 T0.ContractAppendixCode as Code, T1.Name from ContractAppendices as T0 with(nolock)" +
+                        " inner join Employees as T1 with(nolock) on T0.EmployeeId = T1.Id" +
+                        " where T0.IsDelete = 0 and T0.StatusCode in ('A', 'Y')" +
+                        " and T0.EmployeeId = @EmployeeId and T0.ContractId = @ContractId";
+                    var contractPending = await connection.QueryFirstOrDefaultAsync<ComboboxModel>(strQuery, parameters, commandTimeout: GlobalConstants.COMMAND_TIMEOUT, commandType: CommandType.Text);
+                    if (contractPending != null)
+                    {
+                        response.message = $"Nhân viên [{contractPending.name}] đang có phụ lục hợp đồng số [{contractPending.code}] đang chờ xử lý.";
+                        response.status = StatusCodes.Status409Conflict;
                         return response;
                     }
                     entity.Id = await _dbContext.ContractAppendices.Select(m => m.Id).DefaultIfEmpty().MaxAsync() + 1;
@@ -560,6 +577,7 @@ namespace HNOne.API.Repositories
                             m.UpdateDate = null;
                             m.CreateDate = dateTimeNow;
                             m.DateTracking = dateTimeNow;
+                            m.UserSign = entity.UserSign;
                         });
                         await _dbContext.SalaryAdjustments.AddRangeAsync(lstSalaryConfig!);
                     }
@@ -578,6 +596,12 @@ namespace HNOne.API.Repositories
 
         }
 
+        /// <summary>
+        /// cập nhật thông tin phụ lục hợp đồng
+        /// </summary>
+        /// <param name="entity"></param>
+        /// <param name="lstSalaryConfig"></param>
+        /// <returns></returns>
         public async Task<ResponseModel> UpdateContractAppendix(ContractAppendices entity, IEnumerable<SalaryAdjustments>? lstSalaryConfig)
         {
             bool isTrans = false;
@@ -591,7 +615,61 @@ namespace HNOne.API.Repositories
                     response.message = MessageConstants.MESSAGE_NOT_FOUNT;
                     return response;
                 }
+                if (data.DateTracking != entity.DateTracking)
+                {
+                    response.status = StatusCodes.Status409Conflict;
+                    response.message = MessageConstants.MESSAGE_DATA_CHECKING_MODIFIED;
+                    return response;
+                }
                 DateTime dateTimeNow = _dateTimeHelper.GetCurrentVietnamTime();
+                await _dbContext.Database.BeginTransactionAsync();
+                isTrans = true;
+                if (data.IsSalaryAdjustment && !entity.IsSalaryAdjustment)
+                {
+                    // xóa thông tin điều chỉnh lương
+                    var dataSalary = await _dbContext.SalaryAdjustments.Where(m => m.ContractAppendixId == entity.Id && m.ContractId == entity.ContractId).ToListAsync();
+                    _dbContext.SalaryAdjustments.RemoveRange(dataSalary);
+                }
+                else if (data.IsSalaryAdjustment && entity.IsSalaryAdjustment)
+                {
+                    // cập nhật điều chỉnh lương
+                    // Nếu có điều chỉnh lương
+                    if (!lstSalaryConfig.IsNullOrEmpty())
+                    {
+                        foreach (var item in lstSalaryConfig!)
+                        {
+                            var dataSalary = await _dbContext.SalaryAdjustments.FirstOrDefaultAsync(m => m.Id == item.Id);
+                            if (dataSalary == null) continue;
+                            dataSalary.Amount = item.Amount;
+                            dataSalary.SalaryCoefficient = item.SalaryCoefficient;
+                            dataSalary.DateTracking = dateTimeNow;
+                            dataSalary.UpdateDate = dateTimeNow;
+                            dataSalary.UserSign2 = entity.UserSign2;
+                            _dbContext.SalaryAdjustments.Attach(dataSalary);
+                            _dbContext.Entry(dataSalary).State = EntityState.Modified;
+                        }
+                    }
+                }    
+                else
+                {
+                    // Thêm thông tin lương
+                    if (!lstSalaryConfig.IsNullOrEmpty())
+                    {
+                        lstSalaryConfig = lstSalaryConfig!.Update(m =>
+                        {
+                            m.Id = 0;
+                            m.ContractId = entity.ContractId;
+                            m.ContractAppendixId = entity.Id;
+                            m.BranchId = entity.BranchId;
+                            m.EmployeeId = entity.EmployeeId;
+                            m.UpdateDate = null;
+                            m.CreateDate = dateTimeNow;
+                            m.DateTracking = dateTimeNow;
+                            m.UserSign = entity.UserSign;
+                        });
+                        await _dbContext.SalaryAdjustments.AddRangeAsync(lstSalaryConfig!);
+                    }
+                }
                 data.EmployeeId = entity.EmployeeId;
                 data.TimesheetId = entity.TimesheetId;
                 data.DateOfSigning = entity.DateOfSigning;
@@ -618,28 +696,8 @@ namespace HNOne.API.Repositories
                 data.DateTracking = dateTimeNow;
                 data.UpdateDate = dateTimeNow;
                 data.UserSign2 = entity.UserSign2;
-                await _dbContext.Database.BeginTransactionAsync();
-                isTrans = true;
                 _dbContext.ContractAppendices.Attach(data);
-                _dbContext.Entry(data).State = EntityState.Modified;
-                // Nếu có điều chỉnh lương
-                if (!lstSalaryConfig.IsNullOrEmpty())
-                {
-                    foreach (var item in lstSalaryConfig!)
-                    {
-                        var dataSalary = await _dbContext.SalaryAdjustments.FirstOrDefaultAsync(m => m.Id == item.Id);
-                        if (dataSalary == null) continue;
-                        dataSalary.BranchId = entity.BranchId;
-                        dataSalary.EmployeeId = entity.EmployeeId;
-                        dataSalary.Amount = item.Amount;
-                        dataSalary.SalaryCoefficient = item.SalaryCoefficient;
-                        dataSalary.DateTracking = dateTimeNow;
-                        dataSalary.UpdateDate = dateTimeNow;
-                        dataSalary.UserSign2 = entity.UserSign2;
-                        _dbContext.SalaryAdjustments.Attach(dataSalary);
-                        _dbContext.Entry(dataSalary).State = EntityState.Modified;
-                    }
-                }
+                _dbContext.Entry(data).State = EntityState.Modified; 
                 await _dbContext.SaveChangesAsync();
                 await _dbContext.Database.CommitTransactionAsync();
                 response.message = MessageConstants.MESSAGE_UPDATE_SUCCESS;

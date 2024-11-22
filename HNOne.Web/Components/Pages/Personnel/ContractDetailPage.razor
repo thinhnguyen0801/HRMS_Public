@@ -396,6 +396,50 @@
                             </div>
                             break;
                         case 1:
+                            <div style="height: 350px; min-height: 350px">
+                                <DxGrid Data="ListContractAppendix" @ref="GridContractAppendix"
+                                        ShowFilterRow="false"
+                                        PageSize="500"
+                                        ColumnResizeMode="GridColumnResizeMode.ColumnsContainer"
+                                        PagerPosition="GridPagerPosition.Bottom"
+                                        PageSizeSelectorVisible="false"
+                                        PageSizeSelectorAllRowsItemVisible="false"
+                                        PagerSwitchToInputBoxButtonCount="10"
+                                        PagerVisibleNumericButtonCount="10"
+                                        TextWrapEnabled="false"
+                                        KeyFieldName="@nameof(ContractAppendixModel.id)"
+                                        ValidationEnabled="true"
+                                        AllowSelectRowByClick="true"
+                                        FocusedRowEnabled="true"
+                                        SelectionMode="GridSelectionMode.Single"
+                                        CssClass="h-full">
+                                    <ToolbarTemplate>
+                                        <DxToolbar ItemRenderStyleMode="@ToolbarRenderStyleMode.Plain">
+                                            <Items>
+                                                <DxToolbarItem IconCssClass="@IconClassConstants.ICON_ADD" BeginGroup="true" 
+                                                               Alignment="@ToolbarItemAlignment.Right"
+                                                               Click="@CreateContractAppendixHandler" />
+                                                <DxToolbarItem IconCssClass="@IconClassConstants.ICON_REFRESH" BeginGroup="true" 
+                                                               Alignment="@ToolbarItemAlignment.Right" />
+                                            </Items>
+                                        </DxToolbar>
+                                    </ToolbarTemplate>
+                                    <Columns>
+                                        <DxGridDataColumn FieldName="@nameof(ContractAppendixModel.contractAppendixCode)" Caption="Mã phụ lục" MinWidth="140">
+                                            <CellDisplayTemplate>
+                                                @{
+                                                    <a href="@($"{(context.DataItem as ContractAppendixModel)!.link}")">@context.Value</a>
+                                                }
+                                            </CellDisplayTemplate>
+                                        </DxGridDataColumn>
+                                        <DxGridDataColumn FieldName="@nameof(ContractAppendixModel.statusName)" Caption="Trạng thái" MinWidth="130" />
+                                        <DxGridDataColumn FieldName="@nameof(ContractAppendixModel.contractNumber)" Caption="Phụ luc số" MinWidth="100" />
+                                        <DxGridDataColumn FieldName="@nameof(ContractAppendixModel.dateOfSigning)" Caption="Ngày ký" DisplayFormat="@GlobalContants.FORMAT_DATE" MinWidth="120" />
+                                        <DxGridDataColumn FieldName="@nameof(ContractAppendixModel.effectiveDate)" Caption="Ngày áp dụng" DisplayFormat="@GlobalContants.FORMAT_DATE" MinWidth="120" />
+                                        <DxGridDataColumn FieldName="@nameof(ContractAppendixModel.remark)" Caption="Ghi chú" MinWidth="140" />
+                                    </Columns>
+                                </DxGrid>
+                            </div>
                             break;
                         case 2:
                             <div style="height: 350px; min-height: 350px; line-height: 20px" class="w1FontSize px-2 py-1 text-truncate">

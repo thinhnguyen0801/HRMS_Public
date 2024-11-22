@@ -23,7 +23,7 @@ namespace HNOne.Common
         public const string MESSAGE_CONFIRM_UPDATE_FORMAT = "Bạn có chắc muốn cập nhật {0} không?";
         public const string MESSAGE_NOT_FOUNT_FORMAT = "Không tìm thấy dữ liệu {0}";
         public const string MESSAGE_NO_PERMISSION = "Bạn không có quyền thao tác. Vui lòng kiểm tra lại thông tin phân quyền!";
-        public const string MESSAGE_CONFIRM_SEND_APPROVAL_FORMAT = "Bạn có chắc gửi muốn phê duyệt {0} không?";
+        public const string MESSAGE_CONFIRM_SEND_APPROVAL_FORMAT = "Bạn có chắc muốn gửi phê duyệt {0} không?";
         public const string MESSAGE_SEND_APPROVAL_SUCCESS = "Gửi phê duyệt thành công";
         public const string MESSAGE_APPROVAL_SUCCESS = "Phê duyệt thành công";
         public const string MESSAGE_DENY_SUCCESS = "Từ chối thành công";
