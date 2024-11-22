@@ -7,6 +7,8 @@ using System.Data;
 using HNOne.Model.Entities;
 using Microsoft.EntityFrameworkCore;
 using HNOne.API.Repositories.Interfaces;
+using Azure;
+using static Dapper.SqlMapper;
 
 namespace HNOne.API.Repositories
 {
@@ -98,6 +100,7 @@ namespace HNOne.API.Repositories
                     response.message = MessageConstants.MESSAGE_NOT_FOUNT;
                     return response;
                 }
+                string? voucherNo = string.Empty;
                 // cập nhật tình trạng chứng từ
                 switch(entity.ObjType)
                 {
@@ -111,6 +114,7 @@ namespace HNOne.API.Repositories
                         }
                         await _dbContext.Database.BeginTransactionAsync();
                         isTran = true;
+                        voucherNo = contract.ContractCode;
                         contract.StatusCode = CommonConstants.STATUS_CODE_APPROVAL_PENDING; // ĐÃ GỬI YÊU CẦU PHÊ DUYỆT
                         contract.DateTracking = dateTimeNow;
                         _dbContext.Contracts.Attach(contract);
@@ -126,6 +130,7 @@ namespace HNOne.API.Repositories
                         }
                         await _dbContext.Database.BeginTransactionAsync();
                         isTran = true;
+                        voucherNo = contractAppendix.ContractAppendixCode;
                         contractAppendix.StatusCode = CommonConstants.STATUS_CODE_APPROVAL_PENDING; // ĐÃ GỬI YÊU CẦU PHÊ DUYỆT
                         contractAppendix.DateTracking = dateTimeNow;
                         _dbContext.ContractAppendices.Attach(contractAppendix);
@@ -141,6 +146,7 @@ namespace HNOne.API.Repositories
                         }
                         await _dbContext.Database.BeginTransactionAsync();
                         isTran = true;
+                        voucherNo = leaveRequest.VoucherNo;
                         leaveRequest.StatusCode = CommonConstants.STATUS_CODE_APPROVAL_PENDING; // ĐÃ GỬI YÊU CẦU PHÊ DUYỆT
                         leaveRequest.DateTracking = dateTimeNow;
                         _dbContext.LeaveRequests.Attach(leaveRequest);
@@ -156,6 +162,7 @@ namespace HNOne.API.Repositories
                         }
                         await _dbContext.Database.BeginTransactionAsync();
                         isTran = true;
+                        voucherNo = leaveWorkingHour.VoucherNo;
                         leaveWorkingHour.StatusCode = CommonConstants.STATUS_CODE_APPROVAL_PENDING; // ĐÃ GỬI YÊU CẦU PHÊ DUYỆT
                         leaveWorkingHour.DateTracking = dateTimeNow;
                         _dbContext.LeaveWorkingHours.Attach(leaveWorkingHour);
@@ -173,6 +180,8 @@ namespace HNOne.API.Repositories
                 await _dbContext.SaveChangesAsync();
                 await _dbContext.Database.CommitTransactionAsync();
                 response.message = MessageConstants.MESSAGE_SEND_APPROVAL_SUCCESS;
+                await createNotification(entity.DocEntry, entity.BranchId, entity.EmployeeSignatureId
+                    , entity.UserSign ?? -1, voucherNo, entity.ObjType, CommonConstants.STATUS_CODE_APPROVAL_PENDING);
                 return response;
             }
             catch (Exception ex)
@@ -210,6 +219,8 @@ namespace HNOne.API.Repositories
                         return response;
                     }
                     // dựa vào objtype đi kiếm phiếu và cập nhật tình trạng chứng từ
+                    string? voucherNo = string.Empty;
+                    int employeeId = -1;
                     switch (entity.ObjType)
                     {
                         case GlobalConstants.TABLE_CONTRACT:
@@ -221,6 +232,8 @@ namespace HNOne.API.Repositories
                                 await _dbContext.Database.RollbackTransactionAsync(); // nếu không tìm thấy thì rollback hết
                                 return response;
                             }
+                            voucherNo = contract.ContractCode;
+                            employeeId = contract.EmployeeId;
                             contract.StatusCode = entity.StatusCode; // tình trạng chứng từ "D": Đã duyệt, "T": từ chối, "C": đã hủy
                             contract.DateOfSigning = dateTimeNow; // cập nhật ngày ký
                             contract.DateTracking = dateTimeNow; // cập nhật ngày tracking
@@ -236,6 +249,8 @@ namespace HNOne.API.Repositories
                                 await _dbContext.Database.RollbackTransactionAsync(); // nếu không tìm thấy thì rollback hết
                                 return response;
                             }
+                            voucherNo = contractAppendix.ContractAppendixCode;
+                            employeeId = contractAppendix.EmployeeId;
                             contractAppendix.StatusCode = entity.StatusCode; // tình trạng chứng từ "D": Đã duyệt, "T": từ chối, "C": đã hủy
                             contractAppendix.DateOfSigning = dateTimeNow; // cập nhật ngày ký
                             contractAppendix.DateTracking = dateTimeNow; // cập nhật ngày tracking
@@ -251,6 +266,8 @@ namespace HNOne.API.Repositories
                                 await _dbContext.Database.RollbackTransactionAsync(); // nếu không tìm thấy thì rollback hết
                                 return response;
                             }
+                            voucherNo = leaveRequest.VoucherNo;
+                            employeeId = leaveRequest.EmployeeId;
                             leaveRequest.StatusCode = entity.StatusCode; // tình trạng chứng từ "D": Đã duyệt, "T": từ chối, "C": đã hủy
                             leaveRequest.DateOfSigning = dateTimeNow; // cập nhật ngày ký
                             leaveRequest.DateTracking = dateTimeNow; // cập nhật ngày tracking
@@ -266,6 +283,8 @@ namespace HNOne.API.Repositories
                                 await _dbContext.Database.RollbackTransactionAsync(); // nếu không tìm thấy thì rollback hết
                                 return response;
                             }
+                            voucherNo = leaveWorkingHour.VoucherNo;
+                            employeeId = leaveWorkingHour.EmployeeId;
                             leaveWorkingHour.StatusCode = entity.StatusCode; // tình trạng chứng từ "D": Đã duyệt, "T": từ chối, "C": đã hủy
                             leaveWorkingHour.DateOfSigning = dateTimeNow;
                             leaveWorkingHour.DateTracking = dateTimeNow; // cập nhật ngày tracking
@@ -285,15 +304,18 @@ namespace HNOne.API.Repositories
                     data.UserSign2 = entity.UserSign2;
                     _dbContext.Approvals.Attach(data);
                     _dbContext.Entry(data).State = EntityState.Modified;
+
+                    // lưu thông báo
+                    await createNotification(entity.DocEntry, entity.BranchId, employeeId
+                    , entity.UserSign2 ?? -1, voucherNo, entity.ObjType, entity.StatusCode);
                 }    
                 await _dbContext.SaveChangesAsync();
                 await _dbContext.Database.CommitTransactionAsync();
                 if (actionType == CommonConstants.STATUS_CODE_APPROVED) response.message = MessageConstants.MESSAGE_APPROVAL_SUCCESS;
                 else if (actionType == CommonConstants.STATUS_CODE_DENY) response.message = MessageConstants.MESSAGE_DENY_SUCCESS;
                 else if (actionType == CommonConstants.STATUS_CODE_CANCELED) response.message = MessageConstants.MESSAGE_CANCEL_SUCCESS;
-                else 
+                else
                 {
-
                 }
             }
             catch (Exception ex)
@@ -303,6 +325,51 @@ namespace HNOne.API.Repositories
                 response.message = ex.Message;
             }
             return response;
+        }
+        #endregion
+
+        #region Private Function
+
+        /// <summary>
+        /// lưu dữ liệu thông báo gửi đến ai
+        /// </summary>
+        /// <param name="docEntry"></param>
+        /// <param name="branchId"></param>
+        /// <param name="employeeId"></param>
+        /// <param name="userId"></param>
+        /// <param name="voucherNo"></param>
+        /// <param name="objType"></param>
+        /// <param name="statusCode"></param>
+        /// <returns></returns>
+        async Task createNotification(int docEntry, int branchId, int employeeId, int userId
+            , string? voucherNo, string? objType, string? statusCode)
+        {
+            try
+            {
+                string message = string.Empty;
+                if (statusCode == CommonConstants.STATUS_CODE_APPROVAL_PENDING) message = $"Bạn có chứng từ [{voucherNo}] đang chờ phê duyệt";
+                else if (statusCode == CommonConstants.STATUS_CODE_APPROVED) message = $"Chứng từ [{voucherNo}] đã được phê duyệt";
+                else if (statusCode == CommonConstants.STATUS_CODE_DENY) message = $"Chứng từ [{voucherNo}] đã bị từ chối";
+                else if (statusCode == CommonConstants.STATUS_CODE_CANCELED) message = $"Chứng từ [{voucherNo}] đã bị hủy/trả về để chỉnh sữa";
+                
+                //
+                if (string.IsNullOrEmpty(message)) return;
+                Notifications entity = new Notifications();
+                entity.Id = 0;
+                entity.BranchId = branchId;
+                entity.DocEntry = docEntry;
+                entity.VoucherNo = voucherNo;
+                entity.EmployeeId = employeeId;
+                entity.ObjType = objType;
+                entity.StatusCode = statusCode;
+                entity.IsView = false;
+                entity.Message = message;
+                entity.UserSign = userId;
+                entity.CreateDate = _dateTimeHelper.GetCurrentVietnamTime();
+                await _dbContext.Notifications.AddAsync(entity);
+                await _dbContext.SaveChangesAsync();
+            }
+            catch(Exception){}
         }
         #endregion
     }

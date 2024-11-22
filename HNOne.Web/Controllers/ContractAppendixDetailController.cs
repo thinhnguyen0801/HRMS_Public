@@ -308,6 +308,7 @@ namespace HNOne.Web.Controllers
                     ContractDocument.positionId = contract.positionId;
                     ContractDocument.titleId = contract.titleId;
                     ContractDocument.contractCode = contract.contractCode;
+                    ContractDocument.contractAppendixCode = await getDocumentNo();
                     var contractNum = ListCboContract?.FirstOrDefault(m => m.code == ContractDocument.contractCode)?.value;
                     int.TryParse(contractNum, out int contractNumber);
                     ContractDocument.contractNumber = contractNumber < 1 ? 1 : contractNumber; // lấy số hợp đồng

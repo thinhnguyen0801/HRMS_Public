@@ -67,7 +67,7 @@
                                                         <DxEditorButton style="width: 29px" CssClass="w1FontSize" 
                                                             IconCssClass="@IconClassConstants.ICON_REFRESH" 
                                                             Tooltip="Làm mới mã hợp đồng"
-                                                            Visible="@(!IsReadonlyControl)"
+                                                            Visible="@(pActionType == nameof(EnumType.Add))"
                                                             Click="@RefreshContractNoHandler" />
                                                     </Buttons>
                                                 </DxTextBox>
@@ -417,10 +417,9 @@
                                         <DxToolbar ItemRenderStyleMode="@ToolbarRenderStyleMode.Plain">
                                             <Items>
                                                 <DxToolbarItem IconCssClass="@IconClassConstants.ICON_ADD" BeginGroup="true" 
-                                                               Alignment="@ToolbarItemAlignment.Right"
-                                                               Click="@CreateContractAppendixHandler" />
+                                                               Alignment="@ToolbarItemAlignment.Right" Click="@CreateContractAppendixHandler" />
                                                 <DxToolbarItem IconCssClass="@IconClassConstants.ICON_REFRESH" BeginGroup="true" 
-                                                               Alignment="@ToolbarItemAlignment.Right" />
+                                                               Alignment="@ToolbarItemAlignment.Right" Click="@RefreshDataAppendixHandler" />
                                             </Items>
                                         </DxToolbar>
                                     </ToolbarTemplate>

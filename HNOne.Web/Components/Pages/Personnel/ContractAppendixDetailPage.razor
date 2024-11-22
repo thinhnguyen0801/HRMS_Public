@@ -155,7 +155,7 @@
                                                         <DxEditorButton style="width: 29px" CssClass="w1FontSize" Id="contractAppendixCode"
                                                                         IconCssClass="@IconClassConstants.ICON_REFRESH"
                                                                         Tooltip="Làm mới số phụ lục" Click="@RefreshContractAppendixNoHandler"
-                                                                        Visible="@(!IsReadonlyControl)" />
+                                                                        Visible="@(pActionType == nameof(EnumType.Add))" />
                                                     </Buttons>
                                                 </DxTextBox>
                                             </div>

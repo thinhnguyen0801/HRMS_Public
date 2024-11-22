@@ -251,6 +251,7 @@ namespace HNOne.Web.Controllers
                 request.token = Token;
                 var task1 = _personnelService.GetContractAsync(request);
                 var task2 = getDocumentHistory();
+                var task3 = getContractAppendixList();
                 await Task.WhenAll(task1, task2);
                 List<ContractModel>? lstData = await task1;
                 if (!lstData.IsNullOrEmpty())
@@ -313,6 +314,32 @@ namespace HNOne.Web.Controllers
         /// <returns></returns>
         private async Task getDocumentHistory()
             => VoucherHistory = await _approvalService.GetFunDocumentHistoryAsync(UserId, BranchId, Token, nameof(EnumObjType.Contracts), pDocEntry);
+
+        /// <summary>
+        /// lấy danh sách phụ lục hợp đồng theo hợp đồng
+        /// </summary>
+        /// <returns></returns>
+        private async Task getContractAppendixList()
+        {
+            RequestModel request = new RequestModel();
+            request.userId = UserId;
+            request.branchId = BranchId;
+            request.token = Token;
+            request.opt = "";
+            request.opt1 = pDocEntry.ToString();
+            var lstContract = await _personnelService.GetContractAppendixAsync(request, isShowToast: false);
+            lstContract = lstContract?.Update(m =>
+            {
+                Dictionary<string, string> pParams = new Dictionary<string, string>
+                {
+                    { "pActionType", nameof(EnumType.Update) },
+                    { "pDocEntry", $"{m.id}" },
+                    { "pContractId", $"{m.contractId}" },
+                };
+                m.link = "chi-tiet-phu-luc-hop-dong?key=" + _encryptHelper.Encrypt(JsonConvert.SerializeObject(pParams));
+            })?.ToList();
+            ListContractAppendix = lstContract;
+        }
         #endregion
 
         #region Protected Functions
@@ -725,6 +752,30 @@ namespace HNOne.Web.Controllers
             }
             finally
             {
+                await ShowLoading(false);
+                await InvokeAsync(StateHasChanged);
+            }
+        }
+
+        /// <summary>
+        /// làm mới phụ lục hợp đồng
+        /// </summary>
+        /// <returns></returns>
+        protected async Task RefreshDataAppendixHandler()
+        {
+            try
+            {
+                await ShowLoading();
+                await getContractAppendixList();
+            }
+            catch (Exception ex)
+            {
+                ShowError(ex.Message);
+                _logger.LogError(ex, "RefreshDataHandler");
+            }
+            finally
+            {
+                await Task.Delay(50);
                 await ShowLoading(false);
                 await InvokeAsync(StateHasChanged);
             }

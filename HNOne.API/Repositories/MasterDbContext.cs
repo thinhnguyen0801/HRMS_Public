@@ -37,6 +37,7 @@ namespace HNOne.API.Repositories
         public DbSet<LeaveRequests> LeaveRequests { get; set; }
         public DbSet<LeaveRequest1s> LeaveRequest1s { get; set; }
         public DbSet<LeaveWorkingHours> LeaveWorkingHours { get; set; }
+        public DbSet<Notifications> Notifications { get; set; }
 
         public MasterDbContext(DbContextOptions<MasterDbContext> options)
             : base(options)
