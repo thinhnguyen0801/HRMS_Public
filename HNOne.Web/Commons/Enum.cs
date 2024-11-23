@@ -37,5 +37,6 @@
         LeaveRequests, // đề nghị nghỉ phép
         LeaveWorkingHours, // xin nghỉ trong giờ
         ShiftChanges, // xin nghỉ trong giờ
+        OvertimeRequests, // đề nghị tăng ca
     }
 }

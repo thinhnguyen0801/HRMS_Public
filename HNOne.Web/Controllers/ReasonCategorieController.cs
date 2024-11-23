@@ -54,7 +54,7 @@ namespace HNOne.Web.Controllers
                         new BreadcrumbModel("Lý do", isActive: true)
                     };
                     await NotifyBreadcrumb.InvokeAsync(ListBreadcrumbs);
-                    ListCboType = await _masterDataService.GetEnumAsync(UserId, Token, nameof(EnumCatagory.LoaiLyDo));
+                    ListCboType = await _masterDataService.GetFunEnumAsync(UserId, Token, nameof(EnumCatagory.LoaiLyDo));
                     await getReasonCategories();
 
                 }

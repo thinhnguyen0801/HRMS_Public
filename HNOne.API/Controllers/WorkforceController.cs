@@ -55,6 +55,9 @@ namespace HNOne.API.Controllers
                     case ProcessConstants.GET_SHIFT_CHANGE_REQUEST:
                         response.data = await _workforceRepository.GetShiftChange(request);
                         break;
+                    case ProcessConstants.GET_OVERTIME_REQUEST:
+                        response.data = await _workforceRepository.GetOvertimeRequest(request);
+                        break;
                     default:
                         response.status = StatusCodes.Status404NotFound;
                         response.message = $"Process Key {processKey} was not provider!!!";
@@ -121,6 +124,16 @@ namespace HNOne.API.Controllers
                         var shiftChangePut = DeserializeJson<ShiftChanges>($"{request.json}");
                         var lstShiftChangePut = DeserializeJson<List<ShiftChange1s>>($"{request.jsonDetail}");
                         response = await _workforceRepository.UpdateShiftChangeRequest(shiftChangePut!, lstShiftChangePut!);
+                        break;
+                    case ProcessConstants.POST_OVERTIME_REQUEST:
+                        var overtimeRequestPost = DeserializeJson<OvertimeRequests>($"{request.json}");
+                        var lstovertimeRequestPost = DeserializeJson<List<OvertimeRequest1s>>($"{request.jsonDetail}");
+                        response = await _workforceRepository.AddOvertimeRequest(overtimeRequestPost!, lstovertimeRequestPost!);
+                        break;
+                    case ProcessConstants.PUT_OVERTIME_REQUEST:
+                        var overtimeRequestPut = DeserializeJson<OvertimeRequests>($"{request.json}");
+                        var lstovertimeRequestPut = DeserializeJson<List<OvertimeRequest1s>>($"{request.jsonDetail}");
+                        response = await _workforceRepository.UpdateOvertimeRequest(overtimeRequestPut!, lstovertimeRequestPut!);
                         break;
                     default:
                         response.status = StatusCodes.Status404NotFound;

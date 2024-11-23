@@ -14,6 +14,7 @@
         public const string ENUM_CONTRACT_NO = "CONTRACT_NO";
         public const string CONTRACT_APPENDIX_NO = "CONTRACT_APPENDIX_NO";
         public const string ENUM_REASON_DNNP = "DNNP";
+        public const string ENUM_REASON_DNTC = "DNTC";
 
        
     }

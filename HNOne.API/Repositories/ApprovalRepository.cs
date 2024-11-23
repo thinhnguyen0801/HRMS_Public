@@ -173,7 +173,7 @@ namespace HNOne.API.Repositories
                         if (shiftChangeleaveRequest == null)
                         {
                             response.status = StatusCodes.Status404NotFound;
-                            response.message = string.Format(MessageConstants.MESSAGE_NOT_FOUNT_FORMAT, "Đề nghị nghỉ phép");
+                            response.message = string.Format(MessageConstants.MESSAGE_NOT_FOUNT_FORMAT, "Đăng ký đổi ca");
                             return response;
                         }
                         await _dbContext.Database.BeginTransactionAsync();
@@ -183,6 +183,22 @@ namespace HNOne.API.Repositories
                         shiftChangeleaveRequest.DateTracking = dateTimeNow;
                         _dbContext.ShiftChanges.Attach(shiftChangeleaveRequest);
                         _dbContext.Entry(shiftChangeleaveRequest).State = EntityState.Modified;
+                        break;
+                    case GlobalConstants.TABLE_OVERTIME_REQUEST:
+                        var overtimeRequest = await _dbContext.OvertimeRequests.FirstOrDefaultAsync(m => m.Id == entity.DocEntry);
+                        if (overtimeRequest == null)
+                        {
+                            response.status = StatusCodes.Status404NotFound;
+                            response.message = string.Format(MessageConstants.MESSAGE_NOT_FOUNT_FORMAT, "Đề nghị tăng ca");
+                            return response;
+                        }
+                        await _dbContext.Database.BeginTransactionAsync();
+                        isTran = true;
+                        voucherNo = overtimeRequest.VoucherNo;
+                        overtimeRequest.StatusCode = CommonConstants.STATUS_CODE_APPROVAL_PENDING; // ĐÃ GỬI YÊU CẦU PHÊ DUYỆT
+                        overtimeRequest.DateTracking = dateTimeNow;
+                        _dbContext.OvertimeRequests.Attach(overtimeRequest);
+                        _dbContext.Entry(overtimeRequest).State = EntityState.Modified;
                         break;
                     default:
                         response.status = StatusCodes.Status404NotFound;
@@ -312,7 +328,7 @@ namespace HNOne.API.Repositories
                             if (shiftChangeleaveRequest == null)
                             {
                                 response.status = StatusCodes.Status404NotFound;
-                                response.message = string.Format(MessageConstants.MESSAGE_NOT_FOUNT_FORMAT, "Đề nghị nghỉ phép");
+                                response.message = string.Format(MessageConstants.MESSAGE_NOT_FOUNT_FORMAT, "Đăng ký đổi ca");
                                 return response;
                             }
                             voucherNo = shiftChangeleaveRequest.VoucherNo;
@@ -322,6 +338,22 @@ namespace HNOne.API.Repositories
                             shiftChangeleaveRequest.DateTracking = dateTimeNow; // cập nhật ngày tracking
                             _dbContext.ShiftChanges.Attach(shiftChangeleaveRequest);
                             _dbContext.Entry(shiftChangeleaveRequest).State = EntityState.Modified;
+                            break;
+                        case GlobalConstants.TABLE_OVERTIME_REQUEST:
+                            var overtimeRequest = await _dbContext.OvertimeRequests.FirstOrDefaultAsync(m => m.Id == entity.DocEntry);
+                            if (overtimeRequest == null)
+                            {
+                                response.status = StatusCodes.Status404NotFound;
+                                response.message = string.Format(MessageConstants.MESSAGE_NOT_FOUNT_FORMAT, "Đề nghị tăng ca");
+                                return response;
+                            }
+                            voucherNo = overtimeRequest.VoucherNo;
+                            employeeId = overtimeRequest.EmployeeId;
+                            overtimeRequest.StatusCode = entity.StatusCode; // tình trạng chứng từ "D": Đã duyệt, "T": từ chối, "C": đã hủy
+                            overtimeRequest.DateOfSigning = dateTimeNow; // cập nhật ngày ký
+                            overtimeRequest.DateTracking = dateTimeNow; // cập nhật ngày tracking
+                            _dbContext.OvertimeRequests.Attach(overtimeRequest);
+                            _dbContext.Entry(overtimeRequest).State = EntityState.Modified;
                             break;
                         default:
                             response.status = StatusCodes.Status404NotFound;

@@ -19,5 +19,8 @@ namespace HNOne.API.Repositories.Interfaces
         Task<IEnumerable<ShiftChangeModel>> GetShiftChange(RequestModel request);
         Task<ResponseModel> AddShiftChangeRequest(ShiftChanges entity, IEnumerable<ShiftChange1s> lstEntity1);
         Task<ResponseModel> UpdateShiftChangeRequest(ShiftChanges entity, IEnumerable<ShiftChange1s> lstEntity1);
+        Task<IEnumerable<OvertimeRequestModel>> GetOvertimeRequest(RequestModel request);
+        Task<ResponseModel> AddOvertimeRequest(OvertimeRequests entity, IEnumerable<OvertimeRequest1s> lstEntity1);
+        Task<ResponseModel> UpdateOvertimeRequest(OvertimeRequests entity, IEnumerable<OvertimeRequest1s> lstEntity1);
     }
 }

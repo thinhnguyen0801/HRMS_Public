@@ -149,7 +149,7 @@ namespace HNOne.API.Repositories
                 DynamicParameters parameters = new DynamicParameters();
                 string strQuery = "select T0.*, T1.Name as TypeName" +
                     " from ReasonCategories as T0 with(nolock)" +
-                    " inner join EnumCatagories as T1 with(nolock) on T0.Type = T1.Code and T1.EnumType = 'LoaiLyDo'" +
+                    " inner join [dbo].[HRM_FN_GET_ENUM] ('LoaiLyDo', '', '') as T1 on T0.Type = T1.Code" +
                     " where T0.IsDelete = 0";
                 if(!string.IsNullOrEmpty(request.opt))
                 {
@@ -158,7 +158,7 @@ namespace HNOne.API.Repositories
                 }    
                 var result = await connection.QueryAsync<ReasonCategorieModel>(strQuery, parameters, commandTimeout: 500, commandType: CommandType.Text);
                 return result;
-            }    
+            }
         }
 
         /// <summary>

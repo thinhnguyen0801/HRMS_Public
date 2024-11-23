@@ -106,6 +106,10 @@
         public const string POST_SHIFT_CHANGE_REQUEST = "post-shift-change-request";
         public const string PUT_SHIFT_CHANGE_REQUEST = "put-shift-change-request";
 
+        public const string GET_OVERTIME_REQUEST = "get-overtime-request";
+        public const string POST_OVERTIME_REQUEST = "post-overtime-request";
+        public const string PUT_OVERTIME_REQUEST = "put-overtime-request";
+
         #region Loại dưới store
         public const string GET_COMBO_TYPE_CONTRACT_BY_EMPLOYEEID = "CONTRACT_BY_EMPLOYEEID";
         public const string GET_COMBO_TYPE_SALARY_ADJUSTMENT_BY_CONTRACT = "SALARY_ADJUSTMENT_BY_CONTRACT";
@@ -114,6 +118,7 @@
         public const string GET_MENU_TYPE_MENU = "MENU";
         public const string GET_COMBO_LIST_OF_VACATION_DAY = "LR_LIST_OF_VACATION_DAYS";
         public const string GET_COMBO_LIST_OF_SHIFT_CHANGE_DAY = "SC_LIST_OF_SHIFT_CHANGE_DAY";
+        public const string GET_COMBO_LIST_OVERTIME_REQUEST_DAY = "OTR_LIST_OVERTIME_REQUEST_DAY";
         #endregion
     }
 }
