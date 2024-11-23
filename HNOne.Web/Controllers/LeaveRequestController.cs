@@ -38,6 +38,10 @@ namespace HNOne.Web.Controllers
         public string? StatusIds { get; set; } // Tình trạng nào
         public object? EmployeeSelected { get; set; } // Nhân viên được chọn
         public bool firstRender = true;
+
+        public string? VoucherHistory { get; set; } = string.Empty; // lịch sử chứng từ
+        // lock control lại
+        public bool IsReadonlyControl { get; set; } = false;
         #endregion
 
         protected override async Task OnAfterRenderAsync(bool firstRender)
@@ -51,6 +55,14 @@ namespace HNOne.Web.Controllers
                     //if (errMessage == "401") return; // kiểm quyền menu page danh sách
                     this.firstRender = firstRender;
                     await ShowLoading();
+                    ListBreadcrumbs = new List<BreadcrumbModel>()
+                    {
+                        new BreadcrumbModel("Công - Phép"),
+                        new BreadcrumbModel("Chứng từ đề nghị", "danh-sach-de-nghi-nghi-phep"),
+                        new BreadcrumbModel("Đề nghị nghỉ phép", isActive: true),
+                    };
+                    await NotifyBreadcrumb.InvokeAsync(ListBreadcrumbs);
+                    //
                     await initDataAsync();
                     await buildComboAsync();
                     if (pDocEntry > 0)
@@ -76,14 +88,6 @@ namespace HNOne.Web.Controllers
 
         private async Task initDataAsync(bool isRefresh = false)
         {
-            ListBreadcrumbs = new List<BreadcrumbModel>()
-            {
-                new BreadcrumbModel("Công - Phép"),
-                new BreadcrumbModel("Chứng từ đề nghị", "danh-sach-de-nghi-nghi-phep"),
-                new BreadcrumbModel("Đề nghị nghỉ phép", isActive: true),
-            };
-            await NotifyBreadcrumb.InvokeAsync(ListBreadcrumbs);
-
             // GÁN DỮ LIỆU MẶC ĐỊNH
             LeaveRequestDocument.statusCode = CommonConstants.STATUS_CODE_ADD; // mặc định là chờ xử lý
             var uri = _navigationManager?.ToAbsoluteUri(_navigationManager.Uri);
@@ -213,10 +217,16 @@ namespace HNOne.Web.Controllers
                 request.branchId = BranchId;
                 request.token = Token;
                 request.process = ProcessConstants.GET_LEAVE_REQUEST;
-                var lstData = await _workforceService.GetLeaveRequestAsync(request);
+                var task1 = _workforceService.GetLeaveRequestAsync(request);
+                var task2 = getDocumentHistory();
+                await Task.WhenAll(task1, task2);
+                List<LeaveRequestModel>? lstData = await task1;
                 if (!lstData.IsNullOrEmpty())
                 {
                     LeaveRequestDocument = lstData![0];
+                    //cho phép chỉnh sữa khi tình trạng là: A (Tạo mới), Y (Đã gửi yêu cầu phê duyệt)
+                    IsReadonlyControl = LeaveRequestDocument.statusCode != CommonConstants.STATUS_CODE_ADD
+                        && LeaveRequestDocument.statusCode != CommonConstants.STATUS_CODE_APPROVAL_PENDING;
                     if (!string.IsNullOrEmpty(LeaveRequestDocument.jsonDetail))
                     {
                         ListOfVacationDays = JsonConvert.DeserializeObject<List<LeaveRequest1Model>>(LeaveRequestDocument.jsonDetail);
@@ -229,6 +239,13 @@ namespace HNOne.Web.Controllers
                 throw ex;
             }
         }
+
+        /// <summary>
+        /// lấy lịch sử chứng từ
+        /// </summary>
+        /// <returns></returns>
+        private async Task getDocumentHistory()
+            => VoucherHistory = await _approvalService.GetFunDocumentHistoryAsync(UserId, BranchId, Token, nameof(EnumObjType.LeaveRequests), pDocEntry);
         #endregion
 
 

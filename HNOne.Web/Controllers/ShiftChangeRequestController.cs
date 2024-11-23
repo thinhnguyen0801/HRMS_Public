@@ -1,20 +1,20 @@
-﻿using Microsoft.AspNetCore.Components;
+﻿using HNOne.Web.Components.Controls;
 using HNOne.Web.Services.Interfaces;
-using HNOne.Web.Components.Controls;
+using HNOne.Web.Services;
+using Microsoft.AspNetCore.Components;
 using Microsoft.JSInterop;
 using HNOne.Web.Commons;
 using HNOne.Model.Models;
-using HNOne.Model;
 using DevExpress.Blazor;
-using HNOne.Common;
+using HNOne.Model;
 using HNOne.Web.Models;
+using HNOne.Common;
 using Microsoft.AspNetCore.WebUtilities;
 using Newtonsoft.Json;
-using HNOne.Web.Services;
 
 namespace HNOne.Web.Controllers
 {
-    public class LeaveWorkingHourController : DocumentControllerBase
+    public class ShiftChangeRequestController : DocumentControllerBase
     {
         [Inject] IMasterDataService _masterDataService { get; init; }
         [Inject] IWorkforceService _workforceService { get; init; }
@@ -26,12 +26,13 @@ namespace HNOne.Web.Controllers
         public string? pActionType { get; set; } = nameof(EnumType.Add);
         private int pDocEntry { get; set; } = 0;
         public int ActiveTabIndex { get; set; } = 0;
-        public LeaveRequestModel LeaveRequestDocument { get; set; } = new LeaveRequestModel();
-        public List<LeaveRequest1Model>? ListOfVacationDays { get; set; } // danh sách thông tin lương
-        public IGrid? GridOfVacationDays { get; set; }
+
+        public ShiftChangeModel ShiftRequestDocument { get; set; } = new ShiftChangeModel();
+        public List<ShiftChange1Model>? ListShiftChange { get; set; }
+        public IGrid? GridShiftChange { get; set; }
         public List<ComboboxModel>? ListCboDepartment { get; set; } // cbo ds phòng ban
         public List<EnumCatagoryModel>? ListCboStatus { get; set; } // cbo ds tình trạng
-        public List<EnumCatagoryModel>? ListCboRequestType { get; set; } // cbo ds loại đăng kí
+        public List<EnumCatagoryModel>? ListCboShift { get; set; } // cbo ds ca làm việc
 
         private string? pPopupType { get; set; } = string.Empty; // mở popup nào
         public bool IsShowDialogEmpSearch { get; set; }
@@ -39,7 +40,6 @@ namespace HNOne.Web.Controllers
         public string? StatusIds { get; set; } // Tình trạng nào
         public object? EmployeeSelected { get; set; } // Nhân viên được chọn
         public bool firstRender = true;
-
         public string? VoucherHistory { get; set; } = string.Empty; // lịch sử chứng từ
         // lock control lại
         public bool IsReadonlyControl { get; set; } = false;
@@ -56,7 +56,15 @@ namespace HNOne.Web.Controllers
                     //if (errMessage == "401") return; // kiểm quyền menu page danh sách
                     this.firstRender = firstRender;
                     await ShowLoading();
-                    await initDataAsync();
+                    ListBreadcrumbs = new List<BreadcrumbModel>()
+                    {
+                        new BreadcrumbModel("Công - Phép"),
+                        new BreadcrumbModel("Danh sách đăng ký đổi ca", "danh-sach-dang-ki-doi-ca"),
+                        new BreadcrumbModel("Đăng ký đổi ca", isActive: true),
+                    };
+                    await NotifyBreadcrumb.InvokeAsync(ListBreadcrumbs);
+                    //
+                    initDataAsync();
                     await buildComboAsync();
                     if (pDocEntry > 0)
                     {
@@ -77,23 +85,12 @@ namespace HNOne.Web.Controllers
             }
         }
 
-        #region Private Functions
+        #region Private 
 
-        private async Task initDataAsync(bool isRefresh = false)
+        private void initDataAsync(bool isRefresh = false)
         {
-            ListBreadcrumbs = new List<BreadcrumbModel>()
-            {
-                new BreadcrumbModel("Công - Phép"),
-                new BreadcrumbModel("Chứng từ đề nghị", "danh-sach-de-nghi-nghi-phep"),
-                new BreadcrumbModel("Xin nghỉ trong giờ", isActive: true),
-            };
-            await NotifyBreadcrumb.InvokeAsync(ListBreadcrumbs);
-
             // GÁN DỮ LIỆU MẶC ĐỊNH
-            LeaveRequestDocument.statusCode = CommonConstants.STATUS_CODE_ADD; // mặc định là chờ xử lý
-            LeaveRequestDocument.createDate = DateTime.Now;
-            LeaveRequestDocument.fromDate = DateTime.Now;
-            LeaveRequestDocument.fromDateTime = DateTime.Now;
+            ShiftRequestDocument.statusCode = CommonConstants.STATUS_CODE_ADD; // mặc định là chờ xử lý
             var uri = _navigationManager?.ToAbsoluteUri(_navigationManager.Uri);
             if (uri != null && QueryHelpers.ParseQuery(uri.Query).Count > 0)
             {
@@ -117,16 +114,16 @@ namespace HNOne.Web.Controllers
             {
                 var getTask1 = _masterDataService.GetDepartmentAsync(UserId, Token); // ds phòng ban
                 var getTask5 = _masterDataService.GetFunEnumAsync(UserId, Token, nameof(EnumCatagory.TrangThaiHopDong)); // ds trạng thái
-                var getTask6 = _masterDataService.GetFunEnumAsync(UserId, Token, nameof(EnumCatagory.LoaiDangKyXinNghiTrongGio)); // ds trạng thái
+                var getTask2 = _masterDataService.GetEnumAsync(UserId, Token, nameof(EnumCatagory.CaLamViec)); // ds trạng thái
                 await Task.WhenAll(
                     getTask1,
-                    getTask5,
-                    getTask6
+                    getTask2,
+                    getTask5
                 );
 
                 ListCboDepartment = (await getTask1)?.Select(m => new ComboboxModel() { id = m.id, name = m.name })?.ToList();
                 ListCboStatus = await getTask5;
-                ListCboRequestType = await getTask6;
+                ListCboShift = await getTask2;
             }
             catch (Exception) { throw; }
         }
@@ -138,52 +135,40 @@ namespace HNOne.Web.Controllers
         /// <param name="fieldName"></param>
         private void validateForSave(ref string errorMessage, ref string fieldName)
         {
-            if (LeaveRequestDocument.departmentId < 1)
-            {
-                errorMessage = string.Format(MessageConstants.MESSAGE_COMBOBOX_REQUIRE, "Phòng ban");
-                fieldName = nameof(LeaveRequestDocument.departmentId);
-                return;
-            }
-            if (LeaveRequestDocument.employeeId < 1)
+            if (ShiftRequestDocument.employeeId < 1)
             {
                 errorMessage = string.Format(MessageConstants.MESSAGE_COMBOBOX_REQUIRE, "Nhân viên");
-                fieldName = nameof(LeaveRequestDocument.employeeId);
+                fieldName = nameof(ShiftRequestDocument.employeeId);
                 return;
             }
-            if (string.IsNullOrEmpty(LeaveRequestDocument.requestType))
+            if (ShiftRequestDocument.departmentId < 1)
             {
-                errorMessage = string.Format(MessageConstants.MESSAGE_COMBOBOX_REQUIRE, "Loại đăng ký");
-                fieldName = nameof(LeaveRequestDocument.reasonId);
+                errorMessage = string.Format(MessageConstants.MESSAGE_COMBOBOX_REQUIRE, "Phòng ban");
+                fieldName = nameof(ShiftRequestDocument.departmentId);
                 return;
             }
-            if (LeaveRequestDocument.fromDate == null)
+            if (ShiftRequestDocument.fromDate == null)
             {
-                errorMessage = string.Format(MessageConstants.MESSAGE_COMBOBOX_REQUIRE, "Ngày đăng kí"); ;
+                errorMessage = string.Format(MessageConstants.MESSAGE_COMBOBOX_REQUIRE, "Từ ngày");
                 fieldName = "startDate";
                 return;
             }
-            if (LeaveRequestDocument.fromDateTime == null)
+            if (ShiftRequestDocument.toDate == null)
             {
-                errorMessage = string.Format(MessageConstants.MESSAGE_COMBOBOX_REQUIRE, "Từ giờ"); ;
-                fieldName = "startDateTime";
-                return;
-            }
-            if (LeaveRequestDocument.toDate == null)
-            {
-                errorMessage = string.Format(MessageConstants.MESSAGE_COMBOBOX_REQUIRE, "Đến giờ"); ;
+                errorMessage = string.Format(MessageConstants.MESSAGE_COMBOBOX_REQUIRE, "Đến ngày");
                 fieldName = "endDate";
                 return;
             }
-            if (LeaveRequestDocument.toDate.Value < LeaveRequestDocument.fromDate.Value)
+            if (ShiftRequestDocument.toDate.Value.Date < ShiftRequestDocument.fromDate.Value.Date)
             {
-                errorMessage = MessageConstants.MESSAGE_FROM_TIME_TO_TIME_INVALID;
-                fieldName = "startDateTime";
+                errorMessage = MessageConstants.MESSAGE_FROM_DATE_TO_DATE_INVALID;
+                fieldName = "startDate";
                 return;
             }
-            if (string.IsNullOrEmpty(LeaveRequestDocument.remark))
+            if (string.IsNullOrWhiteSpace(ShiftRequestDocument.reason))
             {
-                errorMessage = string.Format(MessageConstants.MESSAGE_COMBOBOX_REQUIRE, "Lý do nghỉ");
-                fieldName = "txtRemark";
+                errorMessage = string.Format(MessageConstants.MESSAGE_STRING_REQUIRE, "Lý do đổi ca");
+                fieldName = nameof(ShiftRequestDocument.reason);
                 return;
             }
         }
@@ -195,24 +180,36 @@ namespace HNOne.Web.Controllers
         /// <param name="fieldName"></param>
         private void validateForCreateLeaveDate(ref string errorMessage, ref string fieldName)
         {
-            if (LeaveRequestDocument.fromDate == null)
+            if (ShiftRequestDocument.employeeId < 1)
             {
-                errorMessage = string.Format(MessageConstants.MESSAGE_COMBOBOX_REQUIRE, "Từ ngày"); ;
+                errorMessage = string.Format(MessageConstants.MESSAGE_COMBOBOX_REQUIRE, "Nhân viên");
+                fieldName = nameof(ShiftRequestDocument.employeeId);
+                return;
+            }
+            if (ShiftRequestDocument.fromDate == null)
+            {
+                errorMessage = string.Format(MessageConstants.MESSAGE_COMBOBOX_REQUIRE, "Từ ngày");
                 fieldName = "startDate";
                 return;
             }
-            if (LeaveRequestDocument.toDate == null)
+            if (ShiftRequestDocument.toDate == null)
             {
-                errorMessage = string.Format(MessageConstants.MESSAGE_COMBOBOX_REQUIRE, "Đến ngày"); ;
+                errorMessage = string.Format(MessageConstants.MESSAGE_COMBOBOX_REQUIRE, "Đến ngày");
                 fieldName = "endDate";
                 return;
             }
-            if (LeaveRequestDocument.toDate.Value.Date < LeaveRequestDocument.fromDate.Value.Date)
+            if (ShiftRequestDocument.toDate.Value.Date < ShiftRequestDocument.fromDate.Value.Date)
             {
-                errorMessage = MessageConstants.MESSAGE_FROM_TIME_TO_TIME_INVALID;
-                fieldName = "startDateTime";
+                errorMessage = MessageConstants.MESSAGE_FROM_DATE_TO_DATE_INVALID;
+                fieldName = "startDate";
                 return;
             }
+            if(string.IsNullOrEmpty(ShiftRequestDocument.shiftCode2))
+            {
+                errorMessage = string.Format(MessageConstants.MESSAGE_COMBOBOX_REQUIRE, "Ca thay đổi");
+                fieldName = "shiftCode2";
+                return;
+            }    
         }
 
         /// <summary>
@@ -222,16 +219,16 @@ namespace HNOne.Web.Controllers
         /// <param name="fieldName"></param>
         private void validateForSaveApproval(ref string errorMessage, ref string fieldName)
         {
-            if (LeaveRequestDocument.id < 1)
+            if (ShiftRequestDocument.id < 1)
             {
                 errorMessage = "Vui lòng lưu thông tin chứng từ trước khi gửi phê duyệt";
                 fieldName = "zzzz";
                 return;
             }
-            if (LeaveRequestDocument.employeeId < 1)
+            if (ShiftRequestDocument.employeeSignatureId < 1)
             {
                 errorMessage = string.Format(MessageConstants.MESSAGE_COMBOBOX_REQUIRE, "Người ký");
-                fieldName = nameof(LeaveRequestDocument.employeeSignatureId);
+                fieldName = nameof(ShiftRequestDocument.employeeSignatureId);
                 return;
             }
         }
@@ -249,21 +246,20 @@ namespace HNOne.Web.Controllers
                 request.userId = UserId;
                 request.branchId = BranchId;
                 request.token = Token;
-                request.process = ProcessConstants.GET_LEAVE_WORKING_HOUR;
-                var task1 = _workforceService.GetLeaveRequestAsync(request);
+                request.process = ProcessConstants.GET_SHIFT_CHANGE_REQUEST;
+                var task1 = _workforceService.GetShiftChangeRequestAsync(request);
                 var task2 = getDocumentHistory();
                 await Task.WhenAll(task1, task2);
-                List<LeaveRequestModel>? lstData = await task1;
+                List<ShiftChangeModel>? lstData = await task1;
                 if (!lstData.IsNullOrEmpty())
                 {
-                    LeaveRequestDocument = lstData![0];
+                    ShiftRequestDocument = lstData![0];
                     //cho phép chỉnh sữa khi tình trạng là: A (Tạo mới), Y (Đã gửi yêu cầu phê duyệt)
-                    IsReadonlyControl = LeaveRequestDocument.statusCode != CommonConstants.STATUS_CODE_ADD
-                        && LeaveRequestDocument.statusCode != CommonConstants.STATUS_CODE_APPROVAL_PENDING;
-                    if (!string.IsNullOrEmpty(LeaveRequestDocument.jsonDetail))
+                    IsReadonlyControl = ShiftRequestDocument.statusCode != CommonConstants.STATUS_CODE_ADD
+                        && ShiftRequestDocument.statusCode != CommonConstants.STATUS_CODE_APPROVAL_PENDING;
+                    if (!string.IsNullOrEmpty(ShiftRequestDocument.jsonDetail))
                     {
-                        ListOfVacationDays = JsonConvert.DeserializeObject<List<LeaveRequest1Model>>(LeaveRequestDocument.jsonDetail);
-                        GridOfVacationDays?.Reload();
+                        ListShiftChange = JsonConvert.DeserializeObject<List<ShiftChange1Model>>(ShiftRequestDocument.jsonDetail);
                     }
                 }
             }
@@ -278,13 +274,13 @@ namespace HNOne.Web.Controllers
         /// </summary>
         /// <returns></returns>
         private async Task getDocumentHistory()
-            => VoucherHistory = await _approvalService.GetFunDocumentHistoryAsync(UserId, BranchId, Token, nameof(EnumObjType.LeaveWorkingHours), pDocEntry);
+            => VoucherHistory = await _approvalService.GetFunDocumentHistoryAsync(UserId, BranchId, Token, nameof(EnumObjType.ShiftChanges), pDocEntry);
         #endregion
 
-
         #region Protected Functions
+
         protected async Task OpenPopupHandler(string type = nameof(EmployeeSelected),
-            string popupType = nameof(LeaveRequestDocument.employeeCode))
+            string popupType = nameof(ShiftRequestDocument.employeeCode))
         {
             try
             {
@@ -327,17 +323,17 @@ namespace HNOne.Web.Controllers
                 EmployeeModel employee = (EmployeeModel)EmployeeSelected;
                 switch (pPopupType)
                 {
-                    case nameof(LeaveRequestDocument.employeeCode):
-                        LeaveRequestDocument.employeeId = employee.id;
-                        LeaveRequestDocument.employeeCode = employee.code;
-                        LeaveRequestDocument.employeeName = employee.name;
-                        LeaveRequestDocument.departmentId = employee.departmentId;
+                    case nameof(ShiftRequestDocument.employeeCode):
+                        ShiftRequestDocument.employeeId = employee.id;
+                        ShiftRequestDocument.employeeCode = employee.code;
+                        ShiftRequestDocument.employeeName = employee.name;
+                        ShiftRequestDocument.departmentId = employee.departmentId;
                         IsShowDialogEmpSearch = false;
                         break;
-                    case nameof(LeaveRequestDocument.employeeSignatureCode):
-                        LeaveRequestDocument.employeeSignatureId = employee.id;
-                        LeaveRequestDocument.employeeSignatureCode = employee.code;
-                        LeaveRequestDocument.employeeSignatureName = employee.name;
+                    case nameof(ShiftRequestDocument.employeeSignatureCode):
+                        ShiftRequestDocument.employeeSignatureId = employee.id;
+                        ShiftRequestDocument.employeeSignatureCode = employee.code;
+                        ShiftRequestDocument.employeeSignatureName = employee.name;
                         IsShowDialogEmpSearch = false;
                         break;
                 }
@@ -360,89 +356,6 @@ namespace HNOne.Web.Controllers
         /// <param name="lstEmp"></param>
         protected void EventCallbackEmpChangedHandler(object? lstEmp) => EmployeeSelected = lstEmp;
 
-        /// <summary>
-        /// tạo danh sách ngày nghỉ
-        /// </summary>
-        /// <returns></returns>
-        protected async Task CreateLeaveDateHandler()
-        {
-            try
-            {
-                string errorMessage = string.Empty;
-                string fieldName = string.Empty; // trả ra trường nào cần validate
-                validateForCreateLeaveDate(ref errorMessage, ref fieldName);
-                if (!string.IsNullOrEmpty(errorMessage))
-                {
-                    ShowWarning(errorMessage);
-                    await _jsRuntime.InvokeVoidAsync("focusInput", fieldName);
-                    return;
-                }
-                await ShowLoading();
-                RequestModel request = new RequestModel();
-                request.process = ProcessConstants.GET_WORKFORCE_MASTER_DATA;
-                request.userId = UserId;
-                request.token = Token;
-                request.opt = LeaveRequestDocument.fromDate!.FormatDateTimeSql();
-                request.opt1 = LeaveRequestDocument.toDate!.FormatDateTimeSql();
-                request.type = ProcessConstants.GET_COMBO_LIST_OF_VACATION_DAY;
-                var result = await _workforceService.GetMasterDataAsync<LeaveRequest1Model>(request, isShowToast: true);
-                ListOfVacationDays = result;
-            }
-            catch (Exception ex)
-            {
-                ShowError(ex.Message);
-                _logger.LogError(ex, "CreateLeaveDateHandler");
-            }
-            finally
-            {
-                await Task.Delay(100);
-                await ShowLoading(false);
-                await InvokeAsync(StateHasChanged);
-            }
-        }
-
-        protected void GridLeaveDateEditSavingHandler(GridEditModelSavingEventArgs e)
-        {
-            try
-            {
-                var itemEdit = (LeaveRequest1Model)e.EditModel;
-                var itemFind = ListOfVacationDays?.FirstOrDefault(m => m.dateOff == itemEdit.dateOff && m.id == itemEdit.id);
-                if (itemFind == null) return;
-                itemFind.remark = itemEdit.remark;
-                itemFind.isMorningBreak = itemEdit.isMorningBreak;
-                itemFind.isAfternoonBreak = itemEdit.isAfternoonBreak;
-                StateHasChanged();
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "GridLeaveDateEditSavingHandler");
-            }
-        }
-
-        /// <summary>
-        /// custom tô line lưới
-        /// </summary>
-        /// <param name="e"></param>
-        protected void GridLeaveDateCustomizeElement(GridCustomizeElementEventArgs e)
-        {
-            try
-            {
-                if (e.ElementType == GridElementType.DataRow && GridOfVacationDays != null)
-                {
-                    var employee = (LeaveRequest1Model)GridOfVacationDays.GetDataItem(e.VisibleIndex);
-                    if (!string.IsNullOrEmpty(employee?.bgColor))
-                    {
-                        e.Style = $"background-color: {employee.bgColor}";
-                    }
-                }
-            }
-            catch (Exception ex) { }
-        }
-
-        /// <summary>
-        /// lưu thông tin chứng từ
-        /// </summary>
-        /// <returns></returns>
         protected async Task SaveDataHandler()
         {
             try
@@ -462,19 +375,13 @@ namespace HNOne.Web.Controllers
                 isConfirm = await confirm.SetConfirm(MessageConstants.MESSAGE_TITLE, errorMessage);
                 if (!isConfirm) return;
                 await ShowLoading();
-                string processKey = pActionType == nameof(EnumType.Add) ? ProcessConstants.POST_LEAVE_WORKING_HOUR : ProcessConstants.PUT_LEAVE_WORKING_HOUR;
-                LeaveRequestDocument.branchId = BranchId;
-                LeaveRequestDocument.userSign = UserId;
-                LeaveRequestDocument.userSign2 = UserId;
-                DateTime fromDateTemp = LeaveRequestDocument.fromDate!.Value;
-                DateTime fromTimeTemp = LeaveRequestDocument.fromDateTime!.Value;
-                DateTime toTimeTemp = LeaveRequestDocument.toDate!.Value;
-                LeaveRequestDocument.fromDate = new DateTime(fromDateTemp.Year
-                    , fromDateTemp.Month, fromDateTemp.Day, fromTimeTemp.Hour, fromTimeTemp.Minute, 0);
-                LeaveRequestDocument.toDate = new DateTime(fromDateTemp.Year
-                    , fromDateTemp.Month, fromDateTemp.Day, toTimeTemp.Hour, toTimeTemp.Minute, 0);
-                string json = JsonConvert.SerializeObject(LeaveRequestDocument);
-                int result = await _workforceService.UpdateLeaveRequestAsync(processKey, UserId, Token, BranchId, json, "");
+                string processKey = pActionType == nameof(EnumType.Add) ? ProcessConstants.POST_SHIFT_CHANGE_REQUEST : ProcessConstants.PUT_SHIFT_CHANGE_REQUEST;
+                ShiftRequestDocument.branchId = BranchId;
+                ShiftRequestDocument.userSign = UserId;
+                ShiftRequestDocument.userSign2 = UserId;
+                string json = JsonConvert.SerializeObject(ShiftRequestDocument);
+                string jsonDetail = JsonConvert.SerializeObject(ListShiftChange);
+                int result = await _workforceService.UpdateLeaveRequestAsync(processKey, UserId, Token, BranchId, json, jsonDetail);
                 if (result > 0)
                 {
                     pActionType = nameof(EnumType.Update);
@@ -494,10 +401,6 @@ namespace HNOne.Web.Controllers
             }
         }
 
-        /// <summary>
-        /// gửi phê duyệt
-        /// </summary>
-        /// <returns></returns>
         protected async Task SubmitForApprovalHandler()
         {
             try
@@ -513,18 +416,18 @@ namespace HNOne.Web.Controllers
                     return;
                 }
                 await Task.Yield();
-                errorMessage = string.Format(MessageConstants.MESSAGE_CONFIRM_SEND_APPROVAL_FORMAT, $"đến nhân viên {LeaveRequestDocument.employeeSignatureName}");
+                errorMessage = string.Format(MessageConstants.MESSAGE_CONFIRM_SEND_APPROVAL_FORMAT, $"đến nhân viên {ShiftRequestDocument.employeeSignatureName}");
                 isConfirm = await confirm.SetConfirm(MessageConstants.MESSAGE_TITLE, $"{errorMessage}");
                 if (!isConfirm) return;
                 await ShowLoading();
                 string processKey = ProcessConstants.POST_APPROVAL;
                 ApprovalModel approval = new ApprovalModel();
-                approval.docEntry = LeaveRequestDocument.id;
-                approval.objType = nameof(EnumObjType.LeaveWorkingHours);
+                approval.docEntry = ShiftRequestDocument.id;
+                approval.objType = nameof(EnumObjType.ShiftChanges);
                 approval.branchId = BranchId;
                 approval.statusCode = CommonConstants.STATUS_CODE_APPROVAL_PENDING;
                 approval.userSign = UserId;
-                approval.employeeSignatureId = LeaveRequestDocument.employeeSignatureId;
+                approval.employeeSignatureId = ShiftRequestDocument.employeeSignatureId;
                 string content = JsonConvert.SerializeObject(approval);
                 isConfirm = await _approvalService.UpdateApprovalAsync(processKey, UserId, Token, json: content);
                 if (isConfirm) await showVoucher();
@@ -541,26 +444,100 @@ namespace HNOne.Web.Controllers
             }
         }
 
+        protected async Task CreateShiftChangeDateHandler()
+        {
+            try
+            {
+                string errorMessage = string.Empty;
+                string fieldName = string.Empty; // trả ra trường nào cần validate
+                validateForCreateLeaveDate(ref errorMessage, ref fieldName);
+                if (!string.IsNullOrEmpty(errorMessage))
+                {
+                    ShowWarning(errorMessage);
+                    await _jsRuntime.InvokeVoidAsync("focusInput", fieldName);
+                    return;
+                }
+                await ShowLoading();
+                RequestModel request = new RequestModel();
+                request.process = ProcessConstants.GET_WORKFORCE_MASTER_DATA;
+                request.employeeId = ShiftRequestDocument.employeeId;
+                request.userId = UserId;
+                request.token = Token;
+                request.opt = ShiftRequestDocument.fromDate!.FormatDateTimeSql();
+                request.opt1 = ShiftRequestDocument.toDate!.FormatDateTimeSql();
+                request.opt2 = ShiftRequestDocument.shiftCode2;
+                request.type = ProcessConstants.GET_COMBO_LIST_OF_SHIFT_CHANGE_DAY;
+                var result = await _workforceService.GetMasterDataAsync<ShiftChange1Model>(request, isShowToast: true);
+                ListShiftChange = result;
+            }
+            catch (Exception ex)
+            {
+                ShowError(ex.Message);
+                _logger.LogError(ex, "CreateLeaveDateHandler");
+            }
+            finally
+            {
+                await Task.Delay(100);
+                await ShowLoading(false);
+                await InvokeAsync(StateHasChanged);
+            }
+
+        }
+
+        protected void GridLeaveDateEditSavingHandler(GridEditModelSavingEventArgs e)
+        {
+            try
+            {
+                var itemEdit = (ShiftChange1Model)e.EditModel;
+                var itemFind = ListShiftChange?.FirstOrDefault(m => m.dateChange == itemEdit.dateChange && m.id == itemEdit.id);
+                if (itemFind == null) return;
+                itemFind.remark = itemEdit.remark;
+                itemFind.shiftCode2 = itemEdit.shiftCode2;
+                StateHasChanged();
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "GridLeaveDateEditSavingHandler");
+            }
+        }
+
         /// <summary>
-        /// thay đổi thông tin DateEdit
+        /// custom tô line lưới
         /// </summary>
-        /// <param name="value"></param>
-        /// <param name="controlID"></param>
+        /// <param name="e"></param>
+        protected void GridLeaveDateCustomizeElement(GridCustomizeElementEventArgs e)
+        {
+            try
+            {
+                if (e.ElementType == GridElementType.DataRow && GridShiftChange != null)
+                {
+                    var employee = (ShiftChange1Model)GridShiftChange.GetDataItem(e.VisibleIndex);
+                    if (!string.IsNullOrEmpty(employee?.bgColor))
+                    {
+                        e.Style = $"background-color: {employee.bgColor}";
+                    }
+                }
+            }
+            catch (Exception ex) { }
+        }
+
         protected void DateEditValueChangedHandler(object? value
-            , string controlID = nameof(LeaveRequestDocument.fromDate))
+            , string controlID = nameof(ShiftRequestDocument.fromDate))
         {
             try
             {
                 if (firstRender) return;
                 switch (controlID)
                 {
-                    case nameof(LeaveRequestDocument.fromDateTime):
-                        LeaveRequestDocument.fromDateTime = (DateTime?)value;
-                        LeaveRequestDocument.toDate = null;
+                    case nameof(ShiftRequestDocument.fromDate):
+                        ShiftRequestDocument.fromDate = (DateTime?)value;
+                        ShiftRequestDocument.toDate = null;
+                        ListShiftChange = new List<ShiftChange1Model>();
                         StateHasChanged();
                         break;
-                    case nameof(LeaveRequestDocument.toDate):
-                        LeaveRequestDocument.toDate = (DateTime?)value;
+                    case nameof(ShiftRequestDocument.toDate):
+                        ShiftRequestDocument.toDate = (DateTime?)value;
+                        ListShiftChange = new List<ShiftChange1Model>();
                         StateHasChanged();
                         break;
                 }

@@ -98,9 +98,13 @@
         public const string POST_LEAVE_WORKING_HOUR = "post-leave-working-hour";
         public const string PUT_LEAVE_WORKING_HOUR = "put-leave-working-hour";
 
-        public const string GET_HOILDAY_CATAGORY = "get-hoilday_catagory";
-        public const string POST_HOILDAY_CATAGORY = "post-hoilday_catagory";
-        public const string PUT_HOILDAY_CATAGORY = "put-hoilday_catagory";
+        public const string GET_HOILDAY_CATAGORY = "get-hoilday-catagory";
+        public const string POST_HOILDAY_CATAGORY = "post-hoilday-catagory";
+        public const string PUT_HOILDAY_CATAGORY = "put-hoilday-catagory";
+
+        public const string GET_SHIFT_CHANGE_REQUEST = "get-shift-change-request";
+        public const string POST_SHIFT_CHANGE_REQUEST = "post-shift-change-request";
+        public const string PUT_SHIFT_CHANGE_REQUEST = "put-shift-change-request";
 
         #region Loại dưới store
         public const string GET_COMBO_TYPE_CONTRACT_BY_EMPLOYEEID = "CONTRACT_BY_EMPLOYEEID";
@@ -109,6 +113,7 @@
         public const string GET_MENU_TYPE_CHECK_PERMISSION = "CHECK_PERMISSION";
         public const string GET_MENU_TYPE_MENU = "MENU";
         public const string GET_COMBO_LIST_OF_VACATION_DAY = "LR_LIST_OF_VACATION_DAYS";
+        public const string GET_COMBO_LIST_OF_SHIFT_CHANGE_DAY = "SC_LIST_OF_SHIFT_CHANGE_DAY";
         #endregion
     }
 }

@@ -16,5 +16,8 @@ namespace HNOne.API.Repositories.Interfaces
         Task<ResponseModel> UpdateLeaveWorkingHours(string actionType, LeaveWorkingHours entity);
         Task<ResponseModel> UpdateHolidayCatagory(string actionType, HolidayCatagories entity);
         Task<IEnumerable<HolidayCatagoryModel>> GetHolidayCatagory(RequestModel request);
+        Task<IEnumerable<ShiftChangeModel>> GetShiftChange(RequestModel request);
+        Task<ResponseModel> AddShiftChangeRequest(ShiftChanges entity, IEnumerable<ShiftChange1s> lstEntity1);
+        Task<ResponseModel> UpdateShiftChangeRequest(ShiftChanges entity, IEnumerable<ShiftChange1s> lstEntity1);
     }
 }

@@ -9,5 +9,6 @@ namespace HNOne.Web.Services.Interfaces
         Task<bool> UpdateMasterDataAsync(RequestModel request);
         Task<int> UpdateLeaveRequestAsync(string processKey, int userId, string token, int branchId, string json, string jsonDetail);
         Task<List<LeaveRequestModel>?> GetLeaveRequestAsync(RequestModel request, bool isShowToast = false);
+        Task<List<ShiftChangeModel>?> GetShiftChangeRequestAsync(RequestModel request, bool isShowToast = false);
     }
 }

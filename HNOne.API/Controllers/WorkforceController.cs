@@ -52,6 +52,9 @@ namespace HNOne.API.Controllers
                     case ProcessConstants.GET_HOILDAY_CATAGORY:
                         response.data = await _workforceRepository.GetHolidayCatagory(request);
                         break;
+                    case ProcessConstants.GET_SHIFT_CHANGE_REQUEST:
+                        response.data = await _workforceRepository.GetShiftChange(request);
+                        break;
                     default:
                         response.status = StatusCodes.Status404NotFound;
                         response.message = $"Process Key {processKey} was not provider!!!";
@@ -108,6 +111,16 @@ namespace HNOne.API.Controllers
                     case ProcessConstants.PUT_HOILDAY_CATAGORY:
                         var holiday = DeserializeJson<HolidayCatagories>($"{request.json}");
                         response = await _workforceRepository.UpdateHolidayCatagory(processKey, holiday!);
+                        break;
+                    case ProcessConstants.POST_SHIFT_CHANGE_REQUEST:
+                        var shiftChangePost = DeserializeJson<ShiftChanges>($"{request.json}");
+                        var lstShiftChangePost = DeserializeJson<List<ShiftChange1s>>($"{request.jsonDetail}");
+                        response = await _workforceRepository.AddShiftChangeRequest(shiftChangePost!, lstShiftChangePost!);
+                        break;
+                    case ProcessConstants.PUT_SHIFT_CHANGE_REQUEST:
+                        var shiftChangePut = DeserializeJson<ShiftChanges>($"{request.json}");
+                        var lstShiftChangePut = DeserializeJson<List<ShiftChange1s>>($"{request.jsonDetail}");
+                        response = await _workforceRepository.UpdateShiftChangeRequest(shiftChangePut!, lstShiftChangePut!);
                         break;
                     default:
                         response.status = StatusCodes.Status404NotFound;

@@ -36,5 +36,6 @@
         ContractAppendices, // Phụ lục hợp đồng
         LeaveRequests, // đề nghị nghỉ phép
         LeaveWorkingHours, // xin nghỉ trong giờ
+        ShiftChanges, // xin nghỉ trong giờ
     }
 }

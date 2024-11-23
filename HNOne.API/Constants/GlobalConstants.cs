@@ -18,6 +18,7 @@
         public const string TABLE_CONTRACT_APPENDIX = "ContractAppendices"; // phụ lục hợp đồng
         public const string TABLE_LEAVE_REQUEST = "LeaveRequests";
         public const string TABLE_LEAVE_WORKING_HOURS = "LeaveWorkingHours";
+        public const string TABLE_SHIFT_CHANGE_REQUEST = "ShiftChanges"; // đăng kí đổi ca
         #endregion
     }
 }

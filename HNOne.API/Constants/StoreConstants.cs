@@ -16,5 +16,6 @@
         public const string STORE_H1_APPROVAL_SELECT = "[dbo].[H1_APPROVAL_SELECT]";
         public const string STORE_H1_LEAVE_REQUEST_SELECT = "[dbo].[H1_LEAVE_REQUEST_SELECT]";
         public const string STORE_H1_LEAVE_WORKING_HOUR_SELECT = "[dbo].[H1_LEAVE_WORKING_HOUR_SELECT]";
+        public const string STORE_H1_SHIFT_CHANGE_REQUEST_SELECT = "[dbo].[H1_SHIFT_CHANGE_REQUEST_SELECT]";
     }
 }

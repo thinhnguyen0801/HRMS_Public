@@ -168,6 +168,22 @@ namespace HNOne.API.Repositories
                         _dbContext.LeaveWorkingHours.Attach(leaveWorkingHour);
                         _dbContext.Entry(leaveWorkingHour).State = EntityState.Modified;
                         break;
+                    case GlobalConstants.TABLE_SHIFT_CHANGE_REQUEST:
+                        var shiftChangeleaveRequest = await _dbContext.ShiftChanges.FirstOrDefaultAsync(m => m.Id == entity.DocEntry);
+                        if (shiftChangeleaveRequest == null)
+                        {
+                            response.status = StatusCodes.Status404NotFound;
+                            response.message = string.Format(MessageConstants.MESSAGE_NOT_FOUNT_FORMAT, "Đề nghị nghỉ phép");
+                            return response;
+                        }
+                        await _dbContext.Database.BeginTransactionAsync();
+                        isTran = true;
+                        voucherNo = shiftChangeleaveRequest.VoucherNo;
+                        shiftChangeleaveRequest.StatusCode = CommonConstants.STATUS_CODE_APPROVAL_PENDING; // ĐÃ GỬI YÊU CẦU PHÊ DUYỆT
+                        shiftChangeleaveRequest.DateTracking = dateTimeNow;
+                        _dbContext.ShiftChanges.Attach(shiftChangeleaveRequest);
+                        _dbContext.Entry(shiftChangeleaveRequest).State = EntityState.Modified;
+                        break;
                     default:
                         response.status = StatusCodes.Status404NotFound;
                         response.message = $"ObjType {entity.ObjType} was not provider!!!";
@@ -290,6 +306,22 @@ namespace HNOne.API.Repositories
                             leaveWorkingHour.DateTracking = dateTimeNow; // cập nhật ngày tracking
                             _dbContext.LeaveWorkingHours.Attach(leaveWorkingHour);
                             _dbContext.Entry(leaveWorkingHour).State = EntityState.Modified;
+                            break;
+                        case GlobalConstants.TABLE_SHIFT_CHANGE_REQUEST:
+                            var shiftChangeleaveRequest = await _dbContext.ShiftChanges.FirstOrDefaultAsync(m => m.Id == entity.DocEntry);
+                            if (shiftChangeleaveRequest == null)
+                            {
+                                response.status = StatusCodes.Status404NotFound;
+                                response.message = string.Format(MessageConstants.MESSAGE_NOT_FOUNT_FORMAT, "Đề nghị nghỉ phép");
+                                return response;
+                            }
+                            voucherNo = shiftChangeleaveRequest.VoucherNo;
+                            employeeId = shiftChangeleaveRequest.EmployeeId;
+                            shiftChangeleaveRequest.StatusCode = entity.StatusCode; // tình trạng chứng từ "D": Đã duyệt, "T": từ chối, "C": đã hủy
+                            shiftChangeleaveRequest.DateOfSigning = dateTimeNow; // cập nhật ngày ký
+                            shiftChangeleaveRequest.DateTracking = dateTimeNow; // cập nhật ngày tracking
+                            _dbContext.ShiftChanges.Attach(shiftChangeleaveRequest);
+                            _dbContext.Entry(shiftChangeleaveRequest).State = EntityState.Modified;
                             break;
                         default:
                             response.status = StatusCodes.Status404NotFound;

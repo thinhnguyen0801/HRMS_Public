@@ -55,6 +55,7 @@ namespace HNOne.API.Repositories
                 var parameters = new DynamicParameters();
                 parameters.Add("@UserId", request.userId, DbType.Int32);
                 parameters.Add("@BranchId", request.branchId, DbType.Int32);
+                parameters.Add("@EmployeeId", request.employeeId, DbType.Int32);
                 parameters.Add("@Type", request.type, DbType.String);
                 parameters.Add("@Opt", $"{request.opt}", DbType.String);
                 parameters.Add("@Opt1", $"{request.opt1}", DbType.String);
@@ -152,6 +153,41 @@ namespace HNOne.API.Repositories
                     " where T0.IsDelete = 0";
                 var lstResult = await connection.QueryAsync<HolidayCatagoryModel>(query, commandTimeout: GlobalConstants.COMMAND_TIMEOUT, commandType: CommandType.Text);
                 return lstResult;
+            }
+        }
+
+        /// <summary>
+        /// lấy danh sách Đăng ký đổi ca
+        /// </summary>
+        /// <param name="request"></param>
+        /// <returns></returns>
+        public async Task<IEnumerable<ShiftChangeModel>> GetShiftChange(RequestModel request)
+        {
+            using (var connection = _dapperDbContext.CreateConnection())
+            {
+                request.fromDate ??= new DateTime(2000, 01, 01);
+                request.toDate ??= DateTime.Now.AddMonths(1);
+                var parameters = new DynamicParameters();
+                parameters.Add("@DocumentId", request.documentId, DbType.Int32);
+                parameters.Add("@UserId", request.userId, DbType.Int32);
+                parameters.Add("@BranchId", request.branchId, DbType.Int32);
+                parameters.Add("@StatusIds", request.opt, DbType.String);
+                parameters.Add("@FromDate", request.fromDate, DbType.Date);
+                parameters.Add("@ToDate", request.toDate, DbType.Date);
+                IEnumerable<ShiftChangeModel>? lstResult = null;
+                var dtResult = await connection.QueryMultipleAsync(StoreConstants.STORE_H1_SHIFT_CHANGE_REQUEST_SELECT, param: parameters
+                    , commandTimeout: GlobalConstants.COMMAND_TIMEOUT, commandType: CommandType.StoredProcedure);
+                if (dtResult != null)
+                {
+                    lstResult = dtResult.Read<ShiftChangeModel>();
+                    if (request.documentId > 0)
+                    {
+                        var lstDetail = dtResult.Read<ShiftChange1Model>();
+                        string jsonDetail = JsonConvert.SerializeObject(lstDetail);
+                        lstResult = lstResult.Update(m => m.jsonDetail = jsonDetail);
+                    }
+                }
+                return lstResult ?? new List<ShiftChangeModel>();
             }
         }
         #endregion
@@ -464,6 +500,125 @@ namespace HNOne.API.Repositories
                 return response;
             }
             catch(Exception) { throw; }
+        }
+
+        /// <summary>
+        /// Thêm mới chứng từ đăng kí đổi ca làm việc
+        /// </summary>
+        /// <param name="entity"></param>
+        /// <param name="lstEntity1"></param>
+        /// <returns></returns>
+        public async Task<ResponseModel> AddShiftChangeRequest(ShiftChanges entity, IEnumerable<ShiftChange1s> lstEntity1)
+        {
+            bool isTrans = false;
+            ResponseModel response = new ResponseModel();
+            try
+            {
+                using (var connection = _dapperDbContext.CreateConnection())
+                {
+                    DateTime dateTimeNow = _dateTimeHelper.GetCurrentVietnamTime();
+                    DynamicParameters parameters = new DynamicParameters();
+                    parameters.Add("@Type", GlobalConstants.TABLE_SHIFT_CHANGE_REQUEST, DbType.String);
+                    string commandText = @$"select {StoreConstants.FUNC_GET_VOUCHER}(@Type, '', '', '')";
+                    string? voucherNo = await connection.QueryFirstOrDefaultAsync<string>(commandText, param: parameters, commandTimeout: GlobalConstants.COMMAND_TIMEOUT, commandType: CommandType.Text);
+                    if (string.IsNullOrEmpty(voucherNo))
+                    {
+                        response.status = StatusCodes.Status204NoContent;
+                        response.message = MessageConstants.MESSAGE_VOUCHER_NO_MISSING;
+                        return response;
+                    }
+                    await _dbContext.Database.BeginTransactionAsync();
+                    isTrans = true;
+                    entity.Id = await _dbContext.ShiftChanges.Select(m => m.Id).DefaultIfEmpty().MaxAsync() + 1;
+                    entity.VoucherNo = voucherNo;
+                    entity.DateTracking = dateTimeNow;
+                    entity.CreateDate = dateTimeNow;
+                    await _dbContext.ShiftChanges.AddAsync(entity);
+                    // thêm chi tiết đề nghị nghỉ phép
+                    foreach (var item in lstEntity1)
+                    {
+                        ShiftChange1s entity1 = new ShiftChange1s();
+                        entity1.ShiftChangeId = entity.Id;
+                        entity1.DateChange = item.DateChange;
+                        entity1.ShiftCode1 = item.ShiftCode1;
+                        entity1.ShiftCode2 = item.ShiftCode2;
+                        entity1.Remark = item.Remark;
+                        entity1.DateTracking = dateTimeNow;
+                        entity1.UserSign = entity.UserSign;
+                        await _dbContext.ShiftChange1s.AddAsync(entity1);
+                    }
+                    await _dbContext.SaveChangesAsync();
+                    await _dbContext.Database.CommitTransactionAsync();
+                    response.message = MessageConstants.MESSAGE_ADD_SUCCESS;
+                    response.data = entity.Id;
+                }
+                return response;
+            }
+            catch (Exception)
+            {
+                if (isTrans) await _dbContext.Database.RollbackTransactionAsync();
+                throw;
+            }
+        }
+
+        /// <summary>
+        /// cập nhật thông tin đăng kí đổi ca làm việc
+        /// </summary>
+        /// <param name="entity"></param>
+        /// <param name="lstEntity1"></param>
+        /// <returns></returns>
+        public async Task<ResponseModel> UpdateShiftChangeRequest(ShiftChanges entity, IEnumerable<ShiftChange1s> lstEntity1)
+        {
+            bool isTrans = false;
+            ResponseModel response = new ResponseModel();
+            try
+            {
+                var data = await _dbContext.ShiftChanges.FirstOrDefaultAsync(m => m.Id == entity.Id);
+                if (data == null)
+                {
+                    response.status = StatusCodes.Status404NotFound;
+                    response.message = MessageConstants.MESSAGE_NOT_FOUNT;
+                    return response;
+                }
+                DateTime dateTimeNow = _dateTimeHelper.GetCurrentVietnamTime();
+                data.EmployeeId = entity.EmployeeId;
+                data.EmployeeSignatureId = entity.EmployeeSignatureId;
+                data.DepartmentId = entity.DepartmentId;
+                data.StatusCode = entity.StatusCode;
+                data.FromDate = entity.FromDate;
+                data.ToDate = entity.ToDate;
+                data.Reason = entity.Reason;
+                data.DateTracking = dateTimeNow;
+                data.UpdateDate = dateTimeNow;
+                data.UserSign2 = entity.UserSign2;
+                await _dbContext.Database.BeginTransactionAsync();
+                isTrans = true;
+                _dbContext.ShiftChanges.Attach(data);
+                _dbContext.Entry(data).State = EntityState.Modified;
+                // thêm chi đăng kí đổi ca làm việc
+                //foreach (var item in lstEntity1)
+                //{
+                //    LeaveRequest1s entity1 = new LeaveRequest1s();
+                //    entity1.LeaveRequestId = entity.Id;
+                //    entity1.DateOff = item.DateOff;
+                //    entity1.IsMorningBreak = item.IsMorningBreak;
+                //    entity1.IsAfternoonBreak = item.IsAfternoonBreak;
+                //    entity1.Remark = item.Remark;
+                //    entity1.DateTracking = dateTimeNow;
+                //    entity1.UserSign = entity.UserSign;
+                //    await _dbContext.LeaveRequest1s.AddAsync(entity1);
+                //}
+                await _dbContext.SaveChangesAsync();
+                await _dbContext.Database.CommitTransactionAsync();
+                response.message = MessageConstants.MESSAGE_UPDATE_SUCCESS;
+                response.data = data.Id;
+                return response;
+            }
+            catch (Exception)
+            {
+                if (isTrans) await _dbContext.Database.RollbackTransactionAsync();
+                throw;
+            }
         }
         #endregion
     }
