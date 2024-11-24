@@ -52,6 +52,7 @@
                             <DxGridDataColumn FieldName="@nameof(LeaveConfigModel.numOfLeave)" Caption="Số phép năm" MinWidth="110" />
                             <DxGridDataColumn FieldName="@nameof(LeaveConfigModel.numOfYearIncrease)" Caption="Số năm tăng phép" MinWidth="130" />
                             <DxGridDataColumn FieldName="@nameof(LeaveConfigModel.numOfLeaveIncrease)" Caption="Số phép tăng" MinWidth="110" />
+                            <DxGridDataColumn FieldName="@nameof(LeaveConfigModel.accrualDate)" Caption="Ngày tích phép" MinWidth="110" />
                             <DxGridDataColumn FieldName="@nameof(LeaveConfigModel.numOfLeaveTransfer)" Caption="Số phép chuyển sang năm" MinWidth="160" />
                             <DxGridDataColumn FieldName="@nameof(LeaveConfigModel.isActive)" Caption="Hoạt động?" MinWidth="100" />
                             <DxGridDataColumn FieldName="@nameof(LeaveConfigModel.isOffSaturday)" Caption="Nghỉ T7" MinWidth="100" />
@@ -123,6 +124,15 @@
                 <W1Label Value="Số phép năm" Styles="width: 230px" IsRequired="true" />
                 <div style="width: calc(100% - 230px)">
                     <DxSpinEdit @bind-Value="@LeaveConfigUpdate.numOfLeave" MinValue="0" Increment="1"
+                                InputCssClass="text-end" ShowSpinButtons="true" CssClass="w1FontSize" />
+                </div>
+            </div>
+        </div>
+        <div class="col-sm-12">
+            <div class="d-flex ">
+                <W1Label Value="Ngày tích phép" Styles="width: 230px" IsRequired="true" />
+                <div style="width: calc(100% - 230px)">
+                    <DxSpinEdit @bind-Value="@LeaveConfigUpdate.accrualDate" MinValue="1" Increment="1"
                                 InputCssClass="text-end" ShowSpinButtons="true" CssClass="w1FontSize" />
                 </div>
             </div>

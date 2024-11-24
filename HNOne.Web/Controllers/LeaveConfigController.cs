@@ -134,6 +134,7 @@ namespace HNOne.Web.Controllers
                     LeaveConfigUpdate.fromDate = DateTime.Now;
                     LeaveConfigUpdate.toDate = DateTime.Now;
                     LeaveConfigUpdate.isActive = true;
+                    LeaveConfigUpdate.accrualDate = 1;
                 }
                 else
                 {
@@ -153,6 +154,8 @@ namespace HNOne.Web.Controllers
                     LeaveConfigUpdate.isOffSaturday = pItemDetails!.isOffSaturday;
                     LeaveConfigUpdate.isOffSunday = pItemDetails!.isOffSunday;
                     LeaveConfigUpdate.isActive = pItemDetails!.isActive;
+                    LeaveConfigUpdate.accrualDate = pItemDetails!.accrualDate;
+                    LeaveConfigUpdate.numOfLeave = pItemDetails!.numOfLeave;
                     IsCreate = false;
                 }
                 IsShowDialog = true;

@@ -296,6 +296,29 @@ namespace HNOne.API.Repositories
                 return lstResult;
             }
         }
+
+        /// <summary>
+        /// lấy thông tin quản lý phép năm
+        /// </summary>
+        /// <param name="request"></param>
+        /// <returns></returns>
+        public async Task<IEnumerable<AnnualLeaveInfoModel>> GetAnnualLeaveInfo(RequestModel request)
+        {
+            using (var connection = _dapperDbContext.CreateConnection())
+            {
+                int.TryParse(request.opt, out int year);
+                if (year == 0) year = DateTime.Now.Year;
+                var parameters = new DynamicParameters();
+                parameters.Add("@UserId", request.userId);
+                parameters.Add("@BranchId", request.branchId);
+                parameters.Add("@Year", year);
+                parameters.Add("@DepartmentIds", request.opt1);
+                parameters.Add("@EmployeeIds", request.opt2);
+                parameters.Add("@StatusIds", request.opt3);
+                var lstResult = await connection.QueryAsync<AnnualLeaveInfoModel>(StoreConstants.STORE_H1_ANNUAL_LEAVE_INFO_SELECT, param: parameters, commandTimeout: GlobalConstants.COMMAND_TIMEOUT, commandType: CommandType.StoredProcedure);
+                return lstResult;
+            }
+        }
         #endregion
 
         #region Command

@@ -8,4 +8,15 @@ namespace HNOne.Model
         public string? name { get; set; }
         public string? value { get; set; }
     }
+
+    public class SearchModel
+    {
+        public int year { get; set; }
+        public int month { get; set; }
+        public int departmentId { get; set; }
+        public int employeeId { get; set; }
+        public string? employeeCode { get; set; }
+        public string? employeeName { get; set; }
+        public string? statusCode { get; set; }
+    }
 }
