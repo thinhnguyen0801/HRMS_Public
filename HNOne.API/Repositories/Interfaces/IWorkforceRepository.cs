@@ -25,5 +25,6 @@ namespace HNOne.API.Repositories.Interfaces
         Task<IEnumerable<WorkConfigModel>> GetWorkConfig(RequestModel request);
         Task<ResponseModel> GenerateWorkConfig(RequestModel request);
         Task<IEnumerable<ShiftAssignmentModel>> GetArrangeShift(RequestModel request);
+        Task<IEnumerable<TimesheetModel>> GetWorkShedule(RequestModel request);
     }
 }

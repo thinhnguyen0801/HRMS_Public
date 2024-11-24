@@ -271,6 +271,31 @@ namespace HNOne.API.Repositories
                 return lstResult;
             }
         }
+
+        /// <summary>
+        /// lấy danh sách lịch làm việc của nhân viên
+        /// </summary>
+        /// <param name="request"></param>
+        /// <returns></returns>
+        public async Task<IEnumerable<TimesheetModel>> GetWorkShedule(RequestModel request)
+        {
+            using (var connection = _dapperDbContext.CreateConnection())
+            {
+                int.TryParse(request.opt, out int year);
+                int.TryParse(request.opt1, out int month);
+                if (year == 0) year = DateTime.Now.Year;
+                if (month == 0) month = DateTime.Now.Month;
+                var parameters = new DynamicParameters();
+                parameters.Add("@UserId", request.userId);
+                parameters.Add("@BranchId", request.branchId);
+                parameters.Add("@EmployeeId", request.employeeId);
+                parameters.Add("@Year", year);
+                parameters.Add("@Month", month);
+                parameters.Add("@Type", request.type);
+                var lstResult = await connection.QueryAsync<TimesheetModel>(StoreConstants.STORE_H1_WORK_SCHEDULE_SELECT, param: parameters, commandTimeout: GlobalConstants.COMMAND_TIMEOUT, commandType: CommandType.StoredProcedure);
+                return lstResult;
+            }
+        }
         #endregion
 
         #region Command

@@ -64,6 +64,9 @@ namespace HNOne.API.Controllers
                     case ProcessConstants.GET_ARRANGE_SHIFT:
                         response.data = await _workforceRepository.GetArrangeShift(request);
                         break;
+                    case ProcessConstants.GET_WORK_SHEDULE:
+                        response.data = await _workforceRepository.GetWorkShedule(request);
+                        break;
                     default:
                         response.status = StatusCodes.Status404NotFound;
                         response.message = $"Process Key {processKey} was not provider!!!";

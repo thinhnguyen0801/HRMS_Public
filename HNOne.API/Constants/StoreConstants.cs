@@ -21,5 +21,6 @@
         public const string STORE_H1_WORK_CONFIG_SELECT = "[dbo].[H1_WORK_CONFIG_SELECT]";
         public const string STORE_H1_GENERATE_WORK_CONFIG_UPDATE = "[dbo].[H1_GENERATE_WORK_CONFIG_UPDATE]";
         public const string STORE_H1_ARRANGE_SHIFT_SELECT = "[dbo].[H1_ARRANGE_SHIFT_SELECT]";
+        public const string STORE_H1_WORK_SCHEDULE_SELECT = "[dbo].[H1_WORK_SCHEDULE_SELECT]";
     }
 }

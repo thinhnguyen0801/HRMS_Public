@@ -113,6 +113,7 @@
         public const string GET_WORK_CONFIG = "get-work-config";
         public const string POST_WORK_CONFIG = "post-work-config";
         public const string GET_ARRANGE_SHIFT = "get-arrange-shift"; // phân ca làm việc
+        public const string GET_WORK_SHEDULE = "get-work-shedule"; // lịch làm việc
 
         #region Loại dưới store
         public const string GET_COMBO_TYPE_CONTRACT_BY_EMPLOYEEID = "CONTRACT_BY_EMPLOYEEID";

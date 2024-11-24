@@ -11,6 +11,7 @@
         public const string FORMAT_MONTH = "MM/yyyy";
         public const string FORMAT_TIME = "HH:mm";
         public const string FORMAT_DATE_TIME = "dd/MM/yyyy HH:mm";
+        public const string FORMAT_DAY = "dd/MM";
         public const string ENUM_CONTRACT_NO = "CONTRACT_NO";
         public const string CONTRACT_APPENDIX_NO = "CONTRACT_APPENDIX_NO";
         public const string ENUM_REASON_DNNP = "DNNP";
