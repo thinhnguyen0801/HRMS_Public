@@ -1,0 +1,222 @@
+﻿using DevExpress.Blazor;
+using HNOne.Common;
+using HNOne.Model;
+using HNOne.Model.Models;
+using HNOne.Web.Commons;
+using HNOne.Web.Models;
+using HNOne.Web.Services.Interfaces;
+using Microsoft.AspNetCore.Components;
+using Microsoft.JSInterop;
+
+namespace HNOne.Web.Controllers
+{
+    public class ShiftAssignmentController : DocumentControllerBase
+    {
+        [Inject] IWorkforceService _workforceService { get; init; }
+        [Inject] IMasterDataService _masterDataService { get; init; }
+        [Inject] IJSRuntime _jsRuntime { get; set; }
+        #region Properties
+        public List<ShiftAssignmentModel>? ListShiftAssignment { get; set; }
+        public IGrid? GridShiftAssignment { get; set; }
+
+        public List<EnumCatagoryModel>? ListCboShift { get; set; } // cbo ds ca làm việc
+        public List<ComboboxModel>? ListCboDepartment { get; set; } // cbo ds phòng ban
+        public List<ComboboxModel>? ListCboShiftPreiod { get; set; } // kì sắp ca làm việc
+
+        public int pDepartmentId { get; set; } // phòng ban
+        public string? pShiftPreiodId { get; set; } // phòng ban
+        #endregion
+
+        protected override async Task OnAfterRenderAsync(bool firstRender)
+        {
+            await base.OnAfterRenderAsync(firstRender);
+            if (firstRender)
+            {
+                try
+                {
+                    await ShowLoading();
+                    ListBreadcrumbs = new List<BreadcrumbModel>()
+                    {
+                        new BreadcrumbModel("Công - Phép"),
+                        new BreadcrumbModel("Phân công ca làm việc", isActive: true),
+                    };
+                    await NotifyBreadcrumb.InvokeAsync(ListBreadcrumbs);
+
+                    //
+                    await buildComboAsync();
+                }
+                catch (Exception ex)
+                {
+                    _logger.LogError(ex, "OnAfterRenderAsync");
+                    ShowError(ex.Message);
+                }
+                finally
+                {
+                    await ShowLoading(false);
+                    await InvokeAsync(StateHasChanged);
+                }
+            }    
+        }
+
+        #region Private Functions
+        /// <summary>
+        /// lấy dữ liệu cho combobox
+        /// </summary>
+        /// <returns></returns>
+        private async Task buildComboAsync()
+        {
+            try
+            {
+                RequestModel request = new RequestModel();
+                request.process = ProcessConstants.GET_WORKFORCE_MASTER_DATA;
+                request.userId = UserId;
+                request.branchId = BranchId;
+                request.token = Token;
+                request.type = ProcessConstants.GET_COMBO_LIST_SHIFT_PREIOD;
+                
+                var getTask1 = _masterDataService.GetDepartmentAsync(UserId, Token); // ds phòng ban
+                var getTask2 = _masterDataService.GetEnumAsync(UserId, Token, nameof(EnumCatagory.CaLamViec)); // ds trạng thái
+                var getTask3 = _workforceService.GetMasterDataAsync<ComboboxModel>(request, isShowToast: true);
+                await Task.WhenAll(
+                    getTask1,
+                    getTask2,
+                    getTask3
+                );
+                ListCboDepartment = (await getTask1)?.Select(m => new ComboboxModel() { id = m.id, name = m.name })?.ToList();
+                ListCboShift = await getTask2;
+                ListCboShiftPreiod = await getTask3;
+                pShiftPreiodId = DateTime.Now.ToString("yyyy-MM");
+            }
+            catch (Exception) { throw; }
+        }
+
+        private void validateForSave(ref string errorMessage, ref string fieldName)
+        {
+            if (string.IsNullOrEmpty(pShiftPreiodId))
+            {
+                errorMessage = string.Format(MessageConstants.MESSAGE_COMBOBOX_REQUIRE, "Kỳ công");
+                fieldName = "pShiftPreiodId";
+                return;
+            }
+            if (pDepartmentId < 1)
+            {
+                errorMessage = string.Format(MessageConstants.MESSAGE_COMBOBOX_REQUIRE, "Phòng ban");
+                fieldName = "pDepartmentId";
+                return;
+            }
+        }
+        #endregion
+
+        #region Protected Functions
+        protected async Task RefreshDataHandler()
+        {
+            try
+            {
+                string errorMessage = string.Empty;
+                string fieldName = string.Empty; // trả ra trường nào cần validate
+                validateForSave(ref errorMessage, ref fieldName);
+                if (!string.IsNullOrEmpty(errorMessage))
+                {
+                    ShowWarning(errorMessage);
+                    await _jsRuntime.InvokeVoidAsync("focusInput", fieldName);
+                    return;
+                }
+                await ShowLoading();
+                var arrShiftPreiod = pShiftPreiodId!.Split('-');
+                RequestModel request = new RequestModel();
+                request.process = ProcessConstants.GET_ARRANGE_SHIFT;
+                request.userId = UserId;
+                request.branchId = BranchId;
+                request.token = Token;
+                request.opt = arrShiftPreiod[0]; // năm
+                request.opt1 = arrShiftPreiod[1]; // tháng
+                request.opt2 = pDepartmentId.ToString();
+                var response = await _workforceService.GetMasterDataAsync<ShiftAssignmentModel>(request, isShowToast: true);
+                ListShiftAssignment = response;
+            }
+            catch (Exception ex)
+            {
+                ShowError(ex.Message);
+                _logger.LogError(ex, "RefreshDataHandler");
+            }
+            finally
+            {
+                await ShowLoading(false);
+                await InvokeAsync(StateHasChanged);
+            }
+        }
+
+        /// <summary>
+        /// điều chỉnh dữ liệu trong lưới -> lưu lại
+        /// </summary>
+        /// <param name="e"></param>
+        protected void GridShiftAssignmentEditSavingHandler(GridEditModelSavingEventArgs e)
+        {
+            try
+            {
+                var itemEdit = (ShiftAssignmentModel)e.EditModel;
+                var itemFind = ListShiftAssignment?.FirstOrDefault(m => m.employeeId == itemEdit.employeeId && m.employeeCode == itemEdit.employeeCode);
+                if (itemFind == null) return;
+                itemFind.n01 = itemEdit.n01;
+                itemFind.n02 = itemEdit.n02;
+                itemFind.n03 = itemEdit.n03;
+                itemFind.n04 = itemEdit.n04;
+                itemFind.n05 = itemEdit.n05;
+                itemFind.n06 = itemEdit.n06;
+                itemFind.n07 = itemEdit.n07;
+                itemFind.n08 = itemEdit.n08;
+                itemFind.n09 = itemEdit.n09;
+                itemFind.n10 = itemEdit.n10;
+                itemFind.n11 = itemEdit.n11;
+                itemFind.n12 = itemEdit.n12;
+                itemFind.n13 = itemEdit.n13;
+                itemFind.n14 = itemEdit.n14;
+                itemFind.n15 = itemEdit.n15;
+                itemFind.n16 = itemEdit.n16;
+                itemFind.n17 = itemEdit.n17;
+                itemFind.n18 = itemEdit.n18;
+                itemFind.n19 = itemEdit.n19;
+                itemFind.n20 = itemEdit.n20;
+                itemFind.n21 = itemEdit.n21;
+                itemFind.n22 = itemEdit.n22;
+                itemFind.n23 = itemEdit.n23;
+                itemFind.n24 = itemEdit.n24;
+                itemFind.n25 = itemEdit.n25;
+                itemFind.n26 = itemEdit.n26;
+                itemFind.n27 = itemEdit.n27;
+                itemFind.n28 = itemEdit.n28;
+                itemFind.n29 = itemEdit.n29;
+                itemFind.n30 = itemEdit.n30;
+                itemFind.n31 = itemEdit.n31;
+            }
+            catch (Exception ex)
+            {
+                ShowError(ex.Message);
+                _logger.LogError(ex, "GridShiftAssignmentEditSavingHandler");
+            }
+        }
+
+        /// <summary>
+        /// lưu lại thông tin ca làm việc của nhân viên
+        /// </summary>
+        /// <returns></returns>
+        protected async Task SaveDataHandler()
+        {
+            try
+            {
+
+            }
+            catch (Exception ex)
+            {
+                ShowError(ex.Message);
+                _logger.LogError(ex, "SaveDataHandler");
+            }
+            finally
+            {
+                await ShowLoading(false);
+                await InvokeAsync(StateHasChanged);
+            }
+        }
+        #endregion
+    }
+}

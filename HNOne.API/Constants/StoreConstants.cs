@@ -18,5 +18,8 @@
         public const string STORE_H1_LEAVE_WORKING_HOUR_SELECT = "[dbo].[H1_LEAVE_WORKING_HOUR_SELECT]";
         public const string STORE_H1_SHIFT_CHANGE_REQUEST_SELECT = "[dbo].[H1_SHIFT_CHANGE_REQUEST_SELECT]";
         public const string STORE_H1_OVERTIME_REQUEST_SELECT = "[dbo].[H1_OVERTIME_REQUEST_SELECT]";
+        public const string STORE_H1_WORK_CONFIG_SELECT = "[dbo].[H1_WORK_CONFIG_SELECT]";
+        public const string STORE_H1_GENERATE_WORK_CONFIG_UPDATE = "[dbo].[H1_GENERATE_WORK_CONFIG_UPDATE]";
+        public const string STORE_H1_ARRANGE_SHIFT_SELECT = "[dbo].[H1_ARRANGE_SHIFT_SELECT]";
     }
 }

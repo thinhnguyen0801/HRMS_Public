@@ -22,5 +22,8 @@ namespace HNOne.API.Repositories.Interfaces
         Task<IEnumerable<OvertimeRequestModel>> GetOvertimeRequest(RequestModel request);
         Task<ResponseModel> AddOvertimeRequest(OvertimeRequests entity, IEnumerable<OvertimeRequest1s> lstEntity1);
         Task<ResponseModel> UpdateOvertimeRequest(OvertimeRequests entity, IEnumerable<OvertimeRequest1s> lstEntity1);
+        Task<IEnumerable<WorkConfigModel>> GetWorkConfig(RequestModel request);
+        Task<ResponseModel> GenerateWorkConfig(RequestModel request);
+        Task<IEnumerable<ShiftAssignmentModel>> GetArrangeShift(RequestModel request);
     }
 }

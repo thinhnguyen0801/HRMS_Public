@@ -14,5 +14,6 @@
         public bool isView { get; set; } // đã xem chưa
         public DateTime? createDate { get; set; } // ngày giờ tạo
         public int? userSign { get; set; } // người tạo
+        public int totalRow { get; set; } // tổng số thông báo
     }
 }

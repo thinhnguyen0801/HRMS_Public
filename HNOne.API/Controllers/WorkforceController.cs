@@ -58,6 +58,12 @@ namespace HNOne.API.Controllers
                     case ProcessConstants.GET_OVERTIME_REQUEST:
                         response.data = await _workforceRepository.GetOvertimeRequest(request);
                         break;
+                    case ProcessConstants.GET_WORK_CONFIG:
+                        response.data = await _workforceRepository.GetWorkConfig(request);
+                        break;
+                    case ProcessConstants.GET_ARRANGE_SHIFT:
+                        response.data = await _workforceRepository.GetArrangeShift(request);
+                        break;
                     default:
                         response.status = StatusCodes.Status404NotFound;
                         response.message = $"Process Key {processKey} was not provider!!!";
@@ -134,6 +140,9 @@ namespace HNOne.API.Controllers
                         var overtimeRequestPut = DeserializeJson<OvertimeRequests>($"{request.json}");
                         var lstovertimeRequestPut = DeserializeJson<List<OvertimeRequest1s>>($"{request.jsonDetail}");
                         response = await _workforceRepository.UpdateOvertimeRequest(overtimeRequestPut!, lstovertimeRequestPut!);
+                        break;
+                    case ProcessConstants.POST_WORK_CONFIG:
+                        response = await _workforceRepository.GenerateWorkConfig(request);
                         break;
                     default:
                         response.status = StatusCodes.Status404NotFound;

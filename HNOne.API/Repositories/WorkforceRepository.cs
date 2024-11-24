@@ -8,6 +8,7 @@ using Dapper;
 using HNOne.API.Constants;
 using System.Data;
 using Newtonsoft.Json;
+using Azure;
 
 namespace HNOne.API.Repositories
 {
@@ -223,6 +224,51 @@ namespace HNOne.API.Repositories
                     }
                 }
                 return lstResult ?? new List<OvertimeRequestModel>();
+            }
+        }
+
+        /// <summary>
+        /// lấy danh sách cấu hình công
+        /// </summary>
+        /// <param name="request"></param>
+        /// <returns></returns>
+        public async Task<IEnumerable<WorkConfigModel>> GetWorkConfig(RequestModel request)
+        {
+            using (var connection = _dapperDbContext.CreateConnection())
+            {
+                int.TryParse(request.opt, out int year);
+                if (year == 0) year = DateTime.Now.Year;
+                var parameters = new DynamicParameters();
+                parameters.Add("@UserId", request.userId);
+                parameters.Add("@Year", year);
+                parameters.Add("@Type", $"{request.type}");
+                var lstResult = await connection.QueryAsync<WorkConfigModel>(StoreConstants.STORE_H1_WORK_CONFIG_SELECT, param: parameters, commandTimeout: GlobalConstants.COMMAND_TIMEOUT, commandType: CommandType.StoredProcedure);
+                return lstResult;
+            }
+        }
+
+        /// <summary>
+        /// lấy dữ liệu phân công ca làm việc
+        /// </summary>
+        /// <param name="request"></param>
+        /// <returns></returns>
+        public async Task<IEnumerable<ShiftAssignmentModel>> GetArrangeShift(RequestModel request)
+        {
+            using (var connection = _dapperDbContext.CreateConnection())
+            {
+                int.TryParse(request.opt, out int year);
+                int.TryParse(request.opt1, out int month);
+                int.TryParse(request.opt2, out int departmentId);
+                if (year == 0) year = DateTime.Now.Year;
+                if (month == 0) month = DateTime.Now.Month;
+                var parameters = new DynamicParameters();
+                parameters.Add("@UserId", request.userId);
+                parameters.Add("@BranchId", request.branchId);
+                parameters.Add("@DepartmentId", departmentId);
+                parameters.Add("@Year", year);
+                parameters.Add("@Month", month);
+                var lstResult = await connection.QueryAsync<ShiftAssignmentModel>(StoreConstants.STORE_H1_ARRANGE_SHIFT_SELECT, param: parameters, commandTimeout: GlobalConstants.COMMAND_TIMEOUT, commandType: CommandType.StoredProcedure);
+                return lstResult;
             }
         }
         #endregion
@@ -778,6 +824,26 @@ namespace HNOne.API.Repositories
                 if (isTrans) await _dbContext.Database.RollbackTransactionAsync();
                 throw;
             }
+        }
+        
+        /// <summary>
+        /// phát sinh dữ liệu cấu hình thông số công chi tiết
+        /// </summary>
+        /// <param name="request"></param>
+        /// <returns></returns>
+        public async Task<ResponseModel> GenerateWorkConfig(RequestModel request)
+        {
+            using (var connection = _dapperDbContext.CreateConnection())
+            {
+                int.TryParse(request.opt, out int year);
+                if (year == 0) year = DateTime.Now.Year;
+                var parameters = new DynamicParameters();
+                parameters.Add("@UserId", request.userId);
+                parameters.Add("@Year", year);
+                var lstResult = await connection.QueryFirstAsync<ResponseModel>(StoreConstants.STORE_H1_GENERATE_WORK_CONFIG_UPDATE, param: parameters, commandTimeout: GlobalConstants.COMMAND_TIMEOUT, commandType: CommandType.StoredProcedure);
+                return lstResult;
+            }
+            
         }
         #endregion
     }

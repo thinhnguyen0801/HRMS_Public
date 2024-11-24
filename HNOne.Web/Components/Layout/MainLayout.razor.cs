@@ -27,10 +27,14 @@ namespace HNOne.Web.Components.Layout
         public List<BreadcrumbModel>? ListBreadcrumbs { get; set; }
         public List<MenuModel> ListMenus { get; set; } = new List<MenuModel>();
         public int UserId { get; set; }
+        public int EmployeeId { get; set; }
         public string Token { get; set; } = string.Empty;
         public string UserCode { get; set; } = string.Empty;
         public string FullName { get; set; } = string.Empty;
-        public int BrandId { get; set; } = 0;
+        public int BranchId { get; set; } = 0;
+
+        public List<NotificationModel> ListNotification = new List<NotificationModel>();
+        public int TotalNotifiCations { get; set; } = 0; // tổng số thông báo
         #endregion
 
         EventCallback<List<BreadcrumbModel>> BreadcrumbsHandler =>
@@ -61,8 +65,10 @@ namespace HNOne.Web.Components.Layout
                     Token = $"{result.token}";
                     FullName = $"{result.employeeName}";
                     UserCode = $"{result.branchCode} - {result.employeeCode}";
-                    BrandId = result.branchId;
+                    BranchId = result.branchId;
+                    EmployeeId = result.employeeId;
                     await getMenus();
+                    _ = getNotifications();
                     // kiểm tra cái key bgcolor default -> thì set lại color theo user
                     if (await _localStorage.ContainKeyAsync("bgcolor"))
                     {
@@ -112,6 +118,32 @@ namespace HNOne.Web.Components.Layout
                 }    
             }
             catch (Exception) { throw; }
+        }
+        
+        /// <summary>
+        /// lấy danh sách thông báo của nhân viên
+        /// </summary>
+        /// <returns></returns>
+        private async Task getNotifications()
+        {
+            try
+            {
+                RequestModel request = new RequestModel();
+                request.userId = UserId;
+                request.token = Token;
+                request.branchId = BranchId;
+                request.type = ProcessConstants.GET_COMBO_TYPE_NOTIFICATION_BY_EMPLOYEE_MAIN;
+                request.opt = EmployeeId.ToString();
+                var result = await _masterDataService.GetMasterDataAsync<NotificationModel>(request);
+                if (!result.IsNullOrEmpty())
+                {
+                    TotalNotifiCations = result![0].totalRow;
+                    ListNotification = result!;
+                    StateHasChanged();
+                }
+            }
+            catch { }
+             
         }
         #endregion
     }

@@ -110,15 +110,22 @@
         public const string POST_OVERTIME_REQUEST = "post-overtime-request";
         public const string PUT_OVERTIME_REQUEST = "put-overtime-request";
 
+        public const string GET_WORK_CONFIG = "get-work-config";
+        public const string POST_WORK_CONFIG = "post-work-config";
+        public const string GET_ARRANGE_SHIFT = "get-arrange-shift"; // phân ca làm việc
+
         #region Loại dưới store
         public const string GET_COMBO_TYPE_CONTRACT_BY_EMPLOYEEID = "CONTRACT_BY_EMPLOYEEID";
         public const string GET_COMBO_TYPE_SALARY_ADJUSTMENT_BY_CONTRACT = "SALARY_ADJUSTMENT_BY_CONTRACT";
+        public const string GET_COMBO_TYPE_NOTIFICATION_BY_EMPLOYEE_MAIN = "NOTIFICATION_BY_EMPLOYEE_MAIN";
+        public const string GET_COMBO_TYPE_NOTIFICATION_BY_EMPLOYEE = "NOTIFICATION_BY_EMPLOYEE";
         public const string GET_MENU_TYPE_AUTHENTICATION = "AUTHENTICATION";
         public const string GET_MENU_TYPE_CHECK_PERMISSION = "CHECK_PERMISSION";
         public const string GET_MENU_TYPE_MENU = "MENU";
         public const string GET_COMBO_LIST_OF_VACATION_DAY = "LR_LIST_OF_VACATION_DAYS";
         public const string GET_COMBO_LIST_OF_SHIFT_CHANGE_DAY = "SC_LIST_OF_SHIFT_CHANGE_DAY";
         public const string GET_COMBO_LIST_OVERTIME_REQUEST_DAY = "OTR_LIST_OVERTIME_REQUEST_DAY";
+        public const string GET_COMBO_LIST_SHIFT_PREIOD = "SA_LIST_SHIFT_PREIOD"; // danh sách kỳ công năm
         #endregion
     }
 }

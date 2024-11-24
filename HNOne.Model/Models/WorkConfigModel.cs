@@ -1,0 +1,30 @@
+﻿namespace HNOne.Model.Models
+{
+    public class WorkConfigModel : AuditableModel
+    {
+        public int id { get; set; }
+        public int startDate { get; set; } // ngày bắt đầu chấm công
+        public int closingDate { get; set; } // ngày chốt kì công công
+        public int closingDate1 { get; set; } // ngày kết thúc chấm công
+        public bool isLastDayOfMonth { get; set; } // check vào ngày cuối tháng
+        public double totalWorkingDayOfMonth { get; set; } // tổng số ngày làm việc trong tháng
+        public bool isWorkingDayExcludeDayOff { get; set; } // tổng số ngày làm việc loại trừ ngày nghỉ
+        public double totalWorkingHours { get; set; } // tổng số giờ làm việc trong ngày
+        public string? symbolOfWeekdayDayOff { get; set; } // ký hiệu ngày nghỉ trong tuần
+        public string? bgColorOfWeekdayDayOff { get; set; } // màu ngày nghỉ trong tuần
+        public string? symbolOfHoliday { get; set; } // ký hiệu ngày nghỉ lễ
+        public string? bgColorOfHoliday { get; set; } // màu ngày nghỉ lễ
+        public string? workConfigType { get; set; } // loại chứa thông tin mặc định hay không
+
+        #region Thông số dành cho chi tiết
+        public int year { get; set; }
+        public int month { get; set; } // tháng
+        public double totalWorkingDayOfMonthD { get; set; } // công tiêu chuẩn
+        public double totalWorkingHoursD { get; set; } // tổng số giờ làm việc
+        public int startDateD { get; set; } // ngày bắt đầu chấm công
+        public int closingDateD { get; set; } // ngày chốt kì công công
+        public int closingDate1D { get; set; } // ngày kết thúc chấm công
+
+        #endregion Thông số dành cho chi tiết
+    }
+}

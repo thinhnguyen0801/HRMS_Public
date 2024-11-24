@@ -4,7 +4,7 @@ using System.ComponentModel.DataAnnotations;
 namespace HNOne.Model.Entities
 {
     [Table("LeaveConfigs")]
-    public class LeaveConfigs : Auditable
+    public sealed class LeaveConfigs : Auditable
     {
         [Key]
         [DatabaseGenerated(DatabaseGeneratedOption.None)] // Không tự tăng

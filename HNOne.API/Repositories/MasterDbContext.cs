@@ -43,6 +43,7 @@ namespace HNOne.API.Repositories
         public DbSet<ShiftChange1s> ShiftChange1s { get; set; }
         public DbSet<OvertimeRequests> OvertimeRequests { get; set; }
         public DbSet<OvertimeRequest1s> OvertimeRequest1s { get; set; }
+        public DbSet<WorkConfigs> WorkConfigs { get; set; }
 
         public MasterDbContext(DbContextOptions<MasterDbContext> options)
             : base(options)

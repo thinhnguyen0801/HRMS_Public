@@ -1,0 +1,222 @@
+﻿@page "/cau-hinh-thong-so-cong"
+@inherits Controllers.WorkConfigController
+
+<PageTitle>Thông số công làm việc</PageTitle>
+
+<div class="h-content-filter">
+    <div class="card p-1">
+        <DxToolbar ItemRenderStyleMode="@ToolbarRenderStyleMode.Contained">
+            <Items>
+                <DxToolbarItem Text="Làm mới" BeginGroup="true" IconCssClass="@($"{IconClassConstants.ICON_REFRESH}")" CssClass="w1FontSize"
+                               Alignment="@ToolbarItemAlignment.Right" Click="@RefreshHandler" />
+
+                <DxToolbarItem Text="Lưu" BeginGroup="true" IconCssClass="@($"{IconClassConstants.ICON_UPDATE}")" CssClass="w1FontSize"
+                               Alignment="@ToolbarItemAlignment.Right" Click="@SaveDataHandler" />
+
+            </Items>
+        </DxToolbar>
+    </div>
+
+    <div class="card card-lg mt-1" style="padding: 5px">
+        <div class="row row-gap-2">
+            <div class="col-12">
+                <div class="accordion" id="accordion-info">
+                    <div class="accordion-item" style="border: none">
+                        <span class="accordion-header" id="heading-1">
+                            <button class="accordion-button " style="padding-top: 1px; padding-bottom: 1px;padding-left: 5px;"
+                                    type="button" data-bs-toggle="collapse" data-bs-target="#collapse-info" aria-expanded="true">
+                                <h4 class="mb-0 w1FontSize">Thông số công</h4>
+                            </button>
+                        </span>
+                        <div style="border-bottom: 1px solid var(--tblr-border-color); margin-top: 2px"></div>
+                        <div id="collapse-info" class="accordion-collapse collapse show" data-bs-parent="#accordion-info">
+                            <div class="accordion-body p-2">
+                                <div class="row row-gap-2">
+                                    <div class="col-md-6 col-sm-12">
+                                        <div class="d-flex ">
+                                            <W1Label Value="Ngày b/đ chấm công" Styles="width: 140px" IsRequired="true" />
+                                            <div style="width: calc(100% - 140px)">
+                                                <div class="row row-gap-2">
+                                                    <div class="col-md-7 col-sm-12">
+                                                        <DxSpinEdit @bind-Value="@WorkConfigUpdate.startDate" MinValue="0" Increment="1"
+                                                                    InputCssClass="text-end" ShowSpinButtons="true" CssClass="w1FontSize" />
+                                                    </div>
+                                                    <div class="col-md-5 col-sm-12">
+                                                        <DxComboBox Data="@ListCboYear"
+                                                                    @bind-Value="@WorkConfigUpdate.year"
+                                                                    FilteringMode="DataGridFilteringMode.Contains"
+                                                                    TextFieldName="@nameof(ComboboxModel.name)"
+                                                                    ValueFieldName="@nameof(ComboboxModel.id)"
+                                                                    CssClass="w1FontSize">
+                                                        </DxComboBox>
+                                                    </div>
+                                                </div>
+                                                
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6 col-sm-12">
+                                        <div class="d-flex ">
+                                            <W1Label Value="Ngày chốt kỳ công" Styles="width: 140px" IsRequired="true" />
+                                            <div style="width: calc(100% - 140px)">
+                                                <DxSpinEdit @bind-Value="@WorkConfigUpdate.closingDate" MinValue="0" Increment="1"
+                                                            InputCssClass="text-end" ShowSpinButtons="true" CssClass="w1FontSize" />
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6 col-sm-12">
+                                        <div class="d-flex ">
+                                            <W1Label Value="Ngày k/t chấm công" Styles="width: 140px" IsRequired="true" />
+                                            <div style="width: calc(100% - 140px)">
+                                                <div class="row row-gap-2">
+                                                    <div class="col-md-7 col-sm-12">
+                                                        <DxSpinEdit @bind-Value="@WorkConfigUpdate.closingDate1" 
+                                                                    MinValue="0" Increment="1" ReadOnly="@WorkConfigUpdate.isLastDayOfMonth"
+                                                                    InputCssClass="text-end" ShowSpinButtons="true" CssClass="w1FontSize" />
+                                                    </div>
+                                                    <div class="col-md-5 col-sm-12">
+                                                        <DxCheckBox CssClass="w-100 w1FontSize"
+                                                                    SizeMode="@SizeMode.Small"
+                                                                    @bind-Checked="@WorkConfigUpdate.isLastDayOfMonth"
+                                                                    LabelPosition="@LabelPosition.Right">
+                                                            Cuối tháng?
+                                                        </DxCheckBox>
+                                                    </div>
+                                                </div>
+                                                
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6 col-sm-12">
+                                        <div class="d-flex ">
+                                            <W1Label Value="Số ngày làm việc" Styles="width: 140px" IsRequired="true" />
+                                            <div style="width: calc(100% - 140px)">
+                                                <div class="row row-gap-2">
+                                                    <div class="col-md-7 col-sm-12">
+                                                        <DxSpinEdit @bind-Value="@WorkConfigUpdate.totalWorkingDayOfMonth" 
+                                                                    MinValue="0" Increment="1.0" ReadOnly="@WorkConfigUpdate.isWorkingDayExcludeDayOff"
+                                                                    InputCssClass="text-end" ShowSpinButtons="true" CssClass="w1FontSize" />
+                                                    </div>
+                                                    <div class="col-md-5 col-sm-12">
+                                                        <DxCheckBox CssClass="w-100 w1FontSize"
+                                                                    SizeMode="@SizeMode.Small"
+                                                                    @bind-Checked="@WorkConfigUpdate.isWorkingDayExcludeDayOff"
+                                                                    LabelPosition="@LabelPosition.Right">
+                                                            Chỉ loại trừ ngày nghỉ?
+                                                        </DxCheckBox>
+                                                    </div>
+                                                </div>
+
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6 col-sm-12">
+                                        <div class="d-flex ">
+                                            <W1Label Value="Số giờ làm việc" Styles="width: 140px" IsRequired="true" />
+                                            <div style="width: calc(100% - 140px)">
+                                                <DxSpinEdit @bind-Value="@WorkConfigUpdate.totalWorkingHours" MinValue="0" Increment="1"
+                                                            InputCssClass="text-end" ShowSpinButtons="true" CssClass="w1FontSize" />
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6 col-sm-12">
+                                        <div class="d-flex ">
+                                            <W1Label Value="Ký hiệu ngày nghỉ tuần" Styles="width: 140px" IsRequired="true" />
+                                            <div style="width: calc(100% - 140px)">
+                                                <div class="row row-gap-2">
+                                                    <div class="col-md-7 col-sm-12">
+                                                        <DxTextBox @bind-Text="@WorkConfigUpdate.symbolOfWeekdayDayOff" CssClass="w1FontSize" />
+                                                    </div>
+                                                    <div class="col-md-5 col-sm-12">
+                                                        <DxTextBox @bind-Text="@WorkConfigUpdate.bgColorOfWeekdayDayOff" CssClass="w1FontSize" NullText="Màu ngày nghỉ" />
+                                                    </div>
+                                                </div>
+                                                
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6 col-sm-12">
+                                        <div class="d-flex ">
+                                            <W1Label Value="Ký hiệu ngày nghỉ lễ" Styles="width: 140px" IsRequired="true" />
+                                            <div style="width: calc(100% - 140px)">
+                                                <div class="row row-gap-2">
+                                                    <div class="col-md-7 col-sm-12">
+                                                        <DxTextBox @bind-Text="@WorkConfigUpdate.symbolOfHoliday" CssClass="w1FontSize" />
+                                                    </div>
+                                                    <div class="col-md-5 col-sm-12">
+                                                        <DxTextBox @bind-Text="@WorkConfigUpdate.bgColorOfHoliday" CssClass="w1FontSize" NullText="Màu ngày nghỉ" />
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="card card-lg mt-1 mb-3" style="padding: 5px">
+        <div class="row row-gap-2">
+            <div class="col-12">
+                <div class="accordion" id="accordion-1">
+                    <div class="accordion-item" style="border: none">
+                        <span class="accordion-header" id="heading-1">
+                            <button class="accordion-button " style="padding-top: 1px; padding-bottom: 1px;padding-left: 5px;"
+                                    type="button" data-bs-toggle="collapse" data-bs-target="#collapse-1" aria-expanded="true">
+                                <h4 class="mb-0 w1FontSize">Thông số công chi tiết</h4>
+                            </button>
+                        </span>
+                        <div style="border-bottom: 1px solid var(--tblr-border-color); margin-top: 2px"></div>
+                        <div id="collapse-1" class="accordion-collapse collapse show" data-bs-parent="#accordion-1">
+                            <div class="accordion-body p-1" style="height: 350px; min-height: 350px">
+                                <DxGrid Data="ListWorkConfig" @ref="GridWorkConfig"
+                                        ShowFilterRow="false"
+                                        PageSize="500"
+                                        ColumnResizeMode="GridColumnResizeMode.ColumnsContainer"
+                                        PagerPosition="GridPagerPosition.Bottom"
+                                        PageSizeSelectorVisible="false"
+                                        PageSizeSelectorAllRowsItemVisible="false"
+                                        PagerSwitchToInputBoxButtonCount="10"
+                                        PagerVisibleNumericButtonCount="10"
+                                        TextWrapEnabled="false"
+                                        KeyFieldNames="@(new [] {nameof(WorkConfigModel.year),nameof(WorkConfigModel.month)})"
+                                        ValidationEnabled="true"
+                                        KeyboardNavigationEnabled="true"
+                                        AllowSelectRowByClick="true"
+                                        FocusedRowEnabled="true"
+                                        SelectionMode="GridSelectionMode.Single"
+                                        CssClass="h-full">
+                                    <ToolbarTemplate>
+                                        <DxToolbar ItemRenderStyleMode="@ToolbarRenderStyleMode.Plain">
+                                            <Items>
+                                                <DxToolbarItem IconCssClass="@IconClassConstants.ICON_ADD" BeginGroup="true"
+                                                               Alignment="@ToolbarItemAlignment.Right" Tooltip="Phát sinh công chi tiết"
+                                                               Click="@GenerateWorkHandler" />
+                                            </Items>
+                                        </DxToolbar>
+                                    </ToolbarTemplate>
+                                    <Columns>
+                                        <DxGridDataColumn FieldName="@nameof(WorkConfigModel.month)" Caption="Tháng" MinWidth="80" Width="90px" />
+                                        <DxGridDataColumn FieldName="@nameof(WorkConfigModel.totalWorkingDayOfMonthD)" Caption="Công tiêu chuẩn" Width="140px" MinWidth="120" DisplayFormat="@GlobalContants.FORMAT_NUMBER" />
+                                        <DxGridDataColumn FieldName="@nameof(WorkConfigModel.totalWorkingHoursD)" Caption="Số giờ làm việc" Width="140px" MinWidth="120" DisplayFormat="@GlobalContants.FORMAT_NUMBER" />
+                                        <DxGridDataColumn FieldName="@nameof(WorkConfigModel.startDateD)" Caption="Ngày bắt đầu" Width="140px" MinWidth="120" />
+                                        <DxGridDataColumn FieldName="@nameof(WorkConfigModel.closingDateD)" Caption="Ngày chốt công" Width="140px" MinWidth="120" />
+                                        <DxGridDataColumn FieldName="@nameof(WorkConfigModel.closingDate1D)" Caption="Ngày k/t chấm công" Width="150px" MinWidth="145" />
+                                        <DxGridDataColumn FieldName="@nameof(LeaveConfigModel.dateTracking)" Caption="Ngày cập nhật" MinWidth="120" DisplayFormat="@GlobalContants.FORMAT_DATE_TIME" />
+                                        <DxGridDataColumn FieldName="@nameof(LeaveConfigModel.userSignName)" Caption="Người tạo" MinWidth="120" />
+                                    </Columns>
+                                </DxGrid>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<W1Confirm @ref="confirm" />
