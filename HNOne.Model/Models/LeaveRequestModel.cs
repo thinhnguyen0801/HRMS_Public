@@ -53,6 +53,7 @@ namespace HNOne.Model.Models
         public string? bgColor { get; set; }
         public string? symbol { get; set; } // kí hiệu
         public bool isDayOff { get; set; } // là ngày nghỉ
+        public int holidayId { get; set; } // Rơi vô kì nghỉ lễ nào
 
     }
 }

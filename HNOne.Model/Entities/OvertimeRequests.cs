@@ -57,6 +57,7 @@ namespace HNOne.Model.Entities
         public string? BgColor { get; set; } // màu line
         [MaxLength(250)]
         public string? Symbol { get; set; } // ký hiệu
+        public int HolidayId { get; set; } // Rơi vô kì nghỉ lễ nào bảng HolidayCatagories
         public double TotalWorkingHours { get; set; } // tổng số giờ làm việc
         public DateTime? DateTracking { get; set; }
         public int? UserSign { get; set; }

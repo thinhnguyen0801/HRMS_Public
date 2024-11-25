@@ -42,6 +42,9 @@ namespace HNOne.Model.Models
         public int? userSign { get; set; }
         public string? bgColor { get; set; }
         public string? remark { get; set; } // ghi chú
+        public string? symbol { get; set; } // kí hiệu
+        public bool isDayOff { get; set; } // là ngày nghỉ
+        public int holidayId { get; set; } // Rơi vô kì nghỉ lễ nào
         public double totalWorkingHours { get; set; } // tổng số giờ làm việc
     }
 }

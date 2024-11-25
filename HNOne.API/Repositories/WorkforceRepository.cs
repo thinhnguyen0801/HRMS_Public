@@ -433,6 +433,7 @@ namespace HNOne.API.Repositories
                         entity1.IsDayOff = item.IsDayOff;
                         entity1.BgColor = item.BgColor;
                         entity1.Symbol = item.Symbol;
+                        entity1.HolidayId = item.HolidayId;
                         entity1.DateTracking = dateTimeNow;
                         entity1.UserSign = entity.UserSign;
                         await _dbContext.LeaveRequest1s.AddAsync(entity1);
@@ -507,6 +508,7 @@ namespace HNOne.API.Repositories
                     entity1.IsDayOff = item.IsDayOff;
                     entity1.BgColor = item.BgColor;
                     entity1.Symbol = item.Symbol;
+                    entity1.HolidayId = item.HolidayId;
                     entity1.DateTracking = dateTimeNow;
                     entity1.UserSign = entity.UserSign;
                     await _dbContext.LeaveRequest1s.AddAsync(entity1);
