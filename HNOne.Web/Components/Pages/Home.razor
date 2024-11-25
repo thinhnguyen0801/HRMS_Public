@@ -101,3 +101,97 @@
         </div>
     </div>
 </div>
+
+
+<W1Popup @bind-IsOpenModal="@IsShowDialogDetail"
+         Width="65%" IsShowFooter="false"
+         ActionClose="@ClosedPopupHandler"
+         HeaderText="@HeaderTextDialogDetail">
+    <div class="grid gap-1 row-gap-2">
+        <div class="g-col-md-12 g-col-sm-12 g-col-12">
+            <div class="card">
+                <div class="card-header py-1 px-2 w1FontSize text-center">
+                    <span>Thời gian làm việc</span>
+                </div>
+                <div class="card-body p-1">
+                    <table class="table table-bordered w1FontSize">
+                        <tbody class="w1FontSize">
+                            <tr>
+                                <td class="text-start p-1" style="width: 120px">Ca làm việc</td>
+                                <td class="text-center p-1" colspan="2"><strong>@timesheetModel.shiftCode</strong></td>
+                            </tr>
+                            <tr>
+                                <td class="p-1" style="width: 120px"></td>
+                                <td class="text-center p-1">Qui định</td>
+                                <td class="text-center p-1">Thực tế</td>
+                            </tr>
+                            <tr>
+                                <td class="text-start p-1" style="width: 120px">TG bắt đầu</td>
+                                <td class="text-center p-1"><strong>@timesheetModel.startDate.ToString(GlobalContants.FORMAT_TIME)</strong></td>
+                                <td class="text-center p-1"><strong>@timesheetModel.startDateCurrent?.ToString(GlobalContants.FORMAT_TIME)</strong></td>
+                            </tr>
+                            <tr>
+                                <td class="text-start p-1" style="width: 120px">TG kết thúc</td>
+                                <td class="text-center p-1"><strong>@timesheetModel.endDate.ToString(GlobalContants.FORMAT_TIME)</strong></td>
+                                <td class="text-center p-1"><strong>@timesheetModel.endDateCurrent?.ToString(GlobalContants.FORMAT_TIME)</strong></td>
+                            </tr>
+                            <tr>
+                                <td class="text-start p-1" style="width: 120px">TGN bắt đầu</td>
+                                <td class="text-center p-1"><strong>@timesheetModel.startBreakTime.ToString(GlobalContants.FORMAT_TIME)</strong></td>
+                                <td class="text-center p-1"><strong></strong></td>
+                            </tr>
+                            <tr>
+                                <td class="text-start p-1" style="width: 120px">TGN kết thúc</td>
+                                <td class="text-center p-1"><strong>@timesheetModel.endBreakTime.ToString(GlobalContants.FORMAT_TIME)</strong></td>
+                                <td class="text-center p-1"><strong></strong></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <div class="g-col-md-12 g-col-sm-12 g-col-12">
+            <div class="card card-lg mt-1" style="padding: 5px">
+                <div class="accordion" id="accordion-1">
+                    <div class="accordion-item" style="border: none">
+                        <span class="accordion-header" id="heading-1">
+                            <button class="accordion-button " style="padding-top: 1px; padding-bottom: 1px;padding-left: 5px;"
+                                    type="button" data-bs-toggle="collapse" data-bs-target="#collapse-1" aria-expanded="true">
+                                <h4 class="mb-0 w1FontSize">Chi tiết ngày công</h4>
+                            </button>
+                        </span>
+                        <div style="border-bottom: 1px solid var(--tblr-border-color); margin-top: 2px"></div>
+                        <div id="collapse-1" class="accordion-collapse collapse show" data-bs-parent="#accordion-1">
+                            <div class="accordion-body p-1">
+                                <div>
+                                    <DxGrid Data="ListCheckInOutModel"
+                                            ShowFilterRow="false"
+                                            PageSize="500"
+                                            ColumnResizeMode="GridColumnResizeMode.ColumnsContainer"
+                                            PagerPosition="GridPagerPosition.Bottom"
+                                            PageSizeSelectorVisible="false"
+                                            PageSizeSelectorAllRowsItemVisible="false"
+                                            TextWrapEnabled="false"
+                                            ValidationEnabled="false"
+                                            KeyboardNavigationEnabled="true"
+                                            FocusedRowEnabled="true"
+                                            SelectionMode="GridSelectionMode.Single">
+                                        <Columns>
+                                            <DxGridDataColumn FieldName="@nameof(CheckInOutModel.maChamCong)" Caption="Mã chấm công" DisplayFormat="d" MinWidth="110" Width="120px" />
+                                            <DxGridDataColumn FieldName="@nameof(CheckInOutModel.ngayCham)" Caption="Ngày chấm" MinWidth="110" Width="120px" DisplayFormat="@GlobalContants.FORMAT_DATE" />
+                                            <DxGridDataColumn FieldName="@nameof(CheckInOutModel.gioCham)" Caption="Giờ chấm" MinWidth="110" Width="120px" DisplayFormat="@GlobalContants.FORMAT_TIME" />
+                                            <DxGridDataColumn FieldName="@nameof(CheckInOutModel.kieuCham)" Caption="Kiểu chấm " MinWidth="120" />
+                                        </Columns>
+                                    </DxGrid>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</W1Popup>
+

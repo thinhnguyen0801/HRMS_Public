@@ -3,10 +3,12 @@ using HNOne.Common;
 using HNOne.Model;
 using HNOne.Model.Models;
 using HNOne.Web.Commons;
+using HNOne.Web.Components.Controls;
 using HNOne.Web.Models;
 using HNOne.Web.Services.Interfaces;
 using Microsoft.AspNetCore.Components;
 using Microsoft.JSInterop;
+using Newtonsoft.Json;
 
 namespace HNOne.Web.Controllers
 {
@@ -15,6 +17,7 @@ namespace HNOne.Web.Controllers
         [Inject] IWorkforceService _workforceService { get; init; }
         [Inject] IMasterDataService _masterDataService { get; init; }
         [Inject] IJSRuntime _jsRuntime { get; set; }
+        public W1Confirm confirm { get; set; }
         #region Properties
         public List<ShiftAssignmentModel>? ListShiftAssignment { get; set; }
         public IGrid? GridShiftAssignment { get; set; }
@@ -104,6 +107,36 @@ namespace HNOne.Web.Controllers
                 fieldName = "pDepartmentId";
                 return;
             }
+        }
+
+        /// <summary>
+        /// kiểm tra dữ liệu kỳ công
+        /// </summary>
+        /// <param name="errorMessage"></param>
+        /// <param name="fieldName"></param>
+        private void validateForGenerateTimeSheets(ref string errorMessage, ref string fieldName)
+        {
+            if (string.IsNullOrEmpty(pShiftPreiodId))
+            {
+                errorMessage = string.Format(MessageConstants.MESSAGE_COMBOBOX_REQUIRE, "Kỳ công");
+                fieldName = "pShiftPreiodId";
+                return;
+            }
+        }
+
+        private async Task getTimeSheet()
+        {
+            var arrShiftPreiod = pShiftPreiodId!.Split('-');
+            RequestModel request = new RequestModel();
+            request.process = ProcessConstants.GET_ARRANGE_SHIFT;
+            request.userId = UserId;
+            request.branchId = BranchId;
+            request.token = Token;
+            request.opt = arrShiftPreiod[0]; // năm
+            request.opt1 = arrShiftPreiod[1]; // tháng
+            request.opt2 = pDepartmentId.ToString();
+            var response = await _workforceService.GetMasterDataAsync<ShiftAssignmentModel>(request, isShowToast: true);
+            ListShiftAssignment = response;
         }
         #endregion
 
@@ -204,7 +237,44 @@ namespace HNOne.Web.Controllers
         {
             try
             {
-
+                string errorMessage = string.Empty;
+                string fieldName = string.Empty; // trả ra trường nào cần validate
+                validateForSave(ref errorMessage, ref fieldName);
+                if (!string.IsNullOrEmpty(errorMessage))
+                {
+                    ShowWarning(errorMessage);
+                    await _jsRuntime.InvokeVoidAsync("focusInput", fieldName);
+                    return;
+                }
+                if(ListShiftAssignment.IsNullOrEmpty())
+                {
+                    ShowWarning("Không tìm thấy dữ liệu công làm việc!!!");
+                    return;
+                }    
+                bool isConfirm = true;
+                await Task.Yield();
+                errorMessage = string.Format(MessageConstants.MESSAGE_CONFIRM_UPDATE_FORMAT, "Phân công ca làm việc");
+                isConfirm = await confirm.SetConfirm(MessageConstants.MESSAGE_TITLE, errorMessage);
+                if (!isConfirm) return;
+                await ShowLoading();
+                var arrShiftPreiod = pShiftPreiodId!.Split('-');
+                ListShiftAssignment.Update(m=>
+                {
+                    m.userSign = UserId;
+                    m.userSign2 = UserId;
+                });
+                RequestModel request = new RequestModel();
+                request.process = ProcessConstants.POST_SHIFT_ASSIGNMENT;
+                request.userId = UserId;
+                request.branchId = BranchId;
+                request.token = Token;
+                request.json = JsonConvert.SerializeObject(ListShiftAssignment);
+                request.opt = pDepartmentId.ToString();
+                isConfirm = await _workforceService.UpdateMasterDataAsync(request);
+                if (isConfirm && pDepartmentId > 0)
+                {
+                    await getTimeSheet();
+                }
             }
             catch (Exception ex)
             {
@@ -213,6 +283,62 @@ namespace HNOne.Web.Controllers
             }
             finally
             {
+                await ShowLoading(false);
+                await InvokeAsync(StateHasChanged);
+            }
+        }
+
+        /// <summary>
+        /// phát sinh phát sinh công làm việc của nhân viên
+        /// </summary>
+        /// <returns></returns>
+        protected async Task GenerateWorkHandler()
+        {
+            try
+            {
+                string errorMessage = string.Empty;
+                string fieldName = string.Empty; // trả ra trường nào cần validate
+                validateForGenerateTimeSheets(ref errorMessage, ref fieldName);
+                if (!string.IsNullOrEmpty(errorMessage))
+                {
+                    ShowWarning(errorMessage);
+                    await _jsRuntime.InvokeVoidAsync("focusInput", fieldName);
+                    return;
+                }
+                bool isConfirm = true;
+                string? nameShiftPreiodId = ListCboShiftPreiod!.FirstOrDefault(m => m.code == pShiftPreiodId)?.name;
+                errorMessage = errorMessage = $"Bạn có chắc muốn phát sinh dữ liệu công của kỳ [{nameShiftPreiodId}] <br /> Cho tất cả nhân viên trong phòng ban không?";
+                if (pDepartmentId > 0)
+                {
+                    string? nameDepartment = ListCboDepartment?.FirstOrDefault(m=>m.id == pDepartmentId)?.name;
+                    errorMessage = $"Bạn có chắc muốn phát sinh dữ liệu công của kỳ [{nameShiftPreiodId}] <br />" +
+                    $"Cho tất cả nhân viên thuộc phòng ban {nameDepartment} không?";
+                } 
+                await Task.Yield();
+                isConfirm = await confirm.SetConfirm(MessageConstants.MESSAGE_TITLE, errorMessage);
+                if (!isConfirm) return;
+                await ShowLoading();
+                RequestModel request = new RequestModel();
+                request.process = ProcessConstants.POST_TIME_SHEET;
+                request.userId = UserId;
+                request.branchId = BranchId;
+                request.token = Token;
+                request.fromDate = DateTime.Parse(nameShiftPreiodId +"-01");
+                request.opt = pDepartmentId.ToString();
+                isConfirm = await _workforceService.UpdateMasterDataAsync(request);
+                if (isConfirm && pDepartmentId > 0)
+                {
+                    await getTimeSheet();
+                }    
+            }
+            catch (Exception ex)
+            {
+                _logger!.LogError(ex, "GenerateWorkHandler");
+                ShowError(ex.Message);
+            }
+            finally
+            {
+                await Task.Delay(50);
                 await ShowLoading(false);
                 await InvokeAsync(StateHasChanged);
             }

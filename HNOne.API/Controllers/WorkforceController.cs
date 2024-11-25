@@ -70,6 +70,9 @@ namespace HNOne.API.Controllers
                     case ProcessConstants.GET_ANNUAL_LEAVE_INFO:
                         response.data = await _workforceRepository.GetAnnualLeaveInfo(request);
                         break;
+                    case ProcessConstants.GET_CHECK_IN_OUT:
+                        response.data = await _workforceRepository.GetCheckInOut(request);
+                        break;
                     default:
                         response.status = StatusCodes.Status404NotFound;
                         response.message = $"Process Key {processKey} was not provider!!!";
@@ -149,6 +152,13 @@ namespace HNOne.API.Controllers
                         break;
                     case ProcessConstants.POST_WORK_CONFIG:
                         response = await _workforceRepository.GenerateWorkConfig(request);
+                        break;
+                    case ProcessConstants.POST_TIME_SHEET:
+                        response = await _workforceRepository.GenerateTimesheets(request);
+                        break;
+                    case ProcessConstants.POST_SHIFT_ASSIGNMENT:
+                        var lstShiftAssignmentPut = DeserializeJson<List<ShiftAssignments>>($"{request.json}");
+                        response = await _workforceRepository.UpdateShiftAssignment(lstShiftAssignmentPut!);
                         break;
                     default:
                         response.status = StatusCodes.Status404NotFound;

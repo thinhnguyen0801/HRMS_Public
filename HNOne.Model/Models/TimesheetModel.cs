@@ -25,5 +25,6 @@
         public string? bgColorOfHoliday { get; set; }
         public string? bgColorOfWeekdayDayOff { get; set; }
         public string? shiftPreiod { get; set; } // kỳ công
+        public string? attendanceSheetCode { get; set; } // mã chấmcoong
     }
 }

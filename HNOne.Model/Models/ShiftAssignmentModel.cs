@@ -1,6 +1,6 @@
 ﻿namespace HNOne.Model.Models
 {
-    public class ShiftAssignmentModel
+    public class ShiftAssignmentModel : AuditableModel
     {
         public int rowOrder { get; set; } // số thứ tự
         public int employeeId { get; set; }
@@ -46,5 +46,7 @@
         public string? n29 { get; set; }
         public string? n30 { get; set; }
         public string? n31 { get; set; }
+        public int month { get; set; }
+        public int year { get; set; }
     }
 }

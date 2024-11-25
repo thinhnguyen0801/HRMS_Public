@@ -319,6 +319,24 @@ namespace HNOne.API.Repositories
                 return lstResult;
             }
         }
+        
+        /// <summary>
+        /// lấy dữ liệu chấm công của nhân viên
+        /// </summary>
+        /// <param name="request"></param>
+        /// <returns></returns>
+        public async Task<IEnumerable<CheckInOutModel>> GetCheckInOut(RequestModel request)
+        {
+            using (var connection = _dapperDbContext.CreateConnection())
+            {
+                var parameters = new DynamicParameters();
+                parameters.Add("@MaChamCong", request.opt);
+                parameters.Add("@NgayCham", request.fromDate);
+                string query = "select T0.* from CheckInOuts as T0 with(nolock) where T0.MaChamCong = @MaChamCong and cast(T0.NgayCham as date) = @NgayCham";
+                var lstResult = await connection.QueryAsync<CheckInOutModel>(query, param: parameters, commandTimeout: GlobalConstants.COMMAND_TIMEOUT, commandType: CommandType.Text);
+                return lstResult;
+            }
+        }
         #endregion
 
         #region Command
@@ -989,6 +1007,108 @@ namespace HNOne.API.Repositories
                 return lstResult;
             }
             
+        }
+
+        /// <summary>
+        /// /Phát sinh dữ liệu công của nhân viên
+        /// </summary>
+        /// <param name="request"></param>
+        /// <returns></returns>
+        public async Task<ResponseModel> GenerateTimesheets(RequestModel request)
+        {
+            using (var connection = _dapperDbContext.CreateConnection())
+            {
+                int.TryParse(request.opt, out int year);
+                if (year == 0) year = DateTime.Now.Year;
+                var parameters = new DynamicParameters();
+                parameters.Add("@UserId", request.userId);
+                parameters.Add("@BranchId", request.branchId);
+                parameters.Add("@StartDate", request.fromDate);
+                parameters.Add("@EmployeeId", request.employeeId);
+                parameters.Add("@DepartmentId", request.opt); // mã phòng ban
+                var lstResult = await connection.QueryFirstAsync<ResponseModel>(StoreConstants.STORE_H1_GENERATE_TIMESHEET_DATA_UPDATE, param: parameters, commandTimeout: GlobalConstants.COMMAND_TIMEOUT, commandType: CommandType.StoredProcedure);
+                return lstResult;
+            }
+
+        }
+
+        /// <summary>
+        /// lưu thông tin phân ca làm việc
+        /// </summary>
+        /// <param name="lstEntity"></param>
+        /// <returns></returns>
+        public async Task<ResponseModel> UpdateShiftAssignment(IEnumerable<ShiftAssignments> lstEntity)
+        {
+            bool isTrans = false;
+            ResponseModel response = new ResponseModel();
+            try
+            {
+                await _dbContext.Database.BeginTransactionAsync();
+                DateTime dateTimeNow = _dateTimeHelper.GetCurrentVietnamTime();
+                foreach (var entity in lstEntity)
+                {
+                    var data = await _dbContext.ShiftAssignments.FirstOrDefaultAsync(m => m.EmployeeId == entity.EmployeeId
+                        && m.Year == m.Year && m.Month == m.Month && m.BranchId == m.BranchId);
+                    if(data == null)
+                    {
+                        // thêm mới
+                        entity.Id = 0;
+                        entity.DateTracking = dateTimeNow;
+                        entity.CreateDate = dateTimeNow;
+                        await _dbContext.ShiftAssignments.AddAsync(entity);
+                        continue;
+                    }
+                    // cập nhật dữ liệu
+                    data.DepartmentId = entity.DepartmentId;
+                    data.TitleId = entity.TitleId;
+                    data.ShiftCode = entity.ShiftCode;
+                    data.N01 = entity.N01;
+                    data.N02 = entity.N02;
+                    data.N03 = entity.N03;
+                    data.N04 = entity.N04;
+                    data.N05 = entity.N05;
+                    data.N06 = entity.N06;
+                    data.N07 = entity.N07;
+                    data.N08 = entity.N08;
+                    data.N09 = entity.N09;
+                    data.N10 = entity.N10;
+                    data.N11 = entity.N11;
+                    data.N12 = entity.N12;
+                    data.N13 = entity.N13;
+                    data.N14 = entity.N14;
+                    data.N15 = entity.N15;
+                    data.N16 = entity.N16;
+                    data.N17 = entity.N17;
+                    data.N18 = entity.N18;
+                    data.N19 = entity.N19;
+                    data.N20 = entity.N20;
+                    data.N21 = entity.N21;
+                    data.N22 = entity.N22;
+                    data.N23 = entity.N23;
+                    data.N24 = entity.N24;
+                    data.N25 = entity.N25;
+                    data.N26 = entity.N26;
+                    data.N27 = entity.N27;
+                    data.N28 = entity.N28;
+                    data.N29 = entity.N29;
+                    data.N30 = entity.N30;
+                    data.N31 = entity.N31;
+                    data.DateTracking = dateTimeNow;
+                    data.UpdateDate = dateTimeNow;
+                    data.UserSign2 = entity.UserSign2;
+                    _dbContext.ShiftAssignments.Attach(data);
+                    _dbContext.Entry(data).State = EntityState.Modified;
+                }
+                await _dbContext.SaveChangesAsync();
+                await _dbContext.Database.CommitTransactionAsync();
+                response.message = MessageConstants.MESSAGE_UPDATE_SUCCESS;
+                return response;
+            }
+            catch (Exception)
+            {
+                if (isTrans) await _dbContext.Database.RollbackTransactionAsync();
+                throw;
+            }
         }
         #endregion
     }

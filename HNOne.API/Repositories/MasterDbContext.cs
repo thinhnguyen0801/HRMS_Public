@@ -44,6 +44,8 @@ namespace HNOne.API.Repositories
         public DbSet<OvertimeRequests> OvertimeRequests { get; set; }
         public DbSet<OvertimeRequest1s> OvertimeRequest1s { get; set; }
         public DbSet<WorkConfigs> WorkConfigs { get; set; }
+        public DbSet<ShiftAssignments> ShiftAssignments { get; set; }
+        public DbSet<CheckInOuts> CheckInOuts { get; set; }
 
         public MasterDbContext(DbContextOptions<MasterDbContext> options)
             : base(options)
@@ -67,6 +69,7 @@ namespace HNOne.API.Repositories
             modelBuilder.Entity<LeaveRequests>().HasIndex(m => m.VoucherNo).IsUnique();
             modelBuilder.Entity<LeaveWorkingHours>().HasIndex(m => m.VoucherNo).IsUnique();
             modelBuilder.Entity<Timesheets>().HasIndex(m => new { m.EmployeeId, m.BranchId, m.WorkingDate }).IsUnique();
+            modelBuilder.Entity<ShiftAssignments>().HasIndex(m => new { m.EmployeeId, m.BranchId, m.Month, m.Year }).IsUnique();
         }
 
 

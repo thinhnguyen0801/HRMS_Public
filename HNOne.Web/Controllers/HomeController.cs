@@ -20,10 +20,15 @@ namespace HNOne.Web.Controllers
         #region Properties
         public DateTime StartDate { get; set; } = new DateTime(DateTime.Now.Year, DateTime.Now.Month, 01);
         public string? HtmlAttentdance { get; set; }  // html lịch làm việc
-
+        public bool IsShowDialogDetail { get; set; } // hiển thị chi tiết ngày công
+        public string HeaderTextDialogDetail { get; set; } = string.Empty;
         public List<NotificationModel>? ListNotification { get; set; }
         public IGrid? GridNotification { get; set; }
         private DotNetObjectReference<HomeController>? dotNetObjectReference { get; set; }
+        public List<CheckInOutModel>? ListCheckInOutModel { get; set; }
+        public string? attendanceSheetCode { get; set; } // mã máy chấm chông
+        public List<TimesheetModel>? ListTimeSheetTemp { get; set; } // gán tamj
+        public TimesheetModel timesheetModel { get; set; } = new TimesheetModel();
         #endregion
 
         protected override async Task OnAfterRenderAsync(bool firstRender)
@@ -77,6 +82,8 @@ namespace HNOne.Web.Controllers
                 request.opt1 = StartDate.Month.ToString(); // tháng
                 var lstWorSchedule = await _workforceService.GetMasterDataAsync<TimesheetModel>(request, isShowToast: true);
                 if (lstWorSchedule.IsNullOrEmpty()) return;
+                ListTimeSheetTemp = lstWorSchedule;
+                attendanceSheetCode = lstWorSchedule![0].attendanceSheetCode;
                 int daysInMonth = new DateTime(StartDate.Year, StartDate.Month, 1).AddMonths(1).AddDays(-1).Day;
                 int firstDay = (int)new DateTime(StartDate.Year, StartDate.Month, 1).DayOfWeek;
                 int date = 1;
@@ -169,6 +176,65 @@ namespace HNOne.Web.Controllers
                 await Task.Delay(50);
                 await ShowLoading(false);
                 await InvokeAsync(StateHasChanged);
+            }
+        }
+
+        /// <summary>
+        /// hainguyen create 2024.07.17
+        /// khi js double vào một ô lịch làm việc nó sẽ gọi hàm này -> lấy chi tiết
+        /// HomeController.dotNetObjReference.invokeMethodAsync('OpenPopupHandler', day, month, year);
+        /// </summary>
+        /// <param name="day"></param>
+        /// <param name="month"></param>
+        /// <param name="year"></param>
+        /// <returns></returns>
+        [JSInvokable]
+        public async Task OpenPopupHandler(int day, int month, int year)
+        {
+            try
+            {
+                await ShowLoading();
+                DateTime workingDay = new DateTime(year, month, day);
+                RequestModel request = new RequestModel();
+                request.process = ProcessConstants.GET_CHECK_IN_OUT;
+                request.userId = UserId;
+                request.branchId = BranchId;
+                request.token = Token;
+                request.opt = attendanceSheetCode; // mã máy
+                request.fromDate = workingDay;
+                var lstWorSchedule = await _workforceService.GetMasterDataAsync<CheckInOutModel>(request, isShowToast: true);
+                var itemFirst = ListTimeSheetTemp?.FirstOrDefault(m => m.workingDate.Date == workingDay.Date);
+                timesheetModel = itemFirst ?? new TimesheetModel();
+                HeaderTextDialogDetail = $"Chi tiết công ngày [ {workingDay.ToString(GlobalContants.FORMAT_DATE)} ] của [ {itemFirst.employeeCode} ]";
+                ListCheckInOutModel = lstWorSchedule;
+                IsShowDialogDetail = true;
+            }
+            catch (Exception ex)
+            {
+                ShowError(ex.Message);
+                _logger.LogError(ex, "OpenPopupHandler");
+            }
+            finally
+            {
+                await ShowLoading(false);
+                await InvokeAsync(StateHasChanged);
+            }
+        }
+
+        /// <summary>
+        /// đóng popup clear dữ liệu
+        /// </summary>
+        protected void ClosedPopupHandler()
+        {
+            try
+            {
+                ListCheckInOutModel = new List<CheckInOutModel>();
+                HeaderTextDialogDetail = string.Empty;
+            }
+            catch (Exception ex)
+            {
+                ShowError(ex.Message);
+                _logger.LogError(ex, "ClosedPopupHandler");
             }
         }
         #endregion
