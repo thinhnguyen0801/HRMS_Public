@@ -396,6 +396,13 @@ namespace HNOne.API.Repositories
             {
                 using (var connection = _dapperDbContext.CreateConnection())
                 {
+                    var checkExists = await _dbContext.LeaveRequests.FirstOrDefaultAsync(m => !(entity.ToDate!.Value.Date < m.FromDate!.Value.Date || entity.FromDate!.Value.Date > m.ToDate!.Value.Date) && m.EmployeeId == entity.EmployeeId);
+                    if (checkExists != null)
+                    {
+                        response.status = StatusCodes.Status409Conflict;
+                        response.message = $"Từ ngày hoặc đến ngày đã tồn tại trong hệ thống. Số chứng từ [{checkExists.VoucherNo}]";
+                        return response;
+                    }
                     DateTime dateTimeNow = _dateTimeHelper.GetCurrentVietnamTime();
                     DynamicParameters parameters = new DynamicParameters();
                     parameters.Add("@Type", GlobalConstants.TABLE_LEAVE_REQUEST, DbType.String);
@@ -423,6 +430,9 @@ namespace HNOne.API.Repositories
                         entity1.IsMorningBreak = item.IsMorningBreak;
                         entity1.IsAfternoonBreak = item.IsAfternoonBreak;
                         entity1.Remark = item.Remark;
+                        entity1.IsDayOff = item.IsDayOff;
+                        entity1.BgColor = item.BgColor;
+                        entity1.Symbol = item.Symbol;
                         entity1.DateTracking = dateTimeNow;
                         entity1.UserSign = entity.UserSign;
                         await _dbContext.LeaveRequest1s.AddAsync(entity1);
@@ -460,6 +470,12 @@ namespace HNOne.API.Repositories
                     response.message = MessageConstants.MESSAGE_NOT_FOUNT;
                     return response;
                 }
+                if (data.DateTracking != entity.DateTracking)
+                {
+                    response.status = StatusCodes.Status409Conflict;
+                    response.message = MessageConstants.MESSAGE_DATA_CHECKING_MODIFIED;
+                    return response;
+                }
                 DateTime dateTimeNow = _dateTimeHelper.GetCurrentVietnamTime();
                 data.EmployeeId = entity.EmployeeId;
                 data.EmployeeSignatureId = entity.EmployeeSignatureId;
@@ -477,6 +493,9 @@ namespace HNOne.API.Repositories
                 _dbContext.LeaveRequests.Attach(data);
                 _dbContext.Entry(data).State = EntityState.Modified;
                 // thêm chi tiết đề nghị nghỉ phép
+                // bỏ dữ liệu củ đi
+                var lstLeaveRequest1s = await _dbContext.LeaveRequest1s.Where(m => m.LeaveRequestId == data.Id).ToListAsync();
+                if (!lstLeaveRequest1s.IsNullOrEmpty()) _dbContext.LeaveRequest1s.RemoveRange(lstLeaveRequest1s);
                 foreach (var item in lstEntity1)
                 {
                     LeaveRequest1s entity1 = new LeaveRequest1s();
@@ -485,6 +504,9 @@ namespace HNOne.API.Repositories
                     entity1.IsMorningBreak = item.IsMorningBreak;
                     entity1.IsAfternoonBreak = item.IsAfternoonBreak;
                     entity1.Remark = item.Remark;
+                    entity1.IsDayOff = item.IsDayOff;
+                    entity1.BgColor = item.BgColor;
+                    entity1.Symbol = item.Symbol;
                     entity1.DateTracking = dateTimeNow;
                     entity1.UserSign = entity.UserSign;
                     await _dbContext.LeaveRequest1s.AddAsync(entity1);

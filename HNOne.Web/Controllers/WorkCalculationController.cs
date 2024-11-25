@@ -1,26 +1,25 @@
-﻿using HNOne.Web.Components.Controls;
+﻿using DevExpress.Blazor;
+using HNOne.Common;
+using HNOne.Model.Models;
+using HNOne.Model;
+using HNOne.Web.Commons;
 using HNOne.Web.Models;
 using HNOne.Web.Services.Interfaces;
 using Microsoft.AspNetCore.Components;
-using Microsoft.JSInterop;
-using HNOne.Model.Models;
-using DevExpress.Blazor;
-using HNOne.Model;
-using HNOne.Common;
-using HNOne.Web.Commons;
 
 namespace HNOne.Web.Controllers
 {
-    public class AnnualLeaveInfoController : DocumentControllerBase
+    public class WorkCalculationController : DocumentControllerBase
     {
         [Inject] IMasterDataService _masterDataService { get; init; }
         [Inject] IWorkforceService _workforceService { get; init; }
         #region Properties
         public int ActiveTabIndex { get; set; } = 0;
         public SearchModel SearchUpdate { get; set; } = new SearchModel();
-        public List<AnnualLeaveInfoModel>? ListAnnualLeaveInfo { get; set; }
-        public IGrid? GridAnnualLeaveInfo { get; set; }
+        public List<TimesheetModel>? ListTimesheet { get; set; }
+        public IGrid? GridTimesheet { get; set; }
         public List<ComboboxModel>? ListCboYear { get; set; }
+        public List<ComboboxModel>? ListCboMonth { get; set; }
         public List<ComboboxModel>? ListCboStatus { get; set; } // cbo ds tình trạng
         public IEnumerable<ComboboxModel>? ListCboStatusSelected { get; set; }
         public List<ComboboxModel>? ListCboDepartment { get; set; } // cbo ds phòng ban
@@ -73,11 +72,18 @@ namespace HNOne.Web.Controllers
         private void initDataAsync()
         {
             SearchUpdate.year = DateTime.Now.Year;
+            SearchUpdate.month = DateTime.Now.Month;
             int defaultYear = 2024;
             ListCboYear = new List<ComboboxModel>();
             for (int i = defaultYear; i < DateTime.Now.AddYears(2).Year; i++)
             {
                 ListCboYear.Add(new ComboboxModel() { id = i, name = $"Năm {i}" });
+            }
+
+            ListCboMonth = new List<ComboboxModel>();
+            for (int i = 0; i < 13; i++)
+            {
+                ListCboMonth.Add(new ComboboxModel() { id = i, name = $"Tháng {i}" });
             }
         }
 
@@ -93,7 +99,7 @@ namespace HNOne.Web.Controllers
                 );
 
                 ListCboDepartment = (await getTask1)?.Select(m => new ComboboxModel() { id = m.id, code = m.code, name = m.name })?.ToList();
-                ListCboStatus = (await getTask4)?.Where(m => m.rowOrder != 0).Select(m => new ComboboxModel() {code = m.code, name = m.name })?.ToList();
+                ListCboStatus = (await getTask4)?.Where(m => m.rowOrder != 0).Select(m => new ComboboxModel() { code = m.code, name = m.name })?.ToList();
             }
             catch (Exception) { throw; }
         }
@@ -189,8 +195,7 @@ namespace HNOne.Web.Controllers
                 request.opt1 = ""; // phòng ban
                 request.opt2 = ""; // nhân viên
                 request.opt3 = ""; // tình trạng
-                var result = await _workforceService.GetMasterDataAsync<AnnualLeaveInfoModel>(request, isShowToast: true);
-                ListAnnualLeaveInfo = result;
+                
             }
             catch (Exception ex)
             {

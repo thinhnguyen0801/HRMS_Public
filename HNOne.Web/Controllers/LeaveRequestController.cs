@@ -63,7 +63,7 @@ namespace HNOne.Web.Controllers
                     };
                     await NotifyBreadcrumb.InvokeAsync(ListBreadcrumbs);
                     //
-                    await initDataAsync();
+                    initDataAsync();
                     await buildComboAsync();
                     if (pDocEntry > 0)
                     {
@@ -86,12 +86,12 @@ namespace HNOne.Web.Controllers
 
         #region Private Functions
 
-        private async Task initDataAsync(bool isRefresh = false)
+        private void initDataAsync(bool isRefresh = false)
         {
             // GÁN DỮ LIỆU MẶC ĐỊNH
             LeaveRequestDocument.statusCode = CommonConstants.STATUS_CODE_ADD; // mặc định là chờ xử lý
             var uri = _navigationManager?.ToAbsoluteUri(_navigationManager.Uri);
-            if (uri != null && QueryHelpers.ParseQuery(uri.Query).Count > 0)
+            if (!isRefresh && uri != null && QueryHelpers.ParseQuery(uri.Query).Count > 0)
             {
                 string key = uri.Query.Substring(5); // bỏ ?key=
                 Dictionary<string, string> pParams = JsonConvert.DeserializeObject<Dictionary<string, string>>(_encryptHelper.Decrypt(key))!;
@@ -101,6 +101,7 @@ namespace HNOne.Web.Controllers
                     if (pParams.ContainsKey("pDocEntry")) pDocEntry = Convert.ToInt32(pParams["pDocEntry"]);
                 }
             }
+            IsReadonlyControl = pActionType == nameof(EnumType.Update);
         }
 
         /// <summary>
@@ -134,6 +135,12 @@ namespace HNOne.Web.Controllers
         /// <param name="fieldName"></param>
         private void validateForSave(ref string errorMessage, ref string fieldName)
         {
+            if (ListOfVacationDays.IsNullOrEmpty())
+            {
+                errorMessage = "Không tìm thấy danh sách ngày nghỉ. Vui lòng làm mới danh sách ngày nghỉ!!!";
+                fieldName = "gridInfo";
+                return;
+            }
             if (LeaveRequestDocument.employeeId < 1)
             {
                 errorMessage = string.Format(MessageConstants.MESSAGE_COMBOBOX_REQUIRE, "Nhân viên");
@@ -144,6 +151,12 @@ namespace HNOne.Web.Controllers
             {
                 errorMessage = string.Format(MessageConstants.MESSAGE_COMBOBOX_REQUIRE, "Phòng ban");
                 fieldName = nameof(LeaveRequestDocument.departmentId);
+                return;
+            }
+            if (LeaveRequestDocument.employeeSignatureId < 1)
+            {
+                errorMessage = string.Format(MessageConstants.MESSAGE_COMBOBOX_REQUIRE, "Người ký");
+                fieldName = nameof(LeaveRequestDocument.employeeSignatureId);
                 return;
             }
             if (LeaveRequestDocument.reasonId < 1)
@@ -195,7 +208,7 @@ namespace HNOne.Web.Controllers
                 fieldName = "zzzz";
                 return;
             }
-            if (LeaveRequestDocument.employeeId < 1)
+            if (LeaveRequestDocument.employeeSignatureId < 1)
             {
                 errorMessage = string.Format(MessageConstants.MESSAGE_COMBOBOX_REQUIRE, "Người ký");
                 fieldName = nameof(LeaveRequestDocument.employeeSignatureId);
@@ -224,6 +237,7 @@ namespace HNOne.Web.Controllers
                 if (!lstData.IsNullOrEmpty())
                 {
                     LeaveRequestDocument = lstData![0];
+                    await getAnnualLeaveInfo(LeaveRequestDocument.employeeId); // lấy thông tin ngày nghỉ
                     //cho phép chỉnh sữa khi tình trạng là: A (Tạo mới), Y (Đã gửi yêu cầu phê duyệt)
                     IsReadonlyControl = LeaveRequestDocument.statusCode != CommonConstants.STATUS_CODE_ADD
                         && LeaveRequestDocument.statusCode != CommonConstants.STATUS_CODE_APPROVAL_PENDING;
@@ -246,6 +260,45 @@ namespace HNOne.Web.Controllers
         /// <returns></returns>
         private async Task getDocumentHistory()
             => VoucherHistory = await _approvalService.GetFunDocumentHistoryAsync(UserId, BranchId, Token, nameof(EnumObjType.LeaveRequests), pDocEntry);
+        
+        /// <summary>
+        /// lấy thông tin phép năm
+        /// </summary>
+        /// <param name="employeeId"></param>
+        /// <returns></returns>
+        private async Task getAnnualLeaveInfo(int employeeId)
+        {
+            try
+            {
+                LeaveRequestDocument.numOfLeave = 0;
+                LeaveRequestDocument.numOfLeaveLevel = 0;
+                LeaveRequestDocument.numOfLeaveOld = 0;
+                LeaveRequestDocument.numOfLeaveTotal = 0;
+                LeaveRequestDocument.numOfLeaveUsed = 0;
+                LeaveRequestDocument.numOfLeaveRemaining = 0;
+                RequestModel request = new RequestModel();
+                request.process = ProcessConstants.GET_ANNUAL_LEAVE_INFO;
+                request.userId = UserId;
+                request.branchId = BranchId;
+                request.token = Token;
+                request.opt = DateTime.Now.Year.ToString(); // lấy năm hiện tại
+                request.opt1 = ""; // phòng ban
+                request.opt2 = employeeId.ToString(); // nhân viên
+                request.opt3 = ""; // tình trạng
+                var result = await _workforceService.GetMasterDataAsync<AnnualLeaveInfoModel>(request);
+                if(!result.IsNullOrEmpty())
+                {
+                    var header = result![0];
+                    LeaveRequestDocument.numOfLeave = header.numOfLeave;
+                    LeaveRequestDocument.numOfLeaveLevel = header.numOfLeaveLevel;
+                    LeaveRequestDocument.numOfLeaveOld = header.numOfLeaveOld;
+                    LeaveRequestDocument.numOfLeaveTotal = 0;
+                    LeaveRequestDocument.numOfLeaveUsed = header.numOfLeaveUsed;
+                    LeaveRequestDocument.numOfLeaveRemaining = header.numOfLeaveRemaining;
+                }    
+            }
+            catch(Exception){ throw; }
+        }
         #endregion
 
 
@@ -295,11 +348,14 @@ namespace HNOne.Web.Controllers
                 switch (pPopupType)
                 {
                     case nameof(LeaveRequestDocument.employeeCode):
+                        await ShowLoading();
+                        await getAnnualLeaveInfo(employee.id);
                         LeaveRequestDocument.employeeId = employee.id;
                         LeaveRequestDocument.employeeCode = employee.code;
                         LeaveRequestDocument.employeeName = employee.name;
                         LeaveRequestDocument.departmentId = employee.departmentId;
                         IsShowDialogEmpSearch = false;
+                        await Task.Delay(75);
                         break;
                     case nameof(LeaveRequestDocument.employeeSignatureCode):
                         LeaveRequestDocument.employeeSignatureId = employee.id;
@@ -372,6 +428,7 @@ namespace HNOne.Web.Controllers
         {
             try
             {
+                if (IsReadonlyControl) return;
                 var itemEdit = (LeaveRequest1Model)e.EditModel;
                 var itemFind = ListOfVacationDays?.FirstOrDefault(m => m.dateOff == itemEdit.dateOff && m.id == itemEdit.id);
                 if (itemFind == null) return;
@@ -532,6 +589,42 @@ namespace HNOne.Web.Controllers
             {
                 ShowError(ex.Message);
                 _logger.LogError(ex, "SpinEditValueChangeHandler");
+            }
+        }
+
+        /// <summary>
+        /// làm mới dữ liệu
+        /// </summary>
+        /// <returns></returns>
+        protected async Task RefreshDataHandler()
+        {
+            try
+            {
+                await ShowLoading();
+                Dictionary<string, string> pParams = new Dictionary<string, string>
+                {
+                    { "pActionType", $"{nameof(EnumType.Add)}" },
+                    { "pDocEntry", $"{-1}" },
+                };
+                string key = _encryptHelper.Encrypt(JsonConvert.SerializeObject(pParams)); // mã hóa key
+                _navigationManager.NavigateTo($"/de-nghi-nghi-phep?key={key}");
+                LeaveRequestDocument = new LeaveRequestModel();
+                ListOfVacationDays = new List<LeaveRequest1Model>();
+                pActionType = nameof(EnumType.Add);
+                pDocEntry = -1;
+                VoucherHistory = string.Empty;
+                initDataAsync(isRefresh: true);
+                await buildComboAsync();
+            }
+            catch (Exception ex)
+            {
+                ShowError(ex.Message);
+                _logger.LogError(ex, "RefreshDataHandler");
+            }
+            finally
+            {
+                await ShowLoading(false);
+                await InvokeAsync(StateHasChanged);
             }
         }
         #endregion

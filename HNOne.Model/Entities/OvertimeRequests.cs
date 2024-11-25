@@ -52,6 +52,11 @@ namespace HNOne.Model.Entities
         public DateTime? EndBreakTime { get; set; } // giờ kết thúc nghỉ  ra
         [MaxLength(250)]
         public string? Remark { get; set; } // ghi chú
+        public bool IsDayOff { get; set; } // là ngày nghỉ
+        [MaxLength(250)]
+        public string? BgColor { get; set; } // màu line
+        [MaxLength(250)]
+        public string? Symbol { get; set; } // ký hiệu
         public double TotalWorkingHours { get; set; } // tổng số giờ làm việc
         public DateTime? DateTracking { get; set; }
         public int? UserSign { get; set; }
