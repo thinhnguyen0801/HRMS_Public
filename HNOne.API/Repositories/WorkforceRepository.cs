@@ -555,6 +555,14 @@ namespace HNOne.API.Repositories
                             response.message = MessageConstants.MESSAGE_VOUCHER_NO_MISSING;
                             return response;
                         }
+                        var checkExists = await _dbContext.LeaveWorkingHours.FirstOrDefaultAsync(m => m.FromDate!.Value.Date == entity.FromDate!.Value.Date && m.EmployeeId == entity.EmployeeId
+                                            && m.StatusCode != CommonConstants.STATUS_CODE_CANCELED && m.StatusCode != CommonConstants.STATUS_CODE_DENY); // bỏ 2 tình trạng hủy
+                        if (checkExists != null)
+                        {
+                            response.status = StatusCodes.Status409Conflict;
+                            response.message = $"Ngày đăng ký đã tồn tại trong hệ thống. Số chứng từ [{checkExists.VoucherNo}]";
+                            return response;
+                        }
                         entity.Id = await _dbContext.LeaveWorkingHours.Select(m => m.Id).DefaultIfEmpty().MaxAsync() + 1;
                         entity.VoucherNo = voucherNo;
                         entity.DateTracking = dateTimeNow;
@@ -574,6 +582,12 @@ namespace HNOne.API.Repositories
                         response.message = MessageConstants.MESSAGE_NOT_FOUNT;
                         return response;
                     }
+                    if (data.DateTracking != entity.DateTracking)
+                    {
+                        response.status = StatusCodes.Status409Conflict;
+                        response.message = MessageConstants.MESSAGE_DATA_CHECKING_MODIFIED;
+                        return response;
+                    }
                     data.EmployeeId = entity.EmployeeId;
                     data.EmployeeSignatureId = entity.EmployeeSignatureId;
                     data.DepartmentId = entity.DepartmentId;
@@ -581,6 +595,7 @@ namespace HNOne.API.Repositories
                     data.FromDate = entity.FromDate;
                     data.ToDate = entity.ToDate;
                     data.Remark = entity.Remark;
+                    data.TotalHours = entity.TotalHours;
                     data.DateTracking = dateTimeNow;
                     data.UpdateDate = dateTimeNow;
                     data.UserSign2 = entity.UserSign2;

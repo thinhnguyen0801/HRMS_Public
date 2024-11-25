@@ -105,6 +105,7 @@ namespace HNOne.Web.Controllers
                     if (pParams.ContainsKey("pDocEntry")) pDocEntry = Convert.ToInt32(pParams["pDocEntry"]);
                 }
             }
+            IsReadonlyControl = pActionType == nameof(EnumType.Update);
         }
 
         /// <summary>
@@ -228,7 +229,7 @@ namespace HNOne.Web.Controllers
                 fieldName = "zzzz";
                 return;
             }
-            if (LeaveRequestDocument.employeeId < 1)
+            if (LeaveRequestDocument.employeeSignatureId < 1)
             {
                 errorMessage = string.Format(MessageConstants.MESSAGE_COMBOBOX_REQUIRE, "Người ký");
                 fieldName = nameof(LeaveRequestDocument.employeeSignatureId);
@@ -552,15 +553,33 @@ namespace HNOne.Web.Controllers
             try
             {
                 if (firstRender) return;
+                double total = 0;
                 switch (controlID)
                 {
                     case nameof(LeaveRequestDocument.fromDateTime):
                         LeaveRequestDocument.fromDateTime = (DateTime?)value;
                         LeaveRequestDocument.toDate = null;
+                        
+                        if(LeaveRequestDocument.fromDateTime != null
+                            && LeaveRequestDocument.toDate != null
+                            && LeaveRequestDocument.toDate > LeaveRequestDocument.fromDateTime)
+                                                            {
+                            TimeSpan workBeforeBreak = LeaveRequestDocument.toDate!.Value - LeaveRequestDocument.fromDateTime!.Value;
+                            total = workBeforeBreak.TotalHours;
+                        }
+                        LeaveRequestDocument.totalHours = total;
                         StateHasChanged();
                         break;
                     case nameof(LeaveRequestDocument.toDate):
                         LeaveRequestDocument.toDate = (DateTime?)value;
+                        if (LeaveRequestDocument.fromDateTime != null
+                            && LeaveRequestDocument.toDate != null
+                            && LeaveRequestDocument.toDate > LeaveRequestDocument.fromDateTime)
+                        {
+                            TimeSpan workBeforeBreak = LeaveRequestDocument.toDate!.Value - LeaveRequestDocument.fromDateTime!.Value;
+                            total = workBeforeBreak.TotalHours;
+                        }
+                        LeaveRequestDocument.totalHours = total;
                         StateHasChanged();
                         break;
                 }

@@ -27,5 +27,6 @@ namespace HNOne.Model.Entities
         [MaxLength(50)]
         [Required]
         public string? RequestType { get; set; } // loại yêu cầu
+        public double TotalHours { get; set; } // tổng số giờ
     }
 }

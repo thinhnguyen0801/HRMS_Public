@@ -30,6 +30,7 @@ namespace HNOne.Model.Models
         public int numOfLeaveUsed { get; set; } // số phép sử dụng
         public int numOfLeaveRemaining { get; set; } // số phép còn lại
         public string? jsonDetail { get; set; } // danh sách chi tiết
+        public double totalHours { get; set; } // tổng số giờ nghỉ
         #region dành cho xin nghỉ phép trong giờ
         public string? requestType { get; set; } // loại yêu cầu
         public string? requestTypeName { get; set; } // loại yêu cầu

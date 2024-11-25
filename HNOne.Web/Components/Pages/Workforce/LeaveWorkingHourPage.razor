@@ -4,25 +4,29 @@
 
 
 <div class="h-content-filter">
-    <div class="card p-1">
-        <DxToolbar ItemRenderStyleMode="@ToolbarRenderStyleMode.Contained">
-            <Items>
+    @if(!IsReadonlyControl)
+    {
+        <div class="card p-1">
+            <DxToolbar ItemRenderStyleMode="@ToolbarRenderStyleMode.Contained">
+                <Items>
 
-                <DxToolbarItem Text="Lưu" BeginGroup="true" IconCssClass="@($"{IconClassConstants.ICON_UPDATE}")" CssClass="w1FontSize"
-                               Alignment="@ToolbarItemAlignment.Right" Click="@SaveDataHandler" />
+                    <DxToolbarItem Text="Lưu" BeginGroup="true" IconCssClass="@($"{IconClassConstants.ICON_UPDATE}")" CssClass="w1FontSize"
+                                   Alignment="@ToolbarItemAlignment.Right" Click="@SaveDataHandler" />
 
-                <DxToolbarItem Text="Gửi phê duyệt" BeginGroup="true" IconCssClass="@($"{IconClassConstants.ICON_SHARE}")" CssClass="w1FontSize"
-                               Alignment="@ToolbarItemAlignment.Right" Click="@(()=> SubmitForApprovalHandler())" />
+                    <DxToolbarItem Text="Gửi phê duyệt" BeginGroup="true" IconCssClass="@($"{IconClassConstants.ICON_SHARE}")" CssClass="w1FontSize"
+                                   Alignment="@ToolbarItemAlignment.Right" Click="@(()=> SubmitForApprovalHandler())"
+                                   Visible="@(LeaveRequestDocument.statusCode == CommonConstants.STATUS_CODE_ADD)" />
 
-                <DxToolbarItem Text="Hủy" BeginGroup="true" IconCssClass="@($"{IconClassConstants.ICON_DELETE}")" CssClass="w1FontSize"
-                               Alignment="@ToolbarItemAlignment.Right" />
+                    <DxToolbarItem Text="Hủy" BeginGroup="true" IconCssClass="@($"{IconClassConstants.ICON_DELETE}")" CssClass="w1FontSize"
+                                   Alignment="@ToolbarItemAlignment.Right" />
 
-                <DxToolbarItem Text="Làm mới" BeginGroup="true" IconCssClass="@($"{IconClassConstants.ICON_REFRESH}")" CssClass="w1FontSize"
-                               Alignment="@ToolbarItemAlignment.Right" />
-            </Items>
-        </DxToolbar>
-    </div>
-
+                    <DxToolbarItem Text="Làm mới" BeginGroup="true" IconCssClass="@($"{IconClassConstants.ICON_REFRESH}")" CssClass="w1FontSize"
+                                   Alignment="@ToolbarItemAlignment.Right" />
+                </Items>
+            </DxToolbar>
+        </div>
+    }
+    
     <div class="card card-lg mt-1" style="padding: 5px">
         <div class="row row-gap-2">
             <div class="col-12">
@@ -81,7 +85,7 @@
                                                             FilteringMode="DataGridFilteringMode.Contains"
                                                             TextFieldName="@nameof(ComboboxModel.name)"
                                                             ValueFieldName="@nameof(ComboboxModel.id)"
-                                                            Id="departmentId"
+                                                            Id="departmentId" ReadOnly="@IsReadonlyControl"
                                                             CssClass="w1FontSize">
                                                 </DxComboBox>
                                             </div>
@@ -98,7 +102,8 @@
                                                     <div class="g-col-md-8 g-col-sm-12 g-col-12">
                                                         <DxTextBox @bind-Text="@LeaveRequestDocument.employeeName" CssClass="w1FontSize" ReadOnly="true">
                                                             <Buttons>
-                                                                <DxEditorButton style="width: 29px" CssClass="w1FontSize" IconCssClass="fas fa-search" Tooltip="Tìm kiếm nhân viên"
+                                                                <DxEditorButton style="width: 29px" CssClass="w1FontSize" IconCssClass="fas fa-search" Tooltip="Tìm kiếm nhân viên" 
+                                                                                Visible="@(!IsReadonlyControl)"
                                                                                 Click="@(async () => await OpenPopupHandler(nameof(EmployeeSelected), nameof(LeaveRequestDocument.employeeCode)))" />
                                                             </Buttons>
                                                         </DxTextBox>
@@ -119,7 +124,8 @@
                                                     <div class="g-col-md-8 g-col-sm-12 g-col-12">
                                                         <DxTextBox @bind-Text="@LeaveRequestDocument.employeeSignatureName" CssClass="w1FontSize" ReadOnly="true">
                                                             <Buttons>
-                                                                <DxEditorButton style="width: 29px" CssClass="w1FontSize" IconCssClass="fas fa-search" Tooltip="Tìm kiếm nhân viên"
+                                                                <DxEditorButton style="width: 29px" CssClass="w1FontSize" IconCssClass="fas fa-search" Tooltip="Tìm kiếm nhân viên" 
+                                                                                Visible="@(!IsReadonlyControl)"
                                                                                 Click="@(async () => await OpenPopupHandler(nameof(EmployeeSelected), nameof(LeaveRequestDocument.employeeSignatureCode)))" />
                                                             </Buttons>
                                                         </DxTextBox>
@@ -148,7 +154,7 @@
                                                             FilteringMode="DataGridFilteringMode.Contains"
                                                             TextFieldName="@nameof(ComboboxModel.name)"
                                                             ValueFieldName="@nameof(ComboboxModel.code)"
-                                                            Id="requestType"
+                                                            Id="requestType" ReadOnly="@IsReadonlyControl"
                                                             CssClass="w1FontSize">
                                                 </DxComboBox>
                                             </div>
@@ -159,7 +165,7 @@
                                             <W1Label Value="Ngày đăng ký" Styles="width: 120px" IsRequired="true" />
                                             <div style="width: calc(100% - 120px)">
                                                 <DxDateEdit @bind-Date="@LeaveRequestDocument.fromDate"
-                                                            CssClass="w1FontSize" Id="startDate"
+                                                            CssClass="w1FontSize" Id="startDate" ReadOnly="@IsReadonlyControl"
                                                             Mask="@GlobalContants.FORMAT_DATE" Format="@GlobalContants.FORMAT_DATE"
                                                             DisplayFormat="@GlobalContants.FORMAT_DATE" />
                                             </div>
@@ -170,21 +176,24 @@
                                             <W1Label Value="Từ giờ/Đến giờ" Styles="width: 120px" IsRequired="true" />
                                             <div style="width: calc(100% - 120px)">
                                                 <div class="grid gap-1 row-gap-2">
-                                                    <div class="g-col-md-6 g-col-sm-12 g-col-12">
-                                                        <DxDateEdit Date="@LeaveRequestDocument.fromDateTime"
-                                                                    DateChanged="@((DateTime? fromDateTime)=>DateEditValueChangedHandler(fromDateTime, controlID: nameof(LeaveRequestDocument.fromDateTime)))"
-                                                                    CssClass="w1FontSize" Id="startDateTime"
+                                                    <div class="g-col-md-5 g-col-sm-12 g-col-12">
+                                                        <DxTimeEdit Time="@LeaveRequestDocument.fromDateTime"
+                                                                    TimeChanged="@((DateTime? fromDateTime)=>DateEditValueChangedHandler(fromDateTime, controlID: nameof(LeaveRequestDocument.fromDateTime)))"
+                                                                    CssClass="w1FontSize" Id="startDateTime" ReadOnly="@IsReadonlyControl"
                                                                     Mask="@GlobalContants.FORMAT_TIME" Format="@GlobalContants.FORMAT_TIME"
-                                                                    DisplayFormat="@GlobalContants.FORMAT_TIME"
-                                                                    ClearButtonDisplayMode="@DataEditorClearButtonDisplayMode.Auto" />
+                                                                    DisplayFormat="@GlobalContants.FORMAT_TIME" />
                                                     </div>
-                                                    <div class="g-col-md-6 g-col-sm-12 g-col-12">
-                                                        <DxDateEdit Date="@LeaveRequestDocument.toDate"
-                                                                    DateChanged="@((DateTime? toDate)=>DateEditValueChangedHandler(toDate, controlID: nameof(LeaveRequestDocument.toDate)))"
-                                                                    CssClass="w1FontSize" Id="endDate"
+                                                    <div class="g-col-md-5 g-col-sm-12 g-col-12">
+                                                        <DxTimeEdit Time="@LeaveRequestDocument.toDate"
+                                                                    TimeChanged="@((DateTime? toDate)=>DateEditValueChangedHandler(toDate, controlID: nameof(LeaveRequestDocument.toDate)))"
+                                                                    CssClass="w1FontSize" Id="endDate" ReadOnly="@IsReadonlyControl"
                                                                     Mask="@GlobalContants.FORMAT_TIME" Format="@GlobalContants.FORMAT_TIME"
-                                                                    DisplayFormat="@GlobalContants.FORMAT_TIME"
-                                                                    ClearButtonDisplayMode="@DataEditorClearButtonDisplayMode.Auto" />
+                                                                    DisplayFormat="@GlobalContants.FORMAT_TIME" />
+                                                    </div>
+                                                    <div class="g-col-md-2 g-col-sm-12 g-col-12">
+                                                        <DxSpinEdit @bind-Value="@LeaveRequestDocument.totalHours" InputCssClass="text-end"
+                                                                    ShowSpinButtons="false" ReadOnly="true"
+                                                                    DisplayFormat="@GlobalContants.FORMAT_CURRENCY" Mask="@GlobalContants.FORMAT_CURRENCY" CssClass="w1FontSize" />
                                                     </div>
                                                 </div>
                                             </div>
@@ -194,7 +203,8 @@
                                         <div class="d-flex ">
                                             <W1Label Value="Lý do nghỉ" Styles="width: 120px" IsRequired="true" />
                                             <div style="width: calc(100% - 120px)">
-                                                <DxMemo @bind-Text="@LeaveRequestDocument.remark" BindValueMode="@BindValueMode.OnInput" Rows="1" InputId="txtRemark" CssClass="w1FontSize" />
+                                                <DxMemo @bind-Text="@LeaveRequestDocument.remark" BindValueMode="@BindValueMode.OnInput" Rows="1"
+                                                        InputId="txtRemark" CssClass="w1FontSize" ReadOnly="@IsReadonlyControl" />
                                             </div>
                                         </div>
                                     </div>
