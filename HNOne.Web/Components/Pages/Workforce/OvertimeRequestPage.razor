@@ -3,25 +3,29 @@
 <PageTitle>Đề nghị làm thêm</PageTitle>
 
 <div class="h-content-filter">
-    <div class="card p-1">
-        <DxToolbar ItemRenderStyleMode="@ToolbarRenderStyleMode.Contained">
-            <Items>
+    @if(!IsReadonlyControl)
+    {
+        <div class="card p-1">
+            <DxToolbar ItemRenderStyleMode="@ToolbarRenderStyleMode.Contained">
+                <Items>
 
-                <DxToolbarItem Text="Lưu" BeginGroup="true" IconCssClass="@($"{IconClassConstants.ICON_UPDATE}")" CssClass="w1FontSize"
-                               Alignment="@ToolbarItemAlignment.Right" Click="@SaveDataHandler" />
+                    <DxToolbarItem Text="Lưu" BeginGroup="true" IconCssClass="@($"{IconClassConstants.ICON_UPDATE}")" CssClass="w1FontSize"
+                                   Alignment="@ToolbarItemAlignment.Right" Click="@SaveDataHandler" />
 
-                <DxToolbarItem Text="Gửi phê duyệt" BeginGroup="true" IconCssClass="@($"{IconClassConstants.ICON_SHARE}")" CssClass="w1FontSize"
-                               Alignment="@ToolbarItemAlignment.Right" Click="@(()=> SubmitForApprovalHandler())" />
+                    <DxToolbarItem Text="Gửi phê duyệt" BeginGroup="true" IconCssClass="@($"{IconClassConstants.ICON_SHARE}")" CssClass="w1FontSize"
+                                   Alignment="@ToolbarItemAlignment.Right" Click="@(()=> SubmitForApprovalHandler())"
+                                   Visible="@(OvertimeRequestDocument.statusCode == CommonConstants.STATUS_CODE_ADD)" />
 
-                <DxToolbarItem Text="Hủy" BeginGroup="true" IconCssClass="@($"{IconClassConstants.ICON_DELETE}")" CssClass="w1FontSize"
-                               Alignment="@ToolbarItemAlignment.Right" />
+                    <DxToolbarItem Text="Hủy" BeginGroup="true" IconCssClass="@($"{IconClassConstants.ICON_DELETE}")" CssClass="w1FontSize"
+                                   Alignment="@ToolbarItemAlignment.Right" />
 
-                <DxToolbarItem Text="Làm mới" BeginGroup="true" IconCssClass="@($"{IconClassConstants.ICON_REFRESH}")" CssClass="w1FontSize"
-                               Alignment="@ToolbarItemAlignment.Right" />
-            </Items>
-        </DxToolbar>
-    </div>
-
+                    <DxToolbarItem Text="Làm mới" BeginGroup="true" IconCssClass="@($"{IconClassConstants.ICON_REFRESH}")" CssClass="w1FontSize"
+                                   Alignment="@ToolbarItemAlignment.Right" />
+                </Items>
+            </DxToolbar>
+        </div>
+    }
+    
     <div class="card card-lg mt-1" style="padding: 5px">
         <div class="row row-gap-2">
             <div class="col-12">
@@ -66,12 +70,13 @@
                                             <div style="width: calc(100% - 120px)">
                                                 <div class="grid gap-1 row-gap-2">
                                                     <div class="g-col-md-4 g-col-sm-12 g-col-12">
-                                                        <DxTextBox @bind-Text="@OvertimeRequestDocument.employeeCode" ReadOnly="true" CssClass="w1FontSize" />
+                                                        <DxTextBox @bind-Text="@OvertimeRequestDocument.employeeCode" ReadOnly="true" CssClass="w1FontSize" Id="employeeId" />
                                                     </div>
                                                     <div class="g-col-md-8 g-col-sm-12 g-col-12">
                                                         <DxTextBox @bind-Text="@OvertimeRequestDocument.employeeName" CssClass="w1FontSize" ReadOnly="true">
                                                             <Buttons>
-                                                                <DxEditorButton style="width: 29px" CssClass="w1FontSize" IconCssClass="fas fa-search" Tooltip="Tìm kiếm nhân viên"
+                                                                <DxEditorButton style="width: 29px" CssClass="w1FontSize" IconCssClass="fas fa-search" Tooltip="Tìm kiếm nhân viên" 
+                                                                                Visible="@(!IsReadonlyControl)"
                                                                                 Click="@(async () => await OpenPopupHandler(nameof(EmployeeSelected), nameof(OvertimeRequestDocument.employeeCode)))" />
                                                             </Buttons>
                                                         </DxTextBox>
@@ -89,7 +94,7 @@
                                                             FilteringMode="DataGridFilteringMode.Contains"
                                                             TextFieldName="@nameof(ComboboxModel.name)"
                                                             ValueFieldName="@nameof(ComboboxModel.id)"
-                                                            Id="departmentId"
+                                                            Id="departmentId" ReadOnly="true"
                                                             CssClass="w1FontSize">
                                                 </DxComboBox>
                                             </div>
@@ -97,7 +102,7 @@
                                     </div>
                                     <div class="col-md-6 col-sm-12">
                                         <div class="d-flex ">
-                                            <W1Label Value="Người ký" Styles="width: 120px" />
+                                            <W1Label Value="Người ký" Styles="width: 120px" IsRequired="true" />
                                             <div style="width: calc(100% - 120px)">
                                                 <div class="grid gap-1 row-gap-2">
                                                     <div class="g-col-md-4 g-col-sm-12 g-col-12">
@@ -106,7 +111,8 @@
                                                     <div class="g-col-md-8 g-col-sm-12 g-col-12">
                                                         <DxTextBox @bind-Text="@OvertimeRequestDocument.employeeSignatureName" CssClass="w1FontSize" ReadOnly="true">
                                                             <Buttons>
-                                                                <DxEditorButton style="width: 29px" CssClass="w1FontSize" IconCssClass="fas fa-search" Tooltip="Tìm kiếm nhân viên"
+                                                                <DxEditorButton style="width: 29px" CssClass="w1FontSize" IconCssClass="fas fa-search" Tooltip="Tìm kiếm nhân viên" 
+                                                                                Visible="@(!IsReadonlyControl)"
                                                                                 Click="@(async () => await OpenPopupHandler(nameof(EmployeeSelected), nameof(OvertimeRequestDocument.employeeSignatureCode)))" />
                                                             </Buttons>
                                                         </DxTextBox>
@@ -135,7 +141,7 @@
                                                             FilteringMode="DataGridFilteringMode.Contains"
                                                             TextFieldName="@nameof(ComboboxModel.name)"
                                                             ValueFieldName="@nameof(ComboboxModel.code)"
-                                                            Id="reasonId"
+                                                            Id="requestType" ReadOnly="@IsReadonlyControl"
                                                             CssClass="w1FontSize">
                                                 </DxComboBox>
                                             </div>
@@ -149,14 +155,14 @@
                                                     <div class="g-col-md-6 g-col-sm-12 g-col-12">
                                                         <DxDateEdit Date="@OvertimeRequestDocument.fromDate"
                                                                     DateChanged="@((DateTime? fromDate)=>DateEditValueChangedHandler(fromDate, controlID: nameof(OvertimeRequestDocument.fromDate)))"
-                                                                    CssClass="w1FontSize" Id="startDate"
+                                                                    CssClass="w1FontSize" Id="startDate" ReadOnly="@IsReadonlyControl"
                                                                     Mask="@GlobalContants.FORMAT_DATE" Format="@GlobalContants.FORMAT_DATE"
                                                                     DisplayFormat="@GlobalContants.FORMAT_DATE" />
                                                     </div>
                                                     <div class="g-col-md-6 g-col-sm-12 g-col-12">
                                                         <DxDateEdit Date="@OvertimeRequestDocument.toDate"
                                                                     DateChanged="@((DateTime? toDate)=>DateEditValueChangedHandler(toDate, controlID: nameof(OvertimeRequestDocument.toDate)))"
-                                                                    CssClass="w1FontSize" Id="endDate"
+                                                                    CssClass="w1FontSize" Id="endDate" ReadOnly="@IsReadonlyControl"
                                                                     Mask="@GlobalContants.FORMAT_DATE" Format="@GlobalContants.FORMAT_DATE"
                                                                     DisplayFormat="@GlobalContants.FORMAT_DATE" />
                                                     </div>
@@ -173,6 +179,7 @@
                                                             FilteringMode="DataGridFilteringMode.Contains"
                                                             TextFieldName="@nameof(ComboboxModel.name)"
                                                             ValueFieldName="@nameof(ComboboxModel.code)"
+                                                            ReadOnly="@IsReadonlyControl"
                                                             CssClass="w1FontSize" Id="shiftCode">
                                                     <Columns>
                                                         <DxListEditorColumn FieldName="@nameof(ComboboxModel.code)" Width="120px" Caption="Mã" />
@@ -186,7 +193,8 @@
                                         <div class="d-flex ">
                                             <W1Label Value="Lý do tăng ca" Styles="width: 120px" IsRequired="true" />
                                             <div style="width: calc(100% - 120px)">
-                                                <DxMemo @bind-Text="@OvertimeRequestDocument.reason" BindValueMode="@BindValueMode.OnInput" Rows="1" InputId="txtghiChu" CssClass="w1FontSize" />
+                                                <DxMemo @bind-Text="@OvertimeRequestDocument.reason" BindValueMode="@BindValueMode.OnInput" Rows="1" 
+                                                        InputId="txtghiChu" CssClass="w1FontSize" ReadOnly="@IsReadonlyControl" />
                                             </div>
                                         </div>
                                     </div>
@@ -237,7 +245,7 @@
                                     <ToolbarTemplate>
                                         <DxToolbar ItemRenderStyleMode="@ToolbarRenderStyleMode.Plain">
                                             <Items>
-                                                <DxToolbarItem IconCssClass="@IconClassConstants.ICON_REFRESH" BeginGroup="true"
+                                                <DxToolbarItem IconCssClass="@IconClassConstants.ICON_REFRESH" BeginGroup="true" Visible="@(!IsReadonlyControl)"
                                                                Alignment="@ToolbarItemAlignment.Right" Tooltip="Lấy thông tin ngày nghỉ" Click="@CreateOvertimeDateHandler" />
                                             </Items>
                                         </DxToolbar>
@@ -246,17 +254,49 @@
                                         <DxGridDataColumn FieldName="@nameof(OvertimeRequest1Model.overtimeDate)" Caption="Ngày đăng kí" MinWidth="140" Width="140px"
                                                           DisplayFormat="@GlobalContants.FORMAT_DATE" DataRowEditorVisible="false" />
                                         <DxGridDataColumn FieldName="@nameof(OvertimeRequest1Model.startTime)" Caption="Từ giờ" Width="140px" MinWidth="120"
-                                                          DisplayFormat="@GlobalContants.FORMAT_TIME" />
+                                                          DisplayFormat="@GlobalContants.FORMAT_TIME" DataRowEditorVisible="@(!IsReadonlyControl)">
+                                            <EditSettings>
+                                                <DxTimeEditSettings CssClass="w1FontSize" Mask="@GlobalContants.FORMAT_TIME" Format="@GlobalContants.FORMAT_TIME"
+                                                                    DisplayFormat="@GlobalContants.FORMAT_TIME" />
+                                            </EditSettings>
+                                        </DxGridDataColumn>
                                         <DxGridDataColumn FieldName="@nameof(OvertimeRequest1Model.endTime)" Caption="Đến giờ" Width="140px" MinWidth="120"
-                                                          DisplayFormat="@GlobalContants.FORMAT_TIME" />
+                                                          DisplayFormat="@GlobalContants.FORMAT_TIME" DataRowEditorVisible="@(!IsReadonlyControl)">
+                                            <EditSettings>
+                                                <DxTimeEditSettings CssClass="w1FontSize" Mask="@GlobalContants.FORMAT_TIME" Format="@GlobalContants.FORMAT_TIME"
+                                                                    DisplayFormat="@GlobalContants.FORMAT_TIME" />
+                                            </EditSettings>
+                                        </DxGridDataColumn>
                                         <DxGridDataColumn FieldName="@nameof(OvertimeRequest1Model.startBreakTime)" Caption="Giờ nghỉ bắt đầu" Width="140px" MinWidth="120"
-                                                          DisplayFormat="@GlobalContants.FORMAT_TIME" />
+                                                          DisplayFormat="@GlobalContants.FORMAT_TIME" DataRowEditorVisible="@(!IsReadonlyControl)">
+                                            <EditSettings>
+                                                <DxTimeEditSettings CssClass="w1FontSize" Mask="@GlobalContants.FORMAT_TIME" Format="@GlobalContants.FORMAT_TIME"
+                                                                    DisplayFormat="@GlobalContants.FORMAT_TIME" />
+                                            </EditSettings>
+                                        </DxGridDataColumn>
                                         <DxGridDataColumn FieldName="@nameof(OvertimeRequest1Model.endBreakTime)" Caption="Giờ nghỉ kết thúc" Width="140px" MinWidth="120"
-                                                          DisplayFormat="@GlobalContants.FORMAT_TIME" />
+                                                          DisplayFormat="@GlobalContants.FORMAT_TIME" DataRowEditorVisible="@(!IsReadonlyControl)">
+                                            <EditSettings>
+                                                <DxTimeEditSettings CssClass="w1FontSize" Mask="@GlobalContants.FORMAT_TIME" Format="@GlobalContants.FORMAT_TIME"
+                                                                    DisplayFormat="@GlobalContants.FORMAT_TIME" />
+                                            </EditSettings>
+                                        </DxGridDataColumn>
+                                        
                                         <DxGridDataColumn FieldName="@nameof(OvertimeRequest1Model.totalWorkingHours)" Caption="Tổng số giờ" Width="140px" MinWidth="120"
                                                           DisplayFormat="@GlobalContants.FORMAT_NUMBER" DataRowEditorVisible="false" />
-                                        <DxGridDataColumn FieldName="@nameof(LeaveRequest1Model.remark)" Caption="Ghi chú" MinWidth="170" />
+
+                                        <DxGridDataColumn FieldName="@nameof(OvertimeRequest1Model.symbol)" Caption="Ký hiệu" Width="100px" MinWidth="90" DataRowEditorVisible="false" />
+                                        <DxGridDataColumn FieldName="@nameof(OvertimeRequest1Model.remark)" Caption="Ghi chú" MinWidth="170" DataRowEditorVisible="@(!IsReadonlyControl)">
+                                            <HeaderCaptionTemplate>
+                                                <span>Ghi chú <span style="color: red;">&nbsp;(*)</span></span>
+                                            </HeaderCaptionTemplate>
+                                        </DxGridDataColumn>
                                     </Columns>
+                                    <TotalSummary>
+                                        <DxGridSummaryItem DisplayText="@GlobalContants.FORMAT_GRID_DISPLAYTEXT_SUM" SummaryType="GridSummaryItemType.Sum"
+                                                           FieldName="@nameof(OvertimeRequest1Model.totalWorkingHours)" ValueDisplayFormat="@GlobalContants.FORMAT_CURRENCY"
+                                                           FooterColumnName="@nameof(OvertimeRequest1Model.totalWorkingHours)" />
+                                    </TotalSummary>
                                 </DxGrid>
                             </div>
                             break;

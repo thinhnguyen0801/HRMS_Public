@@ -101,6 +101,7 @@ namespace HNOne.Web.Controllers
                     if (pParams.ContainsKey("pDocEntry")) pDocEntry = Convert.ToInt32(pParams["pDocEntry"]);
                 }
             }
+            IsReadonlyControl = pActionType == nameof(EnumType.Update);
         }
 
         /// <summary>
@@ -177,6 +178,36 @@ namespace HNOne.Web.Controllers
         /// <param name="fieldName"></param>
         private void validateForSave(ref string errorMessage, ref string fieldName)
         {
+            if (ListOvertimeDays.IsNullOrEmpty())
+            {
+                errorMessage = "Không tìm thấy danh sách ngày nghỉ. Vui lòng làm mới danh sách ngày nghỉ!!!";
+                fieldName = "gridInfo";
+                return;
+            }
+            // kiểm tra trong lưới dữ liệu hợp lệ chưa
+            OvertimeRequest1Model? itemCheck = ListOvertimeDays!.FirstOrDefault(m => m.startTime >= m.endTime);
+            if(itemCheck != null)
+            {
+                errorMessage = $"Ngày [{itemCheck.overtimeDate.ToString(GlobalContants.FORMAT_DATE)}] {MessageConstants.MESSAGE_FROM_TIME_TO_TIME_INVALID}";
+                fieldName = "gridInfo";
+                return;
+            }
+            itemCheck = ListOvertimeDays!.FirstOrDefault(m => m.startBreakTime!.Value < m.startTime || m.endBreakTime!.Value > m.endTime);
+            if (itemCheck != null)
+            {
+                errorMessage = $"Ngày [{itemCheck.overtimeDate.ToString(GlobalContants.FORMAT_DATE)}] " +
+                    $"Thời gian nghỉ phải nằm trong khoản [{itemCheck.startTime.ToString(GlobalContants.FORMAT_TIME)}] & [{itemCheck.endTime.ToString(GlobalContants.FORMAT_TIME)}]";
+                fieldName = "gridInfo";
+                return;
+            }
+            // kiểm tra trong lưới dữ liệu hợp lệ chưa
+            itemCheck = ListOvertimeDays!.FirstOrDefault(m => m.endBreakTime < m.startBreakTime);
+            if (itemCheck != null)
+            {
+                errorMessage = $"Ngày [{itemCheck.overtimeDate.ToString(GlobalContants.FORMAT_DATE)}] Giờ nghỉ KT không hợp lệ. [Giờ nghỉ BĐ] phải nhỏ hơn [Giờ nghỉ KT]";
+                fieldName = "gridInfo";
+                return;
+            }
             if (OvertimeRequestDocument.employeeId < 1)
             {
                 errorMessage = string.Format(MessageConstants.MESSAGE_COMBOBOX_REQUIRE, "Nhân viên");
@@ -187,6 +218,12 @@ namespace HNOne.Web.Controllers
             {
                 errorMessage = string.Format(MessageConstants.MESSAGE_COMBOBOX_REQUIRE, "Phòng ban");
                 fieldName = nameof(OvertimeRequestDocument.departmentId);
+                return;
+            }
+            if (OvertimeRequestDocument.employeeSignatureId < 1)
+            {
+                errorMessage = string.Format(MessageConstants.MESSAGE_COMBOBOX_REQUIRE, "Người ký");
+                fieldName = nameof(OvertimeRequestDocument.employeeSignatureId);
                 return;
             }
             if (OvertimeRequestDocument.fromDate == null)
@@ -482,12 +519,12 @@ namespace HNOne.Web.Controllers
                     case nameof(OvertimeRequestDocument.fromDate):
                         OvertimeRequestDocument.fromDate = (DateTime?)value;
                         OvertimeRequestDocument.toDate = null;
-                        //ListOfVacationDays = new List<LeaveRequest1Model>();
+                        ListOvertimeDays = new List<OvertimeRequest1Model>();
                         StateHasChanged();
                         break;
                     case nameof(OvertimeRequestDocument.toDate):
                         OvertimeRequestDocument.toDate = (DateTime?)value;
-                        //ListOfVacationDays = new List<LeaveRequest1Model>();
+                        ListOvertimeDays = new List<OvertimeRequest1Model>();
                         StateHasChanged();
                         break;
                 }
@@ -511,7 +548,15 @@ namespace HNOne.Web.Controllers
                 itemFind.endTime = itemEdit.endTime;
                 itemFind.startBreakTime = itemEdit.startBreakTime;
                 itemFind.endBreakTime = itemEdit.endBreakTime;
-                itemFind.totalWorkingHours = itemEdit.totalWorkingHours;
+                // Tính tổng giờ làm việc
+                double totalWorkHours = 0;
+                if(itemFind.startBreakTime != null && itemFind.endBreakTime != null)
+                {
+                    TimeSpan workBeforeBreak = itemFind.startBreakTime!.Value - itemFind.startTime;
+                    TimeSpan workAfterBreak = itemFind.endTime - itemFind.endBreakTime!.Value;
+                    totalWorkHours = workBeforeBreak.TotalHours + workAfterBreak.TotalHours;
+                }
+                itemFind.totalWorkingHours = totalWorkHours;
                 StateHasChanged();
             }
             catch (Exception ex)
