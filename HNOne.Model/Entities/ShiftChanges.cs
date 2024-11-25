@@ -50,5 +50,11 @@ namespace HNOne.Model.Entities
         public string? Remark { get; set; } // ghi chú
         public DateTime? DateTracking { get; set; }
         public int? UserSign { get; set; }
+        public bool IsDayOff { get; set; } // là ngày nghỉ
+        [MaxLength(250)]
+        public string? BgColor { get; set; } // màu line
+        [MaxLength(250)]
+        public string? Symbol { get; set; } // ký hiệu
+        public int HolidayId { get; set; } // Rơi vô kì nghỉ lễ nào bảng HolidayCatagories
     }
 }

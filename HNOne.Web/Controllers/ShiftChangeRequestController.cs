@@ -102,6 +102,8 @@ namespace HNOne.Web.Controllers
                     if (pParams.ContainsKey("pDocEntry")) pDocEntry = Convert.ToInt32(pParams["pDocEntry"]);
                 }
             }
+
+            IsReadonlyControl = pActionType == nameof(EnumType.Update);
         }
 
         /// <summary>
@@ -135,6 +137,20 @@ namespace HNOne.Web.Controllers
         /// <param name="fieldName"></param>
         private void validateForSave(ref string errorMessage, ref string fieldName)
         {
+            if (ListShiftChange.IsNullOrEmpty())
+            {
+                errorMessage = "Không tìm thấy danh sách đổi ca. Vui lòng làm mới danh sách đổi ca!!!";
+                fieldName = "gridInfo";
+                return;
+            }
+            // kiểm tra trong lưới dữ liệu hợp lệ chưa
+            ShiftChange1Model? itemCheck = ListShiftChange!.FirstOrDefault(m => m.shiftCode1 == m.shiftCode2);
+            if (itemCheck != null)
+            {
+                errorMessage = $"Ngày [{itemCheck.dateChange.ToString(GlobalContants.FORMAT_DATE)}] Ca thay đổi không được phép trùng với ca mặc định!!!";
+                fieldName = "gridInfo";
+                return;
+            }
             if (ShiftRequestDocument.employeeId < 1)
             {
                 errorMessage = string.Format(MessageConstants.MESSAGE_COMBOBOX_REQUIRE, "Nhân viên");
@@ -145,6 +161,12 @@ namespace HNOne.Web.Controllers
             {
                 errorMessage = string.Format(MessageConstants.MESSAGE_COMBOBOX_REQUIRE, "Phòng ban");
                 fieldName = nameof(ShiftRequestDocument.departmentId);
+                return;
+            }
+            if (ShiftRequestDocument.employeeSignatureId < 1)
+            {
+                errorMessage = string.Format(MessageConstants.MESSAGE_COMBOBOX_REQUIRE, "Người ký");
+                fieldName = nameof(ShiftRequestDocument.employeeSignatureId);
                 return;
             }
             if (ShiftRequestDocument.fromDate == null)

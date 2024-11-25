@@ -180,7 +180,7 @@ namespace HNOne.Web.Controllers
         {
             if (ListOvertimeDays.IsNullOrEmpty())
             {
-                errorMessage = "Không tìm thấy danh sách ngày nghỉ. Vui lòng làm mới danh sách ngày nghỉ!!!";
+                errorMessage = "Không tìm thấy danh sách tăng ca. Vui lòng làm mới danh sách tăng ca!!!";
                 fieldName = "gridInfo";
                 return;
             }
