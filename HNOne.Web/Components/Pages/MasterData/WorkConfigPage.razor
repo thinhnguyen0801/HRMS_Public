@@ -38,7 +38,7 @@
                                             <div style="width: calc(100% - 140px)">
                                                 <div class="row row-gap-2">
                                                     <div class="col-md-7 col-sm-12">
-                                                        <DxSpinEdit @bind-Value="@WorkConfigUpdate.startDate" MinValue="0" Increment="1"
+                                                        <DxSpinEdit @bind-Value="@WorkConfigUpdate.startDate" MinValue="1" Increment="1" Id="txtstartDate"
                                                                     InputCssClass="text-end" ShowSpinButtons="true" CssClass="w1FontSize" />
                                                     </div>
                                                     <div class="col-md-5 col-sm-12">
@@ -59,7 +59,7 @@
                                         <div class="d-flex ">
                                             <W1Label Value="Ngày chốt kỳ công" Styles="width: 140px" IsRequired="true" />
                                             <div style="width: calc(100% - 140px)">
-                                                <DxSpinEdit @bind-Value="@WorkConfigUpdate.closingDate" MinValue="0" Increment="1"
+                                                <DxSpinEdit @bind-Value="@WorkConfigUpdate.closingDate" MinValue="1" Increment="1" Id="txtclosingDate"
                                                             InputCssClass="text-end" ShowSpinButtons="true" CssClass="w1FontSize" />
                                             </div>
                                         </div>
@@ -70,7 +70,7 @@
                                             <div style="width: calc(100% - 140px)">
                                                 <div class="row row-gap-2">
                                                     <div class="col-md-7 col-sm-12">
-                                                        <DxSpinEdit @bind-Value="@WorkConfigUpdate.closingDate1" 
+                                                        <DxSpinEdit @bind-Value="@WorkConfigUpdate.closingDate1" Id="txtclosingDate1"
                                                                     MinValue="0" Increment="1" ReadOnly="@WorkConfigUpdate.isLastDayOfMonth"
                                                                     InputCssClass="text-end" ShowSpinButtons="true" CssClass="w1FontSize" />
                                                     </div>
@@ -93,7 +93,7 @@
                                             <div style="width: calc(100% - 140px)">
                                                 <div class="row row-gap-2">
                                                     <div class="col-md-7 col-sm-12">
-                                                        <DxSpinEdit @bind-Value="@WorkConfigUpdate.totalWorkingDayOfMonth" 
+                                                        <DxSpinEdit @bind-Value="@WorkConfigUpdate.totalWorkingDayOfMonth" Id="txttotalWorkingDayOfMonth"
                                                                     MinValue="0" Increment="1.0" ReadOnly="@WorkConfigUpdate.isWorkingDayExcludeDayOff"
                                                                     InputCssClass="text-end" ShowSpinButtons="true" CssClass="w1FontSize" />
                                                     </div>
@@ -114,8 +114,20 @@
                                         <div class="d-flex ">
                                             <W1Label Value="Số giờ làm việc" Styles="width: 140px" IsRequired="true" />
                                             <div style="width: calc(100% - 140px)">
-                                                <DxSpinEdit @bind-Value="@WorkConfigUpdate.totalWorkingHours" MinValue="0" Increment="1"
+                                                <DxSpinEdit @bind-Value="@WorkConfigUpdate.totalWorkingHours" MinValue="0" Increment="1" Id="txttotalWorkingHours"
                                                             InputCssClass="text-end" ShowSpinButtons="true" CssClass="w1FontSize" />
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6 col-sm-12">
+                                        <div class="d-flex ">
+                                            <W1Label Value="Ký hiệu ngày làm việc" Styles="width: 140px" IsRequired="true" />
+                                            <div style="width: calc(100% - 140px)">
+                                                <div class="row row-gap-2">
+                                                    <div class="col-md-7 col-sm-12">
+                                                        <DxTextBox @bind-Text="@WorkConfigUpdate.symbolWorkingDay" CssClass="w1FontSize" Id="txtsymbolWorkingDay" />
+                                                    </div>
+                                                </div>
                                             </div>
                                         </div>
                                     </div>
@@ -125,7 +137,7 @@
                                             <div style="width: calc(100% - 140px)">
                                                 <div class="row row-gap-2">
                                                     <div class="col-md-7 col-sm-12">
-                                                        <DxTextBox @bind-Text="@WorkConfigUpdate.symbolOfWeekdayDayOff" CssClass="w1FontSize" />
+                                                        <DxTextBox @bind-Text="@WorkConfigUpdate.symbolOfWeekdayDayOff" CssClass="w1FontSize" Id="txtsymbolOfWeekdayDayOff" />
                                                     </div>
                                                     <div class="col-md-5 col-sm-12">
                                                         <DxTextBox @bind-Text="@WorkConfigUpdate.bgColorOfWeekdayDayOff" CssClass="w1FontSize" NullText="Màu ngày nghỉ" />
@@ -141,7 +153,7 @@
                                             <div style="width: calc(100% - 140px)">
                                                 <div class="row row-gap-2">
                                                     <div class="col-md-7 col-sm-12">
-                                                        <DxTextBox @bind-Text="@WorkConfigUpdate.symbolOfHoliday" CssClass="w1FontSize" />
+                                                        <DxTextBox @bind-Text="@WorkConfigUpdate.symbolOfHoliday" CssClass="w1FontSize" Id="txtsymbolOfHoliday" />
                                                     </div>
                                                     <div class="col-md-5 col-sm-12">
                                                         <DxTextBox @bind-Text="@WorkConfigUpdate.bgColorOfHoliday" CssClass="w1FontSize" NullText="Màu ngày nghỉ" />
@@ -200,12 +212,29 @@
                                         </DxToolbar>
                                     </ToolbarTemplate>
                                     <Columns>
-                                        <DxGridDataColumn FieldName="@nameof(WorkConfigModel.month)" Caption="Tháng" MinWidth="80" Width="90px" />
-                                        <DxGridDataColumn FieldName="@nameof(WorkConfigModel.totalWorkingDayOfMonthD)" Caption="Công tiêu chuẩn" Width="140px" MinWidth="120" DisplayFormat="@GlobalContants.FORMAT_NUMBER" />
-                                        <DxGridDataColumn FieldName="@nameof(WorkConfigModel.totalWorkingHoursD)" Caption="Số giờ làm việc" Width="140px" MinWidth="120" DisplayFormat="@GlobalContants.FORMAT_NUMBER" />
-                                        <DxGridDataColumn FieldName="@nameof(WorkConfigModel.startDateD)" Caption="Ngày bắt đầu" Width="140px" MinWidth="120" />
-                                        <DxGridDataColumn FieldName="@nameof(WorkConfigModel.closingDateD)" Caption="Ngày chốt công" Width="140px" MinWidth="120" />
-                                        <DxGridDataColumn FieldName="@nameof(WorkConfigModel.closingDate1D)" Caption="Ngày k/t chấm công" Width="150px" MinWidth="145" />
+                                        <DxGridDataColumn FieldName="@nameof(WorkConfigModel.month)" Caption="Tháng" MinWidth="70" Width="80px" />
+                                        <DxGridDataColumn FieldName="@nameof(WorkConfigModel.totalWorkingDayOfMonthD)" Caption="Công tiêu chuẩn" Width="130px" MinWidth="110" DisplayFormat="@GlobalContants.FORMAT_NUMBER" />
+                                        <DxGridDataColumn FieldName="@nameof(WorkConfigModel.isWorkingDayExcludeDayOff)" Caption="Loại trừ ngày nghỉ?" MinWidth="110" Width="120px" />
+                                        <DxGridDataColumn FieldName="@nameof(WorkConfigModel.totalWorkingHoursD)" Caption="Số giờ làm việc" Width="135px" MinWidth="110" DisplayFormat="@GlobalContants.FORMAT_NUMBER" />
+                                        <DxGridDataColumn FieldName="@nameof(WorkConfigModel.startDateD)" Caption="Ngày b/đ chấm công" Width="135px" MinWidth="110" />
+                                        <DxGridDataColumn FieldName="@nameof(WorkConfigModel.closingDateD)" Caption="Ngày chốt công" Width="130px" MinWidth="110" />
+                                        <DxGridDataColumn FieldName="@nameof(WorkConfigModel.closingDate1D)" Caption="Ngày k/t chấm công" Width="140px" MinWidth="130" />
+                                        <DxGridDataColumn FieldName="@nameof(WorkConfigModel.isLastDayOfMonth)" Caption="Cuối tháng?" MinWidth="80" Width="90px" />
+                                        <DxGridDataColumn FieldName="@nameof(WorkConfigModel.symbolWorkingDay)" Caption="KHLV" MinWidth="60" Width="70px" />
+                                        <DxGridDataColumn FieldName="@nameof(WorkConfigModel.symbolOfWeekdayDayOff)" Caption="KHNNT" MinWidth="60" Width="75px">
+                                            <CellDisplayTemplate>
+                                                @{
+                                                    <span style="padding: 2px;background-color: @($"{(context.DataItem as WorkConfigModel)!.bgColorOfWeekdayDayOff}")">@context.Value</span>
+                                                }
+                                            </CellDisplayTemplate>
+                                        </DxGridDataColumn>
+                                        <DxGridDataColumn FieldName="@nameof(WorkConfigModel.symbolOfHoliday)" Caption="KHNNL" MinWidth="60" Width="75px" >
+                                            <CellDisplayTemplate>
+                                                @{
+                                                    <span style="padding: 2px;background-color: @($"{(context.DataItem as WorkConfigModel)!.bgColorOfHoliday}")">@context.Value</span>
+                                                }
+                                            </CellDisplayTemplate>
+                                        </DxGridDataColumn>
                                         <DxGridDataColumn FieldName="@nameof(LeaveConfigModel.dateTracking)" Caption="Ngày cập nhật" MinWidth="120" DisplayFormat="@GlobalContants.FORMAT_DATE_TIME" />
                                         <DxGridDataColumn FieldName="@nameof(LeaveConfigModel.userSignName)" Caption="Người tạo" MinWidth="120" />
                                     </Columns>

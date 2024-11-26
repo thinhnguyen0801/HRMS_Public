@@ -10,5 +10,9 @@ namespace HNOne.Common
         public const string STATUS_CODE_DENY = "T"; // ĐÃ TỪ CHỐI
         public const string STATUS_CODE_CANCELED = "C"; // ĐÃ HỦY
         #endregion
+
+        #region Cấu hình thông tin
+        public const string WORK_TYPE_DEFAULT = "DEFAULT";
+        #endregion
     }
 }

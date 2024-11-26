@@ -111,7 +111,8 @@
         public const string PUT_OVERTIME_REQUEST = "put-overtime-request";
 
         public const string GET_WORK_CONFIG = "get-work-config";
-        public const string POST_WORK_CONFIG = "post-work-config";
+        public const string POST_WORK_CONFIG = "post-work-config"; // phát sinh dữ liệu công chi tiết
+        public const string PUT_WORK_CONFIG = "put-work-config"; // cập nhật thông tin cấu hình
         public const string GET_ARRANGE_SHIFT = "get-arrange-shift"; // phân ca làm việc
         public const string GET_WORK_SHEDULE = "get-work-shedule"; // lịch làm việc
         public const string GET_ANNUAL_LEAVE_INFO = "get-annual-leave-info"; // lịch làm việc

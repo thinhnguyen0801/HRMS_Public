@@ -30,5 +30,6 @@ namespace HNOne.API.Repositories.Interfaces
         Task<ResponseModel> GenerateTimesheets(RequestModel request);
         Task<ResponseModel> UpdateShiftAssignment(IEnumerable<ShiftAssignments> lstEntity);
         Task<IEnumerable<CheckInOutModel>> GetCheckInOut(RequestModel request);
+        Task<ResponseModel> UpdateWorkConfig(WorkConfigs entity);
     }
 }

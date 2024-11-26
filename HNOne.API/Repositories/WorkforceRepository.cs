@@ -355,6 +355,14 @@ namespace HNOne.API.Repositories
                 DateTime dateTimeNow = _dateTimeHelper.GetCurrentVietnamTime();
                 if (actionType == ProcessConstants.POST_LEAVE_CONFIG)
                 {
+                    // kiểm tra trùng năm không & đang áp dụng
+                    var checkExists = await _dbContext.LeaveConfigs.FirstOrDefaultAsync(m => m.Year == entity.Year && m.IsActive && m.IsDelete == false);
+                    if (checkExists != null)
+                    {
+                        response.status = StatusCodes.Status409Conflict;
+                        response.message = $"Thông số phép của năm [{checkExists.Year}] đã tồn tại";
+                        return response;
+                    }
                     // Tạo mới
                     entity.Id = await _dbContext.LeaveConfigs.Select(m => m.Id).DefaultIfEmpty().MaxAsync() + 1;
                     entity.DateTracking = dateTimeNow;
@@ -372,7 +380,18 @@ namespace HNOne.API.Repositories
                     response.message = MessageConstants.MESSAGE_NOT_FOUNT;
                     return response;
                 }
-                data.Year = entity.Year;
+                if(entity.IsActive)
+                {
+                    // kiểm tra trùng năm không & đang áp dụng
+                    var checkExists = await _dbContext.LeaveConfigs.FirstOrDefaultAsync(m => m.Year == entity.Year && m.IsActive 
+                            && m.IsDelete == false && m.Id != data.Id);
+                    if (checkExists != null)
+                    {
+                        response.status = StatusCodes.Status409Conflict;
+                        response.message = $"Thông số phép của năm [{checkExists.Year}] đã tồn tại";
+                        return response;
+                    }
+                }    
                 data.FromDate = entity.FromDate;
                 data.ToDate = entity.ToDate;
                 data.ExpiryDate = entity.ExpiryDate;
@@ -1099,6 +1118,53 @@ namespace HNOne.API.Repositories
                     _dbContext.ShiftAssignments.Attach(data);
                     _dbContext.Entry(data).State = EntityState.Modified;
                 }
+                await _dbContext.SaveChangesAsync();
+                await _dbContext.Database.CommitTransactionAsync();
+                response.message = MessageConstants.MESSAGE_UPDATE_SUCCESS;
+                return response;
+            }
+            catch (Exception)
+            {
+                if (isTrans) await _dbContext.Database.RollbackTransactionAsync();
+                throw;
+            }
+        }
+        
+        /// <summary>
+        /// cập nhật lại thông tin cấu hình mặc định của ngày công
+        /// </summary>
+        /// <param name="entity"></param>
+        /// <returns></returns>
+        public async Task<ResponseModel> UpdateWorkConfig(WorkConfigs entity)
+        {
+            ResponseModel response = new ResponseModel();
+            bool isTrans = false;
+            try
+            {
+                DateTime dateTimeNow = _dateTimeHelper.GetCurrentVietnamTime();
+                // Tạo mới
+                await _dbContext.Database.BeginTransactionAsync();
+                isTrans = true;
+                // lấy ra thông tin cấu hình mặc định của hệ thống
+                var lstWorkConfigDefault = await _dbContext.WorkConfigs.Where(m => m.IsDelete == false && m.WorkConfigType == "DEFAULT").ToListAsync();
+                if(!lstWorkConfigDefault.IsNullOrEmpty())
+                {
+                    foreach(var itemUpdate in lstWorkConfigDefault)
+                    {
+                        itemUpdate.IsDelete = true;
+                        itemUpdate.DeleteReason = $"User: {entity.UserSign2} đã cập nhật thông tin cấu hình mới";
+                        itemUpdate.DateTracking = dateTimeNow;
+                        itemUpdate.UserSign2 = entity.UserSign2;
+                        _dbContext.WorkConfigs.Attach(itemUpdate);
+                        _dbContext.Entry(itemUpdate).State = EntityState.Modified;
+                    }    
+                }
+                entity.Id = 0;
+                entity.IsDelete = false;
+                entity.WorkConfigType = "DEFAULT";
+                entity.DateTracking = dateTimeNow;
+                entity.CreateDate = dateTimeNow;
+                await _dbContext.WorkConfigs.AddAsync(entity);
                 await _dbContext.SaveChangesAsync();
                 await _dbContext.Database.CommitTransactionAsync();
                 response.message = MessageConstants.MESSAGE_UPDATE_SUCCESS;

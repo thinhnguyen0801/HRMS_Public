@@ -153,6 +153,10 @@ namespace HNOne.API.Controllers
                     case ProcessConstants.POST_WORK_CONFIG:
                         response = await _workforceRepository.GenerateWorkConfig(request);
                         break;
+                    case ProcessConstants.PUT_WORK_CONFIG:
+                        var workConfig = DeserializeJson<WorkConfigs>($"{request.json}");
+                        response = await _workforceRepository.UpdateWorkConfig(workConfig);
+                        break;
                     case ProcessConstants.POST_TIME_SHEET:
                         response = await _workforceRepository.GenerateTimesheets(request);
                         break;

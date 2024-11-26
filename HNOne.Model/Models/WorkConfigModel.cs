@@ -15,6 +15,7 @@
         public string? symbolOfHoliday { get; set; } // ký hiệu ngày nghỉ lễ
         public string? bgColorOfHoliday { get; set; } // màu ngày nghỉ lễ
         public string? workConfigType { get; set; } // loại chứa thông tin mặc định hay không
+        public string? symbolWorkingDay { get; set; } // ký hiệu ngày làm việc
 
         #region Thông số dành cho chi tiết
         public int year { get; set; }

@@ -8,6 +8,8 @@ using DevExpress.Blazor;
 using HNOne.Model;
 using HNOne.Common;
 using HNOne.Web.Commons;
+using DevExpress.Pdf.Native.BouncyCastle.Asn1.Ocsp;
+using Newtonsoft.Json;
 
 namespace HNOne.Web.Controllers
 {
@@ -90,7 +92,7 @@ namespace HNOne.Web.Controllers
                 var lstResult = await _workforceService.GetMasterDataAsync<WorkConfigModel>(request, isShowToast: true);
                 if(!lstResult.IsNullOrEmpty())
                 {
-                    var header = lstResult!.First(m=>m.workConfigType == "DEFAULT");
+                    var header = lstResult!.First(m=>m.workConfigType == CommonConstants.WORK_TYPE_DEFAULT);
                     WorkConfigUpdate.startDate = header.startDate;
                     WorkConfigUpdate.closingDate = header.closingDate;
                     WorkConfigUpdate.closingDate1 = header.closingDate1;
@@ -102,10 +104,63 @@ namespace HNOne.Web.Controllers
                     WorkConfigUpdate.bgColorOfWeekdayDayOff = header.bgColorOfWeekdayDayOff;
                     WorkConfigUpdate.symbolOfHoliday = header.symbolOfHoliday;
                     WorkConfigUpdate.bgColorOfHoliday = header.bgColorOfHoliday;
-                    ListWorkConfig = lstResult!.Where(m => m.workConfigType != "DEFAULT").ToList();
+                    WorkConfigUpdate.symbolWorkingDay = header.symbolWorkingDay;
+                    ListWorkConfig = lstResult!.Where(m => m.workConfigType != CommonConstants.WORK_TYPE_DEFAULT).ToList();
                 }    
             }
             catch (Exception) { throw; }
+        }
+
+        private void validateForSave(ref string errorMessage, ref string fieldName)
+        {
+            if(WorkConfigUpdate.startDate < 1)
+            {
+                errorMessage = string.Format(MessageConstants.MESSAGE_STRING_REQUIRE, "Ngày b/đ chấm công");
+                fieldName = "txtstartDate";
+                return;
+            }
+            if (WorkConfigUpdate.closingDate < 1)
+            {
+                errorMessage = string.Format(MessageConstants.MESSAGE_STRING_REQUIRE, "Ngày chốt kỳ công");
+                fieldName = "txtclosingDate";
+                return;
+            }
+            if (WorkConfigUpdate.isLastDayOfMonth == false && WorkConfigUpdate.closingDate1 < 1)
+            {
+                errorMessage = string.Format(MessageConstants.MESSAGE_STRING_REQUIRE, "Ngày k/t chấm công");
+                fieldName = "txtclosingDate1";
+                return;
+            }
+            if (WorkConfigUpdate.isWorkingDayExcludeDayOff == false && WorkConfigUpdate.totalWorkingDayOfMonth < 1)
+            {
+                errorMessage = string.Format(MessageConstants.MESSAGE_STRING_REQUIRE, "Số ngày làm việc");
+                fieldName = "txttotalWorkingDayOfMonth";
+                return;
+            }
+            if (WorkConfigUpdate.totalWorkingHours < 1)
+            {
+                errorMessage = string.Format(MessageConstants.MESSAGE_STRING_REQUIRE, "Số giờ làm việc");
+                fieldName = "txttotalWorkingHours";
+                return;
+            }
+            if (string.IsNullOrWhiteSpace(WorkConfigUpdate.symbolWorkingDay))
+            {
+                errorMessage = string.Format(MessageConstants.MESSAGE_STRING_REQUIRE, "Ký hiệu ngày làm việc");
+                fieldName = "txtsymbolWorkingDay";
+                return;
+            }
+            if (string.IsNullOrWhiteSpace(WorkConfigUpdate.symbolOfWeekdayDayOff))
+            {
+                errorMessage = string.Format(MessageConstants.MESSAGE_STRING_REQUIRE, "Ký hiệu ngày nghỉ trong tuần");
+                fieldName = "txtsymbolOfWeekdayDayOff";
+                return;
+            }
+            if (string.IsNullOrWhiteSpace(WorkConfigUpdate.symbolOfHoliday))
+            {
+                errorMessage = string.Format(MessageConstants.MESSAGE_STRING_REQUIRE, "Ký hiệu ngày nghỉ lễ");
+                fieldName = "txtsymbolOfHoliday";
+                return;
+            }
         }
         #endregion
 
@@ -130,11 +185,42 @@ namespace HNOne.Web.Controllers
             }
         }
 
+        /// <summary>
+        /// lưu thông tin cấu hình
+        /// </summary>
+        /// <returns></returns>
         protected async Task SaveDataHandler()
         {
             try
             {
-                
+                string errorMessage = string.Empty;
+                string fieldName = string.Empty;
+                validateForSave(ref errorMessage, ref fieldName);
+                if (!string.IsNullOrEmpty(errorMessage))
+                {
+                    ShowWarning(errorMessage);
+                    await _jsRuntime.InvokeVoidAsync("focusInput", fieldName);
+                    return;
+                }
+                errorMessage = string.Format(MessageConstants.MESSAGE_CONFIRM_UPDATE_FORMAT, $"Cấu hình thông số công mặc định");
+                bool isConfirm = await confirm.SetConfirm(MessageConstants.MESSAGE_TITLE, errorMessage);
+                if (!isConfirm) return;
+                await ShowLoading();
+                if (WorkConfigUpdate.isLastDayOfMonth) WorkConfigUpdate.closingDate1 = 0;
+                if (WorkConfigUpdate.isWorkingDayExcludeDayOff) WorkConfigUpdate.totalWorkingDayOfMonth = 0;
+                WorkConfigUpdate.userSign = UserId;
+                WorkConfigUpdate.userSign2 = UserId;
+                RequestModel request = new RequestModel();
+                request.userId = UserId;
+                request.token = Token;
+                request.branchId = BranchId;
+                request.process = ProcessConstants.PUT_WORK_CONFIG;
+                request.json = JsonConvert.SerializeObject(WorkConfigUpdate);
+                isConfirm = await _workforceService.UpdateMasterDataAsync(request);
+                if(isConfirm)
+                {
+                    await getConfigAsync();
+                }    
             }
             catch (Exception ex)
             {
@@ -185,6 +271,7 @@ namespace HNOne.Web.Controllers
                 await InvokeAsync(StateHasChanged);
             }
         }
+
         #endregion
     }
 }

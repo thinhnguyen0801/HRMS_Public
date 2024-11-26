@@ -83,11 +83,11 @@
                 <W1Label Value="Năm áp dụng" Styles="width: 230px" IsRequired="true" />
                 <div style="width: calc(100% - 230px)">
                     <div class="row row-gap-2">
-                        <div class="col-md-8 col-sm-12">
-                            <DxSpinEdit @bind-Value="@LeaveConfigUpdate.year" MinValue="2024" Increment="1"
+                        <div class="col-md-6 col-sm-12">
+                            <DxSpinEdit @bind-Value="@LeaveConfigUpdate.year" MinValue="2024" Increment="1" ReadOnly="@(!IsCreate)"
                                         InputCssClass="text-end" ShowSpinButtons="true" CssClass="w1FontSize" />
                         </div>
-                        <div class="col-md-4 col-sm-12">
+                        <div class="col-md-6 col-sm-12">
                             <DxCheckBox CssClass="w-100 w1FontSize"
                                         SizeMode="@SizeMode.Small"
                                         @bind-Checked="@LeaveConfigUpdate.isActive"

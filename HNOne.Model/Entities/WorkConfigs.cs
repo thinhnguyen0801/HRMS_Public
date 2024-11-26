@@ -18,6 +18,9 @@ namespace HNOne.Model.Entities
         public double TotalWorkingHours { get; set; } // tổng số giờ làm việc trong ngày
         [MaxLength(50)]
         [Required]
+        public string? SymbolWorkingDay { get; set; } // ký hiệu ngày làm việc
+        [MaxLength(50)]
+        [Required]
         public string? SymbolOfWeekdayDayOff { get; set; } // ký hiệu ngày nghỉ trong tuần
         [MaxLength(250)]
         public string? BgColorOfWeekdayDayOff { get; set; } // màu ngày nghỉ trong tuần
