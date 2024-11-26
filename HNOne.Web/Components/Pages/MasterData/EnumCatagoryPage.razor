@@ -45,7 +45,7 @@
                         <Columns>
                             <DxGridDataColumn FieldName="@nameof(EnumCatagoryModel.enumTypeName)" Caption="Nhóm danh mục" MinWidth="120" GroupIndex="0" />
                             <DxGridSelectionColumn Width="45px" />
-                            <DxGridDataColumn FieldName="@nameof(EnumCatagoryModel.code)" Caption="Mã danh mục" MinWidth="120">
+                            <DxGridDataColumn FieldName="@nameof(EnumCatagoryModel.code)" Caption="Mã danh mục" MinWidth="120" Width="120px">
                                 <CellDisplayTemplate>
                                     @{
                                         if (IsAllowPut)
@@ -59,10 +59,12 @@
                                     }
                                 </CellDisplayTemplate>
                             </DxGridDataColumn>
-                            <DxGridDataColumn FieldName="@nameof(EnumCatagoryModel.name)" Caption="Tên danh mục" MinWidth="150" />
-                            <DxGridDataColumn FieldName="@nameof(EnumCatagoryModel.value)" Caption="Cấu hình 1" MinWidth="150" />
-                            <DxGridDataColumn FieldName="@nameof(EnumCatagoryModel.value1)" Caption="Cấu hình 2" MinWidth="150" />
-                            <DxGridDataColumn FieldName="@nameof(EnumCatagoryModel.value2)" Caption="Cấu hình 3" MinWidth="150" />
+                            <DxGridDataColumn FieldName="@nameof(EnumCatagoryModel.name)" Caption="Tên danh mục" MinWidth="150" Width="180px" />
+                            <DxGridDataColumn FieldName="@nameof(EnumCatagoryModel.value)" Caption="Cấu hình 1" MinWidth="120" Width="130px" />
+                            <DxGridDataColumn FieldName="@nameof(EnumCatagoryModel.value1)" Caption="Cấu hình 2" MinWidth="120" Width="120px" />
+                            <DxGridDataColumn FieldName="@nameof(EnumCatagoryModel.value2)" Caption="Cấu hình 3" MinWidth="120" Width="120px" />
+                            <DxGridDataColumn FieldName="@nameof(EnumCatagoryModel.value3)" Caption="Cấu hình 4" MinWidth="120" Width="120px" />
+                            <DxGridDataColumn FieldName="@nameof(EnumCatagoryModel.value4)" Caption="Cấu hình 5" MinWidth="120" Width="120px" />
                             <DxGridDataColumn FieldName="@nameof(EnumCatagoryModel.dateTracking)" Caption="Ngày cập nhật" MinWidth="120" DisplayFormat="@GlobalContants.FORMAT_DATE_TIME" />
                             <DxGridDataColumn FieldName="@nameof(EnumCatagoryModel.userSignName)" Caption="Người tạo" MinWidth="120" />
                             <DxGridDataColumn FieldName="@nameof(EnumCatagoryModel.userSign2Name)" Caption="Người cập nhật" MinWidth="120" />

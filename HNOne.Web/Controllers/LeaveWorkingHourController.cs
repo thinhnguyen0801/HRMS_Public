@@ -175,7 +175,7 @@ namespace HNOne.Web.Controllers
                 fieldName = "endDate";
                 return;
             }
-            if (LeaveRequestDocument.toDate.Value < LeaveRequestDocument.fromDate.Value)
+            if (LeaveRequestDocument.toDate.Value < LeaveRequestDocument.fromDateTime.Value)
             {
                 errorMessage = MessageConstants.MESSAGE_FROM_TIME_TO_TIME_INVALID;
                 fieldName = "startDateTime";

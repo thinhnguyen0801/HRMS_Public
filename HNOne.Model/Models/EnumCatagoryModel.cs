@@ -11,6 +11,8 @@ namespace HNOne.Model.Models
         public string? value { get; set; } // config nếu có
         public string? value1 { get; set; } // config nếu có 1
         public string? value2 { get; set; } // config nếu có 2
+        public string? value3 { get; set; } // config nếu có 2
+        public string? value4 { get; set; } // config nếu có 2
         public int rowOrder { get; set; }
     }
 }

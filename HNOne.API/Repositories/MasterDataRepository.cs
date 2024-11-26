@@ -172,7 +172,13 @@ namespace HNOne.API.Repositories
             {
                 var parameters = new DynamicParameters();
                 parameters.Add("@EnumType", request.opt, DbType.String);
-                string query = "select T0.* from EnumCatagories as T0 with(nolock)" +
+                string query = "select T0.[Id],T0.[EnumType],T0.[Code],T0.[Name] " +
+                    " ,case T0.EnumType when 'CaLamViec' then FORMAT(cast(T0.[Value] as datetime), 'HH:mm') else T0.[Value] end as [Value]" +
+                    " ,case T0.EnumType when 'CaLamViec' then FORMAT(cast(T0.[Value1] as datetime), 'HH:mm') else T0.[Value] end as [Value1]" +
+                    " ,case T0.EnumType when 'CaLamViec' then FORMAT(cast(T0.[Value2] as datetime), 'HH:mm') else T0.[Value] end as [Value2]" +
+                    " ,case T0.EnumType when 'CaLamViec' then FORMAT(cast(T0.[Value3] as datetime), 'HH:mm') else T0.[Value] end as [Value3]" +
+                    " ,T0.[Value4],T0.[UserSign],T0.[DateTracking],T0.[RowOrder],T0.[IsAllowEditing],T0.[EnumTypeName],T0.[CreateDate],T0.[DeleteReason],T0.[IsDelete],T0.[UpdateDate],T0.[UserSign2]" +
+                    " from EnumCatagories as T0 with(nolock)" +
                     " where T0.IsDelete = '0'";
                 if(request.opt != "AllowEdit") query += " and T0.EnumType = @EnumType"; // nếu cho phép chỉnh sửa thì lấy hết
                 else
