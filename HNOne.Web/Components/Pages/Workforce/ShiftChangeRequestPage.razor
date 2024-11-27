@@ -133,6 +133,25 @@
                                         </div>
                                     </div>
                                     <div class="col-md-6 col-sm-12">
+                                        <div class="d-flex">
+                                            <W1Label Value="Ca thay đổi" Styles="width: 120px" />
+                                            <div style="width: calc(100% - 120px)">
+                                                <DxComboBox Data="@ListCboShift"
+                                                            @bind-Value="@ShiftRequestDocument.shiftCode2"
+                                                            FilteringMode="DataGridFilteringMode.Contains"
+                                                            TextFieldName="@nameof(ComboboxModel.name)"
+                                                            ValueFieldName="@nameof(ComboboxModel.code)"
+                                                            ReadOnly="@IsReadonlyControl"
+                                                            CssClass="w1FontSize" Id="shiftCode2">
+                                                    <Columns>
+                                                        <DxListEditorColumn FieldName="@nameof(ComboboxModel.code)" Width="120px" Caption="Mã" />
+                                                        <DxListEditorColumn FieldName="@nameof(ComboboxModel.name)" Caption="Tên" />
+                                                    </Columns>
+                                                </DxComboBox>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6 col-sm-12">
                                         <div class="d-flex ">
                                             <W1Label Value="Từ ngày/đến ngày" Id="ngayBatDau" Styles="width: 120px" IsRequired="true" />
                                             <div style="width: calc(100% - 120px)">
@@ -152,25 +171,6 @@
                                                                     DisplayFormat="@GlobalContants.FORMAT_DATE" />
                                                     </div>
                                                 </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <div class="col-md-6 col-sm-12">
-                                        <div class="d-flex">
-                                            <W1Label Value="Ca thay đổi" Styles="width: 120px" IsRequired="true" />
-                                            <div style="width: calc(100% - 120px)">
-                                                <DxComboBox Data="@ListCboShift"
-                                                            @bind-Value="@ShiftRequestDocument.shiftCode2"
-                                                            FilteringMode="DataGridFilteringMode.Contains"
-                                                            TextFieldName="@nameof(ComboboxModel.name)"
-                                                            ValueFieldName="@nameof(ComboboxModel.code)"
-                                                            ReadOnly="@IsReadonlyControl"
-                                                            CssClass="w1FontSize" Id="shiftCode2">
-                                                    <Columns>
-                                                        <DxListEditorColumn FieldName="@nameof(ComboboxModel.code)" Width="120px" Caption="Mã" />
-                                                        <DxListEditorColumn FieldName="@nameof(ComboboxModel.name)" Caption="Tên" />
-                                                    </Columns>
-                                                </DxComboBox>
                                             </div>
                                         </div>
                                     </div>

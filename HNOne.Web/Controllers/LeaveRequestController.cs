@@ -58,8 +58,9 @@ namespace HNOne.Web.Controllers
                     ListBreadcrumbs = new List<BreadcrumbModel>()
                     {
                         new BreadcrumbModel("Công - Phép"),
-                        new BreadcrumbModel("Chứng từ đề nghị", "danh-sach-de-nghi-nghi-phep"),
-                        new BreadcrumbModel("Đề nghị nghỉ phép", isActive: true),
+                        new BreadcrumbModel("Chứng từ đề nghị"),
+                        new BreadcrumbModel("Đề nghị nghỉ phép", "danh-sach-de-nghi-nghi-phep"),
+                        new BreadcrumbModel("Chi tiết đề nghị nghỉ phép", isActive: true),
                     };
                     await NotifyBreadcrumb.InvokeAsync(ListBreadcrumbs);
                     //
@@ -299,6 +300,23 @@ namespace HNOne.Web.Controllers
             }
             catch(Exception){ throw; }
         }
+        
+        /// <summary>
+        /// tạo ra danh sách ngày chi tiết
+        /// </summary>
+        /// <returns></returns>
+        private async Task generateListDays()
+        {
+            RequestModel request = new RequestModel();
+            request.process = ProcessConstants.GET_WORKFORCE_MASTER_DATA;
+            request.userId = UserId;
+            request.token = Token;
+            request.opt = LeaveRequestDocument.fromDate!.FormatDateTimeSql();
+            request.opt1 = LeaveRequestDocument.toDate!.FormatDateTimeSql();
+            request.type = ProcessConstants.GET_COMBO_LIST_OF_VACATION_DAY;
+            var result = await _workforceService.GetMasterDataAsync<LeaveRequest1Model>(request, isShowToast: true);
+            ListOfVacationDays = result;
+        }
         #endregion
 
 
@@ -401,15 +419,7 @@ namespace HNOne.Web.Controllers
                     return;
                 }
                 await ShowLoading();
-                RequestModel request = new RequestModel();
-                request.process = ProcessConstants.GET_WORKFORCE_MASTER_DATA;
-                request.userId = UserId;
-                request.token = Token;
-                request.opt = LeaveRequestDocument.fromDate!.FormatDateTimeSql();
-                request.opt1 = LeaveRequestDocument.toDate!.FormatDateTimeSql();
-                request.type = ProcessConstants.GET_COMBO_LIST_OF_VACATION_DAY;
-                var result = await _workforceService.GetMasterDataAsync<LeaveRequest1Model>(request, isShowToast: true);
-                ListOfVacationDays = result;
+                await generateListDays();
             }
             catch (Exception ex)
             {
@@ -564,7 +574,7 @@ namespace HNOne.Web.Controllers
         /// </summary>
         /// <param name="value"></param>
         /// <param name="controlID"></param>
-        protected void DateEditValueChangedHandler(object? value
+        protected async void DateEditValueChangedHandler(object? value
             , string controlID = nameof(LeaveRequestDocument.fromDate))
         {
             try
@@ -576,12 +586,18 @@ namespace HNOne.Web.Controllers
                         LeaveRequestDocument.fromDate = (DateTime?)value;
                         LeaveRequestDocument.toDate = null;
                         ListOfVacationDays = new List<LeaveRequest1Model>();
-                        StateHasChanged();
                         break;
                     case nameof(LeaveRequestDocument.toDate):
                         LeaveRequestDocument.toDate = (DateTime?)value;
                         ListOfVacationDays = new List<LeaveRequest1Model>();
-                        StateHasChanged();
+                        if (LeaveRequestDocument.fromDate != null 
+                            && LeaveRequestDocument.toDate != null
+                            && LeaveRequestDocument.toDate.Value.Date >= LeaveRequestDocument.fromDate.Value.Date)
+                        {
+                            await ShowLoading();
+                            await generateListDays();
+                            await Task.Delay(100);
+                        }
                         break;
                 }
             }
@@ -589,6 +605,11 @@ namespace HNOne.Web.Controllers
             {
                 ShowError(ex.Message);
                 _logger.LogError(ex, "SpinEditValueChangeHandler");
+            }
+            finally
+            {
+                await ShowLoading(false);
+                await InvokeAsync(StateHasChanged);
             }
         }
 

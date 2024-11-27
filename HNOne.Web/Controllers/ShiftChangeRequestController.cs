@@ -59,8 +59,9 @@ namespace HNOne.Web.Controllers
                     ListBreadcrumbs = new List<BreadcrumbModel>()
                     {
                         new BreadcrumbModel("Công - Phép"),
-                        new BreadcrumbModel("Danh sách đăng ký đổi ca", "danh-sach-dang-ki-doi-ca"),
-                        new BreadcrumbModel("Đăng ký đổi ca", isActive: true),
+                        new BreadcrumbModel("Chứng từ đề nghị"),
+                        new BreadcrumbModel("Đăng ký đổi ca", "danh-sach-dang-ky-doi-ca"),
+                        new BreadcrumbModel("Chi tiết đăng ký đổi ca", isActive: true),
                     };
                     await NotifyBreadcrumb.InvokeAsync(ListBreadcrumbs);
                     //
@@ -144,7 +145,15 @@ namespace HNOne.Web.Controllers
                 return;
             }
             // kiểm tra trong lưới dữ liệu hợp lệ chưa
-            ShiftChange1Model? itemCheck = ListShiftChange!.FirstOrDefault(m => m.shiftCode1 == m.shiftCode2);
+            ShiftChange1Model? itemCheck = ListShiftChange!.FirstOrDefault(m => string.IsNullOrEmpty(m.shiftCode2) && !m.isDayOff);
+            if(itemCheck != null)
+            {
+                errorMessage = $"Ngày [{itemCheck.dateChange.ToString(GlobalContants.FORMAT_DATE)}] Vui lòng điền thông tin ca thay đổi!!!";
+                fieldName = "gridInfo";
+                return;
+            }    
+            // kiểm tra trong lưới dữ liệu hợp lệ chưa
+            itemCheck = ListShiftChange!.FirstOrDefault(m => m.shiftCode1 == m.shiftCode2 && !m.isDayOff);
             if (itemCheck != null)
             {
                 errorMessage = $"Ngày [{itemCheck.dateChange.ToString(GlobalContants.FORMAT_DATE)}] Ca thay đổi không được phép trùng với ca mặc định!!!";
@@ -202,12 +211,6 @@ namespace HNOne.Web.Controllers
         /// <param name="fieldName"></param>
         private void validateForCreateLeaveDate(ref string errorMessage, ref string fieldName)
         {
-            if (ShiftRequestDocument.employeeId < 1)
-            {
-                errorMessage = string.Format(MessageConstants.MESSAGE_COMBOBOX_REQUIRE, "Nhân viên");
-                fieldName = nameof(ShiftRequestDocument.employeeId);
-                return;
-            }
             if (ShiftRequestDocument.fromDate == null)
             {
                 errorMessage = string.Format(MessageConstants.MESSAGE_COMBOBOX_REQUIRE, "Từ ngày");
@@ -226,12 +229,12 @@ namespace HNOne.Web.Controllers
                 fieldName = "startDate";
                 return;
             }
-            if(string.IsNullOrEmpty(ShiftRequestDocument.shiftCode2))
-            {
-                errorMessage = string.Format(MessageConstants.MESSAGE_COMBOBOX_REQUIRE, "Ca thay đổi");
-                fieldName = "shiftCode2";
-                return;
-            }    
+            //if(string.IsNullOrEmpty(ShiftRequestDocument.shiftCode2))
+            //{
+            //    errorMessage = string.Format(MessageConstants.MESSAGE_COMBOBOX_REQUIRE, "Ca thay đổi");
+            //    fieldName = "shiftCode2";
+            //    return;
+            //}    
         }
 
         /// <summary>
@@ -297,6 +300,25 @@ namespace HNOne.Web.Controllers
         /// <returns></returns>
         private async Task getDocumentHistory()
             => VoucherHistory = await _approvalService.GetFunDocumentHistoryAsync(UserId, BranchId, Token, nameof(EnumObjType.ShiftChanges), pDocEntry);
+
+        /// <summary>
+        /// tạo ra danh sách ngày chi tiết
+        /// </summary>
+        /// <returns></returns>
+        private async Task generateListDays()
+        {
+            RequestModel request = new RequestModel();
+            request.process = ProcessConstants.GET_WORKFORCE_MASTER_DATA;
+            request.employeeId = ShiftRequestDocument.employeeId;
+            request.userId = UserId;
+            request.token = Token;
+            request.opt = ShiftRequestDocument.fromDate!.FormatDateTimeSql();
+            request.opt1 = ShiftRequestDocument.toDate!.FormatDateTimeSql();
+            request.opt2 = ShiftRequestDocument.shiftCode2;
+            request.type = ProcessConstants.GET_COMBO_LIST_OF_SHIFT_CHANGE_DAY;
+            var result = await _workforceService.GetMasterDataAsync<ShiftChange1Model>(request, isShowToast: true);
+            ListShiftChange = result;
+        }
         #endregion
 
         #region Protected Functions
@@ -480,17 +502,7 @@ namespace HNOne.Web.Controllers
                     return;
                 }
                 await ShowLoading();
-                RequestModel request = new RequestModel();
-                request.process = ProcessConstants.GET_WORKFORCE_MASTER_DATA;
-                request.employeeId = ShiftRequestDocument.employeeId;
-                request.userId = UserId;
-                request.token = Token;
-                request.opt = ShiftRequestDocument.fromDate!.FormatDateTimeSql();
-                request.opt1 = ShiftRequestDocument.toDate!.FormatDateTimeSql();
-                request.opt2 = ShiftRequestDocument.shiftCode2;
-                request.type = ProcessConstants.GET_COMBO_LIST_OF_SHIFT_CHANGE_DAY;
-                var result = await _workforceService.GetMasterDataAsync<ShiftChange1Model>(request, isShowToast: true);
-                ListShiftChange = result;
+                await generateListDays();
             }
             catch (Exception ex)
             {
@@ -543,7 +555,7 @@ namespace HNOne.Web.Controllers
             catch (Exception ex) { }
         }
 
-        protected void DateEditValueChangedHandler(object? value
+        protected async void DateEditValueChangedHandler(object? value
             , string controlID = nameof(ShiftRequestDocument.fromDate))
         {
             try
@@ -560,6 +572,14 @@ namespace HNOne.Web.Controllers
                     case nameof(ShiftRequestDocument.toDate):
                         ShiftRequestDocument.toDate = (DateTime?)value;
                         ListShiftChange = new List<ShiftChange1Model>();
+                        if (ShiftRequestDocument.fromDate != null
+                            && ShiftRequestDocument.toDate != null
+                            && ShiftRequestDocument.toDate.Value.Date >= ShiftRequestDocument.fromDate.Value.Date)
+                        {
+                            await ShowLoading();
+                            await generateListDays();
+                            await Task.Delay(100);
+                        }
                         StateHasChanged();
                         break;
                 }
@@ -568,6 +588,11 @@ namespace HNOne.Web.Controllers
             {
                 ShowError(ex.Message);
                 _logger.LogError(ex, "SpinEditValueChangeHandler");
+            }
+            finally
+            {
+                await ShowLoading(false);
+                await InvokeAsync(StateHasChanged);
             }
         }
         #endregion

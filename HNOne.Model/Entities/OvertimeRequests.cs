@@ -43,7 +43,7 @@ namespace HNOne.Model.Entities
         public int Id { get; set; }
         public int OvertimeRequestId { get; set; }
         [MaxLength(50)]
-        [Required]
+        //[Required]
         public string? ShiftCode { get; set; } // ca làm việc
         public DateTime OvertimeDate { get; set; } // ngày tăng ca
         public DateTime StartTime { get; set; } // giờ vào

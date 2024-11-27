@@ -59,8 +59,9 @@ namespace HNOne.Web.Controllers
                     ListBreadcrumbs = new List<BreadcrumbModel>()
                     {
                         new BreadcrumbModel("Công - Phép"),
-                        new BreadcrumbModel("Chứng từ đề nghị", "danh-sach-de-nghi-nghi-phep"),
-                        new BreadcrumbModel("Đề nghị làm thêm", isActive: true),
+                        new BreadcrumbModel("Chứng từ đề nghị"),
+                        new BreadcrumbModel("Đề nghị làm thêm", "danh-sach-de-nghi-lam-them"),
+                        new BreadcrumbModel("Chi tiết đề nghị làm thêm", isActive: true),
                     };
                     await NotifyBreadcrumb.InvokeAsync(ListBreadcrumbs);
                     //
@@ -226,6 +227,12 @@ namespace HNOne.Web.Controllers
                 fieldName = nameof(OvertimeRequestDocument.employeeSignatureId);
                 return;
             }
+            if (string.IsNullOrEmpty(OvertimeRequestDocument.requestType))
+            {
+                errorMessage = string.Format(MessageConstants.MESSAGE_COMBOBOX_REQUIRE, "Loại đăng ký");
+                fieldName = "requestType";
+                return;
+            }
             if (OvertimeRequestDocument.fromDate == null)
             {
                 errorMessage = string.Format(MessageConstants.MESSAGE_COMBOBOX_REQUIRE, "Từ ngày");
@@ -259,12 +266,6 @@ namespace HNOne.Web.Controllers
         /// <param name="fieldName"></param>
         private void validateForCreateOvertimeDate(ref string errorMessage, ref string fieldName)
         {
-            if (OvertimeRequestDocument.employeeId < 1)
-            {
-                errorMessage = string.Format(MessageConstants.MESSAGE_COMBOBOX_REQUIRE, "Nhân viên");
-                fieldName = nameof(OvertimeRequestDocument.employeeId);
-                return;
-            }
             if (OvertimeRequestDocument.fromDate == null)
             {
                 errorMessage = string.Format(MessageConstants.MESSAGE_COMBOBOX_REQUIRE, "Từ ngày");
@@ -283,12 +284,12 @@ namespace HNOne.Web.Controllers
                 fieldName = "startDate";
                 return;
             }
-            if (string.IsNullOrEmpty(OvertimeRequestDocument.shiftCode))
-            {
-                errorMessage = string.Format(MessageConstants.MESSAGE_COMBOBOX_REQUIRE, "Ca làm việc");
-                fieldName = "shiftCode";
-                return;
-            }
+            //if (string.IsNullOrEmpty(OvertimeRequestDocument.shiftCode))
+            //{
+            //    errorMessage = string.Format(MessageConstants.MESSAGE_COMBOBOX_REQUIRE, "Ca làm việc");
+            //    fieldName = "shiftCode";
+            //    return;
+            //}
         }
 
         /// <summary>
@@ -325,6 +326,25 @@ namespace HNOne.Web.Controllers
                 item.startBreakTime = new DateTime(item.overtimeDate.Year, item.overtimeDate.Month, item.overtimeDate.Day, item.startBreakTime?.Hour ?? 0, item.startBreakTime?.Minute ?? 0, 0);
                 item.endBreakTime = new DateTime(item.overtimeDate.Year, item.overtimeDate.Month, item.overtimeDate.Day, item.endBreakTime?.Hour ?? 0, item.endBreakTime?.Minute ?? 0, 0);
             }    
+        }
+
+        /// <summary>
+        /// tạo ra danh sách ngày chi tiết
+        /// </summary>
+        /// <returns></returns>
+        private async Task generateListDays()
+        {
+            RequestModel request = new RequestModel();
+            request.process = ProcessConstants.GET_WORKFORCE_MASTER_DATA;
+            request.userId = UserId;
+            request.token = Token;
+            request.opt = OvertimeRequestDocument.fromDate!.FormatDateTimeSql();
+            request.opt1 = OvertimeRequestDocument.toDate!.FormatDateTimeSql();
+            request.opt2 = OvertimeRequestDocument.shiftCode;
+            request.type = ProcessConstants.GET_COMBO_LIST_OVERTIME_REQUEST_DAY;
+            var result = await _workforceService.GetMasterDataAsync<OvertimeRequest1Model>(request, isShowToast: true);
+            ListOvertimeDays = result;
+            calcTotalWorkingHour();
         }
         #endregion
 
@@ -508,7 +528,7 @@ namespace HNOne.Web.Controllers
         /// </summary>
         /// <param name="value"></param>
         /// <param name="controlID"></param>
-        protected void DateEditValueChangedHandler(object? value
+        protected async void DateEditValueChangedHandler(object? value
             , string controlID = nameof(OvertimeRequestDocument.fromDate))
         {
             try
@@ -520,12 +540,18 @@ namespace HNOne.Web.Controllers
                         OvertimeRequestDocument.fromDate = (DateTime?)value;
                         OvertimeRequestDocument.toDate = null;
                         ListOvertimeDays = new List<OvertimeRequest1Model>();
-                        StateHasChanged();
                         break;
                     case nameof(OvertimeRequestDocument.toDate):
                         OvertimeRequestDocument.toDate = (DateTime?)value;
                         ListOvertimeDays = new List<OvertimeRequest1Model>();
-                        StateHasChanged();
+                        if (OvertimeRequestDocument.fromDate != null
+                            && OvertimeRequestDocument.toDate != null
+                            && OvertimeRequestDocument.toDate.Value.Date >= OvertimeRequestDocument.fromDate.Value.Date)
+                        {
+                            await ShowLoading();
+                            await generateListDays();
+                            await Task.Delay(100);
+                        }
                         break;
                 }
             }
@@ -533,6 +559,11 @@ namespace HNOne.Web.Controllers
             {
                 ShowError(ex.Message);
                 _logger.LogError(ex, "SpinEditValueChangeHandler");
+            }
+            finally
+            {
+                await ShowLoading(false);
+                await InvokeAsync(StateHasChanged);
             }
         }
 
@@ -603,17 +634,7 @@ namespace HNOne.Web.Controllers
                     return;
                 }
                 await ShowLoading();
-                RequestModel request = new RequestModel();
-                request.process = ProcessConstants.GET_WORKFORCE_MASTER_DATA;
-                request.userId = UserId;
-                request.token = Token;
-                request.opt = OvertimeRequestDocument.fromDate!.FormatDateTimeSql();
-                request.opt1 = OvertimeRequestDocument.toDate!.FormatDateTimeSql();
-                request.opt2 = OvertimeRequestDocument.shiftCode;
-                request.type = ProcessConstants.GET_COMBO_LIST_OVERTIME_REQUEST_DAY;
-                var result = await _workforceService.GetMasterDataAsync<OvertimeRequest1Model>(request, isShowToast: true);
-                ListOvertimeDays = result;
-                calcTotalWorkingHour();
+                await generateListDays();
             }
             catch (Exception ex)
             {
