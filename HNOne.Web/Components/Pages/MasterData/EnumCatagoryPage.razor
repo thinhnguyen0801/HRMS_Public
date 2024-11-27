@@ -1,12 +1,26 @@
 ﻿@page "/danh-muc-cau-hinh-chung"
 @inherits Controllers.EnumCatagoryController
 
-<PageTitle>Danh mục khác</PageTitle>
-
-
+<PageTitle>Danh mục cấu hình chung</PageTitle>
 
 <div class="h-content-filter">
     <div class="row row-gap-2">
+        <div class="col-md-5 col-sm-12">
+            <div class="d-flex ">
+                <W1Label Value="Loại danh mục" Id="txtKiDanhGia" Styles="width: 110px" IsRequired="true" />
+                <div style="width: calc(100% - 110px)">
+                    <DxComboBox Data="@ListCboEnumType"
+                                @bind-Value="@pEnumTypeId"
+                                FilteringMode="DataGridFilteringMode.Contains"
+                                TextFieldName="@nameof(ComboboxModel.name)"
+                                ValueFieldName="@nameof(ComboboxModel.code)"
+                                CssClass="w1FontSize">
+                    </DxComboBox>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="row row-gap-2 mt-2">
         <div class="col-12">
             <div class="card w1FontSize">
                 <div class="card-header p-1">
@@ -23,7 +37,7 @@
                         </Items>
                     </DxToolbar>
                 </div>
-                <div class="card-body p-1" style="height: calc(100vh - 155px); min-height: 350px">
+                <div class="card-body p-1" style="height: calc(100vh - 195px); min-height: 350px">
                     <DxGrid Data="ListEnum" @ref="GridEnum"
                             ShowFilterRow="true"
                             ColumnResizeMode="GridColumnResizeMode.ColumnsContainer"
@@ -43,14 +57,13 @@
                             KeyFieldName="@nameof(EnumCatagoryModel.id)"
                             CssClass="h-full">
                         <Columns>
-                            <DxGridDataColumn FieldName="@nameof(EnumCatagoryModel.enumTypeName)" Caption="Nhóm danh mục" MinWidth="120" GroupIndex="0" />
                             <DxGridSelectionColumn Width="45px" />
-                            <DxGridDataColumn FieldName="@nameof(EnumCatagoryModel.code)" Caption="Mã danh mục" MinWidth="120" Width="120px">
+                            <DxGridDataColumn FieldName="@nameof(EnumCatagoryModel.code)" Caption="Mã" MinWidth="120" Width="120px">
                                 <CellDisplayTemplate>
                                     @{
                                         if (IsAllowPut)
                                         {
-                                            <a @onclick="@(() => OnOpenDialogHandler(EnumType.Update, (context.DataItem as ContractTypeModel)))">@context.Value</a>
+                                            <a @onclick="@(() => OnOpenDialogHandler(EnumType.Update, (context.DataItem as EnumCatagoryModel)))">@context.Value</a>
                                         }
                                         else
                                         {
@@ -59,15 +72,42 @@
                                     }
                                 </CellDisplayTemplate>
                             </DxGridDataColumn>
-                            <DxGridDataColumn FieldName="@nameof(EnumCatagoryModel.name)" Caption="Tên danh mục" MinWidth="150" Width="180px" />
-                            <DxGridDataColumn FieldName="@nameof(EnumCatagoryModel.value)" Caption="Cấu hình 1" MinWidth="120" Width="130px" />
-                            <DxGridDataColumn FieldName="@nameof(EnumCatagoryModel.value1)" Caption="Cấu hình 2" MinWidth="120" Width="120px" />
-                            <DxGridDataColumn FieldName="@nameof(EnumCatagoryModel.value2)" Caption="Cấu hình 3" MinWidth="120" Width="120px" />
-                            <DxGridDataColumn FieldName="@nameof(EnumCatagoryModel.value3)" Caption="Cấu hình 4" MinWidth="120" Width="120px" />
-                            <DxGridDataColumn FieldName="@nameof(EnumCatagoryModel.value4)" Caption="Cấu hình 5" MinWidth="120" Width="120px" />
-                            <DxGridDataColumn FieldName="@nameof(EnumCatagoryModel.dateTracking)" Caption="Ngày cập nhật" MinWidth="120" DisplayFormat="@GlobalContants.FORMAT_DATE_TIME" />
-                            <DxGridDataColumn FieldName="@nameof(EnumCatagoryModel.userSignName)" Caption="Người tạo" MinWidth="120" />
-                            <DxGridDataColumn FieldName="@nameof(EnumCatagoryModel.userSign2Name)" Caption="Người cập nhật" MinWidth="120" />
+                            <DxGridDataColumn FieldName="@nameof(EnumCatagoryModel.name)" Caption="Tên" MinWidth="150" Width="180px" />
+                            @if(pEnumTypeId == nameof(EnumCatagory.CaLamViec))
+                            {
+                                <DxGridDataColumn FieldName="@nameof(EnumCatagoryModel.value4)" Caption="Số giờ làm việc" MinWidth="120" Width="120px" />
+                                <DxGridDataColumn FieldName="@nameof(EnumCatagoryModel.value)" Caption="Giờ bắt đầu" MinWidth="120" Width="130px"></DxGridDataColumn>
+                                <DxGridDataColumn FieldName="@nameof(EnumCatagoryModel.value1)" Caption="Giờ kết thúc" MinWidth="120" Width="120px" />
+                                <DxGridDataColumn FieldName="@nameof(EnumCatagoryModel.value2)" Caption="Giờ nghỉ bắt đầu" MinWidth="120" Width="120px" />
+                                <DxGridDataColumn FieldName="@nameof(EnumCatagoryModel.value3)" Caption="Giờ nghỉ kết thúc" MinWidth="120" Width="120px" />
+                                <DxGridDataColumn FieldName="@nameof(EnumCatagoryModel.enumTypeName)" Caption="Loại danh mục" MinWidth="120" Width="180px" />
+                                <DxGridDataColumn FieldName="@nameof(EnumCatagoryModel.dateTracking)" Caption="Ngày cập nhật" MinWidth="120" DisplayFormat="@GlobalContants.FORMAT_DATE_TIME" />
+                                <DxGridDataColumn FieldName="@nameof(EnumCatagoryModel.userSignName)" Caption="Người tạo" MinWidth="120" />
+                                <DxGridDataColumn FieldName="@nameof(EnumCatagoryModel.userSign2Name)" Caption="Người cập nhật" MinWidth="120" />
+                            }
+                            else if (pEnumTypeId == nameof(EnumCatagory.LoaiNhanVien))
+                            {
+                                <DxGridDataColumn FieldName="@nameof(EnumCatagoryModel.value)" Caption="Quy cách đánh mã" MinWidth="140" Width="150px"></DxGridDataColumn>
+                                <DxGridDataColumn FieldName="@nameof(EnumCatagoryModel.enumTypeName)" Caption="Loại danh mục" MinWidth="120" Width="180px" />
+                                <DxGridDataColumn FieldName="@nameof(EnumCatagoryModel.dateTracking)" Caption="Ngày cập nhật" MinWidth="120" DisplayFormat="@GlobalContants.FORMAT_DATE_TIME" />
+                                <DxGridDataColumn FieldName="@nameof(EnumCatagoryModel.userSignName)" Caption="Người tạo" MinWidth="120" />
+                                <DxGridDataColumn FieldName="@nameof(EnumCatagoryModel.userSign2Name)" Caption="Người cập nhật" MinWidth="120" />
+                            }
+                            else if (pEnumTypeId == nameof(EnumCatagory.CachTinhLuongPhuCap))
+                            {
+                                <DxGridDataColumn FieldName="@nameof(EnumCatagoryModel.value)" Caption="Hệ số" MinWidth="120" Width="130px"></DxGridDataColumn>
+                                <DxGridDataColumn FieldName="@nameof(EnumCatagoryModel.enumTypeName)" Caption="Loại danh mục" MinWidth="120" Width="180px" />
+                                <DxGridDataColumn FieldName="@nameof(EnumCatagoryModel.dateTracking)" Caption="Ngày cập nhật" MinWidth="120" DisplayFormat="@GlobalContants.FORMAT_DATE_TIME" />
+                                <DxGridDataColumn FieldName="@nameof(EnumCatagoryModel.userSignName)" Caption="Người tạo" MinWidth="120" />
+                                <DxGridDataColumn FieldName="@nameof(EnumCatagoryModel.userSign2Name)" Caption="Người cập nhật" MinWidth="120" />
+                            }
+                            else
+                            {
+                                <DxGridDataColumn FieldName="@nameof(EnumCatagoryModel.enumTypeName)" Caption="Loại danh mục" MinWidth="120" Width="180px" />
+                                <DxGridDataColumn FieldName="@nameof(EnumCatagoryModel.dateTracking)" Caption="Ngày cập nhật" MinWidth="120" DisplayFormat="@GlobalContants.FORMAT_DATE_TIME" />
+                                <DxGridDataColumn FieldName="@nameof(EnumCatagoryModel.userSignName)" Caption="Người tạo" MinWidth="120" />
+                                <DxGridDataColumn FieldName="@nameof(EnumCatagoryModel.userSign2Name)" Caption="Người cập nhật" MinWidth="120" />
+                            }
                         </Columns>
                         <TotalSummary>
                             <DxGridSummaryItem DisplayText="@GlobalContants.FORMAT_GRID_DISPLAYTEXT_COUNT" SummaryType="GridSummaryItemType.Count"
@@ -80,3 +120,135 @@
         </div>
     </div>
 </div>
+
+<W1Popup @bind-IsOpenModal="@IsShowDialog"
+         Width="65%" TextBtnAccept="Cập nhật"
+         HeaderText="@(IsCreate ? "Thêm mới danh mục" : $"Cập nhật danh mục")"
+         HandleClickAccept="@SaveDataHandler">
+    <div class="row row-gap-2 w1FontSize">
+        <div class="col-sm-12">
+            <div class="d-flex ">
+                <W1Label Value="Mã danh mục" Styles="width: 110px" IsRequired="true" />
+                <div style="width: calc(100% - 110px)">
+                     <DxTextBox @bind-Text="@EnumUpdate.code" CssClass="w1FontSize" ReadOnly="@(!IsCreate)" Id="txtCode"></DxTextBox>
+                </div>
+            </div>
+        </div>
+        <div class="col-sm-12">
+            <div class="d-flex ">
+                <W1Label Value="Tên danh mục" Styles="width: 110px" IsRequired="true" />
+                <div style="width: calc(100% - 110px)">
+                    <DxTextBox @bind-Text="@EnumUpdate.name" CssClass="w1FontSize" Id="txtName"></DxTextBox>
+                </div>
+            </div>
+        </div>
+        <div class="col-sm-12">
+            <div class="d-flex ">
+                <W1Label Value="Loại danh mục" Styles="width: 110px" />
+                <div style="width: calc(100% - 110px)">
+                    <DxComboBox Data="@ListCboEnumType"
+                                @bind-Value="@EnumUpdate.enumType"
+                                Id="txtenumType" ReadOnly="true"
+                                FilteringMode="DataGridFilteringMode.Contains"
+                                TextFieldName="@nameof(ComboboxModel.name)"
+                                ValueFieldName="@nameof(ComboboxModel.code)"
+                                CssClass="w1FontSize">
+                    </DxComboBox>
+                </div>
+            </div>
+        </div>
+        @if(EnumUpdate.enumType == nameof(EnumCatagory.CaLamViec))
+        {
+            <div class="col-sm-12">
+                <div class="d-flex ">
+                    <W1Label Value="Từ giờ/đến giờ" Styles="width: 110px" IsRequired="true" />
+                    <div style="width: calc(100% - 110px)">
+                        <div class="grid gap-1 row-gap-2">
+                            <div class="g-col-md-4 g-col-sm-12 g-col-12">
+                                <DxTimeEdit @bind-Time="@FromTime"
+                                            CssClass="w1FontSize" Id="startDateTime"
+                                            Mask="@GlobalContants.FORMAT_TIME" Format="@GlobalContants.FORMAT_TIME"
+                                            DisplayFormat="@GlobalContants.FORMAT_TIME" />
+                            </div>
+                            <div class="g-col-md-4 g-col-sm-12 g-col-12">
+                                <DxTimeEdit @bind-Time="@ToTime"
+                                            CssClass="w1FontSize" Id="startDateTime"
+                                            Mask="@GlobalContants.FORMAT_TIME" Format="@GlobalContants.FORMAT_TIME"
+                                            DisplayFormat="@GlobalContants.FORMAT_TIME" />
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-sm-12">
+                <div class="d-flex ">
+                    <W1Label Value="Giờ nghỉ bđ/kt" Styles="width: 110px" IsRequired="true" />
+                    <div style="width: calc(100% - 110px)">
+                        <div class="grid gap-1 row-gap-2">
+                            <div class="g-col-md-4 g-col-sm-12 g-col-12">
+                                <DxTimeEdit @bind-Time="@FromBreakTime"
+                                            CssClass="w1FontSize" Id="startDateTime"
+                                            Mask="@GlobalContants.FORMAT_TIME" Format="@GlobalContants.FORMAT_TIME"
+                                            DisplayFormat="@GlobalContants.FORMAT_TIME" />
+                            </div>
+                            <div class="g-col-md-4 g-col-sm-12 g-col-12">
+                                <DxTimeEdit @bind-Time="@ToBreakTime"
+                                            CssClass="w1FontSize" Id="startDateTime"
+                                            Mask="@GlobalContants.FORMAT_TIME" Format="@GlobalContants.FORMAT_TIME"
+                                            DisplayFormat="@GlobalContants.FORMAT_TIME" />
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-sm-6">
+                <div class="d-flex ">
+                    <W1Label Value="Số giờ làm việc" Styles="width: 110px" />
+                    <div style="width: calc(100% - 110px)">
+                        @{
+                            // Tính tổng giờ làm việc
+                            double totalWorkHours = 0;
+                            if (FromTime != null && ToTime != null 
+                                && FromBreakTime != null && ToBreakTime != null)
+                            {
+                                TimeSpan workBeforeBreak = FromBreakTime!.Value - FromTime!.Value;
+                                TimeSpan workAfterBreak = ToTime!.Value - ToBreakTime!.Value;
+                                totalWorkHours = workBeforeBreak.TotalHours + workAfterBreak.TotalHours;
+                                TotalHours = totalWorkHours;
+                            }
+                            <DxSpinEdit @bind-Value="@TotalHours" InputCssClass="text-end"
+                                        ShowSpinButtons="false" ReadOnly="true"
+                                        DisplayFormat="@GlobalContants.FORMAT_CURRENCY" Mask="@GlobalContants.FORMAT_CURRENCY" CssClass="w1FontSize" />
+                        }
+                    </div>
+                </div>
+            </div>
+        }
+        else if (EnumUpdate.enumType == nameof(EnumCatagory.LoaiNhanVien))
+        {
+            <div class="col-sm-12">
+                <div class="d-flex ">
+                    <W1Label Value="Quy cách đánh mã" Styles="width: 110px" IsRequired="true" />
+                    <div style="width: calc(100% - 110px)">
+                        <DxTextBox @bind-Text="@EnumUpdate.value" CssClass="w1FontSize" Id="txtvalue"></DxTextBox>
+                    </div>
+                </div>
+            </div>
+        }
+        else if (EnumUpdate.enumType == nameof(EnumCatagory.CachTinhLuongPhuCap))
+        {
+            <div class="col-sm-12">
+                <div class="d-flex ">
+                    <W1Label Value="Hệ số lương" Styles="width: 110px" />
+                    <div style="width: calc(100% - 110px)">
+                        <DxSpinEdit @bind-Value="@TotalHours" InputCssClass="text-end"
+                                    ShowSpinButtons="false" MinValue="0" MaxValue="10"
+                                    DisplayFormat="@GlobalContants.FORMAT_CURRENCY" Mask="@GlobalContants.FORMAT_CURRENCY" CssClass="w1FontSize" />
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+</W1Popup>
+
+<W1Confirm @ref="confirm" />

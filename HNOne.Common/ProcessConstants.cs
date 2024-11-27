@@ -26,6 +26,8 @@
         public const string POST_EMPLOYEE = "post-employee";
         public const string PUT_EMPLOYEE = "put-employee";
         public const string GET_ENUM = "get-enum";
+        public const string POST_ENUM_CATA = "post-enum-cata";
+        public const string PUT_ENUM_CATA = "put-enum-cata";
 
         public const string GET_CONTRACTTYPE = "get-contracttype";
         public const string POST_CONTRACTTYPE = "post-contracttype";

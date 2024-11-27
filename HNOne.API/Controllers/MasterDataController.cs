@@ -244,6 +244,11 @@ namespace HNOne.API.Controllers
                         var salaryConfig = JsonConvert.DeserializeObject<SalaryConfigurations>($"{request.json}");
                         response = await _masterDataService.UpdateSalaryConfig(processKey, salaryConfig!);
                         break;
+                    case ProcessConstants.PUT_ENUM_CATA:
+                    case ProcessConstants.POST_ENUM_CATA:
+                        var enumCata = JsonConvert.DeserializeObject<EnumCatagories>($"{request.json}");
+                        response = await _masterDataService.UpdateEnumCatagory(processKey, enumCata!);
+                        break;
                     default:
                         response.status = StatusCodes.Status404NotFound;
                         response.message = $"Process Key {processKey} was not provider!!!";

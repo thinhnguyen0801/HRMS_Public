@@ -36,5 +36,7 @@ namespace HNOne.API.Repositories.Interfaces
         Task<IEnumerable<ComboboxModel?>> GetLocationData(string? type, string? opt = "", string? opt1 = "", string? opt2 = "");
         Task<IEnumerable<dynamic>?> GetMasterData(RequestModel request);
         Task<IEnumerable<EnumCatagoryModel>> GetFnEnum(RequestModel request);
+        Task<ResponseModel> UpdateEnumCatagory(EnumCatagories entity);
+        Task<ResponseModel> AddEnumCatagory(EnumCatagories entity);
     }
 }

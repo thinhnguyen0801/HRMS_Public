@@ -343,6 +343,31 @@ namespace HNOne.API.Services
             return response;
 
         }
+
+        public async Task<ResponseModel> UpdateEnumCatagory(string actionType, EnumCatagories entity)
+        {
+            ResponseModel response = new ResponseModel();
+            try
+            {
+                switch (actionType)
+                {
+                    case ProcessConstants.POST_ENUM_CATA:
+                        response = await _masterRepository.AddEnumCatagory(entity);
+                        break;
+                    case ProcessConstants.PUT_ENUM_CATA:
+                        response = await _masterRepository.UpdateEnumCatagory(entity);
+                        break;
+                }
+                return response;
+            }
+            catch (Exception ex)
+            {
+                response.status = StatusCodes.Status400BadRequest;
+                response.message = ex.Message;
+            }
+            return response;
+
+        }
         #endregion
     }
 }

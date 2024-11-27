@@ -29,5 +29,6 @@ namespace HNOne.API.Services.Interfaces
         Task<IEnumerable<ComboboxModel?>> GetLocationData(string? type, string? opt = "", string? opt1 = "", string? opt2 = "");
         Task<IEnumerable<dynamic>?> GetMasterData(RequestModel request);
         Task<IEnumerable<EnumCatagoryModel>> GetFnEnum(RequestModel request);
+        Task<ResponseModel> UpdateEnumCatagory(string actionType, EnumCatagories entity);
     }
 }

@@ -174,10 +174,11 @@ namespace HNOne.API.Repositories
                 parameters.Add("@EnumType", request.opt, DbType.String);
                 string query = "select T0.[Id],T0.[EnumType],T0.[Code],T0.[Name] " +
                     " ,case T0.EnumType when 'CaLamViec' then FORMAT(cast(T0.[Value] as datetime), 'HH:mm') else T0.[Value] end as [Value]" +
-                    " ,case T0.EnumType when 'CaLamViec' then FORMAT(cast(T0.[Value1] as datetime), 'HH:mm') else T0.[Value] end as [Value1]" +
-                    " ,case T0.EnumType when 'CaLamViec' then FORMAT(cast(T0.[Value2] as datetime), 'HH:mm') else T0.[Value] end as [Value2]" +
-                    " ,case T0.EnumType when 'CaLamViec' then FORMAT(cast(T0.[Value3] as datetime), 'HH:mm') else T0.[Value] end as [Value3]" +
-                    " ,T0.[Value4],T0.[UserSign],T0.[DateTracking],T0.[RowOrder],T0.[IsAllowEditing],T0.[EnumTypeName],T0.[CreateDate],T0.[DeleteReason],T0.[IsDelete],T0.[UpdateDate],T0.[UserSign2]" +
+                    " ,case T0.EnumType when 'CaLamViec' then FORMAT(cast(T0.[Value1] as datetime), 'HH:mm') else T0.[Value1] end as [Value1]" +
+                    " ,case T0.EnumType when 'CaLamViec' then FORMAT(cast(T0.[Value2] as datetime), 'HH:mm') else T0.[Value2] end as [Value2]" +
+                    " ,case T0.EnumType when 'CaLamViec' then FORMAT(cast(T0.[Value3] as datetime), 'HH:mm') else T0.[Value3] end as [Value3]" +
+                    " ,T0.[Value4],T0.[UserSign],T0.[DateTracking],T0.[RowOrder],T0.[IsAllowEditing],T0.[EnumTypeName]" +
+                    " ,T0.[DeleteReason],T0.[IsDelete],T0.[UpdateDate],T0.[UserSign2]" +
                     " from EnumCatagories as T0 with(nolock)" +
                     " where T0.IsDelete = '0'";
                 if(request.opt != "AllowEdit") query += " and T0.EnumType = @EnumType"; // nếu cho phép chỉnh sửa thì lấy hết
@@ -415,7 +416,7 @@ namespace HNOne.API.Repositories
                 if (isResult)
                 {
                     response.status = StatusCodes.Status409Conflict;
-                    response.message = "Mã phòng ban đã tồn tại đã tồn tại!";
+                    response.message = "Mã phòng ban đã tồn tại!";
                     return response;
                 }
                 entity.Id = await _dbContext.Departments.Select(m => m.Id).DefaultIfEmpty().MaxAsync() + 1;
@@ -872,6 +873,75 @@ namespace HNOne.API.Repositories
             }
             catch (Exception) { throw; }
         }
+
+        /// <summary>
+        /// Thêm chi nhánh
+        /// </summary>
+        /// <param name="process"></param>
+        /// <param name="entity"></param>
+        /// <returns></returns>
+        public async Task<ResponseModel> AddEnumCatagory(EnumCatagories entity)
+        {
+            ResponseModel response = new ResponseModel();
+            try
+            {
+                bool isResult = true;
+                // Tạo mới
+                isResult = await _dbContext.EnumCatagories.FirstOrDefaultAsync(m => m.Code == entity.Code && m.EnumType == entity.EnumType) != null;
+                if (isResult)
+                {
+                    response.status = StatusCodes.Status409Conflict;
+                    response.message = $"Mã danh mục thuộc loại {entity.EnumTypeName} đã tồn tại!";
+                    return response;
+                }
+                entity.Id = Guid.NewGuid();
+                entity.IsAllowEditing = true;
+                entity.DateTracking = _dateTimeHelper.GetCurrentVietnamTime();
+                entity.CreateDate = _dateTimeHelper.GetCurrentVietnamTime();
+                await _dbContext.EnumCatagories.AddAsync(entity);
+                await _dbContext.SaveChangesAsync();
+                response.message = MessageConstants.MESSAGE_ADD_SUCCESS;
+                return response;
+            }
+            catch (Exception) { throw; }
+        }
+
+        /// <summary>
+        /// Thêm chi nhánh
+        /// </summary>
+        /// <param name="process"></param>
+        /// <param name="entity"></param>
+        /// <returns></returns>
+        public async Task<ResponseModel> UpdateEnumCatagory(EnumCatagories entity)
+        {
+            ResponseModel response = new ResponseModel();
+            try
+            {
+                var data = await _dbContext.EnumCatagories.FirstOrDefaultAsync(m => m.Id == entity.Id);
+                if (data == null)
+                {
+                    response.status = StatusCodes.Status404NotFound;
+                    response.message = MessageConstants.MESSAGE_NOT_FOUNT;
+                    return response;
+                }
+                data.Name = entity.Name;
+                data.Value = entity.Value;
+                data.Value1 = entity.Value1;
+                data.Value2 = entity.Value2;
+                data.Value3 = entity.Value3;
+                data.Value4 = entity.Value4;
+                data.DateTracking = _dateTimeHelper.GetCurrentVietnamTime();
+                data.UpdateDate = _dateTimeHelper.GetCurrentVietnamTime();
+                data.UserSign2 = entity.UserSign2;
+                _dbContext.EnumCatagories.Attach(data);
+                _dbContext.Entry(data).State = EntityState.Modified;
+                await _dbContext.SaveChangesAsync();
+                response.message = MessageConstants.MESSAGE_UPDATE_SUCCESS;
+                return response;
+            }
+            catch (Exception) { throw; }
+        }
+
         #endregion
     }
 }
