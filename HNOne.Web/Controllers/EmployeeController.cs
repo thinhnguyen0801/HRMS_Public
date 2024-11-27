@@ -5,6 +5,7 @@ using HNOne.Model.Models;
 using HNOne.Web.Commons;
 using HNOne.Web.Components.Controls;
 using HNOne.Web.Models;
+using HNOne.Web.Services;
 using HNOne.Web.Services.Interfaces;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Forms;
@@ -20,6 +21,7 @@ namespace HNOne.Web.Controllers
 {
     public partial class EmployeeController : DocumentControllerBase
     {
+        [Inject] IWorkforceService _workforceService { get; init; }
         [Inject] IMasterDataService _masterDataService { get; init; }
         [Inject] IPersonnelService _personnelService { get; init; }
         [Inject] IEncryptHelper _encryptHelper { get; init; }
@@ -77,7 +79,16 @@ namespace HNOne.Web.Controllers
                     if (errMessage == "401") return; // kiểm quyền menu page danh sách
                     this.firstRender = firstRender;
                     await ShowLoading();
-                    await initDataAsync();
+                    ListBreadcrumbs = new List<BreadcrumbModel>()
+                    {
+                        new BreadcrumbModel("Nhân sự"),
+                        new BreadcrumbModel("Danh sách nhân viên", enpoint: "/danh-sach-nhan-vien"),
+                        new BreadcrumbModel("Hồ sơ nhân viên", isActive: true)
+                    };
+                    await NotifyBreadcrumb.InvokeAsync(ListBreadcrumbs);
+
+                    //
+                    initDataAsync();
                     await buildComboAsync();
                     if (pDocEntry > 0) await showVoucher();
                 }
@@ -97,18 +108,11 @@ namespace HNOne.Web.Controllers
 
         #region Private Functions
 
-        private async Task initDataAsync(bool isRefresh = false)
+        private void initDataAsync(bool isRefresh = false)
         {
-            ListBreadcrumbs = new List<BreadcrumbModel>()
-                    {
-                        new BreadcrumbModel("Nhân sự"),
-                        new BreadcrumbModel("Danh sách nhân viên", enpoint: "/danh-sach-nhan-vien"),
-                        new BreadcrumbModel("Hồ sơ nhân viên", isActive: true)
-                    };
-            await NotifyBreadcrumb.InvokeAsync(ListBreadcrumbs);
 
             var uri = _navigationManager?.ToAbsoluteUri(_navigationManager.Uri);
-            if(uri != null && QueryHelpers.ParseQuery(uri.Query).Count > 0)
+            if(!isRefresh && uri != null && QueryHelpers.ParseQuery(uri.Query).Count > 0)
             {
                 string key = uri.Query.Substring(5); // bỏ ?key=
                 Dictionary<string, string> pParams = JsonConvert.DeserializeObject<Dictionary<string, string>>(_encryptHelper.Decrypt(key))!;
@@ -745,6 +749,84 @@ namespace HNOne.Web.Controllers
             finally
             {
                 await Task.Delay(75);
+                await ShowLoading(false);
+                await InvokeAsync(StateHasChanged);
+            }
+        }
+        
+        /// <summary>
+        /// tạo dữ liệu công làm việc của nhân viên
+        /// </summary>
+        /// <returns></returns>
+        protected async Task GenerateWorkHandler()
+        {
+            try
+            {
+                if(EmployeeUpdate.id < 1) return;
+                // muốn phát sinh công làm việc. phải kiểm tra dữ liệu công
+                string errorMessage = string.Empty;
+                bool isConfirm = true;
+                errorMessage = $"Bạn có chắc muốn phát sinh dữ liệu công của kỳ [{DateTime.Now.Year}-{DateTime.Now.Month}] <br />" +
+                    $"Cho nhân viên [{EmployeeUpdate.code}] không?";
+                await Task.Yield();
+                isConfirm = await confirm.SetConfirm(MessageConstants.MESSAGE_TITLE, errorMessage);
+                if (!isConfirm) return;
+                await ShowLoading();
+                RequestModel request = new RequestModel();
+                request.process = ProcessConstants.POST_TIME_SHEET;
+                request.userId = UserId;
+                request.branchId = BranchId;
+                request.token = Token;
+                request.fromDate = new DateTime(DateTime.Now.Year, DateTime.Now.Month, 01);
+                request.opt = EmployeeUpdate.departmentId.ToString();
+                request.employeeId = EmployeeUpdate.id;
+                isConfirm = await _workforceService.UpdateMasterDataAsync(request);
+            }
+            catch (Exception ex)
+            {
+                ShowError(ex.Message);
+                _logger.LogError(ex, "SaveDataHandler");
+            }
+            finally
+            {
+                await ShowLoading(false);
+                await InvokeAsync(StateHasChanged);
+            }
+        }
+
+        /// <summary>
+        /// làm mới dữ liệu
+        /// </summary>
+        /// <returns></returns>
+        protected async Task RefreshDataHandler()
+        {
+            try
+            {
+                await ShowLoading();
+                Dictionary<string, string> pParams = new Dictionary<string, string>
+                {
+                    { "pActionType", $"{nameof(EnumType.Add)}" },
+                    { "pDocEntry", $"{-1}" },
+                };
+                string key = _encryptHelper.Encrypt(JsonConvert.SerializeObject(pParams)); // mã hóa key
+                _navigationManager.NavigateTo($"/ho-so-nhan-vien?key=?key={key}");
+                EmployeeUpdate = new EmployeeModel();
+                pActionType = nameof(EnumType.Add);
+                pDocEntry = -1;
+                ListInsurance = new List<InsuranceModel>();
+                ListFamilyRelationship = new List<FamilyRelationshipModel>();
+                ListEducation = new List<LevelOfEducationModel>();
+                ListContract = new List<ContractModel>();
+                initDataAsync(isRefresh: true);
+                await buildComboAsync();
+            }
+            catch (Exception ex)
+            {
+                ShowError(ex.Message);
+                _logger.LogError(ex, "RefreshDataHandler");
+            }
+            finally
+            {
                 await ShowLoading(false);
                 await InvokeAsync(StateHasChanged);
             }

@@ -11,5 +11,6 @@
         public const string ICON_APPROVAL = "fa-solid fa-check h1-text-icon-primary"; // icon phê duyệt
         public const string ICON_REJECT = "fa-solid fa-ban text-red"; // icon từ chối
         public const string ICON_RETURN = "fa-solid fa-reply h1-text-icon-primary"; // icon trả về
+        public const string ICON_CALENDAR_CHECK = "fa-solid fa-calendar-check h1-text-icon-primary"; // icon trả về
     }
 }

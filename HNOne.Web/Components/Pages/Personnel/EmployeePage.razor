@@ -29,17 +29,23 @@
     <div class="card p-1 mt-1">
         <DxToolbar ItemRenderStyleMode="@ToolbarRenderStyleMode.Contained">
             <Items>
-                <DxToolbarItem Text="Làm mới" BeginGroup="true" IconCssClass="@($"{IconClassConstants.ICON_REFRESH}")" CssClass="w1FontSize"
-                               Alignment="@ToolbarItemAlignment.Right" />
-
+                
                 <DxToolbarItem Text="Lưu" BeginGroup="true" IconCssClass="@($"{IconClassConstants.ICON_UPDATE}")" CssClass="w1FontSize"
                                Alignment="@ToolbarItemAlignment.Right" Click="@(() => SaveDataHandler())" />
 
                 <DxToolbarItem Text="Lưu & tạo tài khoản" BeginGroup="true" IconCssClass="@($"{IconClassConstants.ICON_UPDATE}")" CssClass="w1FontSize"
                                Alignment="@ToolbarItemAlignment.Right" Click="@(() => SaveDataHandler(isCreateAccount: true))" />
 
+                <DxToolbarItem Text="Phát sinh công" BeginGroup="true" IconCssClass="@($"{IconClassConstants.ICON_CALENDAR_CHECK}")" CssClass="w1FontSize"
+                               Alignment="@ToolbarItemAlignment.Right" Click="@(() => GenerateWorkHandler())" 
+                               Visible="@(pActionType == nameof(EnumType.Update))" />
+
+                <DxToolbarItem Text="Làm mới" BeginGroup="true" IconCssClass="@($"{IconClassConstants.ICON_REFRESH}")" CssClass="w1FontSize"
+                               Alignment="@ToolbarItemAlignment.Right" Click="@RefreshDataHandler" />
+
                 <DxToolbarItem Text="Xóa" BeginGroup="true" IconCssClass="@($"{IconClassConstants.ICON_DELETE}")" CssClass="w1FontSize"
                                Alignment="@ToolbarItemAlignment.Right" />
+
             </Items>
         </DxToolbar>
     </div>
