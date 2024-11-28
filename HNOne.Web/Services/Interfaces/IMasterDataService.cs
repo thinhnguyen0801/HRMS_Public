@@ -30,5 +30,7 @@ namespace HNOne.Web.Services.Interfaces
         Task<List<FileUploadModel>?> UploadImagesAsync(List<FileUploadModel> listImages, string subFolder);
         Task<List<EnumCatagoryModel>?> GetFunEnumAsync(int userId, string token, string enumType
             , string opt = "", string opt1 = "", bool isShowToast = false);
+        Task<string> DeleteDynnamicAsync(int userId, string token, int branchId
+            , string tableName, string pKey, string fKey, string documentId, string reasonDelete);
     }
 }

@@ -992,5 +992,67 @@ namespace HNOne.Web.Services
                 throw ex;
             }
         }
+
+        /// <summary>
+        /// xóa dữ liệu
+        /// </summary>
+        /// <param name="userId"></param>
+        /// <param name="token"></param>
+        /// <param name="branchId"></param>
+        /// <param name="documentId"></param>
+        /// <param name="tableName"></param>
+        /// <param name="reasonDelete"></param>
+        /// <param name="opt1"></param>
+        /// <param name="opt2"></param>
+        /// <param name="opt3"></param>
+        /// <returns></returns>
+        public async Task<string> DeleteDynnamicAsync(int userId, string token, int branchId
+            , string tableName, string pKey, string fKey, string documentId, string reasonDelete)
+        {
+            string statusId = "-1";
+            try
+            {
+                RequestModel request = new RequestModel();
+                request.process = ProcessConstants.DELETE_DYNAMIC;
+                request.userId = userId;
+                request.token = token;
+                request.reason = reasonDelete;
+                request.type = tableName;
+                request.opt = documentId;
+                request.opt1 = pKey;
+                request.opt2 = fKey;
+                HttpResponseMessage httpResponse = await PostAsync(EnpointConstants.MASTERDATA_POST_DATA, request);
+                if (httpResponse.StatusCode == System.Net.HttpStatusCode.Unauthorized)
+                {
+                    _toastService.ShowInfo(MessageConstants.MESSAGE_LOGIN_EXPIRED);
+                    return statusId;
+                }
+                var checkContent = ValidateJsonContent(httpResponse.Content);
+                if (!checkContent) _toastService.ShowError(MessageConstants.MESSAGE_JSON_INVALID);
+                else
+                {
+                    var content = await httpResponse.Content.ReadAsStringAsync();
+                    ResponseModel response = JsonConvert.DeserializeObject<ResponseModel>(content)!;
+                    if (httpResponse.IsSuccessStatusCode
+                        && response?.status == StatusCodes.Status200OK)
+                    {
+                        _toastService.ShowSuccess(response.message);
+                        return "200"; // -- thành công
+                    }
+                    if (response?.status == StatusCodes.Status409Conflict)
+                    {
+                        _toastService.ShowInfo(response?.message ?? MessageConstants.MESSAGE_IT_SUPPORT);
+                        return statusId;
+                    }
+                    if (response?.status == - StatusCodes.Status409Conflict)
+                    {
+                        return response.message;
+                    }    
+                    _toastService.ShowError(response?.message ?? MessageConstants.MESSAGE_IT_SUPPORT);
+                }
+                return statusId;
+            }
+            catch (Exception) { throw; }
+        }
     }
 }

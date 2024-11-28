@@ -48,5 +48,21 @@
         public string? n31 { get; set; }
         public int month { get; set; }
         public int year { get; set; }
+
+        #region Thông tin dành cho tính công nhân viên
+        public double tNC { get; set; } // tổng ngày công
+        public double cDM { get; set; } // công định mức của tháng
+        public double cTT { get; set; } // công thực tế
+        public double nPN { get; set; } // nghỉ phép năm
+        public double nCD { get; set; } // nghỉ chết độ
+        public double nPKL { get; set; } // nghỉ phép không lương
+        public double nKP { get; set; } // nghỉ không phép
+        public double cTPC { get; set; } // số công tính phụ cấp
+        public double tGDLTVS { get; set; } // thời gian đi trễ về sớm
+        public double sLDLTVS { get; set; } // số lần đi trễ về sớm
+        public double sGT { get; set; } // số giờ thiếu
+        public double sGTC { get; set; } // số giờ trừ công
+        public double gCTC { get; set; } // giờ công của 1 ngày
+        #endregion
     }
 }

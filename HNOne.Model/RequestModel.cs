@@ -18,5 +18,6 @@ namespace HNOne.Model
         public string? opt3 { get; set; }
         public DateTime? fromDate { get; set; }
         public DateTime? toDate { get; set; }
+        public string? reason { get; set; }
     }   
 }

@@ -30,5 +30,6 @@ namespace HNOne.API.Services.Interfaces
         Task<IEnumerable<dynamic>?> GetMasterData(RequestModel request);
         Task<IEnumerable<EnumCatagoryModel>> GetFnEnum(RequestModel request);
         Task<ResponseModel> UpdateEnumCatagory(string actionType, EnumCatagories entity);
+        Task<ResponseModel> DeleteDynamic(RequestModel request);
     }
 }

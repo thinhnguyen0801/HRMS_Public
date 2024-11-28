@@ -368,6 +368,14 @@ namespace HNOne.API.Services
             return response;
 
         }
+
+        /// <summary>
+        /// xóa bảng động
+        /// </summary>
+        /// <param name="request"></param>
+        /// <returns></returns>
+        public async Task<ResponseModel> DeleteDynamic(RequestModel request)
+            => await _masterRepository.DeleteDynamic(request);
         #endregion
     }
 }

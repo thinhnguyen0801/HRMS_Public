@@ -3,7 +3,7 @@
 <PageTitle>Tính công nhân viên</PageTitle>
 
 <div class="h-content-filter">
-    <div class="card card-lg mt-1" style="padding: 5px">
+    <div class="card card-lg" style="padding: 5px">
         <div class="row row-gap-2">
             <div class="col-12">
                 <div class="accordion" id="accordion-info">
@@ -18,58 +18,75 @@
                         <div id="collapse-info" class="accordion-collapse collapse show" data-bs-parent="#accordion-info">
                             <div class="accordion-body p-2">
                                 <div class="row row-gap-2">
-                                    <div class="col-md-4 col-sm-12">
-                                        <div class="d-flex ">
-                                            <W1Label Value="Tháng/năm" Styles="width: 100px" IsRequired="true" />
-                                            <div style="width: calc(100% - 100px)">
-                                                <div class="grid gap-1 row-gap-2">
-                                                    <div class="g-col-md-6 g-col-sm-12 g-col-12">
-                                                        <DxComboBox Data="@ListCboMonth"
-                                                                    @bind-Value="@SearchUpdate.month"
-                                                                    FilteringMode="DataGridFilteringMode.Contains"
-                                                                    TextFieldName="@nameof(ComboboxModel.name)"
-                                                                    ValueFieldName="@nameof(ComboboxModel.id)"
-                                                                    CssClass="w1FontSize">
-                                                        </DxComboBox>
+                                    <div class="col-md-8 col-sm-12">
+                                        <div class="row row-gap-2">
+                                            <div class="col-sm-12">
+                                                <div class="d-flex ">
+                                                    <W1Label Value="Phòng ban" Styles="width: 100px" IsRequired="true" />
+                                                    <div style="width: calc(100% - 100px)">
+                                                        <DxTagBox Data="@ListCboDepartment"
+                                                                  @bind-Values="@ListDepartmentSelected" CssClass="w1FontSize"
+                                                                  DropDownBodyCssClass="w1FontSize" DropDownCssClass="w1FontSize"
+                                                                  ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
+                                                                  TextFieldName="@nameof(ComboboxModel.name)">
+                                                            <DxListEditorColumn FieldName="@nameof(ComboboxModel.code)" Caption="Mã" Width="120px" />
+                                                            <DxListEditorColumn FieldName="@nameof(ComboboxModel.name)" Caption="Tên" />
+                                                        </DxTagBox>
                                                     </div>
-                                                    <div class="g-col-md-6 g-col-sm-12 g-col-12">
-                                                        <DxComboBox Data="@ListCboYear"
-                                                                    @bind-Value="@SearchUpdate.year"
-                                                                    FilteringMode="DataGridFilteringMode.Contains"
-                                                                    TextFieldName="@nameof(ComboboxModel.name)"
-                                                                    ValueFieldName="@nameof(ComboboxModel.id)"
-                                                                    CssClass="w1FontSize">
-                                                        </DxComboBox>
+                                                </div>
+                                            </div>
+                                            <div class="col-sm-12">
+                                                <div class="d-flex ">
+                                                    <W1Label Value="Trạng thái" Styles="width: 100px" IsRequired="true" />
+                                                    <div style="width: calc(100% - 100px)">
+                                                        <DxTagBox Data="@ListCboStatus"
+                                                                  @bind-Values="@ListCboStatusSelected" CssClass="w1FontSize"
+                                                                  DropDownBodyCssClass="w1FontSize" DropDownCssClass="w1FontSize"
+                                                                  ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
+                                                                  TextFieldName="@nameof(ComboboxModel.name)">
+                                                            <DxListEditorColumn FieldName="@nameof(ComboboxModel.code)" Caption="Mã" Width="120px" />
+                                                            <DxListEditorColumn FieldName="@nameof(ComboboxModel.name)" Caption="Tên" />
+                                                        </DxTagBox>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-4 col-sm-12">
+                                        <div class="row row-gap-2">
+                                            <div class="col-sm-12">
+                                                <div class="d-flex ">
+                                                    <W1Label Value="Tháng/năm" Styles="width: 100px" IsRequired="true" />
+                                                    <div style="width: calc(100% - 100px)">
+                                                        <div class="grid gap-1 row-gap-2">
+                                                            <div class="g-col-md-6 g-col-sm-12 g-col-12">
+                                                                <DxComboBox Data="@ListCboMonth"
+                                                                            @bind-Value="@SearchUpdate.month"
+                                                                            FilteringMode="DataGridFilteringMode.Contains"
+                                                                            TextFieldName="@nameof(ComboboxModel.name)"
+                                                                            ValueFieldName="@nameof(ComboboxModel.id)"
+                                                                            CssClass="w1FontSize">
+                                                                </DxComboBox>
+                                                            </div>
+                                                            <div class="g-col-md-6 g-col-sm-12 g-col-12">
+                                                                <DxComboBox Data="@ListCboYear"
+                                                                            @bind-Value="@SearchUpdate.year"
+                                                                            FilteringMode="DataGridFilteringMode.Contains"
+                                                                            TextFieldName="@nameof(ComboboxModel.name)"
+                                                                            ValueFieldName="@nameof(ComboboxModel.id)"
+                                                                            CssClass="w1FontSize">
+                                                                </DxComboBox>
+                                                            </div>
+                                                        </div>
+
                                                     </div>
                                                 </div>
                                                 
                                             </div>
-                                        </div>
-                                    </div>
-                                    <div class="col-md-8 col-sm-12">
-                                        <div class="d-flex ">
-                                            <W1Label Value="Phòng ban" Styles="width: 100px" IsRequired="true" />
-                                            <div style="width: calc(100% - 100px)">
-                                                <DxTagBox Data="@ListCboDepartment"
-                                                          @bind-Values="@ListDepartmentSelected" CssClass="w1FontSize"
-                                                          DropDownBodyCssClass="w1FontSize" DropDownCssClass="w1FontSize"
-                                                          ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
-                                                          TextFieldName="@nameof(ComboboxModel.name)">
-                                                    <DxListEditorColumn FieldName="@nameof(ComboboxModel.code)" Caption="Mã" Width="120px" />
-                                                    <DxListEditorColumn FieldName="@nameof(ComboboxModel.name)" Caption="Tên" />
-                                                </DxTagBox>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <div class="col-md-4 col-sm-12">
-                                        <div class="d-flex ">
-                                            <W1Label Value="Nhân viên" Id="txtKiDanhGia" Styles="width: 100px" IsRequired="true" />
-                                            <div style="width: calc(100% - 100px)">
-                                                <div class="grid gap-1 row-gap-2">
-                                                    <div class="g-col-md-4 g-col-sm-12 g-col-12">
-                                                        <DxTextBox @bind-Text="@SearchUpdate.employeeCode" ReadOnly="true" CssClass="w1FontSize" />
-                                                    </div>
-                                                    <div class="g-col-md-8 g-col-sm-12 g-col-12">
+                                            <div class="col-sm-12">
+                                                <div class="d-flex ">
+                                                    <W1Label Value="Nhân viên" Id="txtKiDanhGia" Styles="width: 100px" IsRequired="true" />
+                                                    <div style="width: calc(100% - 100px)">
                                                         <DxTextBox @bind-Text="@SearchUpdate.employeeName" CssClass="w1FontSize" ReadOnly="true">
                                                             <Buttons>
                                                                 <DxEditorButton style="width: 29px" CssClass="w1FontSize" IconCssClass="fas fa-search" Tooltip="Tìm kiếm nhân viên"
@@ -81,22 +98,6 @@
                                             </div>
                                         </div>
                                     </div>
-                                    <div class="col-md-8 col-sm-12">
-                                        <div class="d-flex ">
-                                            <W1Label Value="Trạng thái" Styles="width: 100px" IsRequired="true" />
-                                            <div style="width: calc(100% - 100px)">
-                                                <DxTagBox Data="@ListCboStatus"
-                                                          @bind-Values="@ListCboStatusSelected" CssClass="w1FontSize"
-                                                          DropDownBodyCssClass="w1FontSize" DropDownCssClass="w1FontSize"
-                                                          ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
-                                                          TextFieldName="@nameof(ComboboxModel.name)">
-                                                    <DxListEditorColumn FieldName="@nameof(ComboboxModel.code)" Caption="Mã" Width="120px" />
-                                                    <DxListEditorColumn FieldName="@nameof(ComboboxModel.name)" Caption="Tên" />
-                                                </DxTagBox>
-                                            </div>
-                                        </div>
-                                    </div>
-
                                 </div>
                             </div>
                         </div>
@@ -118,10 +119,10 @@
                             <DxToolbarItem Text="Lưu công tháng" BeginGroup="true" IconCssClass="@($"{IconClassConstants.ICON_UPDATE}")" CssClass="w1FontSize"
                                            Alignment="@ToolbarItemAlignment.Right" />
 
-                            <DxToolbarItem Text="Chốt công" BeginGroup="true" IconCssClass="@($"{IconClassConstants.ICON_REFRESH}")" CssClass="w1FontSize"
+                            <DxToolbarItem Text="Chốt công" BeginGroup="true" IconCssClass="@($"{IconClassConstants.ICON_TABLE_LOCK}")" CssClass="w1FontSize"
                                            Alignment="@ToolbarItemAlignment.Right" />
 
-                            <DxToolbarItem Text="Tính công" BeginGroup="true" IconCssClass="@($"{IconClassConstants.ICON_REFRESH}")" CssClass="w1FontSize"
+                            <DxToolbarItem Text="Tính công" BeginGroup="true" IconCssClass="@($"{IconClassConstants.ICON_CALCULATOR}")" CssClass="w1FontSize"
                                            Alignment="@ToolbarItemAlignment.Right" />
                         </Items>
                     </DxToolbar>
@@ -153,15 +154,103 @@
                                     KeyboardNavigationEnabled="true"
                                     CssClass="h-full">
                                 <Columns>
-                                    <DxGridDataColumn FieldName="@nameof(ShiftAssignmentModel.employeeCode)" Caption="Mã nhân viên" Width="130px" MinWidth="130" DataRowEditorVisible="false" FixedPosition="@GridColumnFixedPosition.Left" />
-                                    <DxGridDataColumn FieldName="@nameof(ShiftAssignmentModel.employeeName)" Caption="Họ tên" Width="145px" MinWidth="130" DataRowEditorVisible="false" FixedPosition="@GridColumnFixedPosition.Left" />
-                                    <DxGridDataColumn FieldName="@nameof(ShiftAssignmentModel.departmentName)" Caption="Phòng ban" Width="145px" MinWidth="130" DataRowEditorVisible="false" />
-                                    <DxGridDataColumn FieldName="@nameof(ShiftAssignmentModel.titleName)" Caption="Chức danh" Width="145px" MinWidth="130" DataRowEditorVisible="false" />
+                                    <DxGridDataColumn FieldName="@nameof(ShiftAssignmentModel.departmentName)" Caption="Phòng ban" Width="145px" MinWidth="120" GroupIndex="0" FixedPosition="@GridColumnFixedPosition.Left" />
+                                    <DxGridDataColumn FieldName="@nameof(ShiftAssignmentModel.employeeCode)" Caption="Mã nhân viên" Width="110px" MinWidth="100" FixedPosition="@GridColumnFixedPosition.Left" />
+                                    <DxGridDataColumn FieldName="@nameof(ShiftAssignmentModel.employeeName)" Caption="Họ tên" Width="135px" MinWidth="100" FixedPosition="@GridColumnFixedPosition.Left" />
+                                    <DxGridDataColumn FieldName="@nameof(ShiftAssignmentModel.titleName)" Caption="Chức danh" Width="125px" MinWidth="100" />
+                                    <DxGridDataColumn FieldName="@nameof(ShiftAssignmentModel.shiftCode)" Caption="Ca làm việc" Width="110px" MinWidth="100" />
+                                    <DxGridDataColumn FieldName="@nameof(ShiftAssignmentModel.tNC)" Caption="TNC" Width="50px" MinWidth="40" TextAlignment="@GridTextAlignment.Center" CaptionAlignment="@GridTextAlignment.Center">
+                                        <HeaderCaptionTemplate>
+                                            <span title="Tổng hệ số công">TNC</span>
+                                        </HeaderCaptionTemplate>
+                                    </DxGridDataColumn>
+                                    <DxGridDataColumn FieldName="@nameof(ShiftAssignmentModel.cDM)" Caption="CĐM" Width="50px" MinWidth="40" AllowSort="false" 
+                                        TextAlignment="@GridTextAlignment.Center" CaptionAlignment="@GridTextAlignment.Center" DisplayFormat="@GlobalContants.FORMAT_NUMBER">
+                                        <HeaderCaptionTemplate>
+                                            <span title="Công định mức">CĐM</span>
+                                        </HeaderCaptionTemplate>
+                                    </DxGridDataColumn>
+                                    <DxGridDataColumn FieldName="@nameof(ShiftAssignmentModel.cTT)" Caption="CTT" Width="50px" MinWidth="40" AllowSort="false" 
+                                        TextAlignment="@GridTextAlignment.Center" CaptionAlignment="@GridTextAlignment.Center" DisplayFormat="@GlobalContants.FORMAT_NUMBER">
+                                        <HeaderCaptionTemplate>
+                                            <span title="Công thực tế">CTT</span>
+                                        </HeaderCaptionTemplate>
+                                    </DxGridDataColumn>
+                                    <DxGridDataColumn FieldName="@nameof(ShiftAssignmentModel.nPN)" Caption="PN" Width="50px" MinWidth="40" AllowSort="false" 
+                                        TextAlignment="@GridTextAlignment.Center" CaptionAlignment="@GridTextAlignment.Center" DisplayFormat="@GlobalContants.FORMAT_NUMBER">
+                                        <HeaderCaptionTemplate>
+                                            <span title="Nghỉ phép năm">PN</span>
+                                        </HeaderCaptionTemplate>
+                                    </DxGridDataColumn>
+                                    <DxGridDataColumn FieldName="@nameof(ShiftAssignmentModel.nCD)" Caption="CĐ" Width="50px" MinWidth="40" AllowSort="false" 
+                                        TextAlignment="@GridTextAlignment.Center" CaptionAlignment="@GridTextAlignment.Center" DisplayFormat="@GlobalContants.FORMAT_NUMBER">
+                                        <HeaderCaptionTemplate>
+                                            <span title="Nghỉ chế độ">CĐ</span>
+                                        </HeaderCaptionTemplate>
+                                    </DxGridDataColumn>
+                                    <DxGridDataColumn FieldName="@nameof(ShiftAssignmentModel.nPKL)" Caption="PKL" Width="50px" MinWidth="40" AllowSort="false" 
+                                        TextAlignment="@GridTextAlignment.Center" CaptionAlignment="@GridTextAlignment.Center" DisplayFormat="@GlobalContants.FORMAT_NUMBER">
+                                        <HeaderCaptionTemplate>
+                                            <span title="Nghỉ phép không lương">PKL</span>
+                                        </HeaderCaptionTemplate>
+                                    </DxGridDataColumn>
+                                    <DxGridDataColumn FieldName="@nameof(ShiftAssignmentModel.nKP)" Caption="KP" Width="50px" MinWidth="40" AllowSort="false" 
+                                        TextAlignment="@GridTextAlignment.Center" CaptionAlignment="@GridTextAlignment.Center" DisplayFormat="@GlobalContants.FORMAT_NUMBER">
+                                        <HeaderCaptionTemplate>
+                                            <span title="Nghỉ không phép">KP</span>
+                                        </HeaderCaptionTemplate>
+                                    </DxGridDataColumn>
+                                    <DxGridDataColumn FieldName="@nameof(ShiftAssignmentModel.cTPC)" Caption="CTPC" Width="50px" MinWidth="40" AllowSort="false" 
+                                        TextAlignment="@GridTextAlignment.Center" CaptionAlignment="@GridTextAlignment.Center" DisplayFormat="@GlobalContants.FORMAT_NUMBER">
+                                        <HeaderCaptionTemplate>
+                                            <span title="Công tính phụ cấp">CTPC</span>
+                                        </HeaderCaptionTemplate>
+                                    </DxGridDataColumn>
+                                    <DxGridDataColumn FieldName="@nameof(ShiftAssignmentModel.tGDLTVS)" Caption="+/-" Width="50px" MinWidth="40" AllowSort="false" 
+                                        TextAlignment="@GridTextAlignment.Center" CaptionAlignment="@GridTextAlignment.Center" DisplayFormat="@GlobalContants.FORMAT_NUMBER">
+                                        <HeaderCaptionTemplate>
+                                            <span title="Thời gian làm trễ về sớm">+/-</span>
+                                        </HeaderCaptionTemplate>
+                                    </DxGridDataColumn>
+                                    <DxGridDataColumn FieldName="@nameof(ShiftAssignmentModel.sLDLTVS)" Caption="SLT/S" Width="50px" MinWidth="40" AllowSort="false" 
+                                        TextAlignment="@GridTextAlignment.Center" CaptionAlignment="@GridTextAlignment.Center" DisplayFormat="@GlobalContants.FORMAT_NUMBER">
+                                        <HeaderCaptionTemplate>
+                                            <span title="Số lần đi trễ về sớm">SLT/S</span>
+                                        </HeaderCaptionTemplate>
+                                    </DxGridDataColumn>
+                                    <DxGridDataColumn FieldName="@nameof(ShiftAssignmentModel.sGT)" Caption="TGT" Width="50px" MinWidth="40" AllowSort="false" 
+                                        TextAlignment="@GridTextAlignment.Center" CaptionAlignment="@GridTextAlignment.Center" DisplayFormat="@GlobalContants.FORMAT_NUMBER">
+                                        <HeaderCaptionTemplate>
+                                            <span title="Tổng giờ thiếu">TGT</span>
+                                        </HeaderCaptionTemplate>
+                                    </DxGridDataColumn>
+                                    <DxGridDataColumn FieldName="@nameof(ShiftAssignmentModel.sGTC)" Caption="Trừ công" Width="70px" MinWidth="65" AllowSort="false" 
+                                        TextAlignment="@GridTextAlignment.Center" CaptionAlignment="@GridTextAlignment.Center" DisplayFormat="@GlobalContants.FORMAT_NUMBER" />
+                                    <DxGridDataColumn FieldName="@nameof(ShiftAssignmentModel.gCTC)" Caption="Giờ công" Width="70px" MinWidth="65" AllowSort="false" 
+                                        TextAlignment="@GridTextAlignment.Center" CaptionAlignment="@GridTextAlignment.Center" DisplayFormat="@GlobalContants.FORMAT_NUMBER">
+                                        <HeaderCaptionTemplate>
+                                            <span title="Giờ công của 1 ngày">Giờ công</span>
+                                        </HeaderCaptionTemplate>
+                                    </DxGridDataColumn>
+                                    @* <DxGridDataColumn FieldName="@nameof(ShiftAssignmentModel.n03)" Name="@nameof(ShiftAssignmentModel.n03)" Caption="N03" MinWidth="40" />
+                                    <DxGridDataColumn FieldName="@nameof(ShiftAssignmentModel.n03)" Name="@nameof(ShiftAssignmentModel.n03)" Caption="N03" MinWidth="40" />
+                                    <DxGridDataColumn FieldName="@nameof(ShiftAssignmentModel.n03)" Name="@nameof(ShiftAssignmentModel.n03)" Caption="N03" MinWidth="40" />
+                                    <DxGridDataColumn FieldName="@nameof(ShiftAssignmentModel.n03)" Name="@nameof(ShiftAssignmentModel.n03)" Caption="N03" MinWidth="90" />
+                                    <DxGridDataColumn FieldName="@nameof(ShiftAssignmentModel.n03)" Name="@nameof(ShiftAssignmentModel.n03)" Caption="N03" MinWidth="90" />
+                                    <DxGridDataColumn FieldName="@nameof(ShiftAssignmentModel.n03)" Name="@nameof(ShiftAssignmentModel.n03)" Caption="N03" MinWidth="90" />
+                                    <DxGridDataColumn FieldName="@nameof(ShiftAssignmentModel.n03)" Name="@nameof(ShiftAssignmentModel.n03)" Caption="N03" MinWidth="90" />
+                                    <DxGridDataColumn FieldName="@nameof(ShiftAssignmentModel.n03)" Name="@nameof(ShiftAssignmentModel.n03)" Caption="N03" MinWidth="90" />
+                                    <DxGridDataColumn FieldName="@nameof(ShiftAssignmentModel.n03)" Name="@nameof(ShiftAssignmentModel.n03)" Caption="N03" MinWidth="90" />
+                                    <DxGridDataColumn FieldName="@nameof(ShiftAssignmentModel.n03)" Name="@nameof(ShiftAssignmentModel.n03)" Caption="N03" MinWidth="90" />
+                                    <DxGridDataColumn FieldName="@nameof(ShiftAssignmentModel.n03)" Name="@nameof(ShiftAssignmentModel.n03)" Caption="N03" MinWidth="90" />
+                                    <DxGridDataColumn FieldName="@nameof(ShiftAssignmentModel.n03)" Name="@nameof(ShiftAssignmentModel.n03)" Caption="N03" MinWidth="90" />
+                                    <DxGridDataColumn FieldName="@nameof(ShiftAssignmentModel.n03)" Name="@nameof(ShiftAssignmentModel.n03)" Caption="N03" MinWidth="90" />
+                                    <DxGridDataColumn FieldName="@nameof(ShiftAssignmentModel.n03)" Name="@nameof(ShiftAssignmentModel.n03)" Caption="N03" MinWidth="90" /> *@
                                 </Columns>
                                 <TotalSummary>
                                     <DxGridSummaryItem DisplayText="@GlobalContants.FORMAT_GRID_DISPLAYTEXT_COUNT" SummaryType="GridSummaryItemType.Count"
-                                                       FieldName="@nameof(AnnualLeaveInfoModel.employeeCode)" ValueDisplayFormat="@GlobalContants.FORMAT_CURRENCY"
-                                                       FooterColumnName="@nameof(AnnualLeaveInfoModel.employeeCode)" />
+                                                       FieldName="@nameof(ShiftAssignmentModel.employeeCode)" ValueDisplayFormat="@GlobalContants.FORMAT_CURRENCY"
+                                                       FooterColumnName="@nameof(ShiftAssignmentModel.employeeCode)" />
                                 </TotalSummary>
                             </DxGrid>
                             break;

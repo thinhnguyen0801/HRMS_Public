@@ -249,6 +249,9 @@ namespace HNOne.API.Controllers
                         var enumCata = JsonConvert.DeserializeObject<EnumCatagories>($"{request.json}");
                         response = await _masterDataService.UpdateEnumCatagory(processKey, enumCata!);
                         break;
+                    case ProcessConstants.DELETE_DYNAMIC:
+                        response = await _masterDataService.DeleteDynamic(request);
+                        break;
                     default:
                         response.status = StatusCodes.Status404NotFound;
                         response.message = $"Process Key {processKey} was not provider!!!";

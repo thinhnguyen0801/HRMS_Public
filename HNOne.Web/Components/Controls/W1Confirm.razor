@@ -14,8 +14,9 @@
     <BodyContentTemplate>
         @((MarkupString)$"{BodyText}")
     </BodyContentTemplate>
+
     <FooterContentTemplate Context="Context">
-        <DxButton CssClass="popup-button w1FontSize my-1 ms-2" RenderStyle="ButtonRenderStyle.Primary" Text="Xác nhận" Click="@YesClick" />
+        <DxButton CssClass="popup-button w1FontSize my-1 ms-2" RenderStyle="ButtonRenderStyle.Primary" Text="Xác nhận" Click="@YesClick" Visible="@IsShowFooter" />
         <DxButton CssClass="popup-button w1FontSize my-1 ms-2" RenderStyle="ButtonRenderStyle.Secondary" Text="Hủy" Click="@NoClick" />
     </FooterContentTemplate>
 </DxPopup>
@@ -26,14 +27,16 @@
     public string HeaderText { get; set; } = "";
     public string BodyText { get; set; } = "";
     public string IconClass { get; set; } = "";
+    public bool IsShowFooter { get; set; } = true;
 
     TaskCompletionSource<bool>? tcs;
 
-    public async Task<bool> SetConfirm(string headerText, string bodyText, string iconClass = "")
+    public async Task<bool> SetConfirm(string headerText, string bodyText, string iconClass = "", bool isShowFooter = true)
     {
         HeaderText = headerText;
         BodyText = bodyText;
         IconClass = iconClass;
+        IsShowFooter = isShowFooter;
         ConfirmationShown = true;
         await InvokeAsync(StateHasChanged);
 

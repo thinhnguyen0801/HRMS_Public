@@ -38,5 +38,6 @@ namespace HNOne.API.Repositories.Interfaces
         Task<IEnumerable<EnumCatagoryModel>> GetFnEnum(RequestModel request);
         Task<ResponseModel> UpdateEnumCatagory(EnumCatagories entity);
         Task<ResponseModel> AddEnumCatagory(EnumCatagories entity);
+        Task<ResponseModel> DeleteDynamic(RequestModel request);
     }
 }

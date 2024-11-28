@@ -6,6 +6,7 @@ using HNOne.Web.Commons;
 using HNOne.Web.Models;
 using HNOne.Web.Services.Interfaces;
 using Microsoft.AspNetCore.Components;
+using System.Data;
 
 namespace HNOne.Web.Controllers
 {
@@ -16,7 +17,7 @@ namespace HNOne.Web.Controllers
         #region Properties
         public int ActiveTabIndex { get; set; } = 0;
         public SearchModel SearchUpdate { get; set; } = new SearchModel();
-        public List<TimesheetModel>? ListTimesheet { get; set; }
+        public List<ShiftAssignmentModel>? ListTimesheet { get; set; }
         public IGrid? GridTimesheet { get; set; }
         public List<ComboboxModel>? ListCboYear { get; set; }
         public List<ComboboxModel>? ListCboMonth { get; set; }
@@ -81,7 +82,7 @@ namespace HNOne.Web.Controllers
             }
 
             ListCboMonth = new List<ComboboxModel>();
-            for (int i = 0; i < 13; i++)
+            for (int i = 1; i < 13; i++)
             {
                 ListCboMonth.Add(new ComboboxModel() { id = i, name = $"Tháng {i}" });
             }
@@ -187,15 +188,16 @@ namespace HNOne.Web.Controllers
             {
                 await ShowLoading();
                 RequestModel request = new RequestModel();
-                request.process = ProcessConstants.GET_ANNUAL_LEAVE_INFO;
+                request.process = ProcessConstants.GET_ARRANGE_SHIFT;
                 request.userId = UserId;
                 request.branchId = BranchId;
                 request.token = Token;
-                request.opt = SearchUpdate.year.ToString();
-                request.opt1 = ""; // phòng ban
-                request.opt2 = ""; // nhân viên
-                request.opt3 = ""; // tình trạng
-                
+                request.opt = "2024"; // năm
+                request.opt1 = "11"; // tháng
+                request.opt2 = "1";
+                var response = await _workforceService.GetMasterDataAsync<ShiftAssignmentModel>(request, isShowToast: true);
+                ListTimesheet = response;
+
             }
             catch (Exception ex)
             {

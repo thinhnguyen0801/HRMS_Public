@@ -942,6 +942,25 @@ namespace HNOne.API.Repositories
             catch (Exception) { throw; }
         }
 
+        public async Task<ResponseModel> DeleteDynamic(RequestModel request)
+        {
+            using (var connection = _dapperDbContext.CreateConnection())
+            {
+                string tableName = _encryptHelper.Decrypt(request.type); // mã hóa dữ liệu table ra
+                string _pk = _encryptHelper.Decrypt(request.opt1); // mã hóa dữ liệu table ra
+                string _fk = _encryptHelper.Decrypt(request.opt2); // mã hóa dữ liệu table ra
+                var parameters = new DynamicParameters();
+                parameters.Add("@UserId", request.userId);
+                parameters.Add("@BranchId", request.branchId);
+                parameters.Add("@TableName", tableName); // bảng nào
+                parameters.Add("@ColumnName", _pk); // Primary Key
+                parameters.Add("@ColumnName1", _fk); // foreign key
+                parameters.Add("@Code", request.opt); // -- mã
+                parameters.Add("@ReasonDelete", request.reason);
+                var lstResult = await connection.QueryFirstAsync<ResponseModel>(StoreConstants.STORE_H1_DYNAMIC_DATA_DELETE, param: parameters, commandTimeout: GlobalConstants.COMMAND_TIMEOUT, commandType: CommandType.StoredProcedure);
+                return lstResult;
+            }
+        }
         #endregion
     }
 }

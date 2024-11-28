@@ -38,5 +38,9 @@
         LeaveWorkingHours, // xin nghỉ trong giờ
         ShiftChanges, // xin nghỉ trong giờ
         OvertimeRequests, // đề nghị tăng ca
+
+        // danh mục bảng
+        Branchs,
+        ContractTypes
     }
 }
