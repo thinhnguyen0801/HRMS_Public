@@ -51,6 +51,6 @@
         SalaryConfigurations,
         Users,
         LeaveConfigs,
-        Employees
+        Employees,
     }
 }

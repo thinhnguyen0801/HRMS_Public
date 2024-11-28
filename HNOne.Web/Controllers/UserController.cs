@@ -316,13 +316,25 @@ namespace HNOne.Web.Controllers
                 }
                 bool isConfirm = await confirm.SetConfirm(MessageConstants.MESSAGE_TITLE, $"{MessageConstants.MESSAGE_CONFIRM_DELETE} ");
                 if (!isConfirm) return;
-                //isConfirm = await _masterDataService.UpdateUserAsync(processKey, UserId, Token, content);
-                //if (isConfirm)
-                //{
-                //    await getUsers();
-                //    IsShowDialog = false;
-                //    SelectedUsers = null;
-                //}
+                await ShowLoading();
+                string tableName = _encryptHelper.Encrypt(nameof(EnumObjType.Users));
+                string pKey = _encryptHelper.Encrypt(nameof(UserModel.userId));
+                string fKey = _encryptHelper.Encrypt(nameof(ContractModel.userSign));
+                string ids = string.Join(",", SelectedUsers!.Cast<UserModel>().Select(m => m.userId));
+                string reasonDelete = "";
+                string strResult = await _masterDataService.DeleteDynnamicAsync(UserId, Token, BranchId, tableName, pKey, fKey, ids, reasonDelete);
+                if (strResult == "-1") return;
+                if (strResult == StatusCodes.Status200OK.ToString())
+                {
+                    await getUsers();
+                    SelectedUsers = null;
+                    return;
+                }
+                await Task.Delay(75);
+                await ShowLoading(false);
+                await Task.Yield();
+                isConfirm = await confirm.SetConfirm(MessageConstants.MESSAGE_NOTIFICATION, $"{strResult} ", isShowFooter: false);
+                return;
             }
             catch (Exception ex)
             {
