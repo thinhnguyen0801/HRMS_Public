@@ -41,6 +41,9 @@
 
         // danh mục bảng
         Branchs,
-        ContractTypes
+        ContractTypes,
+        Departments,
+        Positions,
+        Titles
     }
 }

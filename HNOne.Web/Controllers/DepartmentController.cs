@@ -248,6 +248,10 @@ namespace HNOne.Web.Controllers
             }
         }
 
+        /// <summary>
+        /// xóa danh mục phòng ban
+        /// </summary>
+        /// <returns></returns>
         public async Task DeleteDataHandler()
         {
             try
@@ -265,13 +269,25 @@ namespace HNOne.Web.Controllers
                 }
                 bool isConfirm = await confirm.SetConfirm(MessageConstants.MESSAGE_TITLE, $"{MessageConstants.MESSAGE_CONFIRM_DELETE} ");
                 if (!isConfirm) return;
-                //isConfirm = await _masterDataService.UpdateDepartmentAsync(processKey, UserId, Token, content);
-                //if (isConfirm)
-                //{
-                //    await getDepartments();
-                //    IsShowDialog = false;
-                //    SelectedDepartments = null;
-                //}
+                await ShowLoading();
+                string tableName = _encryptHelper.Encrypt(nameof(EnumObjType.Departments));
+                string pKey = _encryptHelper.Encrypt(nameof(DepartmentModel.id));
+                string fKey = _encryptHelper.Encrypt(nameof(EmployeeModel.departmentId));
+                string ids = string.Join(",", SelectedDepartments!.Cast<DepartmentModel>().Select(m => m.id));
+                string reasonDelete = "";
+                string strResult = await _masterDataService.DeleteDynnamicAsync(UserId, Token, BranchId, tableName, pKey, fKey, ids, reasonDelete);
+                if (strResult == "-1") return;
+                if (strResult == StatusCodes.Status200OK.ToString())
+                {
+                    await getDepartments();
+                    SelectedDepartments = null;
+                    return;
+                }
+                await Task.Delay(75);
+                await ShowLoading(false);
+                await Task.Yield();
+                isConfirm = await confirm.SetConfirm(MessageConstants.MESSAGE_NOTIFICATION, $"{strResult} ", isShowFooter: false);
+                return;
             }
             catch (Exception ex)
             {

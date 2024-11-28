@@ -243,6 +243,10 @@ namespace HNOne.Web.Controllers
             }
         }
 
+        /// <summary>
+        /// xóa dữ liệu chức vụ
+        /// </summary>
+        /// <returns></returns>
         public async Task DeleteDataHandler()
         {
             try
@@ -260,13 +264,25 @@ namespace HNOne.Web.Controllers
                 }
                 bool isConfirm = await confirm.SetConfirm(MessageConstants.MESSAGE_TITLE, $"{MessageConstants.MESSAGE_CONFIRM_DELETE} ");
                 if (!isConfirm) return;
-                //isConfirm = await _masterDataService.UpdatePositionAsync(processKey, UserId, Token, content);
-                //if (isConfirm)
-                //{
-                //    await getPositions();
-                //    IsShowDialog = false;
-                //    SelectedPositions = null;
-                //}
+                await ShowLoading();
+                string tableName = _encryptHelper.Encrypt(nameof(EnumObjType.Positions));
+                string pKey = _encryptHelper.Encrypt(nameof(PositionModel.id));
+                string fKey = _encryptHelper.Encrypt(nameof(EmployeeModel.positionId));
+                string ids = string.Join(",", SelectedPositions!.Cast<PositionModel>().Select(m => m.id));
+                string reasonDelete = "";
+                string strResult = await _masterDataService.DeleteDynnamicAsync(UserId, Token, BranchId, tableName, pKey, fKey, ids, reasonDelete);
+                if (strResult == "-1") return;
+                if (strResult == StatusCodes.Status200OK.ToString())
+                {
+                    await getPositions();
+                    SelectedPositions = null;
+                    return;
+                }
+                await Task.Delay(75);
+                await ShowLoading(false);
+                await Task.Yield();
+                isConfirm = await confirm.SetConfirm(MessageConstants.MESSAGE_NOTIFICATION, $"{strResult} ", isShowFooter: false);
+                return;
             }
             catch (Exception ex)
             {
