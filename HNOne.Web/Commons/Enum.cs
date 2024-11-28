@@ -50,6 +50,7 @@
         SalaryCategories,
         SalaryConfigurations,
         Users,
-        LeaveConfigs
+        LeaveConfigs,
+        Employees
     }
 }
