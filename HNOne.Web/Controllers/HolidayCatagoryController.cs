@@ -232,6 +232,56 @@ namespace HNOne.Web.Controllers
                 await InvokeAsync(StateHasChanged);
             }
         }
+
+        public async Task DeleteDataHandler()
+        {
+            try
+            {
+                await checkPermission(MenuId);
+                if (!IsAllowDelete)
+                {
+                    ShowInfo(MessageConstants.MESSAGE_NO_PERMISSION);
+                    return;
+                }
+                if (SelectedItems.IsNullOrEmpty())
+                {
+                    ShowWarning(MessageConstants.MESSAGE_NO_CHOSE_DATA);
+                    return;
+                }
+                bool isConfirm = await confirm.SetConfirm(MessageConstants.MESSAGE_TITLE, $"{MessageConstants.MESSAGE_CONFIRM_DELETE} ");
+                if (!isConfirm) return;
+                await ShowLoading();
+                string tableName = _encryptHelper.Encrypt(nameof(EnumObjType.HolidayCatagories));
+                string pKey = _encryptHelper.Encrypt(nameof(HolidayCatagoryModel.id));
+                string fKey = _encryptHelper.Encrypt(nameof(LeaveRequest1Model.holidayId));
+                string ids = string.Join(",", SelectedItems!.Cast<HolidayCatagoryModel>().Select(m => m.id));
+                string reasonDelete = "";
+                string strResult = await _masterDataService.DeleteDynnamicAsync(UserId, Token, BranchId, tableName, pKey, fKey, ids, reasonDelete);
+                if (strResult == "-1") return;
+                if (strResult == StatusCodes.Status200OK.ToString())
+                {
+                    await getHolidayCatagory();
+                    SelectedItems = null;
+                    return;
+                }
+                await Task.Delay(75);
+                await ShowLoading(false);
+                await Task.Yield();
+                isConfirm = await confirm.SetConfirm(MessageConstants.MESSAGE_NOTIFICATION, $"{strResult} ", isShowFooter: false);
+                return;
+            }
+            catch (Exception ex)
+            {
+                _logger!.LogError(ex, "DeleteDataHandler");
+                ShowError(ex.Message);
+            }
+            finally
+            {
+                await Task.Delay(50);
+                await ShowLoading(false);
+                await InvokeAsync(StateHasChanged);
+            }
+        }
         #endregion
     }
 }

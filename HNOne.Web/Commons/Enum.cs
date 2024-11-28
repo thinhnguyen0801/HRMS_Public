@@ -44,6 +44,7 @@
         ContractTypes,
         Departments,
         Positions,
-        Titles
+        Titles,
+        HolidayCatagories
     }
 }
