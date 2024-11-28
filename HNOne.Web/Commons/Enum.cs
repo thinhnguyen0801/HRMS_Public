@@ -52,5 +52,6 @@
         Users,
         LeaveConfigs,
         Employees,
+        EnumCatagories
     }
 }
