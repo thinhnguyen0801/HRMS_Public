@@ -45,6 +45,10 @@
         Departments,
         Positions,
         Titles,
-        HolidayCatagories
+        HolidayCatagories,
+        ReasonCategories,
+        SalaryCategories,
+        SalaryConfigurations,
+        Users
     }
 }

@@ -219,6 +219,10 @@ namespace HNOne.Web.Controllers
             }
         }
 
+        /// <summary>
+        /// Xóa thông tin lý do
+        /// </summary>
+        /// <returns></returns>
         public async Task DeleteDataHandler()
         {
             try
@@ -236,13 +240,25 @@ namespace HNOne.Web.Controllers
                 }
                 bool isConfirm = await confirm.SetConfirm(MessageConstants.MESSAGE_TITLE, $"{MessageConstants.MESSAGE_CONFIRM_DELETE} ");
                 if (!isConfirm) return;
-                //isConfirm = await _masterDataService.UpdateReasonCategorieAsync(processKey, UserId, Token, content);
-                //if (isConfirm)
-                //{
-                //    await getReasonCategories();
-                //    IsShowDialog = false;
-                //    SelectedReasonCategories = null;
-                //}
+                await ShowLoading();
+                string tableName = _encryptHelper.Encrypt(nameof(EnumObjType.ReasonCategories));
+                string pKey = _encryptHelper.Encrypt(nameof(ReasonCategorieModel.id));
+                string fKey = _encryptHelper.Encrypt(nameof(LeaveRequestModel.reasonId));
+                string ids = string.Join(",", SelectedReasonCategories!.Cast<ReasonCategorieModel>().Select(m => m.id));
+                string reasonDelete = "";
+                string strResult = await _masterDataService.DeleteDynnamicAsync(UserId, Token, BranchId, tableName, pKey, fKey, ids, reasonDelete);
+                if (strResult == "-1") return;
+                if (strResult == StatusCodes.Status200OK.ToString())
+                {
+                    await getReasonCategories();
+                    SelectedReasonCategories = null;
+                    return;
+                }
+                await Task.Delay(75);
+                await ShowLoading(false);
+                await Task.Yield();
+                isConfirm = await confirm.SetConfirm(MessageConstants.MESSAGE_NOTIFICATION, $"{strResult} ", isShowFooter: false);
+                return;
             }
             catch (Exception ex)
             {
