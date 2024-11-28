@@ -302,7 +302,7 @@ namespace HNOne.Web.Controllers
                     return;
                 }
                 string messasge = "Lưu ý (*) Danh mục cấu hình hệ thống <br />" +
-                    $"Dữ liệu sau khi xóa có thế khôi phục. Vui lòng liên hệ IT để được hổ trợ <br />" +
+                    $"Dữ liệu sau khi xóa có thế được khôi phục. Vui lòng liên hệ IT để được hổ trợ <br />" +
                     $"{MessageConstants.MESSAGE_CONFIRM_DELETE}";
                 bool isConfirm = await confirm.SetConfirm(MessageConstants.MESSAGE_TITLE, $"{messasge} ");
                 if (!isConfirm) return;
