@@ -17,7 +17,7 @@
                                            Alignment="@ToolbarItemAlignment.Right" Click="@(async()=> await OnOpenDialogHandler())" />
 
                             <DxToolbarItem Text="Xóa" BeginGroup="true" IconCssClass="@($"{IconClassConstants.ICON_DELETE}")" CssClass="w1FontSize"
-                                           Alignment="@ToolbarItemAlignment.Right" />
+                                           Alignment="@ToolbarItemAlignment.Right" Click="@(()=> DeleteDataHandler())" />
                         </Items>
                     </DxToolbar>
                 </div>

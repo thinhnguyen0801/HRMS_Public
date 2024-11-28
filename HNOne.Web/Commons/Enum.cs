@@ -49,6 +49,7 @@
         ReasonCategories,
         SalaryCategories,
         SalaryConfigurations,
-        Users
+        Users,
+        LeaveConfigs
     }
 }
