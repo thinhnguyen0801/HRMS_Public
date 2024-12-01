@@ -337,6 +337,34 @@ namespace HNOne.API.Repositories
                 return lstResult;
             }
         }
+
+        /// <summary>
+        /// lấy dữ liệu công làm việc của nhân viên trong tháng
+        /// </summary>
+        /// <param name="request"></param>
+        /// <returns></returns>
+        public async Task<IEnumerable<ShiftAssignmentModel>> GetWorkCalculate(RequestModel request)
+        {
+            using (var connection = _dapperDbContext.CreateConnection())
+            {
+                int.TryParse(request.opt, out int year);
+                int.TryParse(request.opt1, out int month);
+                if (year == 0) year = DateTime.Now.Year;
+                if (month == 0) month = DateTime.Now.Month;
+                var parameters = new DynamicParameters();
+                parameters.Add("@UserId", request.userId);
+                parameters.Add("@BranchId", request.branchId);
+                parameters.Add("@Year", year);
+                parameters.Add("@Month", month);
+                parameters.Add("@DepartmentIds", request.opt2);
+                parameters.Add("@EmployeeIds", request.opt3);
+                parameters.Add("@StatusIds", request.opt4);
+                parameters.Add("@Type", $"{request.type}");
+                var lstResult = await connection.QueryAsync<ShiftAssignmentModel>(StoreConstants.STORE_H1_WORK_CALCULATION_SELECT, param: parameters, commandTimeout: GlobalConstants.COMMAND_TIMEOUT, commandType: CommandType.StoredProcedure);
+                return lstResult;
+            }
+        }
+
         #endregion
 
         #region Command

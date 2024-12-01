@@ -121,6 +121,7 @@
         public const string POST_TIME_SHEET = "post-time-sheet"; // phát sinh công làm việc
         public const string POST_SHIFT_ASSIGNMENT = "post-shift-assignment"; // lưu thông tin sắp ca làm việc
         public const string GET_CHECK_IN_OUT = "get-check-in-out"; // lịch làm việc
+        public const string GET_WORK_CALCULATE = "get-work-calculate"; // lấy dữ liệu tính công tháng
 
         public const string DELETE_DYNAMIC = "delete-dynamic"; // xóa động
         #region Loại dưới store
@@ -135,6 +136,7 @@
         public const string GET_COMBO_LIST_OF_SHIFT_CHANGE_DAY = "SC_LIST_OF_SHIFT_CHANGE_DAY";
         public const string GET_COMBO_LIST_OVERTIME_REQUEST_DAY = "OTR_LIST_OVERTIME_REQUEST_DAY";
         public const string GET_COMBO_LIST_SHIFT_PREIOD = "SA_LIST_SHIFT_PREIOD"; // danh sách kỳ công năm
+        public const string GET_ITEM_DETAIL = "ITEM_DETAIL"; //
         #endregion
     }
 }

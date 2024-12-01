@@ -31,5 +31,6 @@ namespace HNOne.API.Repositories.Interfaces
         Task<ResponseModel> UpdateShiftAssignment(IEnumerable<ShiftAssignments> lstEntity);
         Task<IEnumerable<CheckInOutModel>> GetCheckInOut(RequestModel request);
         Task<ResponseModel> UpdateWorkConfig(WorkConfigs entity);
+        Task<IEnumerable<ShiftAssignmentModel>> GetWorkCalculate(RequestModel request);
     }
 }

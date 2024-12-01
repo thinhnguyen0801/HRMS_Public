@@ -73,6 +73,9 @@ namespace HNOne.API.Controllers
                     case ProcessConstants.GET_CHECK_IN_OUT:
                         response.data = await _workforceRepository.GetCheckInOut(request);
                         break;
+                    case ProcessConstants.GET_WORK_CALCULATE:
+                        response.data = await _workforceRepository.GetWorkCalculate(request);
+                        break;
                     default:
                         response.status = StatusCodes.Status404NotFound;
                         response.message = $"Process Key {processKey} was not provider!!!";

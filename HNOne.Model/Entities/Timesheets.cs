@@ -27,8 +27,17 @@ namespace HNOne.Model.Entities
         public DateTime EndDate { get; set; } // thời gian kết thúc
         public DateTime StartBreakTime { get; set; } // thời gian nghỉ bắt đầu
         public DateTime EndBreakTime { get; set; } // thời gian nghỉ kết thúc
-        public int LeaveConfigId { get; set; } // Id ngày nghỉ
         public bool IsDayOff { get; set; } // là ngày nghỉ ?
+        public int LeaveConfigId { get; set; } // Id cấu hình
         public double TotalWorkingHours { get; set; } // tổng số giờ làm việc
+        public double TotalWorkingDayOfMonth { get; set; } // tổng số công làm việc trong tháng
+        [MaxLength(250)]
+        public string? BgColor { get; set; } // màu line
+        [MaxLength(250)]
+        public string? Symbol { get; set; } // ký hiệu
+        public int HolidayId { get; set; } // Rơi vô kì nghỉ lễ nào bảng HolidayCatagories
+        [MaxLength(250)]
+        public string? Remark { get; set; } // ghi chú
+        public int WorkConfigId { get; set; } // cấu hình thông số công nào -> chặn không cho chỉnh sữa & đối chiếu. 
     }
 }

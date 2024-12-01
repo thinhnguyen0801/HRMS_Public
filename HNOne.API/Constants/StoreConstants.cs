@@ -25,5 +25,6 @@
         public const string STORE_H1_ANNUAL_LEAVE_INFO_SELECT = "[dbo].[H1_ANNUAL_LEAVE_INFO_SELECT]";
         public const string STORE_H1_GENERATE_TIMESHEET_DATA_UPDATE = "[dbo].[H1_GENERATE_TIMESHEET_DATA_UPDATE]";
         public const string STORE_H1_DYNAMIC_DATA_DELETE = "[dbo].[H1_DYNAMIC_DATA_DELETE]"; // xóa dữ liệu động
+        public const string STORE_H1_WORK_CALCULATION_SELECT = "[dbo].[H1_WORK_CALCULATION_SELECT]"; // lấy dữ liệu để cốt công nhân viên
     }
 }

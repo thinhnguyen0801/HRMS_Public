@@ -41,11 +41,6 @@
         <DxGridDataColumn FieldName="@nameof(EmployeeModel.statusName)" Caption="Trạng thái" MinWidth="150" />
         <DxGridDataColumn FieldName="@nameof(EmployeeModel.probationEndDate)" Caption="Ngày KT thử việc" DisplayFormat="@GlobalContants.FORMAT_DATE" MinWidth="130" />
     </Columns>
-    <GroupSummary>
-        <DxGridSummaryItem DisplayText="@GlobalContants.FORMAT_GRID_DISPLAYTEXT_COUNT" SummaryType="GridSummaryItemType.Count"
-                           FieldName="@nameof(EmployeeModel.code)" ValueDisplayFormat="@GlobalContants.FORMAT_CURRENCY"
-                           FooterColumnName="@nameof(EmployeeModel.code)" />
-    </GroupSummary>
     <TotalSummary>
         <DxGridSummaryItem DisplayText="@GlobalContants.FORMAT_GRID_DISPLAYTEXT_COUNT" SummaryType="GridSummaryItemType.Count"
                            FieldName="@nameof(EmployeeModel.code)" ValueDisplayFormat="@GlobalContants.FORMAT_CURRENCY"

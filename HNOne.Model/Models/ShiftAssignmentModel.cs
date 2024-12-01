@@ -50,12 +50,29 @@
         public int year { get; set; }
 
         #region Thông tin dành cho tính công nhân viên
+        public DateTime? workingDate { get; set; }
+        public DateTime? startDate { get; set; } // thời gian bắt đầu
+        public DateTime? endDate { get; set; } // thời gian kết thúc
+        public DateTime? startBreakTime { get; set; } // thời gian nghỉ bắt đầu
+        public DateTime? endBreakTime { get; set; } // thời gian nghỉ kết thúc
+        public bool isDayOff { get; set; } // là ngày nghỉ ?
+        public double totalWorkingHours { get; set; } // tổng số giờ làm việc
+        public double totalWorkingDayOfMonth { get; set; } // tổng số giờ làm việc
+        public DateTime? startDateActual { get; set; } // thời gian bắt đầu
+        public DateTime? endDateActual { get; set; } // thời gian kết thúc
+        public DateTime? startBreakTimeActual { get; set; } // thời gian nghỉ bắt đầu
+        public DateTime? endBreakTimeActual { get; set; } // thời gian nghỉ kết thúc
+        public double totalWorkingHoursActual { get; set; } // tổng số giờ làm việc
+        public string? bgColor { get; set; } // màu line
+        public string? symbol { get; set; } // ký hiệu
+        public string? attendanceSheetCode { get; set; } // mã chấmcoong
         public double tNC { get; set; } // tổng ngày công
         public double cDM { get; set; } // công định mức của tháng
         public double cTT { get; set; } // công thực tế
         public double nPN { get; set; } // nghỉ phép năm
         public double nCD { get; set; } // nghỉ chết độ
         public double nPKL { get; set; } // nghỉ phép không lương
+        public double nB { get; set; } // nghỉ bù
         public double nKP { get; set; } // nghỉ không phép
         public double cTPC { get; set; } // số công tính phụ cấp
         public double tGDLTVS { get; set; } // thời gian đi trễ về sớm
@@ -63,6 +80,7 @@
         public double sGT { get; set; } // số giờ thiếu
         public double sGTC { get; set; } // số giờ trừ công
         public double gCTC { get; set; } // giờ công của 1 ngày
+        public double tGTC { get; set; } // số giờ thiếu
         #endregion
     }
 }

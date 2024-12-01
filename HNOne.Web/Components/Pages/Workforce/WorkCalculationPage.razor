@@ -120,10 +120,10 @@
                                            Alignment="@ToolbarItemAlignment.Right" />
 
                             <DxToolbarItem Text="Chốt công" BeginGroup="true" IconCssClass="@($"{IconClassConstants.ICON_TABLE_LOCK}")" CssClass="w1FontSize"
-                                           Alignment="@ToolbarItemAlignment.Right" />
+                                           Alignment="@ToolbarItemAlignment.Right" Click="@SummitWork" />
 
-                            <DxToolbarItem Text="Tính công" BeginGroup="true" IconCssClass="@($"{IconClassConstants.ICON_CALCULATOR}")" CssClass="w1FontSize"
-                                           Alignment="@ToolbarItemAlignment.Right" />
+                            @* <DxToolbarItem Text="Tính công" BeginGroup="true" IconCssClass="@($"{IconClassConstants.ICON_CALCULATOR}")" CssClass="w1FontSize"
+                                           Alignment="@ToolbarItemAlignment.Right" /> *@
                         </Items>
                     </DxToolbar>
                 </div>
@@ -132,7 +132,7 @@
                         <DxTabPage Text="Bảng công nhân viên" Id="tabTTL" CssClass="w1FontSize"></DxTabPage>
                     </DxTabs>
                 </div>
-                <div class="card-body p-1" style="height: calc(100vh - 230px); min-height: 350px">
+                <div class="card-body p-1" style="height: calc(100vh - 190px); min-height: 450px">
                     @switch (ActiveTabIndex)
                     {
                         case 0:
@@ -152,13 +152,14 @@
                                     AllowSelectRowByClick="true"
                                     AutoExpandAllGroupRows="true"
                                     KeyboardNavigationEnabled="true"
+                                    RowDoubleClick="@RowDoubleClickHandler"
                                     CssClass="h-full">
                                 <Columns>
                                     <DxGridDataColumn FieldName="@nameof(ShiftAssignmentModel.departmentName)" Caption="Phòng ban" Width="145px" MinWidth="120" GroupIndex="0" FixedPosition="@GridColumnFixedPosition.Left" />
                                     <DxGridDataColumn FieldName="@nameof(ShiftAssignmentModel.employeeCode)" Caption="Mã nhân viên" Width="110px" MinWidth="100" FixedPosition="@GridColumnFixedPosition.Left" />
                                     <DxGridDataColumn FieldName="@nameof(ShiftAssignmentModel.employeeName)" Caption="Họ tên" Width="135px" MinWidth="100" FixedPosition="@GridColumnFixedPosition.Left" />
                                     <DxGridDataColumn FieldName="@nameof(ShiftAssignmentModel.titleName)" Caption="Chức danh" Width="125px" MinWidth="100" />
-                                    <DxGridDataColumn FieldName="@nameof(ShiftAssignmentModel.shiftCode)" Caption="Ca làm việc" Width="110px" MinWidth="100" />
+                                    <DxGridDataColumn FieldName="@nameof(ShiftAssignmentModel.shiftCode)" Caption="Ca làm việc" Width="90px" MinWidth="70" />
                                     <DxGridDataColumn FieldName="@nameof(ShiftAssignmentModel.tNC)" Caption="TNC" Width="50px" MinWidth="40" TextAlignment="@GridTextAlignment.Center" CaptionAlignment="@GridTextAlignment.Center">
                                         <HeaderCaptionTemplate>
                                             <span title="Tổng hệ số công">TNC</span>
@@ -194,6 +195,12 @@
                                             <span title="Nghỉ phép không lương">PKL</span>
                                         </HeaderCaptionTemplate>
                                     </DxGridDataColumn>
+                                    <DxGridDataColumn FieldName="@nameof(ShiftAssignmentModel.nB)" Caption="NB" Width="50px" MinWidth="40" AllowSort="false" 
+                                        TextAlignment="@GridTextAlignment.Center" CaptionAlignment="@GridTextAlignment.Center" DisplayFormat="@GlobalContants.FORMAT_NUMBER">
+                                        <HeaderCaptionTemplate>
+                                            <span title="Nghỉ bù">NB</span>
+                                        </HeaderCaptionTemplate>
+                                    </DxGridDataColumn>
                                     <DxGridDataColumn FieldName="@nameof(ShiftAssignmentModel.nKP)" Caption="KP" Width="50px" MinWidth="40" AllowSort="false" 
                                         TextAlignment="@GridTextAlignment.Center" CaptionAlignment="@GridTextAlignment.Center" DisplayFormat="@GlobalContants.FORMAT_NUMBER">
                                         <HeaderCaptionTemplate>
@@ -209,7 +216,7 @@
                                     <DxGridDataColumn FieldName="@nameof(ShiftAssignmentModel.tGDLTVS)" Caption="+/-" Width="50px" MinWidth="40" AllowSort="false" 
                                         TextAlignment="@GridTextAlignment.Center" CaptionAlignment="@GridTextAlignment.Center" DisplayFormat="@GlobalContants.FORMAT_NUMBER">
                                         <HeaderCaptionTemplate>
-                                            <span title="Thời gian làm trễ về sớm">+/-</span>
+                                            <span title="Thời gian làm trễ về sớm (Giờ)">+/-</span>
                                         </HeaderCaptionTemplate>
                                     </DxGridDataColumn>
                                     <DxGridDataColumn FieldName="@nameof(ShiftAssignmentModel.sLDLTVS)" Caption="SLT/S" Width="50px" MinWidth="40" AllowSort="false" 
@@ -224,28 +231,268 @@
                                             <span title="Tổng giờ thiếu">TGT</span>
                                         </HeaderCaptionTemplate>
                                     </DxGridDataColumn>
+                                    <DxGridDataColumn FieldName="@nameof(ShiftAssignmentModel.tGTC)" Caption="TGTC" Width="50px" MinWidth="40" AllowSort="false" 
+                                        TextAlignment="@GridTextAlignment.Center" CaptionAlignment="@GridTextAlignment.Center" DisplayFormat="@GlobalContants.FORMAT_NUMBER">
+                                        <HeaderCaptionTemplate>
+                                            <span title="Tổng số giờ tăng ca">TGTC</span>
+                                        </HeaderCaptionTemplate>
+                                    </DxGridDataColumn>
                                     <DxGridDataColumn FieldName="@nameof(ShiftAssignmentModel.sGTC)" Caption="Trừ công" Width="70px" MinWidth="65" AllowSort="false" 
                                         TextAlignment="@GridTextAlignment.Center" CaptionAlignment="@GridTextAlignment.Center" DisplayFormat="@GlobalContants.FORMAT_NUMBER" />
                                     <DxGridDataColumn FieldName="@nameof(ShiftAssignmentModel.gCTC)" Caption="Giờ công" Width="70px" MinWidth="65" AllowSort="false" 
                                         TextAlignment="@GridTextAlignment.Center" CaptionAlignment="@GridTextAlignment.Center" DisplayFormat="@GlobalContants.FORMAT_NUMBER">
                                         <HeaderCaptionTemplate>
-                                            <span title="Giờ công của 1 ngày">Giờ công</span>
+                                            <span title="Giờ công tiêu chuẩn của 1 ngày">Giờ công</span>
                                         </HeaderCaptionTemplate>
                                     </DxGridDataColumn>
-                                    @* <DxGridDataColumn FieldName="@nameof(ShiftAssignmentModel.n03)" Name="@nameof(ShiftAssignmentModel.n03)" Caption="N03" MinWidth="40" />
-                                    <DxGridDataColumn FieldName="@nameof(ShiftAssignmentModel.n03)" Name="@nameof(ShiftAssignmentModel.n03)" Caption="N03" MinWidth="40" />
-                                    <DxGridDataColumn FieldName="@nameof(ShiftAssignmentModel.n03)" Name="@nameof(ShiftAssignmentModel.n03)" Caption="N03" MinWidth="40" />
-                                    <DxGridDataColumn FieldName="@nameof(ShiftAssignmentModel.n03)" Name="@nameof(ShiftAssignmentModel.n03)" Caption="N03" MinWidth="90" />
-                                    <DxGridDataColumn FieldName="@nameof(ShiftAssignmentModel.n03)" Name="@nameof(ShiftAssignmentModel.n03)" Caption="N03" MinWidth="90" />
-                                    <DxGridDataColumn FieldName="@nameof(ShiftAssignmentModel.n03)" Name="@nameof(ShiftAssignmentModel.n03)" Caption="N03" MinWidth="90" />
-                                    <DxGridDataColumn FieldName="@nameof(ShiftAssignmentModel.n03)" Name="@nameof(ShiftAssignmentModel.n03)" Caption="N03" MinWidth="90" />
-                                    <DxGridDataColumn FieldName="@nameof(ShiftAssignmentModel.n03)" Name="@nameof(ShiftAssignmentModel.n03)" Caption="N03" MinWidth="90" />
-                                    <DxGridDataColumn FieldName="@nameof(ShiftAssignmentModel.n03)" Name="@nameof(ShiftAssignmentModel.n03)" Caption="N03" MinWidth="90" />
-                                    <DxGridDataColumn FieldName="@nameof(ShiftAssignmentModel.n03)" Name="@nameof(ShiftAssignmentModel.n03)" Caption="N03" MinWidth="90" />
-                                    <DxGridDataColumn FieldName="@nameof(ShiftAssignmentModel.n03)" Name="@nameof(ShiftAssignmentModel.n03)" Caption="N03" MinWidth="90" />
-                                    <DxGridDataColumn FieldName="@nameof(ShiftAssignmentModel.n03)" Name="@nameof(ShiftAssignmentModel.n03)" Caption="N03" MinWidth="90" />
-                                    <DxGridDataColumn FieldName="@nameof(ShiftAssignmentModel.n03)" Name="@nameof(ShiftAssignmentModel.n03)" Caption="N03" MinWidth="90" />
-                                    <DxGridDataColumn FieldName="@nameof(ShiftAssignmentModel.n03)" Name="@nameof(ShiftAssignmentModel.n03)" Caption="N03" MinWidth="90" /> *@
+                                    <DxGridDataColumn FieldName="@nameof(ShiftAssignmentModel.n01)" Caption="@($"01/{SearchUpdate.month}")" MinWidth="50" 
+                                                      TextAlignment="@GridTextAlignment.Center" CaptionAlignment="@GridTextAlignment.Center">
+                                        <CellDisplayTemplate>
+                                            @{
+                                                @((MarkupString)$"{context.Value}")
+                                            }
+                                        </CellDisplayTemplate>
+                                    </DxGridDataColumn>
+                                    <DxGridDataColumn FieldName="@nameof(ShiftAssignmentModel.n02)" Caption="@($"02/{SearchUpdate.month}")" MinWidth="50"
+                                                      TextAlignment="@GridTextAlignment.Center" CaptionAlignment="@GridTextAlignment.Center">
+                                        <CellDisplayTemplate>
+                                            @{
+                                                @((MarkupString)$"{context.Value}")
+                                            }
+                                        </CellDisplayTemplate>
+                                    </DxGridDataColumn>
+                                    <DxGridDataColumn FieldName="@nameof(ShiftAssignmentModel.n03)" Caption="@($"03/{SearchUpdate.month}")" MinWidth="50" 
+                                        TextAlignment="@GridTextAlignment.Center" CaptionAlignment="@GridTextAlignment.Center" >
+                                        <CellDisplayTemplate>
+                                            @{
+                                                @((MarkupString)$"{context.Value}")
+                                            }
+                                        </CellDisplayTemplate>
+                                    </DxGridDataColumn>
+                                    <DxGridDataColumn FieldName="@nameof(ShiftAssignmentModel.n04)" Caption="@($"04/{SearchUpdate.month}")" MinWidth="50"
+                                                      TextAlignment="@GridTextAlignment.Center" CaptionAlignment="@GridTextAlignment.Center">
+                                        <CellDisplayTemplate>
+                                            @{
+                                                @((MarkupString)$"{context.Value}")
+                                            }
+                                        </CellDisplayTemplate>
+                                    </DxGridDataColumn>
+                                    <DxGridDataColumn FieldName="@nameof(ShiftAssignmentModel.n05)" Caption="@($"05/{SearchUpdate.month}")" MinWidth="50"
+                                                      TextAlignment="@GridTextAlignment.Center" CaptionAlignment="@GridTextAlignment.Center">
+                                        <CellDisplayTemplate>
+                                            @{
+                                                @((MarkupString)$"{context.Value}")
+                                            }
+                                        </CellDisplayTemplate>
+                                    </DxGridDataColumn>
+                                    <DxGridDataColumn FieldName="@nameof(ShiftAssignmentModel.n06)" Caption="@($"06/{SearchUpdate.month}")" MinWidth="50"
+                                                      TextAlignment="@GridTextAlignment.Center" CaptionAlignment="@GridTextAlignment.Center">
+                                        <CellDisplayTemplate>
+                                            @{
+                                                @((MarkupString)$"{context.Value}")
+                                            }
+                                        </CellDisplayTemplate>
+                                    </DxGridDataColumn>
+                                    <DxGridDataColumn FieldName="@nameof(ShiftAssignmentModel.n07)" Caption="@($"07/{SearchUpdate.month}")" MinWidth="50"
+                                                      TextAlignment="@GridTextAlignment.Center" CaptionAlignment="@GridTextAlignment.Center">
+                                        <CellDisplayTemplate>
+                                            @{
+                                                @((MarkupString)$"{context.Value}")
+                                            }
+                                        </CellDisplayTemplate>
+                                    </DxGridDataColumn>
+                                    <DxGridDataColumn FieldName="@nameof(ShiftAssignmentModel.n08)" Caption="@($"08/{SearchUpdate.month}")" MinWidth="50"
+                                                      TextAlignment="@GridTextAlignment.Center" CaptionAlignment="@GridTextAlignment.Center">
+                                        <CellDisplayTemplate>
+                                            @{
+                                                @((MarkupString)$"{context.Value}")
+                                            }
+                                        </CellDisplayTemplate>
+                                    </DxGridDataColumn>
+                                    <DxGridDataColumn FieldName="@nameof(ShiftAssignmentModel.n09)" Caption="@($"09/{SearchUpdate.month}")" MinWidth="50"
+                                                      TextAlignment="@GridTextAlignment.Center" CaptionAlignment="@GridTextAlignment.Center">
+                                        <CellDisplayTemplate>
+                                            @{
+                                                @((MarkupString)$"{context.Value}")
+                                            }
+                                        </CellDisplayTemplate>
+                                    </DxGridDataColumn>
+                                    <DxGridDataColumn FieldName="@nameof(ShiftAssignmentModel.n10)" Caption="@($"10/{SearchUpdate.month}")" MinWidth="50"
+                                                      TextAlignment="@GridTextAlignment.Center" CaptionAlignment="@GridTextAlignment.Center">
+                                        <CellDisplayTemplate>
+                                            @{
+                                                @((MarkupString)$"{context.Value}")
+                                            }
+                                        </CellDisplayTemplate>
+                                    </DxGridDataColumn>
+                                    <DxGridDataColumn FieldName="@nameof(ShiftAssignmentModel.n11)" Caption="@($"11/{SearchUpdate.month}")" MinWidth="50"
+                                                      TextAlignment="@GridTextAlignment.Center" CaptionAlignment="@GridTextAlignment.Center">
+                                        <CellDisplayTemplate>
+                                            @{
+                                                @((MarkupString)$"{context.Value}")
+                                            }
+                                        </CellDisplayTemplate>
+                                    </DxGridDataColumn>
+                                    <DxGridDataColumn FieldName="@nameof(ShiftAssignmentModel.n12)" Caption="@($"12/{SearchUpdate.month}")" MinWidth="50"
+                                                      TextAlignment="@GridTextAlignment.Center" CaptionAlignment="@GridTextAlignment.Center">
+                                        <CellDisplayTemplate>
+                                            @{
+                                                @((MarkupString)$"{context.Value}")
+                                            }
+                                        </CellDisplayTemplate>
+                                    </DxGridDataColumn>
+                                    <DxGridDataColumn FieldName="@nameof(ShiftAssignmentModel.n13)" Caption="@($"13/{SearchUpdate.month}")" MinWidth="50"
+                                                      TextAlignment="@GridTextAlignment.Center" CaptionAlignment="@GridTextAlignment.Center">
+                                        <CellDisplayTemplate>
+                                            @{
+                                                @((MarkupString)$"{context.Value}")
+                                            }
+                                        </CellDisplayTemplate>
+                                    </DxGridDataColumn>
+                                    <DxGridDataColumn FieldName="@nameof(ShiftAssignmentModel.n14)" Caption="@($"14/{SearchUpdate.month}")" MinWidth="50"
+                                                      TextAlignment="@GridTextAlignment.Center" CaptionAlignment="@GridTextAlignment.Center">
+                                        <CellDisplayTemplate>
+                                            @{
+                                                @((MarkupString)$"{context.Value}")
+                                            }
+                                        </CellDisplayTemplate>
+                                    </DxGridDataColumn>
+                                    <DxGridDataColumn FieldName="@nameof(ShiftAssignmentModel.n15)" Caption="@($"15/{SearchUpdate.month}")" MinWidth="50"
+                                                      TextAlignment="@GridTextAlignment.Center" CaptionAlignment="@GridTextAlignment.Center">
+                                        <CellDisplayTemplate>
+                                            @{
+                                                @((MarkupString)$"{context.Value}")
+                                            }
+                                        </CellDisplayTemplate>
+                                    </DxGridDataColumn>
+                                    <DxGridDataColumn FieldName="@nameof(ShiftAssignmentModel.n16)" Caption="@($"16/{SearchUpdate.month}")" MinWidth="50"
+                                                      TextAlignment="@GridTextAlignment.Center" CaptionAlignment="@GridTextAlignment.Center">
+                                        <CellDisplayTemplate>
+                                            @{
+                                                @((MarkupString)$"{context.Value}")
+                                            }
+                                        </CellDisplayTemplate>
+                                    </DxGridDataColumn>
+                                    <DxGridDataColumn FieldName="@nameof(ShiftAssignmentModel.n17)" Caption="@($"17/{SearchUpdate.month}")" MinWidth="50"
+                                                      TextAlignment="@GridTextAlignment.Center" CaptionAlignment="@GridTextAlignment.Center">
+                                        <CellDisplayTemplate>
+                                            @{
+                                                @((MarkupString)$"{context.Value}")
+                                            }
+                                        </CellDisplayTemplate>
+                                    </DxGridDataColumn>
+                                    <DxGridDataColumn FieldName="@nameof(ShiftAssignmentModel.n18)" Caption="@($"18/{SearchUpdate.month}")" MinWidth="50"
+                                                      TextAlignment="@GridTextAlignment.Center" CaptionAlignment="@GridTextAlignment.Center">
+                                        <CellDisplayTemplate>
+                                            @{
+                                                @((MarkupString)$"{context.Value}")
+                                            }
+                                        </CellDisplayTemplate>
+                                    </DxGridDataColumn>
+                                    <DxGridDataColumn FieldName="@nameof(ShiftAssignmentModel.n19)" Caption="@($"19/{SearchUpdate.month}")" MinWidth="50"
+                                                      TextAlignment="@GridTextAlignment.Center" CaptionAlignment="@GridTextAlignment.Center">
+                                        <CellDisplayTemplate>
+                                            @{
+                                                @((MarkupString)$"{context.Value}")
+                                            }
+                                        </CellDisplayTemplate>
+                                    </DxGridDataColumn>
+                                    <DxGridDataColumn FieldName="@nameof(ShiftAssignmentModel.n20)" Caption="@($"20/{SearchUpdate.month}")" MinWidth="50"
+                                                      TextAlignment="@GridTextAlignment.Center" CaptionAlignment="@GridTextAlignment.Center">
+                                        <CellDisplayTemplate>
+                                            @{
+                                                @((MarkupString)$"{context.Value}")
+                                            }
+                                        </CellDisplayTemplate>
+                                    </DxGridDataColumn>
+                                    <DxGridDataColumn FieldName="@nameof(ShiftAssignmentModel.n21)" Caption="@($"21/{SearchUpdate.month}")" MinWidth="50"
+                                                      TextAlignment="@GridTextAlignment.Center" CaptionAlignment="@GridTextAlignment.Center">
+                                        <CellDisplayTemplate>
+                                            @{
+                                                @((MarkupString)$"{context.Value}")
+                                            }
+                                        </CellDisplayTemplate>
+                                    </DxGridDataColumn>
+                                    <DxGridDataColumn FieldName="@nameof(ShiftAssignmentModel.n22)" Caption="@($"22/{SearchUpdate.month}")" MinWidth="50"
+                                                      TextAlignment="@GridTextAlignment.Center" CaptionAlignment="@GridTextAlignment.Center">
+                                        <CellDisplayTemplate>
+                                            @{
+                                                @((MarkupString)$"{context.Value}")
+                                            }
+                                        </CellDisplayTemplate>
+                                    </DxGridDataColumn>
+                                    <DxGridDataColumn FieldName="@nameof(ShiftAssignmentModel.n23)" Caption="@($"23/{SearchUpdate.month}")" MinWidth="50"
+                                                      TextAlignment="@GridTextAlignment.Center" CaptionAlignment="@GridTextAlignment.Center">
+                                        <CellDisplayTemplate>
+                                            @{
+                                                @((MarkupString)$"{context.Value}")
+                                            }
+                                        </CellDisplayTemplate>
+                                    </DxGridDataColumn>
+                                    <DxGridDataColumn FieldName="@nameof(ShiftAssignmentModel.n24)" Caption="@($"24/{SearchUpdate.month}")" MinWidth="50"
+                                                      TextAlignment="@GridTextAlignment.Center" CaptionAlignment="@GridTextAlignment.Center">
+                                        <CellDisplayTemplate>
+                                            @{
+                                                @((MarkupString)$"{context.Value}")
+                                            }
+                                        </CellDisplayTemplate>
+                                    </DxGridDataColumn>
+                                    <DxGridDataColumn FieldName="@nameof(ShiftAssignmentModel.n25)" Caption="@($"25/{SearchUpdate.month}")" MinWidth="50"
+                                                      TextAlignment="@GridTextAlignment.Center" CaptionAlignment="@GridTextAlignment.Center">
+                                        <CellDisplayTemplate>
+                                            @{
+                                                @((MarkupString)$"{context.Value}")
+                                            }
+                                        </CellDisplayTemplate>
+                                    </DxGridDataColumn>
+                                    <DxGridDataColumn FieldName="@nameof(ShiftAssignmentModel.n26)" Caption="@($"26/{SearchUpdate.month}")" MinWidth="50"
+                                                      TextAlignment="@GridTextAlignment.Center" CaptionAlignment="@GridTextAlignment.Center">
+                                        <CellDisplayTemplate>
+                                            @{
+                                                @((MarkupString)$"{context.Value}")
+                                            }
+                                        </CellDisplayTemplate>
+                                    </DxGridDataColumn>
+                                    <DxGridDataColumn FieldName="@nameof(ShiftAssignmentModel.n27)" Caption="@($"27/{SearchUpdate.month}")" MinWidth="50"
+                                                      TextAlignment="@GridTextAlignment.Center" CaptionAlignment="@GridTextAlignment.Center">
+                                        <CellDisplayTemplate>
+                                            @{
+                                                @((MarkupString)$"{context.Value}")
+                                            }
+                                        </CellDisplayTemplate>
+                                    </DxGridDataColumn>
+                                    <DxGridDataColumn FieldName="@nameof(ShiftAssignmentModel.n28)" Caption="@($"28/{SearchUpdate.month}")" MinWidth="50"
+                                                      TextAlignment="@GridTextAlignment.Center" CaptionAlignment="@GridTextAlignment.Center">
+                                        <CellDisplayTemplate>
+                                            @{
+                                                @((MarkupString)$"{context.Value}")
+                                            }
+                                        </CellDisplayTemplate>
+                                    </DxGridDataColumn>
+                                    <DxGridDataColumn FieldName="@nameof(ShiftAssignmentModel.n29)" Caption="@($"29/{SearchUpdate.month}")" MinWidth="50"
+                                                      TextAlignment="@GridTextAlignment.Center" CaptionAlignment="@GridTextAlignment.Center" Visible="@(MaxDaysInMonth > 28)">
+                                        <CellDisplayTemplate>
+                                            @{
+                                                @((MarkupString)$"{context.Value}")
+                                            }
+                                        </CellDisplayTemplate>
+                                    </DxGridDataColumn>
+                                    <DxGridDataColumn FieldName="@nameof(ShiftAssignmentModel.n30)" Caption="@($"30/{SearchUpdate.month}")" MinWidth="50"
+                                                      TextAlignment="@GridTextAlignment.Center" CaptionAlignment="@GridTextAlignment.Center" Visible="@(MaxDaysInMonth > 29)">
+                                        <CellDisplayTemplate>
+                                            @{
+                                                @((MarkupString)$"{context.Value}")
+                                            }
+                                        </CellDisplayTemplate>
+                                    </DxGridDataColumn>
+                                    <DxGridDataColumn FieldName="@nameof(ShiftAssignmentModel.n31)" Caption="@($"31/{SearchUpdate.month}")" MinWidth="50"
+                                                      TextAlignment="@GridTextAlignment.Center" CaptionAlignment="@GridTextAlignment.Center" Visible="@(MaxDaysInMonth > 30)">
+                                        <CellDisplayTemplate>
+                                            @{
+                                                @((MarkupString)$"{context.Value}")
+                                            }
+                                        </CellDisplayTemplate>
+                                    </DxGridDataColumn>
                                 </Columns>
                                 <TotalSummary>
                                     <DxGridSummaryItem DisplayText="@GlobalContants.FORMAT_GRID_DISPLAYTEXT_COUNT" SummaryType="GridSummaryItemType.Count"
@@ -261,6 +508,53 @@
     </div>
 </div>
 
+<div class="mb-3"></div>
+
+<W1Popup @bind-IsOpenModal="@IsShowDetail" Width="85%"
+         TextBtnAccept="Chọn"
+         IsShowFooter="false"
+         HeaderText="@HeaderTextDetail">
+    <div style="height: 400px; min-height: 350px">
+        <DxGrid Data="ListTimesheetDetail" @ref="GridTimesheetDetail"
+                ShowFilterRow="true"
+                ColumnResizeMode="GridColumnResizeMode.ColumnsContainer"
+                PagerPosition="GridPagerPosition.Bottom"
+                PageSizeSelectorVisible="false"
+                PageSize="@GlobalContants.PageSize"
+                PageSizeSelectorItems="@(GlobalContants.PageSizeList)"
+                PageSizeSelectorAllRowsItemVisible="false"
+                PagerSwitchToInputBoxButtonCount="10"
+                PagerVisibleNumericButtonCount="10"
+                TextWrapEnabled="false"
+                FocusedRowEnabled="true"
+                SelectionMode="@GridSelectionMode.Single"
+                AutoExpandAllGroupRows="true"
+                AllowSelectRowByClick="true"
+                CssClass="h-full">
+            <Columns>
+                <DxGridDataColumn FieldName="@nameof(ShiftAssignmentModel.employeeCode)" Caption="Mã nhân viên" Width="110px" MinWidth="100" FixedPosition="@GridColumnFixedPosition.Left" />
+                <DxGridDataColumn FieldName="@nameof(ShiftAssignmentModel.employeeName)" Caption="Họ tên" Width="135px" MinWidth="100" FixedPosition="@GridColumnFixedPosition.Left" />
+                <DxGridDataColumn FieldName="@nameof(ShiftAssignmentModel.titleName)" Caption="Chức danh" Width="125px" MinWidth="100" TextAlignment="@GridTextAlignment.Center" CaptionAlignment="@GridTextAlignment.Center" />
+                <DxGridDataColumn FieldName="@nameof(ShiftAssignmentModel.shiftCode)" Caption="Ca làm việc" Width="90px" MinWidth="70" TextAlignment="@GridTextAlignment.Center" CaptionAlignment="@GridTextAlignment.Center" />
+                <DxGridDataColumn FieldName="@nameof(ShiftAssignmentModel.symbol)" Caption="Ký hiệu" Width="90px" MinWidth="70" TextAlignment="@GridTextAlignment.Center" CaptionAlignment="@GridTextAlignment.Center" />
+                <DxGridDataColumn FieldName="@nameof(ShiftAssignmentModel.workingDate)" Caption="Ngày làm việc" Width="100px" MinWidth="90" DisplayFormat="@GlobalContants.FORMAT_DATE" TextAlignment="@GridTextAlignment.Center" CaptionAlignment="@GridTextAlignment.Center"  />
+                <DxGridDataColumn FieldName="@nameof(ShiftAssignmentModel.startDate)" Caption="Giờ bắt đầu" Width="100px" MinWidth="90" DisplayFormat="@GlobalContants.FORMAT_TIME" TextAlignment="@GridTextAlignment.Center" CaptionAlignment="@GridTextAlignment.Center" />
+                <DxGridDataColumn FieldName="@nameof(ShiftAssignmentModel.endDate)" Caption="Giờ kết thúc" Width="100px" MinWidth="90" DisplayFormat="@GlobalContants.FORMAT_TIME" TextAlignment="@GridTextAlignment.Center" CaptionAlignment="@GridTextAlignment.Center" />
+                <DxGridDataColumn FieldName="@nameof(ShiftAssignmentModel.startBreakTime)" Caption="Giờ nghỉ b/đ" Width="100px" MinWidth="90" DisplayFormat="@GlobalContants.FORMAT_TIME" TextAlignment="@GridTextAlignment.Center" CaptionAlignment="@GridTextAlignment.Center" />
+                <DxGridDataColumn FieldName="@nameof(ShiftAssignmentModel.endBreakTime)" Caption="Giờ nghỉ k/t" Width="100px" MinWidth="90" DisplayFormat="@GlobalContants.FORMAT_TIME" TextAlignment="@GridTextAlignment.Center" CaptionAlignment="@GridTextAlignment.Center" />
+                <DxGridDataColumn FieldName="@nameof(ShiftAssignmentModel.isDayOff)" Caption="Ngày nghỉ?" Width="80px" MinWidth="90" />
+                <DxGridDataColumn FieldName="@nameof(ShiftAssignmentModel.totalWorkingHours)" Caption="Số giờ làm" Width="80px" MinWidth="90" />
+                <DxGridDataColumn FieldName="@nameof(ShiftAssignmentModel.startDate)" Caption="Giờ b/đ thực tế" Width="130px" MinWidth="110" DisplayFormat="@GlobalContants.FORMAT_TIME" TextAlignment="@GridTextAlignment.Center" CaptionAlignment="@GridTextAlignment.Center" />
+                <DxGridDataColumn FieldName="@nameof(ShiftAssignmentModel.endDate)" Caption="Giờ k/t thực tế" Width="130px" MinWidth="110" DisplayFormat="@GlobalContants.FORMAT_TIME" TextAlignment="@GridTextAlignment.Center" CaptionAlignment="@GridTextAlignment.Center" />
+                <DxGridDataColumn FieldName="@nameof(ShiftAssignmentModel.startBreakTime)" Caption="Giờ nghỉ b/đ thực tế" Width="130px" MinWidth="110" DisplayFormat="@GlobalContants.FORMAT_TIME" TextAlignment="@GridTextAlignment.Center" CaptionAlignment="@GridTextAlignment.Center" />
+                <DxGridDataColumn FieldName="@nameof(ShiftAssignmentModel.endBreakTime)" Caption="Giờ nghỉ k/t thực tế" Width="130px" MinWidth="110" DisplayFormat="@GlobalContants.FORMAT_TIME" TextAlignment="@GridTextAlignment.Center" CaptionAlignment="@GridTextAlignment.Center" />
+                <DxGridDataColumn FieldName="@nameof(ShiftAssignmentModel.totalWorkingHoursActual)" Caption="Số giờ làm thực tế" Width="130px" MinWidth="110" TextAlignment="@GridTextAlignment.Center" CaptionAlignment="@GridTextAlignment.Center" />
+                <DxGridDataColumn FieldName="@nameof(ShiftAssignmentModel.sGT)" Caption="Số giờ thiếu" Width="130px" MinWidth="110" TextAlignment="@GridTextAlignment.Center" CaptionAlignment="@GridTextAlignment.Center" />
+            </Columns>
+        </DxGrid>
+    </div>
+</W1Popup>
+
 <W1Popup @bind-IsOpenModal="@IsShowDialogEmpSearch" Width="70%"
          HandleClickAccept="@(()=> SelectEmployeeHandler())"
          TextBtnAccept="Chọn"
@@ -270,3 +564,5 @@
                     SelectedDataItemChanged="@EventCallbackEmpChangedHandler" />
     </div>
 </W1Popup>
+
+<W1Confirm @ref="confirm" />

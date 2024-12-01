@@ -7,6 +7,8 @@ using HNOne.Web.Models;
 using HNOne.Web.Services.Interfaces;
 using Microsoft.AspNetCore.Components;
 using System.Data;
+using HNOne.Web.Components.Controls;
+using DevExpress.Pdf.Native.BouncyCastle.Asn1.Ocsp;
 
 namespace HNOne.Web.Controllers
 {
@@ -14,11 +16,14 @@ namespace HNOne.Web.Controllers
     {
         [Inject] IMasterDataService _masterDataService { get; init; }
         [Inject] IWorkforceService _workforceService { get; init; }
+        public W1Confirm confirm { get; set; }
         #region Properties
         public int ActiveTabIndex { get; set; } = 0;
         public SearchModel SearchUpdate { get; set; } = new SearchModel();
         public List<ShiftAssignmentModel>? ListTimesheet { get; set; }
         public IGrid? GridTimesheet { get; set; }
+        public List<ShiftAssignmentModel>? ListTimesheetDetail { get; set; }
+        public IGrid? GridTimesheetDetail { get; set; }
         public List<ComboboxModel>? ListCboYear { get; set; }
         public List<ComboboxModel>? ListCboMonth { get; set; }
         public List<ComboboxModel>? ListCboStatus { get; set; } // cbo ds tình trạng
@@ -31,6 +36,9 @@ namespace HNOne.Web.Controllers
         public string? StatusIds { get; set; } // Tình trạng nào
         public string? DepartmentIds { get; set; }
         public object? EmployeeSelected { get; set; } // Nhân viên được chọn
+        public int MaxDaysInMonth { get; set; } = 30; // max số ngày trong tháng
+        public bool IsShowDetail { get; set; } // show popup chi tiết ngày công
+        public string HeaderTextDetail = "";
         #endregion
 
         protected override async Task OnAfterRenderAsync(bool firstRender)
@@ -74,6 +82,7 @@ namespace HNOne.Web.Controllers
         {
             SearchUpdate.year = DateTime.Now.Year;
             SearchUpdate.month = DateTime.Now.Month;
+            MaxDaysInMonth = DateTime.DaysInMonth(SearchUpdate.year, SearchUpdate.month);
             int defaultYear = 2024;
             ListCboYear = new List<ComboboxModel>();
             for (int i = defaultYear; i < DateTime.Now.AddYears(2).Year; i++)
@@ -107,6 +116,44 @@ namespace HNOne.Web.Controllers
         #endregion
 
         #region Protected Functions
+
+        protected async Task RowDoubleClickHandler(GridRowClickEventArgs args)
+        {
+            try
+            {
+                if (args == null || args.Grid.SelectedDataItem == null) return;
+                await ShowLoading();
+                ShiftAssignmentModel itemSelected = (ShiftAssignmentModel)args.Grid.SelectedDataItem;
+                RequestModel request = new RequestModel();
+                request.process = ProcessConstants.GET_WORK_CALCULATE;
+                request.type = ProcessConstants.GET_ITEM_DETAIL;
+                request.userId = UserId;
+                request.branchId = BranchId;
+                request.token = Token;
+                request.opt = itemSelected.year.ToString(); // năm
+                request.opt1 = itemSelected.month.ToString(); // tháng
+                request.opt2 = "";
+                request.opt3 = $"{itemSelected.employeeId}";
+                request.opt4 = ListCboStatusSelected.IsNullOrEmpty() ? "" : string.Join(",", ListCboStatusSelected!.Select(m => m.code));
+                var response = await _workforceService.GetMasterDataAsync<ShiftAssignmentModel>(request, isShowToast: true);
+                if(!response.IsNullOrEmpty())
+                {
+                    HeaderTextDetail = $"Thông tin công chi tiết của nhân viên {itemSelected.employeeCode}";
+                    ListTimesheetDetail = response;
+                    IsShowDetail = true;
+                }    
+            }
+            catch (Exception ex)
+            {
+                ShowError(ex.Message);
+                _logger.LogError(ex, "RowDoubleClickHandler");
+            }
+            finally
+            {
+                await ShowLoading(false);
+                await InvokeAsync(StateHasChanged);
+            }
+        }
 
         protected async Task OpenPopupHandler(string type = nameof(EmployeeSelected),
             string popupType = nameof(SearchUpdate.employeeCode))
@@ -187,16 +234,78 @@ namespace HNOne.Web.Controllers
             try
             {
                 await ShowLoading();
+                MaxDaysInMonth = DateTime.DaysInMonth(SearchUpdate.year, SearchUpdate.month);
                 RequestModel request = new RequestModel();
-                request.process = ProcessConstants.GET_ARRANGE_SHIFT;
+                request.process = ProcessConstants.GET_WORK_CALCULATE;
                 request.userId = UserId;
                 request.branchId = BranchId;
                 request.token = Token;
-                request.opt = "2024"; // năm
-                request.opt1 = "11"; // tháng
-                request.opt2 = "1";
+                request.opt = SearchUpdate.year.ToString(); // năm
+                request.opt1 = SearchUpdate.month.ToString(); // tháng
+                request.opt2 = ListDepartmentSelected.IsNullOrEmpty() ? "" : string.Join(",", ListDepartmentSelected!.Select(m=>m.id));
+                request.opt3 = "";
+                request.opt4 = ListCboStatusSelected.IsNullOrEmpty() ? "" : string.Join(",", ListCboStatusSelected!.Select(m=>m.code));
                 var response = await _workforceService.GetMasterDataAsync<ShiftAssignmentModel>(request, isShowToast: true);
                 ListTimesheet = response;
+
+            }
+            catch (Exception ex)
+            {
+                _logger!.LogError(ex, "ReLoadDataHandler");
+                ShowError(ex.Message);
+            }
+            finally
+            {
+                await ShowLoading(false);
+                await InvokeAsync(StateHasChanged);
+            }
+        }
+
+
+        protected async Task SaveDataHandler()
+        {
+            try
+            {
+                string errorMessage = string.Empty;
+                string fieldName = string.Empty; // trả ra trường nào cần validate
+                bool isConfirm = true;
+                errorMessage = $"Bạn có chắc muốn lưu kỳ công tháng {SearchUpdate.month} năm {SearchUpdate.year} không?";
+                await Task.Yield();
+                isConfirm = await confirm.SetConfirm(MessageConstants.MESSAGE_TITLE, errorMessage);
+                if (!isConfirm) return;
+                await ShowLoading();
+            }
+            catch (Exception ex)
+            {
+                ShowError(ex.Message);
+                _logger.LogError(ex, "SaveDataHandler");
+            }
+            finally
+            {
+                await ShowLoading(false);
+                await InvokeAsync(StateHasChanged);
+            }
+
+        }
+
+        protected async Task SummitWork()
+        {
+            try
+            {
+                await ShowLoading();
+                RequestModel request = new RequestModel();
+                request.process = ProcessConstants.GET_WORK_CALCULATE;
+                request.userId = UserId;
+                request.branchId = BranchId;
+                request.token = Token;
+                request.opt = SearchUpdate.year.ToString(); // năm
+                request.opt1 = SearchUpdate.month.ToString(); // tháng
+                request.opt2 = ListDepartmentSelected.IsNullOrEmpty() ? "" : string.Join(",", ListDepartmentSelected!.Select(m => m.id));
+                request.opt3 = "";
+                request.opt4 = ListCboStatusSelected.IsNullOrEmpty() ? "" : string.Join(",", ListCboStatusSelected!.Select(m => m.code));
+                var response = await _workforceService.GetMasterDataAsync<ShiftAssignmentModel>(request, isShowToast: true);
+                ListTimesheet = response;
+                ShowSuccess(MessageConstants.MESSAGE_UPDATE_SUCCESS);
 
             }
             catch (Exception ex)

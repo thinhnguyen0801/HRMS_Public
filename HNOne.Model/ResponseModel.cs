@@ -5,6 +5,7 @@ namespace HNOne.Model
     {
         public int status { get; set; }
         public string message { get; set; }
+        public object? returnValue { get; set; }
         public object? data { get; set; }
         public ResponseModel()
         {

@@ -26,5 +26,9 @@
         public string? bgColorOfWeekdayDayOff { get; set; }
         public string? shiftPreiod { get; set; } // kỳ công
         public string? attendanceSheetCode { get; set; } // mã chấmcoong
+        public string? bgColor { get; set; } // màu line
+        public string? symbol { get; set; } // ký hiệu
+        public int holidayId { get; set; } // Rơi vô kì nghỉ lễ nào bảng HolidayCatagories
+        public string? remark { get; set; } // ghi chú
     }
 }
