@@ -81,6 +81,7 @@
         public double sGTC { get; set; } // số giờ trừ công
         public double gCTC { get; set; } // giờ công của 1 ngày
         public double tGTC { get; set; } // số giờ thiếu
+        public bool isLocked { get; set; }
         #endregion
     }
 }

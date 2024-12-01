@@ -167,6 +167,10 @@ namespace HNOne.API.Controllers
                         var lstShiftAssignmentPut = DeserializeJson<List<ShiftAssignments>>($"{request.json}");
                         response = await _workforceRepository.UpdateShiftAssignment(lstShiftAssignmentPut!);
                         break;
+                    case ProcessConstants.POST_ATTENDENCE_SUMMARY:
+                        var lstAttendencePut = DeserializeJson<List<AttendanceSummarys>>($"{request.json}");
+                        response = await _workforceRepository.UpdateAttendanceSummary(request.type == "L", request.userId, lstAttendencePut!);
+                        break;
                     default:
                         response.status = StatusCodes.Status404NotFound;
                         response.message = $"Process Key {processKey} was not provider!!!";

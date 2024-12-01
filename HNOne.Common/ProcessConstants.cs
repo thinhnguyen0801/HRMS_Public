@@ -122,6 +122,7 @@
         public const string POST_SHIFT_ASSIGNMENT = "post-shift-assignment"; // lưu thông tin sắp ca làm việc
         public const string GET_CHECK_IN_OUT = "get-check-in-out"; // lịch làm việc
         public const string GET_WORK_CALCULATE = "get-work-calculate"; // lấy dữ liệu tính công tháng
+        public const string POST_ATTENDENCE_SUMMARY = "post-attendance-summary"; // lấy dữ liệu tính công tháng
 
         public const string DELETE_DYNAMIC = "delete-dynamic"; // xóa động
         #region Loại dưới store

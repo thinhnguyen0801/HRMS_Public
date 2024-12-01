@@ -9,6 +9,7 @@ using HNOne.API.Constants;
 using System.Data;
 using Newtonsoft.Json;
 using Azure;
+using System.Text.RegularExpressions;
 
 namespace HNOne.API.Repositories
 {
@@ -1196,6 +1197,150 @@ namespace HNOne.API.Repositories
                 await _dbContext.SaveChangesAsync();
                 await _dbContext.Database.CommitTransactionAsync();
                 response.message = MessageConstants.MESSAGE_UPDATE_SUCCESS;
+                return response;
+            }
+            catch (Exception)
+            {
+                if (isTrans) await _dbContext.Database.RollbackTransactionAsync();
+                throw;
+            }
+        }
+        
+        /// <summary>
+        /// cập nhật thông tin chốt công
+        /// </summary>
+        /// <param name="isLocked"></param>
+        /// <param name="userId"></param>
+        /// <param name="lstEntity"></param>
+        /// <returns></returns>
+        public async Task<ResponseModel> UpdateAttendanceSummary(bool isLocked, int userId, IEnumerable<AttendanceSummarys> lstEntity)
+        {
+            ResponseModel response = new ResponseModel();
+            bool isTrans = false;
+            try
+            {
+                DateTime dateTimeNow = _dateTimeHelper.GetCurrentVietnamTime();
+                // Tạo mới
+                await _dbContext.Database.BeginTransactionAsync();
+                isTrans = true;
+                string pattern = @"<span[^>]*>(.*?)<\/span>";
+                foreach (var entity in lstEntity)
+                {
+                    var data = await _dbContext.AttendanceSummarys.FirstOrDefaultAsync(m => m.EmployeeId == entity.EmployeeId && m.Month == entity.Month && m.Year == entity.Year);
+                    if (data == null)
+                    {
+                        entity.CreateDate = dateTimeNow;
+                        entity.DateTracking = dateTimeNow;
+                        entity.ShiftCode = entity.ShiftCode ?? "-";
+                        entity.UserSign = userId;
+                        entity.IsLocked = isLocked;
+                        entity.N01 = Regex.Replace(entity.N01 + "", pattern, "$1");
+                        entity.N02 = Regex.Replace(entity.N02 + "", pattern, "$1");
+                        entity.N03 = Regex.Replace(entity.N03 + "", pattern, "$1");
+                        entity.N04 = Regex.Replace(entity.N04 + "", pattern, "$1");
+                        entity.N05 = Regex.Replace(entity.N05 + "", pattern, "$1");
+                        entity.N06 = Regex.Replace(entity.N06 + "", pattern, "$1");
+                        entity.N07 = Regex.Replace(entity.N07 + "", pattern, "$1");
+                        entity.N08 = Regex.Replace(entity.N08 + "", pattern, "$1");
+                        entity.N09 = Regex.Replace(entity.N09 + "", pattern, "$1");
+                        entity.N10 = Regex.Replace(entity.N10 + "", pattern, "$1");
+                        entity.N11 = Regex.Replace(entity.N11 + "", pattern, "$1");
+                        entity.N12 = Regex.Replace(entity.N12 + "", pattern, "$1");
+                        entity.N13 = Regex.Replace(entity.N13 + "", pattern, "$1");
+                        entity.N14 = Regex.Replace(entity.N14 + "", pattern, "$1");
+                        entity.N15 = Regex.Replace(entity.N15 + "", pattern, "$1");
+                        entity.N16 = Regex.Replace(entity.N16 + "", pattern, "$1");
+                        entity.N17 = Regex.Replace(entity.N17 + "", pattern, "$1");
+                        entity.N18 = Regex.Replace(entity.N18 + "", pattern, "$1");
+                        entity.N19 = Regex.Replace(entity.N19 + "", pattern, "$1");
+                        entity.N20 = Regex.Replace(entity.N20 + "", pattern, "$1");
+                        entity.N21 = Regex.Replace(entity.N21 + "", pattern, "$1");
+                        entity.N22 = Regex.Replace(entity.N22 + "", pattern, "$1");
+                        entity.N23 = Regex.Replace(entity.N23 + "", pattern, "$1");
+                        entity.N24 = Regex.Replace(entity.N24 + "", pattern, "$1");
+                        entity.N25 = Regex.Replace(entity.N25 + "", pattern, "$1");
+                        entity.N26 = Regex.Replace(entity.N26 + "", pattern, "$1");
+                        entity.N27 = Regex.Replace(entity.N27 + "", pattern, "$1");
+                        entity.N28 = Regex.Replace(entity.N28 + "", pattern, "$1");
+                        entity.N29 = Regex.Replace(entity.N29 + "", pattern, "$1");
+                        entity.N30 = Regex.Replace(entity.N30 + "", pattern, "$1");
+                        entity.N31 = Regex.Replace(entity.N31 + "", pattern, "$1");
+                        await _dbContext.AttendanceSummarys.AddAsync(entity);
+                        continue;
+                    }
+                    if (data.IsLocked)
+                    {
+                        response.status = StatusCodes.Status409Conflict;
+                        response.message = $"Nhân viên {data.EmployeeCode} đã được chốt dữ liệu công!!!";
+                        if (isTrans) await _dbContext.Database.RollbackTransactionAsync();
+                        return response;
+                    }
+                    // cập nhật dữ liệu
+                    data.BranchId = entity.BranchId;
+                    data.DepartmentId = entity.DepartmentId;
+                    data.PositionId = entity.PositionId;
+                    data.TitleId = entity.TitleId;
+                    data.ShiftCode = entity.ShiftCode ?? "-";
+                    data.TNC = entity.TNC;
+                    data.CDM = entity.CDM;
+                    data.CTT = entity.CTT;
+                    data.NPN = entity.NPN;
+                    data.NCD = entity.NCD;
+                    data.NPKL = entity.NPKL;
+                    data.NB = entity.NB;
+                    data.NKP = entity.NKP;
+                    data.CTPC = entity.CTPC;
+                    data.TGDLTVS = entity.TGDLTVS;
+                    data.SLDLTVS = entity.SLDLTVS;
+                    data.SGT = entity.SGT;
+                    data.SGTC = entity.SGTC;
+                    data.GCTC = entity.GCTC;
+                    data.TGTC = entity.TGTC;
+                    data.IsLocked = entity.IsLocked;
+
+
+                    data.N01 = Regex.Replace(entity.N01 + "", pattern, "$1");
+                    data.N02 = Regex.Replace(entity.N02 + "", pattern, "$1");
+                    data.N03 = Regex.Replace(entity.N03 + "", pattern, "$1");
+                    data.N04 = Regex.Replace(entity.N04 + "", pattern, "$1");
+                    data.N05 = Regex.Replace(entity.N05 + "", pattern, "$1");
+                    data.N06 = Regex.Replace(entity.N06 + "", pattern, "$1");
+                    data.N07 = Regex.Replace(entity.N07 + "", pattern, "$1");
+                    data.N08 = Regex.Replace(entity.N08 + "", pattern, "$1");
+                    data.N09 = Regex.Replace(entity.N09 + "", pattern, "$1");
+                    data.N10 = Regex.Replace(entity.N10 + "", pattern, "$1");
+                    data.N11 = Regex.Replace(entity.N11 + "", pattern, "$1");
+                    data.N12 = Regex.Replace(entity.N12 + "", pattern, "$1");
+                    data.N13 = Regex.Replace(entity.N13 + "", pattern, "$1");
+                    data.N14 = Regex.Replace(entity.N14 + "", pattern, "$1");
+                    data.N15 = Regex.Replace(entity.N15 + "", pattern, "$1");
+                    data.N16 = Regex.Replace(entity.N16 + "", pattern, "$1");
+                    data.N17 = Regex.Replace(entity.N17 + "", pattern, "$1");
+                    data.N18 = Regex.Replace(entity.N18 + "", pattern, "$1");
+                    data.N19 = Regex.Replace(entity.N19 + "", pattern, "$1");
+                    data.N20 = Regex.Replace(entity.N20 + "", pattern, "$1");
+                    data.N21 = Regex.Replace(entity.N21 + "", pattern, "$1");
+                    data.N22 = Regex.Replace(entity.N22 + "", pattern, "$1");
+                    data.N23 = Regex.Replace(entity.N23 + "", pattern, "$1");
+                    data.N24 = Regex.Replace(entity.N24 + "", pattern, "$1");
+                    data.N25 = Regex.Replace(entity.N25 + "", pattern, "$1");
+                    data.N26 = Regex.Replace(entity.N26 + "", pattern, "$1");
+                    data.N27 = Regex.Replace(entity.N27 + "", pattern, "$1");
+                    data.N28 = Regex.Replace(entity.N28 + "", pattern, "$1");
+                    data.N29 = Regex.Replace(entity.N29 + "", pattern, "$1");
+                    data.N30 = Regex.Replace(entity.N30 + "", pattern, "$1");
+                    data.N31 = Regex.Replace(entity.N31 + "", pattern, "$1");
+                    data.IsLocked = isLocked;
+                    data.DateTracking = dateTimeNow;
+                    data.UpdateDate = dateTimeNow;
+                    data.UserSign2 = userId;
+                    _dbContext.AttendanceSummarys.Attach(data);
+                    _dbContext.Entry(data).State = EntityState.Modified;
+
+                }   
+                await _dbContext.SaveChangesAsync();
+                await _dbContext.Database.CommitTransactionAsync();
+                response.message =  MessageConstants.MESSAGE_UPDATE_SUCCESS;
                 return response;
             }
             catch (Exception)
