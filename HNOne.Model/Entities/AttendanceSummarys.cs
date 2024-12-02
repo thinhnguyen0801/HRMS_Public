@@ -110,5 +110,7 @@ namespace HNOne.Model.Entities
         public string? N30 { get; set; }
         [MaxLength(50)]
         public string? N31 { get; set; }
+        [MaxLength(50)]
+        public string? N32 { get; set; }
     }
 }
