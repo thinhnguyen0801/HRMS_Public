@@ -10,6 +10,8 @@ using HNOne.Web.Commons;
 using Newtonsoft.Json;
 using HNOne.Common;
 using Blazored.LocalStorage;
+using Microsoft.AspNetCore.SignalR.Client;
+using HNOne.Model.Entities;
 
 namespace HNOne.Web.Components.Layout
 {
@@ -22,7 +24,8 @@ namespace HNOne.Web.Components.Layout
         [Inject] IMasterDataService _masterDataService { get; init; }
         [Inject] IEncryptHelper  _encryptHelper { get; init; }
         [Inject] ILocalStorageService _localStorage { get; init; }
-
+        [Inject] IConfiguration _configuration { get; init; }
+        HubConnection? _hubConnection;
         #region Properties
         public List<BreadcrumbModel>? ListBreadcrumbs { get; set; }
         public List<MenuModel> ListMenus { get; set; } = new List<MenuModel>();
@@ -75,6 +78,16 @@ namespace HNOne.Web.Components.Layout
                         string? color = await _localStorage.GetItemAsStringAsync("bgcolor");
                         await _jsRuntime.InvokeVoidAsync("setActiveStyle", color);
                     }
+
+                    // kết nối tới hub
+                    string apiUrl = _configuration.GetSection("appSettings:ApiUrl").Value + "";
+                    _hubConnection = new HubConnectionBuilder().WithUrl($"{apiUrl}notificationHub?userId={result.employeeId}").Build();
+                    _hubConnection.On<string>("ReceiveMessage", (incomingMessage) =>
+                    {
+                        toastService.ShowInfo(incomingMessage);
+                        _ = getNotifications();
+                    });
+                    await _hubConnection.StartAsync();
                 }    
                     
             }
@@ -139,11 +152,20 @@ namespace HNOne.Web.Components.Layout
                 {
                     TotalNotifiCations = result![0].totalRow;
                     ListNotification = result!;
-                    StateHasChanged();
+                    await InvokeAsync(StateHasChanged);
                 }
             }
             catch { }
              
+        }
+
+        public async Task Disconnect()
+        {
+            if (_hubConnection != null)
+            {
+                await _hubConnection.StopAsync();
+                await _hubConnection.DisposeAsync();
+            }
         }
         #endregion
     }

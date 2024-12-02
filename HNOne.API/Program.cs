@@ -1,5 +1,7 @@
 ﻿using HNOne.API.Extensions;
+using HNOne.API.Services;
 using Microsoft.AspNetCore.Localization;
+using Microsoft.AspNetCore.ResponseCompression;
 using System.Globalization;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -24,6 +26,12 @@ builder.Services.AddSwaggerGen();
 builder.Services.AddCors(options => options.AddPolicy("AllowAll", p => p.AllowAnyOrigin().AllowAnyMethod().AllowAnyHeader()));
 // Add services
 builder.Services.InstallerExtensionsInAssembly(builder.Configuration);
+builder.Services.AddSignalR();
+builder.Services.AddResponseCompression(opts =>
+{
+    opts.MimeTypes = ResponseCompressionDefaults.MimeTypes.Concat(
+        ["application/octet-stream"]);
+});
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
@@ -32,6 +40,7 @@ if (app.Environment.IsDevelopment())
     //app.UseSwagger();
     //app.UseSwaggerUI();
 }
+app.UseResponseCompression();
 app.UseSwagger();
 app.UseSwaggerUI();
 app.UseStaticFiles();
@@ -42,5 +51,6 @@ app.UseAuthorization();
 app.UseMiddlewareExtensions();
 
 app.MapControllers();
+app.MapHub<HubService>("/notificationHub");
 
 app.Run();
