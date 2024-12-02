@@ -9,6 +9,9 @@ using Microsoft.EntityFrameworkCore;
 using HNOne.API.Repositories.Interfaces;
 using Azure;
 using static Dapper.SqlMapper;
+using Microsoft.AspNetCore.SignalR;
+using HNOne.API.Services;
+using Azure.Core;
 
 namespace HNOne.API.Repositories
 {
@@ -17,13 +20,15 @@ namespace HNOne.API.Repositories
         private readonly MasterDbContext _dbContext;
         private readonly IDapperDbContext _dapperDbContext;
         private readonly IDateTimeHelper _dateTimeHelper;
+        private readonly IHubContext<HubService> _hubContext;
 
         public ApprovalRepository(MasterDbContext dbContext
-            , IDapperDbContext dapperDbContext, IDateTimeHelper dateTimeHelper)
+            , IDapperDbContext dapperDbContext, IDateTimeHelper dateTimeHelper, IHubContext<HubService> hubContext)
         {
             _dbContext = dbContext;
             _dapperDbContext = dapperDbContext;
             _dateTimeHelper = dateTimeHelper;
+            _hubContext = hubContext;
         }
 
         #region Query
@@ -432,6 +437,13 @@ namespace HNOne.API.Repositories
                 entity.CreateDate = _dateTimeHelper.GetCurrentVietnamTime();
                 await _dbContext.Notifications.AddAsync(entity);
                 await _dbContext.SaveChangesAsync();
+                // Lấy ConnectionId từ UserId
+                var connectionId = HubService.GetConnectionIdByUserId(employeeId.ToString());
+                if (connectionId != null)
+                {
+                    // Gửi thông báo đến ConnectionId
+                    await _hubContext.Clients.Client(connectionId).SendAsync("ReceiveMessage", message);
+                }
             }
             catch(Exception){}
         }
