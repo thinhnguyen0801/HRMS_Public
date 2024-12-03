@@ -91,6 +91,9 @@ namespace HNOne.Web.Controllers
         {
             // GÁN DỮ LIỆU MẶC ĐỊNH
             OvertimeRequestDocument.statusCode = CommonConstants.STATUS_CODE_ADD; // mặc định là chờ xử lý
+            OvertimeRequestDocument.employeeId = EmployeeId;
+            OvertimeRequestDocument.employeeCode = EmployeeCode;
+            OvertimeRequestDocument.employeeName = EmployeeName;
             var uri = _navigationManager?.ToAbsoluteUri(_navigationManager.Uri);
             if (uri != null && QueryHelpers.ParseQuery(uri.Query).Count > 0)
             {

@@ -98,6 +98,9 @@ namespace HNOne.Web.Controllers
             ContractDocument.salaryCoefficient = 1.0;
             ContractDocument.effectiveDate = DateTime.Now;
             ContractDocument.statusCode = CommonConstants.STATUS_CODE_ADD; // mặc định là chờ xử lý
+            ContractDocument.employeeId = EmployeeId;
+            ContractDocument.employeeCode = EmployeeCode;
+            ContractDocument.employeeName = EmployeeName;
             var uri = _navigationManager?.ToAbsoluteUri(_navigationManager.Uri);
             if (uri != null && QueryHelpers.ParseQuery(uri.Query).Count > 0)
             {

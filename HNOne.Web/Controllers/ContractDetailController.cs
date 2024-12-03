@@ -101,6 +101,9 @@ namespace HNOne.Web.Controllers
             ContractDocument.contractNumber = 1;
             ContractDocument.numberOfDaysReduced = 1;
             ContractDocument.statusCode = CommonConstants.STATUS_CODE_ADD; // mặc định là chờ xử lý
+            ContractDocument.employeeId = EmployeeId;
+            ContractDocument.employeeCode = EmployeeCode;
+            ContractDocument.employeeName = EmployeeName;
             var uri = _navigationManager?.ToAbsoluteUri(_navigationManager.Uri);
             if (!isRefresh && uri != null && QueryHelpers.ParseQuery(uri.Query).Count > 0)
             {

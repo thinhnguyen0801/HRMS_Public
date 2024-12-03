@@ -92,6 +92,9 @@ namespace HNOne.Web.Controllers
         {
             // GÁN DỮ LIỆU MẶC ĐỊNH
             ShiftRequestDocument.statusCode = CommonConstants.STATUS_CODE_ADD; // mặc định là chờ xử lý
+            ShiftRequestDocument.employeeId = EmployeeId;
+            ShiftRequestDocument.employeeCode = EmployeeCode;
+            ShiftRequestDocument.employeeName = EmployeeName;
             var uri = _navigationManager?.ToAbsoluteUri(_navigationManager.Uri);
             if (uri != null && QueryHelpers.ParseQuery(uri.Query).Count > 0)
             {
