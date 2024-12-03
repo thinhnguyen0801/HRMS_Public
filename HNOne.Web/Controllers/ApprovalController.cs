@@ -17,6 +17,7 @@ namespace HNOne.Web.Controllers
     {
         [Inject] IApprovalService _approvalService { get; init; }
         [Inject] IJSRuntime _jsRuntime { get; set; }
+        [Inject] DataHelperService _dataHelperService { get; set; }
         public W1Confirm confirm { get; set; }
 
         const string STRING_KEY_EVENT_APPROVAL = "APPROVAL_CONTROLLER_APPROVAL";
@@ -33,7 +34,6 @@ namespace HNOne.Web.Controllers
         public int ActiveTabIndex { get; set; } = 0;
         public DateTime? FromDate { get; set; }
         public DateTime? ToDate { get; set; }
-        public Dictionary<string, string> ListPages = new Dictionary<string, string>();
         #endregion
 
         protected override async Task OnAfterRenderAsync(bool firstRender)
@@ -50,8 +50,7 @@ namespace HNOne.Web.Controllers
                     {
                         new BreadcrumbModel("Phê duyệt chứng từ", isActive: true)
                     };
-                    FromDate = new DateTime(DateTime.Now.Year, 01, 01);
-                    ToDate = DateTime.Now;
+                    
                     await NotifyBreadcrumb.InvokeAsync(ListBreadcrumbs);
                     initDataAsync();
                     await getApprovalList();
@@ -72,12 +71,8 @@ namespace HNOne.Web.Controllers
         #region Private Functions
         private void initDataAsync()
         {
-            ListPages.Add("LeaveRequests", "de-nghi-nghi-phep?key=");
-            ListPages.Add("LeaveWorkingHours", "xin-nghi-trong-gio?key=");
-            ListPages.Add("Contracts", "chi-tiet-hop-dong?key=");
-            ListPages.Add("ContractAppendices", "chi-tiet-phu-luc-hop-dong?key=");
-            ListPages.Add("ShiftChanges", "dang-ky-doi-ca?key=");
-            ListPages.Add("OvertimeRequests", "de-nghi-lam-them?key=");
+            FromDate = new DateTime(DateTime.Now.Year, 01, 01);
+            ToDate = DateTime.Now;
         }
         private async Task getApprovalList()
         {
@@ -92,7 +87,7 @@ namespace HNOne.Web.Controllers
                     { "pDocEntry", $"{m.docEntry}" }
                 };
                 if (m.objType == nameof(EnumObjType.ContractAppendices)) pParams.TryAdd("pContractId", $"{m.contractId}");
-                m.link = ListPages[$"{m.objType}"] + _encryptHelper.Encrypt(JsonConvert.SerializeObject(pParams));
+                m.link = _dataHelperService.ListUris[$"{m.objType}"] + _encryptHelper.Encrypt(JsonConvert.SerializeObject(pParams));
             })?.ToList();
             if (ActiveTabIndex == 0)
             {
