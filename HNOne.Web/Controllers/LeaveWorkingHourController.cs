@@ -56,7 +56,15 @@ namespace HNOne.Web.Controllers
                     //if (errMessage == "401") return; // kiểm quyền menu page danh sách
                     this.firstRender = firstRender;
                     await ShowLoading();
-                    await initDataAsync();
+                    ListBreadcrumbs = new List<BreadcrumbModel>()
+                    {
+                        new BreadcrumbModel("Công - Phép"),
+                        new BreadcrumbModel("Chứng từ đề nghị", "danh-sach-de-nghi-nghi-phep"),
+                        new BreadcrumbModel("Xin nghỉ trong giờ", isActive: true),
+                    };
+                    await NotifyBreadcrumb.InvokeAsync(ListBreadcrumbs);
+                    //
+                    initDataAsync();
                     await buildComboAsync();
                     if (pDocEntry > 0)
                     {
@@ -79,21 +87,18 @@ namespace HNOne.Web.Controllers
 
         #region Private Functions
 
-        private async Task initDataAsync(bool isRefresh = false)
+        private void initDataAsync(bool isRefresh = false)
         {
-            ListBreadcrumbs = new List<BreadcrumbModel>()
-            {
-                new BreadcrumbModel("Công - Phép"),
-                new BreadcrumbModel("Chứng từ đề nghị", "danh-sach-de-nghi-nghi-phep"),
-                new BreadcrumbModel("Xin nghỉ trong giờ", isActive: true),
-            };
-            await NotifyBreadcrumb.InvokeAsync(ListBreadcrumbs);
+           
 
             // GÁN DỮ LIỆU MẶC ĐỊNH
             LeaveRequestDocument.statusCode = CommonConstants.STATUS_CODE_ADD; // mặc định là chờ xử lý
             LeaveRequestDocument.createDate = DateTime.Now;
             LeaveRequestDocument.fromDate = DateTime.Now;
             LeaveRequestDocument.fromDateTime = DateTime.Now;
+            LeaveRequestDocument.employeeId = EmployeeId;
+            LeaveRequestDocument.employeeCode = EmployeeCode;
+            LeaveRequestDocument.employeeName = EmployeeName;
             var uri = _navigationManager?.ToAbsoluteUri(_navigationManager.Uri);
             if (uri != null && QueryHelpers.ParseQuery(uri.Query).Count > 0)
             {
