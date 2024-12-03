@@ -1,0 +1,106 @@
+﻿@page "/danh-sach-thong-bao"
+@inherits Controllers.NotificationController
+
+<div class="h-content-filter">
+    <div class="row row-gap-2">
+        <div class="col-12">
+            <div class="card w1FontSize">
+                <div class="card-header p-1">
+                    <DxToolbar ItemRenderStyleMode="@ToolbarRenderStyleMode.Contained">
+                        <Items>
+                            <DxToolbarItem Text="Làm mới" BeginGroup="true" IconCssClass="@($"{IconClassConstants.ICON_REFRESH}")" CssClass="w1FontSize"
+                                           Alignment="@ToolbarItemAlignment.Right" Click="@RefreshHandler" />
+                        </Items>
+                    </DxToolbar>
+                </div>
+                <div class="card-header p-0 border-bottom-0">
+                    <DxTabs @bind-ActiveTabIndex="@ActiveTabIndex" Id="tabActive" CssClass="w-full w1FontSize">
+                        <DxTabPage Text="Thông báo chưa đọc" Id="tabPending" CssClass="w1FontSize"></DxTabPage>
+                        <DxTabPage Text="Thông báo đã đọc" Id="tabAll" CssClass="w1FontSize"></DxTabPage>
+                    </DxTabs>
+                </div>
+                <div class="card-body p-1" style="height: calc(100vh - 185px); min-height: 350px">
+                    @switch (ActiveTabIndex)
+                    {
+                        case 0:
+                            <DxGrid Data="ListPending" @ref="GridPending"
+                                    ShowFilterRow="true"
+                                    ColumnResizeMode="GridColumnResizeMode.ColumnsContainer"
+                                    PagerPosition="GridPagerPosition.Bottom"
+                                    PageSizeSelectorVisible="true"
+                                    PageSize="@GlobalContants.PageSize"
+                                    PageSizeSelectorItems="@(GlobalContants.PageSizeList)"
+                                    PageSizeSelectorAllRowsItemVisible="true"
+                                    PagerSwitchToInputBoxButtonCount="10"
+                                    PagerVisibleNumericButtonCount="10"
+                                    TextWrapEnabled="false"
+                                    FocusedRowEnabled="true"
+                                    AutoExpandAllGroupRows="true"
+                                    KeyboardNavigationEnabled="true"
+                                    SelectionMode="@GridSelectionMode.Multiple"
+                                    @bind-SelectedDataItems="@SelectedPendings"
+                                    KeyFieldName="@nameof(NotificationModel.id)"
+                                    CssClass="h-full">
+                                <Columns>
+                                    <DxGridSelectionColumn Width="35px" />
+                                    <DxGridDataColumn FieldName="@nameof(NotificationModel.objTypeName)" Caption="Loại chứng từ" MinWidth="140" GroupIndex="0" />
+                                    <DxGridDataColumn FieldName="@nameof(NotificationModel.voucherNo)" Caption="Mã chứng từ" MinWidth="130" Width="140px">
+                                        <CellDisplayTemplate>
+                                            @{
+                                                <a href="@($"{(context.DataItem as NotificationModel)!.voucherNo}")">@context.Value</a>
+                                            }
+                                        </CellDisplayTemplate>
+                                    </DxGridDataColumn>
+                                    <DxGridDataColumn FieldName="@nameof(NotificationModel.createDate)" Caption="Ngày giờ gửi" MinWidth="120" Width="120px" DisplayFormat="@GlobalContants.FORMAT_DATE_TIME" />
+                                    <DxGridDataColumn FieldName="@nameof(NotificationModel.message)" Caption="Thông báo" MinWidth="170" />
+                                </Columns>
+                                <TotalSummary>
+                                    <DxGridSummaryItem DisplayText="@GlobalContants.FORMAT_GRID_DISPLAYTEXT_COUNT" SummaryType="GridSummaryItemType.Count"
+                                                       FieldName="@nameof(NotificationModel.voucherNo)" ValueDisplayFormat="@GlobalContants.FORMAT_CURRENCY"
+                                                       FooterColumnName="@nameof(NotificationModel.voucherNo)" />
+                                </TotalSummary>
+                            </DxGrid>
+                            break;
+                        case 1:
+                            <DxGrid Data="ListAll" @ref="GridAll"
+                                    ShowFilterRow="true"
+                                    ColumnResizeMode="GridColumnResizeMode.ColumnsContainer"
+                                    PagerPosition="GridPagerPosition.Bottom"
+                                    PageSizeSelectorVisible="true"
+                                    PageSize="@GlobalContants.PageSize"
+                                    PageSizeSelectorItems="@(GlobalContants.PageSizeList)"
+                                    PageSizeSelectorAllRowsItemVisible="true"
+                                    PagerSwitchToInputBoxButtonCount="10"
+                                    PagerVisibleNumericButtonCount="10"
+                                    TextWrapEnabled="false"
+                                    FocusedRowEnabled="true"
+                                    AutoExpandAllGroupRows="true"
+                                    KeyboardNavigationEnabled="true"
+                                    SelectionMode="@GridSelectionMode.Single"
+                                    KeyFieldName="@nameof(ApprovalModel.id)"
+                                    CssClass="h-full">
+                                <Columns>
+                                    <DxGridDataColumn FieldName="@nameof(NotificationModel.objTypeName)" Caption="Loại chứng từ" MinWidth="140" GroupIndex="0" />
+                                    <DxGridDataColumn FieldName="@nameof(NotificationModel.voucherNo)" Caption="Mã chứng từ" MinWidth="130" Width="140px">
+                                        <CellDisplayTemplate>
+                                            @{
+                                                <a href="@($"{(context.DataItem as NotificationModel)!.voucherNo}")">@context.Value</a>
+                                            }
+                                        </CellDisplayTemplate>
+                                    </DxGridDataColumn>
+                                    <DxGridDataColumn FieldName="@nameof(NotificationModel.createDate)" Caption="Ngày giờ gửi" MinWidth="120" Width="120px" DisplayFormat="@GlobalContants.FORMAT_DATE_TIME" />
+                                    <DxGridDataColumn FieldName="@nameof(NotificationModel.message)" Caption="Thông báo" MinWidth="170" />
+                                </Columns>
+                                <TotalSummary>
+                                    <DxGridSummaryItem DisplayText="@GlobalContants.FORMAT_GRID_DISPLAYTEXT_COUNT" SummaryType="GridSummaryItemType.Count"
+                                                       FieldName="@nameof(NotificationModel.voucherNo)" ValueDisplayFormat="@GlobalContants.FORMAT_CURRENCY"
+                                                       FooterColumnName="@nameof(NotificationModel.voucherNo)" />
+                                </TotalSummary>
+                            </DxGrid>
+                            break;
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

@@ -8,6 +8,7 @@ namespace HNOne.Model.Models
         public string? branchCode { get; set; }
         public string? branchName { get; set; }
         public int docEntry { get; set; }
+        public int contractId { get; set; }
         public string? voucherNo { get; set; }
         public string? objType { get; set; } // loại chứng từ
         public string? objTypeName { get; set; } // loại chứng từ
@@ -26,5 +27,6 @@ namespace HNOne.Model.Models
         public string? remark { get; set; } // ghi chú chứng từ
         public string? approvalRemark { get; set; } // ghi chú phê duyệt
         public string? departmentName { get; set; } // phòng ban
+        public string? link { get; set; } // phòng ban
     }
 }

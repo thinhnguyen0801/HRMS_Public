@@ -23,7 +23,16 @@
                             </div>
                         </div>
                         <div class="d-none d-md-flex">
-                            <a class="nav-link px-0" title="Menu nhanh" data-bs-toggle="offcanvas" href="#offcanvasEnd" role="button" aria-controls="offcanvasEnd"
+                             <a class="nav-link px-0" title="Nhân thông báo">
+                                <DxCheckBox CssClass="w-100 w1FontSize"
+                                            SizeMode="@SizeMode.Medium"
+                                            Checked="@IsReceiveNotification"
+                                            CheckType="@CheckType.Switch"
+                                            LabelPosition="@LabelPosition.Right">
+                                </DxCheckBox>
+                             </a>
+                            
+                            @* <a class="nav-link px-0" title="Menu nhanh" data-bs-toggle="offcanvas" href="#offcanvasEnd" role="button" aria-controls="offcanvasEnd"
                                data-bs-placement="bottom">
                                 <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-tabler icons-tabler-th-large">
                                     <rect x="3" y="3" width="7" height="7" />
@@ -32,7 +41,7 @@
                                     <rect x="14" y="14" width="7" height="7" />
                                 </svg>
 
-                            </a>
+                            </a> *@
                             <div class="nav-item dropdown d-none d-md-flex me-1">
                                 <a href="#" class="nav-link px-0" data-bs-toggle="dropdown" tabindex="-1" aria-label="Show notifications">
                                     <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-tabler icons-tabler-outline icon-tabler-palette">
@@ -103,6 +112,9 @@
                                                     </div>
                                                 </div>
                                             }
+                                        </div>
+                                        <div class="card-footer p-2 text-center">
+                                            <a href="/danh-sach-thong-bao" style="font-size: 13px">Xem tất cả</a>
                                         </div>
                                     </div>
                                 </div>

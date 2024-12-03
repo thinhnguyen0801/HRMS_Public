@@ -15,7 +15,7 @@ using HNOne.Model.Entities;
 
 namespace HNOne.Web.Components.Layout
 {
-    public partial class MainLayout
+    public partial class MainLayout //: IAsyncDisposable
     {
         [Inject] IJSRuntime _jsRuntime { get; init; }
         [Inject] AuthenticationStateProvider _authenticationStateProvider { get; init; }
@@ -38,6 +38,7 @@ namespace HNOne.Web.Components.Layout
 
         public List<NotificationModel> ListNotification = new List<NotificationModel>();
         public int TotalNotifiCations { get; set; } = 0; // tổng số thông báo
+        public bool IsReceiveNotification { get; set; } = true; // là nhận thông báo
         #endregion
 
         EventCallback<List<BreadcrumbModel>> BreadcrumbsHandler =>
@@ -84,7 +85,7 @@ namespace HNOne.Web.Components.Layout
                     _hubConnection = new HubConnectionBuilder().WithUrl($"{apiUrl}notificationHub?userId={result.employeeId}").Build();
                     _hubConnection.On<string>("ReceiveMessage", (incomingMessage) =>
                     {
-                        toastService.ShowInfo(incomingMessage);
+                        if(IsReceiveNotification) toastService.ShowInfo(incomingMessage);
                         _ = getNotifications();
                     });
                     await _hubConnection.StartAsync();
@@ -159,14 +160,14 @@ namespace HNOne.Web.Components.Layout
              
         }
 
-        public async Task Disconnect()
-        {
-            if (_hubConnection != null)
-            {
-                await _hubConnection.StopAsync();
-                await _hubConnection.DisposeAsync();
-            }
-        }
+        //public async ValueTask DisposeAsync()
+        //{
+        //    if (_hubConnection != null)
+        //    {
+        //        await _hubConnection.StopAsync();
+        //        await _hubConnection.DisposeAsync();
+        //    }
+        //}
         #endregion
     }
 }

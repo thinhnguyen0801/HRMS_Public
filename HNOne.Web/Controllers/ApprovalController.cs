@@ -2,6 +2,7 @@
 using HNOne.Common;
 using HNOne.Model;
 using HNOne.Model.Models;
+using HNOne.Web.Commons;
 using HNOne.Web.Components.Controls;
 using HNOne.Web.Models;
 using HNOne.Web.Services;
@@ -32,6 +33,7 @@ namespace HNOne.Web.Controllers
         public int ActiveTabIndex { get; set; } = 0;
         public DateTime? FromDate { get; set; }
         public DateTime? ToDate { get; set; }
+        public Dictionary<string, string> ListPages = new Dictionary<string, string>();
         #endregion
 
         protected override async Task OnAfterRenderAsync(bool firstRender)
@@ -51,6 +53,7 @@ namespace HNOne.Web.Controllers
                     FromDate = new DateTime(DateTime.Now.Year, 01, 01);
                     ToDate = DateTime.Now;
                     await NotifyBreadcrumb.InvokeAsync(ListBreadcrumbs);
+                    initDataAsync();
                     await getApprovalList();
                 }
                 catch (Exception ex)
@@ -67,11 +70,30 @@ namespace HNOne.Web.Controllers
         }
 
         #region Private Functions
+        private void initDataAsync()
+        {
+            ListPages.Add("LeaveRequests", "de-nghi-nghi-phep?key=");
+            ListPages.Add("LeaveWorkingHours", "xin-nghi-trong-gio?key=");
+            ListPages.Add("Contracts", "chi-tiet-hop-dong?key=");
+            ListPages.Add("ContractAppendices", "chi-tiet-phu-luc-hop-dong?key=");
+            ListPages.Add("ShiftChanges", "dang-ky-doi-ca?key=");
+            ListPages.Add("OvertimeRequests", "de-nghi-lam-them?key=");
+        }
         private async Task getApprovalList()
         {
             string approvalType = ActiveTabIndex == 0 ? "O" : "";
             var lstApproval = await _approvalService.GetApprovalAsync(UserId, BranchId, EmployeeId, Token
                 , approvalType, fromDate: FromDate, toDate: ToDate);
+            lstApproval = lstApproval?.Update(m =>
+            {
+                Dictionary<string, string> pParams = new Dictionary<string, string>
+                {
+                    { "pActionType", nameof(EnumType.Update) },
+                    { "pDocEntry", $"{m.docEntry}" }
+                };
+                if (m.objType == nameof(EnumObjType.ContractAppendices)) pParams.TryAdd("pContractId", $"{m.contractId}");
+                m.link = ListPages[$"{m.objType}"] + _encryptHelper.Encrypt(JsonConvert.SerializeObject(pParams));
+            })?.ToList();
             if (ActiveTabIndex == 0)
             {
                 ListPending = lstApproval;
