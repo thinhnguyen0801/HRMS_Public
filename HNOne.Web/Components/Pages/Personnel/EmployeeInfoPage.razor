@@ -1,0 +1,695 @@
+﻿@page "/thong-tin-nhan-vien"
+@inherits Controllers.EmployeeInfoController
+
+<div class="h-content-filter">
+    <div class="w1FontSize sticky-top" style="z-index: 1010">
+        <div class="border-bottom-0">
+            <DxTabs @bind-ActiveTabIndex="@ActiveTabIndex" Id="tabActive" CssClass="w-full w1FontSize h1-tab-scroll">
+                <DxTabPage Text="CMND/CCCD/Hộ chiếu" CssClass="w1FontSize" Click="@(() => ScrollToSection("section-accordion-2"))"></DxTabPage>
+                <DxTabPage Text="Thông tin liên hệ" CssClass="w1FontSize" Click="@(() => ScrollToSection("section-accordion-3"))"></DxTabPage>
+                <DxTabPage Text="Hộ khẩu thường trú" CssClass="w1FontSize" Click="@(() => ScrollToSection("section-accordion-4"))"></DxTabPage>
+                <DxTabPage Text="Chỗ ở hiện nay" CssClass="w1FontSize" Click="@(() => ScrollToSection("section-accordion-5"))"></DxTabPage>
+                <DxTabPage Text="Liên hệ khẩn cấp" CssClass="w1FontSize" Click="@(() => ScrollToSection("section-accordion-6"))"></DxTabPage>
+                <DxTabPage Text="Quan hệ gia đình" CssClass="w1FontSize" Click="@(() => ScrollToSection("section-accordion-7"))"></DxTabPage>
+            </DxTabs>
+        </div>
+    </div>
+    <div class="card p-1 mt-1">
+        <DxToolbar ItemRenderStyleMode="@ToolbarRenderStyleMode.Contained">
+            <Items>
+
+                <DxToolbarItem Text="Lưu" BeginGroup="true" IconCssClass="@($"{IconClassConstants.ICON_UPDATE}")" CssClass="w1FontSize"
+                               Alignment="@ToolbarItemAlignment.Right" Click="@(() => SaveDataHandler())" />
+            </Items>
+        </DxToolbar>
+    </div>
+
+    @* Thông tin CMMD/CCCD/Passport  *@
+    <div class="card card-lg mt-1" style="padding: 5px" id="section-accordion-2">
+        <div class="row row-gap-2">
+            <div class="col-12">
+                <div class="accordion" id="accordion-2">
+                    <div class="accordion-item" style="border: none">
+                        <span class="accordion-header" id="heading-1">
+                            <button class="accordion-button " style="padding-top: 1px; padding-bottom: 1px;padding-left: 5px;"
+                                    type="button" data-bs-toggle="collapse" data-bs-target="#collapse-2" aria-expanded="true">
+                                <h4 class="mb-0 w1FontSize">CMMD/Thẻ căn cước/Hộ chiếu</h4>
+                            </button>
+                        </span>
+                        <div style="border-bottom: 1px solid var(--tblr-border-color); margin-top: 2px"></div>
+                        <div id="collapse-2" class="accordion-collapse collapse show" data-bs-parent="#accordion-2">
+                            <div class="accordion-body p-2">
+                                <div class="row row-gap-2">
+                                    <div class="col-md-6 col-sm-12">
+                                        <div class="row row-gap-2">
+                                            <div class="col-md-12 col-sm-12">
+                                                <div class="d-flex ">
+                                                    <W1Label Value="CCCD/CMND" Styles="width: 120px" IsRequired="true" />
+                                                    <div style="width: calc(100% - 120px)">
+                                                        <DxTextBox @bind-Text="@EmployeeUpdate.cIC" CssClass="w1FontSize" Id="@nameof(EmployeeUpdate.cIC)"></DxTextBox>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="col-md-12 col-sm-12">
+                                                <div class="d-flex ">
+                                                    <W1Label Value="Ngày cấp" Styles="width: 120px" />
+                                                    <div style="width: calc(100% - 120px)">
+                                                        <DxDateEdit @bind-Date="@EmployeeUpdate.issuanceDateCIC" DisplayFormat="@GlobalContants.FORMAT_DATE"
+                                                                    Mask="@GlobalContants.FORMAT_DATE" Format="@GlobalContants.FORMAT_DATE" CssClass="w1FontSize"
+                                                                    ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto" />
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="col-md-12 col-sm-12">
+                                                <div class="d-flex ">
+                                                    <W1Label Value="Nơi cấp" Styles="width: 120px" />
+                                                    <div style="width: calc(100% - 120px)">
+                                                        <DxTextBox @bind-Text="@EmployeeUpdate.placeOfIssuanceCIC" CssClass="w1FontSize"></DxTextBox>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="col-md-12 col-sm-12">
+                                                <div class="d-flex ">
+                                                    <W1Label Value="Ngày hết hạn" Styles="width: 120px" />
+                                                    <div style="width: calc(100% - 120px)">
+                                                        <DxDateEdit @bind-Date="@EmployeeUpdate.expiryDateCIC" DisplayFormat="@GlobalContants.FORMAT_DATE"
+                                                                    Mask="@GlobalContants.FORMAT_DATE" Format="@GlobalContants.FORMAT_DATE" CssClass="w1FontSize"
+                                                                    ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto" />
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                    </div>
+                                    <div class="col-md-6 col-sm-12">
+                                        <div class="row row-gap-2">
+                                            <div class="col-md-12 col-sm-12">
+                                                <div class="d-flex ">
+                                                    <W1Label Value="Hộ chiếu" Styles="width: 120px" />
+                                                    <div style="width: calc(100% - 120px)">
+                                                        <DxTextBox @bind-Text="@EmployeeUpdate.passportNumber" CssClass="w1FontSize" Id="@nameof(EmployeeUpdate.cIC)"></DxTextBox>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="col-md-12 col-sm-12">
+                                                <div class="d-flex ">
+                                                    <W1Label Value="Ngày cấp" Styles="width: 120px" />
+                                                    <div style="width: calc(100% - 120px)">
+                                                        <DxDateEdit @bind-Date="@EmployeeUpdate.issueDatePassport" DisplayFormat="@GlobalContants.FORMAT_DATE"
+                                                                    Mask="@GlobalContants.FORMAT_DATE" Format="@GlobalContants.FORMAT_DATE" CssClass="w1FontSize"
+                                                                    ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto" />
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="col-md-12 col-sm-12">
+                                                <div class="d-flex ">
+                                                    <W1Label Value="Nơi cấp" Styles="width: 120px" />
+                                                    <div style="width: calc(100% - 120px)">
+                                                        <DxTextBox @bind-Text="@EmployeeUpdate.placeOfIssuePassport" CssClass="w1FontSize"></DxTextBox>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="col-md-12 col-sm-12">
+                                                <div class="d-flex ">
+                                                    <W1Label Value="Ngày hết hạn" Styles="width: 120px" />
+                                                    <div style="width: calc(100% - 120px)">
+                                                        <DxDateEdit @bind-Date="@EmployeeUpdate.expiryDatePassport" DisplayFormat="@GlobalContants.FORMAT_DATE"
+                                                                    Mask="@GlobalContants.FORMAT_DATE" Format="@GlobalContants.FORMAT_DATE" CssClass="w1FontSize"
+                                                                    ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto" />
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    @* Thông tin liên hệ  *@
+    <div class="card card-lg mt-1" style="padding: 5px" id="section-accordion-3">
+        <div class="row row-gap-2">
+            <div class="col-12">
+                <div class="accordion" id="accordion-3">
+                    <div class="accordion-item" style="border: none">
+                        <span class="accordion-header" id="heading-1">
+                            <button class="accordion-button " style="padding-top: 1px; padding-bottom: 1px;padding-left: 5px;"
+                                    type="button" data-bs-toggle="collapse" data-bs-target="#collapse-3" aria-expanded="true">
+                                <h4 class="mb-0 w1FontSize">Thông tin liên hệ</h4>
+                            </button>
+                        </span>
+                        <div style="border-bottom: 1px solid var(--tblr-border-color); margin-top: 2px"></div>
+                        <div id="collapse-3" class="accordion-collapse collapse show" data-bs-parent="#accordion-3">
+                            <div class="accordion-body p-2">
+                                <div class="row row-gap-2">
+                                    <div class="col-md-6 col-sm-12">
+                                        <div class="d-flex ">
+                                            <W1Label Value="ĐT di động" Styles="width: 120px" />
+                                            <div style="width: calc(100% - 120px)">
+                                                <DxTextBox @bind-Text="@EmployeeUpdate.phone1" CssClass="w1FontSize"></DxTextBox>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6 col-sm-12">
+                                        <div class="d-flex ">
+                                            <W1Label Value="ĐT cơ quan" Styles="width: 120px" />
+                                            <div style="width: calc(100% - 120px)">
+                                                <DxTextBox @bind-Text="@EmployeeUpdate.phone2" CssClass="w1FontSize"></DxTextBox>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6 col-sm-12">
+                                        <div class="d-flex ">
+                                            <W1Label Value="ĐT nhà riêng" Styles="width: 120px" />
+                                            <div style="width: calc(100% - 120px)">
+                                                <DxTextBox @bind-Text="@EmployeeUpdate.phone3" CssClass="w1FontSize"></DxTextBox>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6 col-sm-12">
+                                        <div class="d-flex ">
+                                            <W1Label Value="ĐT khác" Styles="width: 120px" />
+                                            <div style="width: calc(100% - 120px)">
+                                                <DxTextBox @bind-Text="@EmployeeUpdate.phone4" CssClass="w1FontSize"></DxTextBox>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6 col-sm-12">
+                                        <div class="d-flex ">
+                                            <W1Label Value="Email cá nhân" Styles="width: 120px" />
+                                            <div style="width: calc(100% - 120px)">
+                                                <DxTextBox @bind-Text="@EmployeeUpdate.email1" CssClass="w1FontSize"></DxTextBox>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6 col-sm-12">
+                                        <div class="d-flex ">
+                                            <W1Label Value="Email cơ quan" Styles="width: 120px" />
+                                            <div style="width: calc(100% - 120px)">
+                                                <DxTextBox @bind-Text="@EmployeeUpdate.email2" CssClass="w1FontSize"></DxTextBox>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6 col-sm-12">
+                                        <div class="d-flex ">
+                                            <W1Label Value="Email khác" Styles="width: 120px" />
+                                            <div style="width: calc(100% - 120px)">
+                                                <DxTextBox @bind-Text="@EmployeeUpdate.email3" CssClass="w1FontSize"></DxTextBox>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="col-md-6 col-sm-12">
+                                        <div class="d-flex ">
+                                            <W1Label Value="Nguyên quán" Styles="width: 120px" />
+                                            <div style="width: calc(100% - 120px)">
+                                                <DxTextBox @bind-Text="@EmployeeUpdate.placeOfOrigin" CssClass="w1FontSize"></DxTextBox>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="col-md-6 col-sm-12">
+                                        <div class="d-flex ">
+                                            <W1Label Value="Tỉnh thành" Styles="width: 120px" />
+                                            <div style="width: calc(100% - 120px)">
+                                                <DxComboBox Data="@ListCboProvince"
+                                                            @bind-Value="@EmployeeUpdate.provinceCode"
+                                                            FilteringMode="DataGridFilteringMode.Contains"
+                                                            TextFieldName="@nameof(ComboboxModel.name)"
+                                                            ValueFieldName="@nameof(ComboboxModel.code)" CssClass="w1FontSize">
+                                                </DxComboBox>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="col-md-6 col-sm-12">
+                                        <div class="d-flex ">
+                                            <W1Label Value="Nơi sinh" Styles="width: 120px" />
+                                            <div style="width: calc(100% - 120px)">
+                                                <DxTextBox @bind-Text="@EmployeeUpdate.placeOfBirth" CssClass="w1FontSize"></DxTextBox>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    @* Hộ khẩu thường trú  *@
+    <div class="card card-lg mt-1" style="padding: 5px" id="section-accordion-4">
+        <div class="row row-gap-2">
+            <div class="col-12">
+                <div class="accordion" id="accordion-4">
+                    <div class="accordion-item" style="border: none">
+                        <span class="accordion-header" id="heading-1">
+                            <button class="accordion-button " style="padding-top: 1px; padding-bottom: 1px;padding-left: 5px;"
+                                    type="button" data-bs-toggle="collapse" data-bs-target="#collapse-4" aria-expanded="true">
+                                <h4 class="mb-0 w1FontSize">Hộ khẩu thường trú</h4>
+                            </button>
+                        </span>
+                        <div style="border-bottom: 1px solid var(--tblr-border-color); margin-top: 2px"></div>
+                        <div id="collapse-4" class="accordion-collapse collapse show" data-bs-parent="#accordion-4">
+                            <div class="accordion-body p-2">
+                                <div class="row row-gap-2">
+                                    <div class="col-md-6 col-sm-12">
+                                        <div class="d-flex ">
+                                            <W1Label Value="Quốc gia" Styles="width: 120px" />
+                                            <div style="width: calc(100% - 120px)">
+                                                <DxComboBox Data="@ListCboCountry"
+                                                            FilteringMode="DataGridFilteringMode.Contains"
+                                                            Value="@EmployeeUpdate.countryCode1"
+                                                            ValueChanged="@((string? countryCode1) => ComboboxValueChangedHandler(countryCode1, controlID: nameof(EmployeeUpdate.countryCode1)))"
+                                                            ClearButtonDisplayMode="@DataEditorClearButtonDisplayMode.Auto"
+                                                            TextFieldName="@nameof(ComboboxModel.name)"
+                                                            ValueFieldName="@nameof(ComboboxModel.code)" CssClass="w1FontSize">
+                                                </DxComboBox>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6 col-sm-12">
+                                        <div class="d-flex ">
+                                            <W1Label Value="Tỉnh thành" Styles="width: 120px" />
+                                            <div style="width: calc(100% - 120px)">
+                                                <DxComboBox Data="@ListCboProvince1"
+                                                            FilteringMode="DataGridFilteringMode.Contains"
+                                                            Value="@EmployeeUpdate.provinceCode1"
+                                                            ValueChanged="@((string? provinceCode1) => ComboboxValueChangedHandler(provinceCode1, controlID: nameof(EmployeeUpdate.provinceCode1)))"
+                                                            ClearButtonDisplayMode="@DataEditorClearButtonDisplayMode.Auto"
+                                                            TextFieldName="@nameof(ComboboxModel.name)"
+                                                            ValueFieldName="@nameof(ComboboxModel.code)" CssClass="w1FontSize">
+                                                </DxComboBox>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6 col-sm-12">
+                                        <div class="d-flex ">
+                                            <W1Label Value="Quận huyện" Styles="width: 120px" />
+                                            <div style="width: calc(100% - 120px)">
+                                                <DxComboBox Data="@ListCboDistrict1"
+                                                            FilteringMode="DataGridFilteringMode.Contains"
+                                                            Value="@EmployeeUpdate.districtCode1"
+                                                            ValueChanged="@((string? districtCode1) => ComboboxValueChangedHandler(districtCode1, controlID: nameof(EmployeeUpdate.districtCode1)))"
+                                                            ClearButtonDisplayMode="@DataEditorClearButtonDisplayMode.Auto"
+                                                            TextFieldName="@nameof(ComboboxModel.name)"
+                                                            ValueFieldName="@nameof(ComboboxModel.code)" CssClass="w1FontSize">
+                                                </DxComboBox>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6 col-sm-12">
+                                        <div class="d-flex ">
+                                            <W1Label Value="Phường xã" Styles="width: 120px" />
+                                            <div style="width: calc(100% - 120px)">
+                                                <DxComboBox Data="@ListCboWard1"
+                                                            FilteringMode="DataGridFilteringMode.Contains"
+                                                            @bind-Value="@EmployeeUpdate.wardCode1"
+                                                            ClearButtonDisplayMode="@DataEditorClearButtonDisplayMode.Auto"
+                                                            TextFieldName="@nameof(ComboboxModel.name)"
+                                                            ValueFieldName="@nameof(ComboboxModel.code)" CssClass="w1FontSize">
+                                                </DxComboBox>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6 col-sm-12">
+                                        <div class="d-flex ">
+                                            <W1Label Value="Số nhà" Styles="width: 120px" />
+                                            <div style="width: calc(100% - 120px)">
+                                                <DxTextBox @bind-Text="@EmployeeUpdate.houseNumber1" CssClass="w1FontSize"></DxTextBox>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6 col-sm-12">
+                                        <div class="d-flex ">
+                                            <W1Label Value="Địa chỉ" Styles="width: 120px" />
+                                            <div style="width: calc(100% - 120px)">
+                                                <DxTextBox @bind-Text="@EmployeeUpdate.placeOfResidence" CssClass="w1FontSize" ReadOnly="true"></DxTextBox>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6 col-sm-12">
+                                        <div class="d-flex ">
+                                            <W1Label Value="Số hộ khẩu" Styles="width: 120px" />
+                                            <div style="width: calc(100% - 120px)">
+                                                <DxTextBox @bind-Text="@EmployeeUpdate.householdRegistrationNumber" CssClass="w1FontSize"></DxTextBox>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6 col-sm-12">
+                                        <div class="d-flex ">
+                                            <W1Label Value="Mã số hộ gia đình" Styles="width: 120px" />
+                                            <div style="width: calc(100% - 120px)">
+                                                <DxTextBox @bind-Text="@EmployeeUpdate.householdNumber" CssClass="w1FontSize"></DxTextBox>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    @* Chỗ ở hiện nay  *@
+    <div class="card card-lg mt-1" style="padding: 5px" id="section-accordion-5">
+        <div class="row row-gap-2">
+            <div class="col-12">
+                <div class="accordion" id="accordion-5">
+                    <div class="accordion-item" style="border: none">
+                        <span class="accordion-header" id="heading-1">
+                            <button class="accordion-button " style="padding-top: 1px; padding-bottom: 1px;padding-left: 5px;"
+                                    type="button" data-bs-toggle="collapse" data-bs-target="#collapse-5" aria-expanded="true">
+                                <h4 class="mb-0 w1FontSize">Chỗ ở hiện nay</h4>
+                            </button>
+                        </span>
+                        <div style="border-bottom: 1px solid var(--tblr-border-color); margin-top: 2px"></div>
+                        <div id="collapse-5" class="accordion-collapse collapse show" data-bs-parent="#accordion-5">
+                            <div class="accordion-body p-2">
+                                <div class="row row-gap-2">
+                                    <div class="col-md-12 col-sm-12">
+                                        <div class="d-flex ">
+                                            <W1Label Value="" Styles="width: 120px" />
+                                            <div style="width: calc(100% - 120px)">
+                                                <DxCheckBox CssClass="w-100 w1FontSize"
+                                                            SizeMode="@SizeMode.Small"
+                                                            Checked="@EmployeeUpdate.isEqualsHousehold"
+                                                            CheckedChanged="@((bool value) => EqualsHouseholdCheckedChangedHandler(value))"
+                                                            LabelPosition="@LabelPosition.Right">
+                                                    Giống hộ khẩu thường trú?
+                                                </DxCheckBox>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6 col-sm-12">
+                                        <div class="d-flex ">
+                                            <W1Label Value="Quốc gia" Styles="width: 120px" />
+                                            <div style="width: calc(100% - 120px)">
+                                                <DxComboBox Data="@ListCboCountry"
+                                                            FilteringMode="DataGridFilteringMode.Contains"
+                                                            Value="@EmployeeUpdate.countryCode2"
+                                                            ValueChanged="@((string? countryCode2) => ComboboxValueChangedHandler(countryCode2, controlID: nameof(EmployeeUpdate.countryCode2)))"
+                                                            ClearButtonDisplayMode="@DataEditorClearButtonDisplayMode.Auto"
+                                                            TextFieldName="@nameof(ComboboxModel.name)"
+                                                            ValueFieldName="@nameof(ComboboxModel.code)" CssClass="w1FontSize">
+                                                </DxComboBox>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6 col-sm-12">
+                                        <div class="d-flex ">
+                                            <W1Label Value="Tỉnh thành" Styles="width: 120px" />
+                                            <div style="width: calc(100% - 120px)">
+                                                <DxComboBox Data="@ListCboProvince2"
+                                                            FilteringMode="DataGridFilteringMode.Contains"
+                                                            Value="@EmployeeUpdate.provinceCode2"
+                                                            ValueChanged="@((string? provinceCode2) => ComboboxValueChangedHandler(provinceCode2, controlID: nameof(EmployeeUpdate.provinceCode2)))"
+                                                            ClearButtonDisplayMode="@DataEditorClearButtonDisplayMode.Auto"
+                                                            TextFieldName="@nameof(ComboboxModel.name)"
+                                                            ValueFieldName="@nameof(ComboboxModel.code)" CssClass="w1FontSize">
+                                                </DxComboBox>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6 col-sm-12">
+                                        <div class="d-flex ">
+                                            <W1Label Value="Quận huyện" Styles="width: 120px" />
+                                            <div style="width: calc(100% - 120px)">
+                                                <DxComboBox Data="@ListCboDistrict2"
+                                                            FilteringMode="DataGridFilteringMode.Contains"
+                                                            Value="@EmployeeUpdate.districtCode2"
+                                                            ValueChanged="@((string? districtCode2) => ComboboxValueChangedHandler(districtCode2, controlID: nameof(EmployeeUpdate.districtCode2)))"
+                                                            ClearButtonDisplayMode="@DataEditorClearButtonDisplayMode.Auto"
+                                                            TextFieldName="@nameof(ComboboxModel.name)"
+                                                            ValueFieldName="@nameof(ComboboxModel.code)" CssClass="w1FontSize">
+                                                </DxComboBox>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6 col-sm-12">
+                                        <div class="d-flex ">
+                                            <W1Label Value="Phường xã" Styles="width: 120px" />
+                                            <div style="width: calc(100% - 120px)">
+                                                <DxComboBox Data="@ListCboWard2"
+                                                            FilteringMode="DataGridFilteringMode.Contains"
+                                                            @bind-Value="@EmployeeUpdate.wardCode2"
+                                                            ClearButtonDisplayMode="@DataEditorClearButtonDisplayMode.Auto"
+                                                            TextFieldName="@nameof(ComboboxModel.name)"
+                                                            ValueFieldName="@nameof(ComboboxModel.code)" CssClass="w1FontSize">
+                                                </DxComboBox>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6 col-sm-12">
+                                        <div class="d-flex ">
+                                            <W1Label Value="Số nhà/Đường phố" Styles="width: 120px" />
+                                            <div style="width: calc(100% - 120px)">
+                                                <DxTextBox @bind-Text="@EmployeeUpdate.houseNumber2" CssClass="w1FontSize"></DxTextBox>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6 col-sm-12">
+                                        <div class="d-flex ">
+                                            <W1Label Value="Địa chỉ" Styles="width: 120px" />
+                                            <div style="width: calc(100% - 120px)">
+                                                <DxTextBox @bind-Text="@EmployeeUpdate.temporaryAddress" CssClass="w1FontSize" ReadOnly="true"></DxTextBox>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    @* Liên hệ khẩn cấp   *@
+    <div class="card card-lg mt-1" style="padding: 5px" id="section-accordion-6">
+        <div class="row row-gap-2">
+            <div class="col-12">
+                <div class="accordion" id="accordion-6">
+                    <div class="accordion-item" style="border: none">
+                        <span class="accordion-header" id="heading-1">
+                            <button class="accordion-button " style="padding-top: 1px; padding-bottom: 1px;padding-left: 5px;"
+                                    type="button" data-bs-toggle="collapse" data-bs-target="#collapse-6" aria-expanded="true">
+                                <h4 class="mb-0 w1FontSize">Liên hệ khẩn cấp</h4>
+                            </button>
+                        </span>
+                        <div style="border-bottom: 1px solid var(--tblr-border-color); margin-top: 2px"></div>
+                        <div id="collapse-6" class="accordion-collapse collapse show" data-bs-parent="#accordion-6">
+                            <div class="accordion-body p-2">
+                                <div class="row row-gap-2">
+                                    <div class="col-md-6 col-sm-12">
+                                        <div class="d-flex ">
+                                            <W1Label Value="Họ & tên" Styles="width: 120px" />
+                                            <div style="width: calc(100% - 120px)">
+                                                <DxTextBox @bind-Text="@EmployeeUpdate.fullName1" CssClass="w1FontSize"></DxTextBox>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6 col-sm-12">
+                                        <div class="d-flex ">
+                                            <W1Label Value="Quan hệ" Styles="width: 120px" />
+                                            <div style="width: calc(100% - 120px)">
+                                                <DxComboBox Data="@ListCboRelationship"
+                                                            @bind-Value="@EmployeeUpdate.relationship"
+                                                            FilteringMode="DataGridFilteringMode.Contains"
+                                                            TextFieldName="@nameof(ComboboxModel.name)"
+                                                            ValueFieldName="@nameof(ComboboxModel.code)" CssClass="w1FontSize">
+                                                </DxComboBox>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6 col-sm-12">
+                                        <div class="d-flex ">
+                                            <W1Label Value="ĐT di động" Styles="width: 120px" />
+                                            <div style="width: calc(100% - 120px)">
+                                                <DxTextBox @bind-Text="@EmployeeUpdate.phone5" CssClass="w1FontSize"></DxTextBox>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6 col-sm-12">
+                                        <div class="d-flex ">
+                                            <W1Label Value="ĐT nhà riêng" Styles="width: 120px" />
+                                            <div style="width: calc(100% - 120px)">
+                                                <DxTextBox @bind-Text="@EmployeeUpdate.phone6" CssClass="w1FontSize"></DxTextBox>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6 col-sm-12">
+                                        <div class="d-flex ">
+                                            <W1Label Value="Email" Styles="width: 120px" />
+                                            <div style="width: calc(100% - 120px)">
+                                                <DxTextBox @bind-Text="@EmployeeUpdate.email4" CssClass="w1FontSize"></DxTextBox>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6 col-sm-12">
+                                        <div class="d-flex ">
+                                            <W1Label Value="Địa chỉ" Styles="width: 120px" />
+                                            <div style="width: calc(100% - 120px)">
+                                                <DxTextBox @bind-Text="@EmployeeUpdate.contactAddress" CssClass="w1FontSize"></DxTextBox>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    @* Quan hệ gia đình  *@
+    <div class="card card-lg mt-1" style="padding: 5px" id="section-accordion-7">
+        <div class="row row-gap-2">
+            <div class="col-12">
+                <div class="accordion" id="accordion-7">
+                    <div class="accordion-item" style="border: none">
+                        <span class="accordion-header" id="heading-1">
+                            <button class="accordion-button " style="padding-top: 1px; padding-bottom: 1px;padding-left: 5px;"
+                                    type="button" data-bs-toggle="collapse" data-bs-target="#collapse-7" aria-expanded="true">
+                                <h4 class="mb-0 w1FontSize">Quan hệ gia đình</h4>
+                            </button>
+                        </span>
+                        <div style="border-bottom: 1px solid var(--tblr-border-color); margin-top: 2px"></div>
+                        <div id="collapse-7" class="accordion-collapse collapse show" data-bs-parent="#accordion-7">
+                            <div class="accordion-body p-0">
+                                <div class="row row-gap-2">
+                                    <div class="col-md-12 col-sm-12">
+                                        <DxGrid Data="ListFamilyRelationship" @ref="GridFamilyRelationship"
+                                                ShowFilterRow="false"
+                                                PageSize="500"
+                                                ColumnResizeMode="GridColumnResizeMode.ColumnsContainer"
+                                                PagerPosition="GridPagerPosition.Bottom"
+                                                PageSizeSelectorVisible="false"
+                                                PageSizeSelectorAllRowsItemVisible="false"
+                                                PagerSwitchToInputBoxButtonCount="10"
+                                                PagerVisibleNumericButtonCount="10"
+                                                TextWrapEnabled="false"
+                                                KeyFieldName="@nameof(FamilyRelationshipModel.id)"
+                                                ValidationEnabled="true"
+                                                AllowSelectRowByClick="true"
+                                                FocusedRowEnabled="true"
+                                                SelectionMode="GridSelectionMode.Single"
+                                                CssClass="h-full">
+                                            <ToolbarTemplate>
+                                                <DxToolbar ItemRenderStyleMode="@ToolbarRenderStyleMode.Plain">
+                                                    <Items>
+                                                        <DxToolbarItem IconCssClass="@IconClassConstants.ICON_ADD" BeginGroup="true" Alignment="@ToolbarItemAlignment.Right"
+                                                                       Click="@(async () => await OpenPopupHandler(nameof(IsShowPopupFamily)))" />
+                                                        <DxToolbarItem IconCssClass="@IconClassConstants.ICON_REFRESH" BeginGroup="true" Alignment="@ToolbarItemAlignment.Right"
+                                                                       Click="@(async () => await RefreshHandler(nameof(IsShowPopupFamily)))" />
+                                                    </Items>
+                                                </DxToolbar>
+                                            </ToolbarTemplate>
+                                            <Columns>
+                                                <DxGridDataColumn FieldName="@nameof(FamilyRelationshipModel.name)" Caption="Họ tên" MinWidth="140">
+                                                    <CellDisplayTemplate>
+                                                        @{
+                                                            <a @onclick="@(() => OpenPopupHandler(nameof(IsShowPopupFamily), "", EnumType.Update, (context.DataItem as FamilyRelationshipModel)))">@context.Value</a>
+                                                        }
+                                                    </CellDisplayTemplate>
+                                                </DxGridDataColumn>
+                                                <DxGridDataColumn FieldName="@nameof(FamilyRelationshipModel.relationshipName)" Caption="Mối quan hệ" MinWidth="110" />
+                                                <DxGridDataColumn FieldName="@nameof(FamilyRelationshipModel.phoneNumber)" Caption="Số điện thoại" MinWidth="110" />
+                                                <DxGridDataColumn FieldName="@nameof(FamilyRelationshipModel.dateOfBirth)" Caption="Ngày sinh" MinWidth="110" DisplayFormat="@GlobalContants.FORMAT_DATE" />
+                                                @* <DxGridDataColumn FieldName="@nameof(FamilyRelationshipModel.occupation)" Caption="Nghề nghiệp" MinWidth="140" /> *@
+                                                <DxGridDataColumn FieldName="@nameof(FamilyRelationshipModel.contactAddress)" Caption="Địa chỉ" MinWidth="170" />
+                                                <DxGridDataColumn FieldName="@nameof(FamilyRelationshipModel.remark)" Caption="Ghi chú" MinWidth="170" />
+                                            </Columns>
+                                        </DxGrid>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="mb-5"></div>
+<div class="mb-5"></div>
+<div class="mb-5"></div>
+<div class="mb-5"></div>
+<div class="mb-5"></div>
+
+@* Thêm thông quan hệ gia đình *@
+<W1Popup @bind-IsOpenModal="@IsShowPopupFamily"
+         Width="60%" TextBtnAccept="Cập nhật"
+         HeaderText="@(IsCreatePopup ? "Thêm mới quan hệ gia đình" : $"Cập nhật quan hệ gia đình")"
+         HandleClickAccept="@SaveFamilyRelationshipHandler">
+    <div class="row row-gap-2">
+        <div class="col-sm-12">
+            <div class="d-flex ">
+                <W1Label Value="Mối Quan hệ" Styles="width: 110px" IsRequired="true" />
+                <div style="width: calc(100% - 110px)">
+                    <DxComboBox Data="@ListCboRelationship"
+                                @bind-Value="@FamilyRelationshipUpdate.relationshipId"
+                                FilteringMode="DataGridFilteringMode.Contains"
+                                TextFieldName="@nameof(ComboboxModel.name)"
+                                ValueFieldName="@nameof(ComboboxModel.code)"
+                                CssClass="w1FontSize" Id="txtFamilyRelationshipId">
+                    </DxComboBox>
+                </div>
+            </div>
+        </div>
+        <div class="col-sm-12">
+            <div class="d-flex ">
+                <W1Label Value="Họ tên" Styles="width: 110px" IsRequired="true" />
+                <div style="width: calc(100% - 110px)">
+                    <DxTextBox @bind-Text="@FamilyRelationshipUpdate.name" CssClass="w1FontSize" Id="txtFamilyRelationshipName"></DxTextBox>
+                </div>
+            </div>
+        </div>
+        <div class="col-sm-12">
+            <div class="d-flex ">
+                <W1Label Value="Số điện thoại" Styles="width: 110px" />
+                <div style="width: calc(100% - 110px)">
+                    <DxTextBox @bind-Text="@FamilyRelationshipUpdate.phoneNumber" CssClass="w1FontSize"></DxTextBox>
+                </div>
+            </div>
+        </div>
+        <div class="col-sm-12">
+            <div class="d-flex ">
+                <W1Label Value="Ngày sinh" Styles="width: 110px" />
+                <div style="width: calc(100% - 120px)">
+                    <DxDateEdit @bind-Date="@FamilyRelationshipUpdate.dateOfBirth"
+                                CssClass="w1FontSize"
+                                Mask="@GlobalContants.FORMAT_DATE" Format="@GlobalContants.FORMAT_DATE"
+                                DisplayFormat="@GlobalContants.FORMAT_DATE" />
+                </div>
+            </div>
+        </div>
+        <div class="col-sm-12">
+            <div class="d-flex ">
+                <W1Label Value="Địa chỉ" Styles="width: 110px" />
+                <div style="width: calc(100% - 110px)">
+                    <DxTextBox @bind-Text="@FamilyRelationshipUpdate.contactAddress" CssClass="w1FontSize"></DxTextBox>
+                </div>
+            </div>
+        </div>
+        <div class="col-sm-12">
+            <div class="d-flex ">
+                <W1Label Value="Ghi chú" Styles="width: 110px" />
+                <div style="width: calc(100% - 110px)">
+                    <DxMemo @bind-Text="@FamilyRelationshipUpdate.remark" CssClass="w1FontSize" BindValueMode="@BindValueMode.OnInput" Rows="2" />`
+                </div>
+            </div>
+        </div>
+    </div>
+</W1Popup>
+<W1Confirm @ref="confirm" />
