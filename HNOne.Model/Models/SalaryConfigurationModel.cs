@@ -22,6 +22,7 @@ namespace HNOne.Model.Models
         public bool isNightShift { get; set; } // tăng ca dêm
         public double coefficientNightShift { get; set; } // hệ số ca đêm
         public bool isAllowance { get; set; } // là phụ cấp
+        public bool isPrintContract { get; set; } // là phụ cấp
         public bool isProbationaryPeriod { get; set; } // là thử việc. tính theo %
         public decimal salaryDefault { get; set; } // Tiền lương mặt định
         public string? salaryCalculateMethod { get; set; } // cách tính lương lấy ở enum

@@ -11,7 +11,7 @@
                                Alignment="@ToolbarItemAlignment.Right" Click="@RefreshHandler" />
 
                 <DxToolbarItem Text="Lưu" BeginGroup="true" IconCssClass="@($"{IconClassConstants.ICON_UPDATE}")" CssClass="w1FontSize"
-                               Alignment="@ToolbarItemAlignment.Right" Click="@SaveDataHandler" />
+                               Alignment="@ToolbarItemAlignment.Right" Click="@SaveDataHandler" Visible="@(IsAllowPut)" />
 
             </Items>
         </DxToolbar>
@@ -207,7 +207,7 @@
                                             <Items>
                                                 <DxToolbarItem IconCssClass="@IconClassConstants.ICON_ADD" BeginGroup="true"
                                                                Alignment="@ToolbarItemAlignment.Right" Tooltip="Phát sinh công chi tiết"
-                                                               Click="@GenerateWorkHandler" />
+                                                               Click="@GenerateWorkHandler" Visible="@(IsAllowPost)" />
                                             </Items>
                                         </DxToolbar>
                                     </ToolbarTemplate>

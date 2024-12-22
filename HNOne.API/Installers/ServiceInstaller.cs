@@ -14,6 +14,7 @@ namespace HNOne.API.Installers
             services.AddScoped<IMasterDataService, MasterDataService>();
             services.AddScoped<IUserService, UserService>();
             services.AddScoped<IPersonnelService, PersonnelService>();
+            services.AddTransient<IExportService, ExportService>();
         }
     }
 }

@@ -14,5 +14,6 @@
         public const string ICON_CALENDAR_CHECK = "fa-solid fa-calendar-check h1-text-icon-primary"; // icon lịch
         public const string ICON_TABLE_LOCK = "fa-solid fa-lock h1-text-icon-primary"; // icon lock bảng
         public const string ICON_CALCULATOR = "fa-solid fa-calculator h1-text-icon-primary"; // icon máy tính
+        public const string ICON_PRINT = "fa-solid fa-print text-teal h1-text-icon-primary";
     }
 }

@@ -7,6 +7,7 @@
         public const string MASTERDATA_APPROVAL_DATA = "MasterData/approval";
         public const string MASTERDATA_GET_DATA_WITHOUT_TOKEN = "MasterData/get-data-without-token";
         public const string MASTERDATA_UPLOAD_IMAGE = "MasterData/upload-images";
+        public const string MASTERDATA_EXPORT_DATA = "MasterData/export-data";
         public const string PERSONNEL_POST_DATA = "Personnel/post-data";
         public const string PERSONNEL_GET_DATA = "Personnel/get-data";
         public const string PERSONNEL_CHECK_DATA = "Personnel/check-data";

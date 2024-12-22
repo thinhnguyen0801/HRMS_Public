@@ -81,6 +81,12 @@ namespace HNOne.Web.Controllers
         }
         private void validateForSave(ref string errorMessage, ref string fieldName)
         {
+            if (string.IsNullOrEmpty(BranchUpdate.branchCode))
+            {
+                errorMessage = String.Format(MessageConstants.MESSAGE_STRING_REQUIRE, "Mã chi nhánh");
+                fieldName = nameof(BranchUpdate.branchCode);
+                return;
+            }
             if (string.IsNullOrEmpty(BranchUpdate.branchName))
             {
                 errorMessage = String.Format(MessageConstants.MESSAGE_STRING_REQUIRE, "Tên chi nhánh");
@@ -95,14 +101,10 @@ namespace HNOne.Web.Controllers
         /// <returns></returns>
         private async Task checkPermission(string menuId)
         {
-            //List<string> lstKey = await CheckEventPermission(menuId);
-            //IsAllowPost = lstKey.FirstOrDefault(m => m == STRING_KEY_EVENT_POST) != null;
-            //IsAllowDelete = lstKey.FirstOrDefault(m => m == STRING_KEY_EVENT_DELETE) != null;
-            //IsAllowPut = lstKey.FirstOrDefault(m => m == STRING_KEY_EVENT_PUT) != null;
-
-            IsAllowPost = true;
-            IsAllowDelete = true;
-            IsAllowPut = true;
+            List<string> lstKey = await CheckEventPermission(menuId);
+            IsAllowPost = lstKey.FirstOrDefault(m => m == STRING_KEY_EVENT_POST) != null;
+            IsAllowDelete = lstKey.FirstOrDefault(m => m == STRING_KEY_EVENT_DELETE) != null;
+            IsAllowPut = lstKey.FirstOrDefault(m => m == STRING_KEY_EVENT_PUT) != null;
         }
         #endregion
 
@@ -127,28 +129,17 @@ namespace HNOne.Web.Controllers
             }
         }
         
-        protected async Task OnOpenDialogHandler(EnumType pAction = EnumType.Add, BranchModel? pItemDetails = null)
+        protected void OnOpenDialogHandler(EnumType pAction = EnumType.Add, BranchModel? pItemDetails = null)
         {
             try
             {
-                await checkPermission(MenuId);
                 if (pAction == EnumType.Add)
                 {
-                    if (!IsAllowPost)
-                    {
-                        ShowInfo(MessageConstants.MESSAGE_NO_PERMISSION);
-                        return;
-                    }
                     IsCreate = true;
                     BranchUpdate = new BranchModel();
                 }
                 else
                 {
-                    if (!IsAllowPut)
-                    {
-                        ShowInfo(MessageConstants.MESSAGE_NO_PERMISSION);
-                        return;
-                    }
                     BranchUpdate.branchId = pItemDetails!.branchId;
                     BranchUpdate.branchCode = pItemDetails!.branchCode;
                     BranchUpdate.branchName = pItemDetails!.branchName;
@@ -171,6 +162,12 @@ namespace HNOne.Web.Controllers
         {
             try
             {
+                await checkPermission(MenuId);
+                if ((IsCreate && !IsAllowPost) || (!IsCreate && !IsAllowPut))
+                {
+                    ShowInfo(MessageConstants.MESSAGE_NO_PERMISSION);
+                    return;
+                }
                 string errorMessage = string.Empty;
                 string fieldName = string.Empty;
                 validateForSave(ref errorMessage, ref fieldName);

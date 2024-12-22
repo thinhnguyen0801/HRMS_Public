@@ -11,6 +11,7 @@ using HNOne.Web.Models;
 using Microsoft.AspNetCore.WebUtilities;
 using Newtonsoft.Json;
 using HNOne.Web.Services;
+using System;
 
 namespace HNOne.Web.Controllers
 {
@@ -783,6 +784,31 @@ namespace HNOne.Web.Controllers
                 await InvokeAsync(StateHasChanged);
             }
         }
+        
+        /// <summary>
+        /// In hợp đồng
+        /// </summary>
+        /// <returns></returns>
+        protected async Task PrintDocHandler()
+        {
+            try
+            {
+                await ShowLoading();
+                var stream = await _masterDataService.PrintDocumentAsync(UserId, Token, BranchId, ContractDocument.id, ProcessConstants.GET_CONTRACT, "HDLD.docx");
+                if (stream == null) return;
+                await _jsRuntime.InvokeAsync<string>("downloadFileFromStream", "HDLD.docx", GlobalContants.MIME_TYPE_WORD, stream);
+            }
+            catch (Exception ex)
+            {
+                ShowError(ex.Message);
+                _logger.LogError(ex, "SaveDataHandler");
+            }
+            finally
+            {
+                await ShowLoading(false);
+                await InvokeAsync(StateHasChanged);
+            }
+        }   
         #endregion
     }
 }

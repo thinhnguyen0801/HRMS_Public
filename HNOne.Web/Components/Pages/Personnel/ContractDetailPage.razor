@@ -3,28 +3,32 @@
 <PageTitle>Chi tiết hợp đồng</PageTitle>
 
 <div class="h-content-filter">
-    @if(!IsReadonlyControl)
-    {
-        <div class="card p-1">
-            <DxToolbar ItemRenderStyleMode="@ToolbarRenderStyleMode.Contained">
-                <Items>
+    <div class="card p-1">
+        <DxToolbar ItemRenderStyleMode="@ToolbarRenderStyleMode.Contained">
+            <Items>
 
-                    <DxToolbarItem Text="Lưu" BeginGroup="true" IconCssClass="@($"{IconClassConstants.ICON_UPDATE}")" CssClass="w1FontSize"
-                                   Alignment="@ToolbarItemAlignment.Right" Click="@SaveDataHandler" />
+                <DxToolbarItem Text="Lưu" BeginGroup="true" IconCssClass="@($"{IconClassConstants.ICON_UPDATE}")" CssClass="w1FontSize"
+                               Alignment="@ToolbarItemAlignment.Right" Click="@SaveDataHandler"
+                               Visible="@(!IsReadonlyControl)" />
 
-                    <DxToolbarItem Text="Gửi phê duyệt" BeginGroup="true" IconCssClass="@($"{IconClassConstants.ICON_SHARE}")" CssClass="w1FontSize"
-                                   Alignment="@ToolbarItemAlignment.Right" Click="@(()=> SubmitForApprovalHandler())"
-                                   Visible="@(ContractDocument.statusCode == CommonConstants.STATUS_CODE_ADD)" />
+                <DxToolbarItem Text="Gửi phê duyệt" BeginGroup="true" IconCssClass="@($"{IconClassConstants.ICON_SHARE}")" CssClass="w1FontSize"
+                               Alignment="@ToolbarItemAlignment.Right" Click="@(()=> SubmitForApprovalHandler())"
+                               Visible="@(ContractDocument.statusCode == CommonConstants.STATUS_CODE_ADD && !IsReadonlyControl)" />
 
-                    <DxToolbarItem Text="Hủy" BeginGroup="true" IconCssClass="@($"{IconClassConstants.ICON_DELETE}")" CssClass="w1FontSize"
-                                   Alignment="@ToolbarItemAlignment.Right" />
+                <DxToolbarItem Text="In" BeginGroup="true" IconCssClass="@($"{IconClassConstants.ICON_PRINT}")" CssClass="w1FontSize"
+                               Alignment="@ToolbarItemAlignment.Right" Click="@PrintDocHandler"
+                               Visible="@(pActionType != nameof(EnumType.Add))" />
 
-                    <DxToolbarItem Text="Làm mới" BeginGroup="true" IconCssClass="@($"{IconClassConstants.ICON_REFRESH}")" CssClass="w1FontSize"
-                                   Alignment="@ToolbarItemAlignment.Right" Click="@RefreshDataHandler" />
-                </Items>
-            </DxToolbar>
-        </div>
-    }
+                <DxToolbarItem Text="Hủy" BeginGroup="true" IconCssClass="@($"{IconClassConstants.ICON_DELETE}")" CssClass="w1FontSize"
+                               Alignment="@ToolbarItemAlignment.Right"
+                               Visible="@(!IsReadonlyControl)" />
+
+                <DxToolbarItem Text="Làm mới" BeginGroup="true" IconCssClass="@($"{IconClassConstants.ICON_REFRESH}")" CssClass="w1FontSize"
+                               Alignment="@ToolbarItemAlignment.Right" Click="@RefreshDataHandler"
+                               Visible="@(!IsReadonlyControl)" />
+            </Items>
+        </DxToolbar>
+    </div>
 
     <div class="card card-lg mt-1" style="padding: 5px">
         <div class="row row-gap-2">

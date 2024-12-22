@@ -1,5 +1,4 @@
-﻿using Azure;
-using HNOne.API.Repositories.Interfaces;
+﻿using HNOne.API.Repositories.Interfaces;
 using HNOne.API.Services.Interfaces;
 using HNOne.Common;
 using HNOne.Model;
@@ -9,6 +8,13 @@ using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
 using SixLabors.ImageSharp;
 using SixLabors.ImageSharp.Processing;
+using DocumentFormat.OpenXml.Packaging;
+using DocumentFormat.OpenXml.Wordprocessing;
+using Microsoft.AspNetCore.Routing.Template;
+using System.Collections.Generic;
+using System.Diagnostics.Contracts;
+using HNOne.API.Constants;
+using System.Data;
 
 namespace HNOne.API.Controllers
 {
@@ -19,15 +25,17 @@ namespace HNOne.API.Controllers
         private readonly ILogger<MasterDataController> _logger;
         private readonly IMasterDataService _masterDataService;
         private readonly IApprovalRepository _approvalRepository;
+        private readonly IPersonnelService _personnelService;
         private readonly IWebHostEnvironment _webHostEnvironment;
         public MasterDataController(IMasterDataService masterDataService
             , ILogger<MasterDataController> logger, IWebHostEnvironment webHostEnvironment
-            , IApprovalRepository approvalRepository)
+            , IApprovalRepository approvalRepository, IPersonnelService personnelService)
         {
             _masterDataService = masterDataService;
             _logger = logger;
             _webHostEnvironment = webHostEnvironment;
             _approvalRepository = approvalRepository;
+            _personnelService = personnelService;
         }
 
         /// <summary>
@@ -311,7 +319,151 @@ namespace HNOne.API.Controllers
 
             }
         }
+
+        [HttpPost]
+        [Route("export-data")]
+        public async Task<IActionResult> ExportData([FromBody] RequestModel request)
+        {
+            ResponseModel response = new ResponseModel();
+            string outputPath = string.Empty;
+            try
+            {
+                IEnumerable<object> dataList;
+                string? processKey = request.process?.Trim();
+                // đi lấy dữ liệu
+                switch (processKey)
+                {
+                    case ProcessConstants.GET_CONTRACT:
+                        dataList = await _personnelService.GetContract(request);
+                        break;
+                    case ProcessConstants.GET_CONTRACT_APPENDIX:
+                        dataList = await _personnelService.GetContractAppendix(request);
+                        break;
+                    default:
+                        response.status = StatusCodes.Status404NotFound;
+                        response.message = $"Process Key {processKey} was not provider!!!";
+                        return BadRequest(response);
+                }
+                if (dataList.IsNullOrEmpty())
+                {
+                    response.status = StatusCodes.Status204NoContent;
+                    response.message = "Không tìm thấy dữ liệu!!!";
+                    return BadRequest(response);
+                }
+                string templatePath = $"{this._webHostEnvironment.WebRootPath}\\Templates\\{request.opt}";
+                if (!System.IO.File.Exists(templatePath))
+                {
+                    response.status = StatusCodes.Status404NotFound;
+                    response.message = MessageConstants.MESSAGE_FILE_NOT_FOUNT;
+                    return BadRequest(response);
+                }
+                string path = $"{this._webHostEnvironment.WebRootPath}\\Exports";
+                outputPath = $"{path}\\{Guid.NewGuid().ToString().Replace("-", "")}-{request.opt}";
+                if (!Directory.Exists(path)) Directory.CreateDirectory(path);
+                // copy nội dung sang file mới
+                System.IO.File.Copy(templatePath, outputPath, true);
+                using (WordprocessingDocument wordDoc = WordprocessingDocument.Open(outputPath, true))
+                {
+                    // Lấy nội dung văn bản & thay thế nội dung placeholder
+                    var body = wordDoc.MainDocumentPart!.Document.Body;
+                    if (processKey == ProcessConstants.GET_CONTRACT) fillContractToFile(body!, dataList);
+                    wordDoc.MainDocumentPart.Document.Save();
+                }
+                var fileBytes = await System.IO.File.ReadAllBytesAsync(outputPath);
+                return File(fileBytes, "application/vnd.openxmlformats-officedocument.wordprocessingml.document", $"{request.opt}");    
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "An error occurred while processing the request.");
+                response.status = StatusCodes.Status400BadRequest;
+                response.message = ex.Message;
+                return BadRequest(response);
+            }
+            finally
+            {
+                //if (!string.IsNullOrEmpty(outputPath)
+                //    && System.IO.File.Exists(outputPath))
+                //{
+                //    // loại bỏ file đính kèm
+                //    System.IO.File.Delete(outputPath);
+                //}
+            }
+            
+        }
         #region Private Function
+        private void fillContractToFile(Body body, IEnumerable<object> dataList)
+        {
+            ContractModel contract = dataList.Cast<ContractModel>().First();
+            List<SalaryConfigurationModel> lstSalaryConfig = JsonConvert.DeserializeObject<List<SalaryConfigurationModel>>(contract.jsonDetail!)!; // nếu không có cho rớt catch
+            Table? table = body.Elements<Table>().FirstOrDefault();
+            if(table != null)
+            {
+                // Tìm một dòng mẫu từ bảng để lấy định dạng
+                var sampleRow = table.Descendants<TableRow>().Skip(1).FirstOrDefault(); // Bỏ qua dòng tiêu đề
+                var sampleRunProperties = sampleRow!.Descendants<RunProperties>().FirstOrDefault();
+                sampleRow.Remove();
+                foreach (var item in lstSalaryConfig)
+                {
+                    TableRow dataRow = new TableRow();
+                    // Tạo ô cho "Nội dung"
+                    if (!string.IsNullOrEmpty(item.SalaryCalculateMethodName)) item.salaryCategoryName = $"{item.salaryCategoryName} ({item.SalaryCalculateMethodName})";
+                    var cell1 = new TableCell(new Paragraph(createFormattedRun($"{item.salaryCategoryName}", sampleRunProperties)));
+                    var cell2 = new TableCell(new Paragraph(createFormattedRun($"{item.amount.ToString(GlobalConstants.FORMAT_CURRENCY)}", sampleRunProperties)));
+                    dataRow.Append(cell1,cell2);
+                    table.Append(dataRow);
+                }
+                TableRow dataRowLast = new TableRow();
+                dataRowLast.Append(
+                    new TableCell(new Paragraph(createFormattedRun($"Tổng cộng", sampleRunProperties, true))),
+                    new TableCell(new Paragraph(createFormattedRun($"{contract.totalSalary.ToString(GlobalConstants.FORMAT_CURRENCY)}", sampleRunProperties, true)))
+                );
+                table.Append(dataRowLast);
+            }    
+            foreach (var text in body.Descendants<Text>())
+            { 
+                if (text.Text.Contains("ContractCode")) text.Text = text.Text.Replace("ContractCode", contract.contractCode);
+                if (text.Text.Contains("##FullName##")) text.Text = text.Text.Replace("##FullName##", contract.employeeName);
+                if (text.Text.Contains("##BirthDate##")) text.Text = text.Text.Replace("##BirthDate##", contract.dateOfBirth?.ToString(GlobalConstants.FORMAT_DATE));
+                if (text.Text.Contains("##IdentifyNumber##")) text.Text = text.Text.Replace("##IdentifyNumber##", contract.cIC);      
+                if (text.Text.Contains("##IdentifyNumberIssuedDate##")) text.Text = text.Text.Replace("##IdentifyNumberIssuedDate##", contract.issuanceDateCIC?.ToString(GlobalConstants.FORMAT_DATE));      
+                if (text.Text.Contains("##IdentifyNumberIssuedPlace##")) text.Text = text.Text.Replace("##IdentifyNumberIssuedPlace##", contract.placeOfIssuanceCIC);
+                if (text.Text.Contains("##PermanentAddress##")) text.Text = text.Text.Replace("##PermanentAddress##", contract.placeOfResidence);
+                if (text.Text.Contains("##PermanentAddress##")) text.Text = text.Text.Replace("##PermanentAddress##", contract.placeOfResidence);
+                if (text.Text.Contains("##ContractType##")) text.Text = text.Text.Replace("##ContractType##", contract.contractTypeName);
+                if (text.Text.Contains("##ContractPeriod##")) text.Text = text.Text.Replace("##ContractPeriod##", $"{contract.numberOfMonths} tháng");
+                if (text.Text.Contains("##StartDate##")) text.Text = text.Text.Replace("##StartDate##", contract.startDate?.ToString(GlobalConstants.FORMAT_DATE));
+                if (text.Text.Contains("##EndDate##")) text.Text = text.Text.Replace("##EndDate##", contract.endDate?.ToString(GlobalConstants.FORMAT_DATE));
+                if (text.Text.Contains("##JobPositionName##")) text.Text = text.Text.Replace("##JobPositionName##", contract.titleName);
+                if (text.Text.Contains("##OrganizationUnitName##")) text.Text = text.Text.Replace("##OrganizationUnitName##", contract.branchName);
+                if (text.Text.Contains("##SALARY_DECIDES##")) text.Text = text.Text.Replace("##SALARY_DECIDES##", lstSalaryConfig.First(m=>m.salaryCategoryCode == "LQD").amount.ToString(GlobalConstants.FORMAT_CURRENCY));
+            }
+        }
+
+        /// <summary>
+        /// Hàm hỗ trợ: Sao chép định dạng từ RunProperties
+        /// </summary>
+        /// <param name="text"></param>
+        /// <param name="sampleRunProperties"></param>
+        /// <returns></returns>
+        private Run createFormattedRun(string text, RunProperties? sampleRunProperties, bool isFontWeightBold = false)
+        {
+            // Tạo một đối tượng Run mới
+            var run = new Run(new Text(text));
+
+            // Sao chép định dạng từ sampleRunProperties nếu có
+            if (sampleRunProperties != null)
+            {
+                var newRunProperties = (RunProperties)sampleRunProperties.CloneNode(true);
+                run.PrependChild(newRunProperties);
+            }
+            if (isFontWeightBold)
+            {
+                var boldElement = new Bold();
+                run.RunProperties = run.RunProperties ?? new RunProperties();
+                run.RunProperties.Append(boldElement);  // Thêm in đậm vào RunProperties
+            }
+            return run;
+        }
         #endregion
     }
 }

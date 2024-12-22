@@ -14,10 +14,10 @@
                                            Alignment="@ToolbarItemAlignment.Right" Click="@(()=> RefreshHandler())" />
 
                             <DxToolbarItem Text="Thêm mới" BeginGroup="true" IconCssClass="@($"{IconClassConstants.ICON_ADD}")" CssClass="w1FontSize"
-                                           Alignment="@ToolbarItemAlignment.Right" Click="@(()=> OnOpenDialogHandler())" />
+                                           Alignment="@ToolbarItemAlignment.Right" Click="@(()=> OnOpenDialogHandler())" Visible="@(IsAllowPost)" />
 
                             <DxToolbarItem Text="Xóa" BeginGroup="true" IconCssClass="@($"{IconClassConstants.ICON_DELETE}")" CssClass="w1FontSize"
-                                           Alignment="@ToolbarItemAlignment.Right" Click="@(()=> DeleteDataHandler())" />
+                                           Alignment="@ToolbarItemAlignment.Right" Click="@(()=> DeleteDataHandler())" Visible="@(IsAllowDelete)" />
                         </Items>
                     </DxToolbar>
                 </div>
@@ -43,7 +43,14 @@
                             <DxGridDataColumn FieldName="@nameof(HolidayCatagoryModel.name)" Caption="Tên ngày nghỉ" MinWidth="180">
                                 <CellDisplayTemplate>
                                     @{
-                                        <a @onclick="@(() => OnOpenDialogHandler(EnumType.Update, (context.DataItem as HolidayCatagoryModel)))">@context.Value</a>
+                                        if (IsAllowPut)
+                                        {
+                                            <a @onclick="@(() => OnOpenDialogHandler(EnumType.Update, (context.DataItem as HolidayCatagoryModel)))">@context.Value</a>
+                                        }
+                                        else
+                                        {
+                                            <span>@context.Value</span>
+                                        }
                                     }
                                 </CellDisplayTemplate>
                             </DxGridDataColumn>/>

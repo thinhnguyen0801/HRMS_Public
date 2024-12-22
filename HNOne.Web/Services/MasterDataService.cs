@@ -7,6 +7,7 @@ using HNOne.Model.Models;
 using HNOne.Web.Commons;
 using HNOne.Web.Services.Interfaces;
 using Microsoft.AspNetCore.Mvc.RazorPages;
+using Microsoft.JSInterop;
 using Newtonsoft.Json;
 using System.Linq;
 using System.Net.Http.Headers;
@@ -127,6 +128,11 @@ namespace HNOne.Web.Services
                     {
                         _toastService.ShowSuccess(response.message);
                         return true;
+                    }
+                    if (response?.status == StatusCodes.Status409Conflict)
+                    {
+                        _toastService.ShowInfo(response?.message ?? MessageConstants.MESSAGE_IT_SUPPORT);
+                        return false;
                     }
                     _toastService.ShowError(response?.message ?? MessageConstants.MESSAGE_IT_SUPPORT);
                 }
@@ -1051,6 +1057,57 @@ namespace HNOne.Web.Services
                     _toastService.ShowError(response?.message ?? MessageConstants.MESSAGE_IT_SUPPORT);
                 }
                 return statusId;
+            }
+            catch (Exception) { throw; }
+        }
+    
+        /// <summary>
+        /// export dữ liệu ra file
+        /// </summary>
+        /// <param name="userId"></param>
+        /// <param name="token"></param>
+        /// <param name="branchId"></param>
+        /// <param name="processKey"></param>
+        /// <param name="fileName"></param>
+        /// <returns></returns>
+        public async Task<DotNetStreamReference?> PrintDocumentAsync(int userId, string token, int branchId, int documentId, string processKey, string fileName)
+        {
+            try
+            {
+                RequestModel request = new RequestModel();
+                request.process = processKey;
+                request.userId = userId;
+                request.token = token;
+                request.branchId = branchId;
+                request.opt = fileName;
+                request.documentId = documentId;
+                DotNetStreamReference? streamRef = null;
+                HttpResponseMessage httpResponse = await PostAsync(EnpointConstants.MASTERDATA_EXPORT_DATA, request);
+                if (httpResponse.StatusCode == System.Net.HttpStatusCode.Unauthorized)
+                {
+                    _toastService.ShowInfo(MessageConstants.MESSAGE_LOGIN_EXPIRED);
+                    return streamRef;
+                }
+                if (httpResponse.IsSuccessStatusCode)
+                {
+                    Stream fileStream = await httpResponse.Content.ReadAsStreamAsync();
+                    streamRef = new DotNetStreamReference(stream: fileStream);
+                    return streamRef;
+                }
+                var checkContent = ValidateJsonContent(httpResponse.Content);
+                if (!checkContent) _toastService.ShowError(MessageConstants.MESSAGE_JSON_INVALID);
+                else
+                {
+                    var content = await httpResponse.Content.ReadAsStringAsync();
+                    ResponseModel response = JsonConvert.DeserializeObject<ResponseModel>(content)!;
+                    if (response?.status == StatusCodes.Status409Conflict)
+                    {
+                        _toastService.ShowInfo(response?.message ?? MessageConstants.MESSAGE_IT_SUPPORT);
+                        return streamRef;
+                    }
+                    _toastService.ShowWarning(response?.message ?? MessageConstants.MESSAGE_IT_SUPPORT);
+                }
+                return streamRef;
             }
             catch (Exception) { throw; }
         }

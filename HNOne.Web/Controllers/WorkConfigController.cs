@@ -18,7 +18,8 @@ namespace HNOne.Web.Controllers
         [Inject] IWorkforceService _workforceService { get; init; }
         [Inject] IJSRuntime _jsRuntime { get; set; }
         public W1Confirm confirm { get; set; }
-
+        const string STRING_KEY_EVENT_POST = "CONTRACT_TYPE_CONTROLLER_POST";
+        const string STRING_KEY_EVENT_PUT = "CONTRACT_TYPE_CONTROLLER_PUT";
         #region Properties
 
         public WorkConfigModel WorkConfigUpdate { get; set; } = new WorkConfigModel();
@@ -28,7 +29,6 @@ namespace HNOne.Web.Controllers
         public List<ComboboxModel>? ListCboYear { get; set; }
         // nút quyền
         public bool IsAllowPost { get; set; }
-        public bool IsAllowDelete { get; set; }
         public bool IsAllowPut { get; set; }
         #endregion
 
@@ -39,10 +39,9 @@ namespace HNOne.Web.Controllers
             {
                 try
                 {
-                    //string errMessage = await CheckMenuPermissionAsync("chi-nhanh");
-                    //if (errMessage == "401") return; // kiểm quyền menu page danh sách
-
-                    //await checkPermission(errMessage);
+                    string errMessage = await CheckMenuPermissionAsync("cau-hinh-thong-so-cong");
+                    if (errMessage == "401") return; // kiểm quyền menu page danh sách
+                    await checkPermission(errMessage);
                     await ShowLoading();
                     ListBreadcrumbs = new List<BreadcrumbModel>()
                     {
@@ -162,6 +161,17 @@ namespace HNOne.Web.Controllers
                 return;
             }
         }
+
+        /// <summary>
+        /// kiểm tra quyền nút
+        /// </summary>
+        /// <returns></returns>
+        private async Task checkPermission(string menuId)
+        {
+            List<string> lstKey = await CheckEventPermission(menuId);
+            IsAllowPost = lstKey.FirstOrDefault(m => m == STRING_KEY_EVENT_POST) != null;
+            IsAllowPut = lstKey.FirstOrDefault(m => m == STRING_KEY_EVENT_PUT) != null;
+        }
         #endregion
 
         #region Protected Functions
@@ -193,6 +203,12 @@ namespace HNOne.Web.Controllers
         {
             try
             {
+                await checkPermission(MenuId);
+                if (!IsAllowPut)
+                {
+                    ShowInfo(MessageConstants.MESSAGE_NO_PERMISSION);
+                    return;
+                }
                 string errorMessage = string.Empty;
                 string fieldName = string.Empty;
                 validateForSave(ref errorMessage, ref fieldName);
@@ -243,6 +259,12 @@ namespace HNOne.Web.Controllers
         {
             try
             {
+                await checkPermission(MenuId);
+                if (!IsAllowPost)
+                {
+                    ShowInfo(MessageConstants.MESSAGE_NO_PERMISSION);
+                    return;
+                }
                 bool isConfirm = true;
                 string errorMessage = string.Empty;
                 errorMessage = $"Bạn có chắc muốn phát sinh thông tin kỳ công chi tiết năm {WorkConfigUpdate.year} không?";

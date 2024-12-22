@@ -29,6 +29,7 @@ namespace HNOne.Model.Entities
         public bool IsNightShift { get; set; } // tăng ca dêm
         public double CoefficientNightShift { get; set; } // hệ số ca đêm
         public bool IsAllowance { get; set; } // là phụ cấp
+        public bool IsPrintContract { get; set; } // in hợp đồng/phụ lục
         public bool IsProbationaryPeriod { get; set; } // là thử việc. tính theo %
 
         [Column(TypeName = "decimal(19, 6)")]

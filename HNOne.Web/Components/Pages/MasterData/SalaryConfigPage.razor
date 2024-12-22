@@ -68,6 +68,7 @@
                             <DxGridDataColumn FieldName="@nameof(SalaryConfigurationModel.overtimeCoefficient)" Caption="H/số tăng ca" MinWidth="100" DisplayFormat="@GlobalContants.FORMAT_NUMBER" />
                             <DxGridDataColumn FieldName="@nameof(SalaryConfigurationModel.coefficientNightShift)" Caption="H/số tăng ca đêm" MinWidth="115" DisplayFormat="@GlobalContants.FORMAT_NUMBER" />
                             <DxGridDataColumn FieldName="@nameof(SalaryConfigurationModel.isAllowance)" Caption="Phụ cấp" MinWidth="90" />
+                            <DxGridDataColumn FieldName="@nameof(SalaryConfigurationModel.isPrintContract)" Caption="In hợp đồng" MinWidth="95" />
                             <DxGridDataColumn FieldName="@nameof(SalaryConfigurationModel.salaryDefault)" Caption="Lương mặc định" MinWidth="110" DisplayFormat="@GlobalContants.FORMAT_CURRENCY" />
                             <DxGridDataColumn FieldName="@nameof(SalaryConfigurationModel.SalaryCalculateMethodName)" Caption="Cách tính lương" MinWidth="110" />
                             <DxGridDataColumn FieldName="@nameof(SalaryConfigurationModel.isUseOfGradeLevel)" Caption="Dùng ngạch bậc?" MinWidth="110" />
@@ -313,6 +314,14 @@
                                                 @bind-Checked="@EntityUpdate.isProbationaryPeriod"
                                                 LabelPosition="@LabelPosition.Right">
                                         Thử việc
+                                    </DxCheckBox>
+                                </td>
+                                <td class="text-start p-1">
+                                    <DxCheckBox CssClass="w-100 w1FontSize"
+                                                SizeMode="@SizeMode.Small"
+                                                @bind-Checked="@EntityUpdate.isPrintContract"
+                                                LabelPosition="@LabelPosition.Right">
+                                        In hợp đồng
                                     </DxCheckBox>
                                 </td>
                             </tr>

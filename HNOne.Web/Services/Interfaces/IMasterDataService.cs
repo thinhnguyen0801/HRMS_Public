@@ -1,6 +1,7 @@
 ﻿using HNOne.Model.Entities;
 using HNOne.Model;
 using HNOne.Model.Models;
+using Microsoft.JSInterop;
 
 namespace HNOne.Web.Services.Interfaces
 {
@@ -32,5 +33,6 @@ namespace HNOne.Web.Services.Interfaces
             , string opt = "", string opt1 = "", bool isShowToast = false);
         Task<string> DeleteDynnamicAsync(int userId, string token, int branchId
             , string tableName, string pKey, string fKey, string documentId, string reasonDelete);
+        Task<DotNetStreamReference?> PrintDocumentAsync(int userId, string token, int branchId, int documentId, string processKey, string fileName);
     }
 }

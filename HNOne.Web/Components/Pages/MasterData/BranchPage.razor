@@ -13,7 +13,7 @@
                             <DxToolbarItem Text="Làm mới" BeginGroup="true" IconCssClass="@($"{IconClassConstants.ICON_REFRESH}")" CssClass="w1FontSize"
                                            Alignment="@ToolbarItemAlignment.Right" Click="@(()=> RefreshHandler())" />
                             <DxToolbarItem Text="Thêm mới" BeginGroup="true" IconCssClass="@($"{IconClassConstants.ICON_ADD}")" CssClass="w1FontSize"
-                                           Alignment="@ToolbarItemAlignment.Right" Click="@(async()=> await OnOpenDialogHandler())" Visible="@(IsAllowPost)" />
+                                           Alignment="@ToolbarItemAlignment.Right" Click="@(()=> OnOpenDialogHandler())" Visible="@(IsAllowPost)" />
 
                             <DxToolbarItem Text="Xóa" BeginGroup="true" IconCssClass="@($"{IconClassConstants.ICON_DELETE}")" CssClass="w1FontSize"
                                            Alignment="@ToolbarItemAlignment.Right" Click="@(()=> DeleteDataHandler())" Visible="@(IsAllowDelete)" />
@@ -44,7 +44,7 @@
                                     @{
                                         if(IsAllowPut)
                                         {
-                                            <a @onclick="@(async()=> await OnOpenDialogHandler(EnumType.Update, (context.DataItem as BranchModel)))">@context.Value</a>
+                                            <a @onclick="@(()=> OnOpenDialogHandler(EnumType.Update, (context.DataItem as BranchModel)))">@context.Value</a>
                                         }
                                         else
                                         {
@@ -79,9 +79,9 @@
     <div class="row row-gap-2">
         <div class="col-sm-12">
             <div class="d-flex ">
-                <W1Label Value="Mã chi nhánh" Id="bacLuong" Styles="width: 120px" />
+                <W1Label Value="Mã chi nhánh" Id="branchCode" Styles="width: 120px" />
                 <div style="width: calc(100% - 120px)">
-                    <DxTextBox @bind-Text="@BranchUpdate.branchCode" ReadOnly="true" CssClass="w1FontSize"></DxTextBox>
+                    <DxTextBox @bind-Text="@BranchUpdate.branchCode" ReadOnly="@(!IsCreate)" CssClass="w1FontSize" Id="branchCode"></DxTextBox>
                 </div>
             </div>
         </div>
@@ -89,7 +89,7 @@
             <div class="d-flex ">
                 <W1Label Value="Tên chi nhánh" Id="bacLuong" Styles="width: 120px" IsRequired="true" />
                 <div style="width: calc(100% - 120px)">
-                    <DxTextBox @bind-Text="@BranchUpdate.branchName" CssClass="w1FontSize"></DxTextBox>
+                    <DxTextBox @bind-Text="@BranchUpdate.branchName" CssClass="w1FontSize" Id="branchName"></DxTextBox>
                 </div>
             </div>
         </div>

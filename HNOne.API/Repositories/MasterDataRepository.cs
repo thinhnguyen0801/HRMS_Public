@@ -53,14 +53,14 @@ namespace HNOne.API.Repositories
                 var result = await connection.QueryAsync<MenuModel>(StoreConstants.STORE_H1_MENU_SELECT, param: parameters, commandTimeout: GlobalConstants.COMMAND_TIMEOUT, commandType: CommandType.StoredProcedure);
                 if (string.Equals(request.type, "AUTHENTICATION", StringComparison.OrdinalIgnoreCase))
                 {
-                    var groupBy = result.GroupBy(m => m.parentID);
+                    var groupBy = result.GroupBy(m => $"{m.parentID}-{m.menuID}");
                     foreach(var group in groupBy)
                     {
                         var header = group.First();
                         MenuModel menuModel = new MenuModel();
                         menuModel.menuID = header.menuID;
                         menuModel.menuName = header.menuName;
-                        menuModel.parentID = group.Key;
+                        menuModel.parentID = header.parentID;
                         menuModel.parentName = header.parentName;
                         menuModel.level = header.level;
                         menuModel.ordinalNumber = header.ordinalNumber;
@@ -342,16 +342,23 @@ namespace HNOne.API.Repositories
             {
                 using (var connection = _dapperDbContext.CreateConnection())
                 {
-                    string commandText = @$"select {StoreConstants.FUNC_GET_VOUCHER}(@Type, '', '', '')";
-                    string? voucherNo = await connection.QueryFirstOrDefaultAsync<string>(commandText, param: new { Type = GlobalConstants.TABLE_BRANCH }, commandTimeout: GlobalConstants.COMMAND_TIMEOUT, commandType: CommandType.Text);
-                    if (string.IsNullOrEmpty(voucherNo))
+                    //string commandText = @$"select {StoreConstants.FUNC_GET_VOUCHER}(@Type, '', '', '')";
+                    //string? voucherNo = await connection.QueryFirstOrDefaultAsync<string>(commandText, param: new { Type = GlobalConstants.TABLE_BRANCH }, commandTimeout: GlobalConstants.COMMAND_TIMEOUT, commandType: CommandType.Text);
+                    //if (string.IsNullOrEmpty(voucherNo))
+                    //{
+                    //    response.status = StatusCodes.Status204NoContent;
+                    //    response.message = MessageConstants.MESSAGE_VOUCHER_NO_MISSING;
+                    //    return response;
+                    //}
+                    bool isResult = await _dbContext.Branchs.FirstOrDefaultAsync(m => m.BranchCode == entity.BranchCode) != null;
+                    if (isResult)
                     {
-                        response.status = StatusCodes.Status204NoContent;
-                        response.message = MessageConstants.MESSAGE_VOUCHER_NO_MISSING;
+                        response.status = StatusCodes.Status409Conflict;
+                        response.message = string.Format(MessageConstants.MESSAGE_CONFLICT_FORMAT, "Mã chi nhánh");
                         return response;
                     }
                     entity.BranchId = await _dbContext.Branchs.Select(m=>m.BranchId).DefaultIfEmpty().MaxAsync() + 1;
-                    entity.BranchCode = voucherNo;
+                    entity.BranchCode = entity.BranchCode;
                     entity.DefaultPassword = _encryptHelper.Encrypt(entity.DefaultPassword?.Trim());
                     entity.DateTracking = _dateTimeHelper.GetCurrentVietnamTime();
                     entity.CreateDate = _dateTimeHelper.GetCurrentVietnamTime();
@@ -858,6 +865,7 @@ namespace HNOne.API.Repositories
                 result.IsNightShift = entity.IsNightShift;
                 result.CoefficientNightShift = entity.CoefficientNightShift;
                 result.IsAllowance = entity.IsAllowance;
+                result.IsPrintContract = entity.IsPrintContract;
                 result.IsProbationaryPeriod = entity.IsProbationaryPeriod;
                 result.SalaryDefault = entity.SalaryDefault;
                 result.SalaryCalculateMethod = entity.SalaryCalculateMethod;

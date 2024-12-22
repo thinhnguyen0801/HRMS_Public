@@ -20,9 +20,9 @@ namespace HNOne.Web.Controllers
         [Inject] IJSRuntime _jsRuntime { get; set; }
         public W1Confirm confirm { get; set; }
 
-        const string STRING_KEY_EVENT_POST = "BRANCH_CONTROLLER_POST";
-        const string STRING_KEY_EVENT_PUT = "BRANCH_CONTROLLER_PUT";
-        const string STRING_KEY_EVENT_DELETE = "BRANCH_CONTROLLER_DELETE";
+        const string STRING_KEY_EVENT_POST = "LEAVE_CONFIG_CONTROLLER_POST";
+        const string STRING_KEY_EVENT_PUT = "LEAVE_CONFIG_CONTROLLER_PUT";
+        const string STRING_KEY_EVENT_DELETE = "LEAVE_CONFIG_CONTROLLER_DELETE";
 
         #region Properties
         public List<LeaveConfigModel>? ListLeaveConfig { get; set; }
@@ -45,10 +45,10 @@ namespace HNOne.Web.Controllers
             {
                 try
                 {
-                    //string errMessage = await CheckMenuPermissionAsync("chi-nhanh");
-                    //if (errMessage == "401") return; // kiểm quyền menu page danh sách
-                    //await ShowLoading();
-                    //await checkPermission(errMessage);
+                    string errMessage = await CheckMenuPermissionAsync("cau-hinh-thong-so-phep");
+                    if (errMessage == "401") return; // kiểm quyền menu page danh sách
+                    await ShowLoading();
+                    await checkPermission(errMessage);
                     ListBreadcrumbs = new List<BreadcrumbModel>()
                     {
                         new BreadcrumbModel("Danh mục"),
@@ -79,13 +79,10 @@ namespace HNOne.Web.Controllers
         /// <returns></returns>
         private async Task checkPermission(string menuId)
         {
-            //List<string> lstKey = await CheckEventPermission(menuId);
-            //IsAllowPost = lstKey.FirstOrDefault(m => m == STRING_KEY_EVENT_POST) != null;
-            //IsAllowDelete = lstKey.FirstOrDefault(m => m == STRING_KEY_EVENT_DELETE) != null;
-            //IsAllowPut = lstKey.FirstOrDefault(m => m == STRING_KEY_EVENT_PUT) != null;
-            IsAllowPost = true;
-            IsAllowDelete = true;
-            IsAllowPut = true;
+            List<string> lstKey = await CheckEventPermission(menuId);
+            IsAllowPost = lstKey.FirstOrDefault(m => m == STRING_KEY_EVENT_POST) != null;
+            IsAllowDelete = lstKey.FirstOrDefault(m => m == STRING_KEY_EVENT_DELETE) != null;
+            IsAllowPut = lstKey.FirstOrDefault(m => m == STRING_KEY_EVENT_PUT) != null;
         }
         
         private async Task getLeaveConfig()
@@ -120,18 +117,12 @@ namespace HNOne.Web.Controllers
             }
         }
 
-        protected async Task OnOpenDialogHandler(EnumType pAction = EnumType.Add, LeaveConfigModel? pItemDetails = null)
+        protected void OnOpenDialogHandler(EnumType pAction = EnumType.Add, LeaveConfigModel? pItemDetails = null)
         {
             try
             {
-                //await checkPermission(MenuId);
                 if (pAction == EnumType.Add)
                 {
-                    //if (!IsAllowPost)
-                    //{
-                    //    ShowInfo(MessageConstants.MESSAGE_NO_PERMISSION);
-                    //    return;
-                    //}
                     IsCreate = true;
                     LeaveConfigUpdate = new LeaveConfigModel();
                     LeaveConfigUpdate.year = DateTime.Now.Year;
@@ -143,11 +134,6 @@ namespace HNOne.Web.Controllers
                 }
                 else
                 {
-                    //if (!IsAllowPut)
-                    //{
-                    //    ShowInfo(MessageConstants.MESSAGE_NO_PERMISSION);
-                    //    return;
-                    //}
                     LeaveConfigUpdate.id = pItemDetails!.id;
                     LeaveConfigUpdate.year = pItemDetails!.year;
                     LeaveConfigUpdate.fromDate = pItemDetails!.fromDate;
@@ -176,6 +162,12 @@ namespace HNOne.Web.Controllers
         {
             try
             {
+                await checkPermission(MenuId);
+                if ((IsCreate && !IsAllowPost) || (!IsCreate && !IsAllowPut))
+                {
+                    ShowInfo(MessageConstants.MESSAGE_NO_PERMISSION);
+                    return;
+                }
                 string errorMessage = string.Empty;
                 string fieldName = string.Empty;
                 //validateForSave(ref errorMessage, ref fieldName);

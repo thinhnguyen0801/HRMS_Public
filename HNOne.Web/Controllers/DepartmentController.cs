@@ -131,13 +131,10 @@ namespace HNOne.Web.Controllers
         /// <returns></returns>
         private async Task checkPermission(string menuId)
         {
-            //List<string> lstKey = await CheckEventPermission(menuId);
-            //IsAllowPost = lstKey.FirstOrDefault(m => m == STRING_KEY_EVENT_POST) != null;
-            //IsAllowDelete = lstKey.FirstOrDefault(m => m == STRING_KEY_EVENT_DELETE) != null;
-            //IsAllowPut = lstKey.FirstOrDefault(m => m == STRING_KEY_EVENT_PUT) != null;
-            IsAllowPost = true;
-            IsAllowDelete = true;
-            IsAllowPut = true;
+            List<string> lstKey = await CheckEventPermission(menuId);
+            IsAllowPost = lstKey.FirstOrDefault(m => m == STRING_KEY_EVENT_POST) != null;
+            IsAllowDelete = lstKey.FirstOrDefault(m => m == STRING_KEY_EVENT_DELETE) != null;
+            IsAllowPut = lstKey.FirstOrDefault(m => m == STRING_KEY_EVENT_PUT) != null;
         }
         #endregion
 
@@ -166,25 +163,14 @@ namespace HNOne.Web.Controllers
         {
             try
             {
-                await checkPermission(MenuId);
                 if (pAction == EnumType.Add)
                 {
-                    if (!IsAllowPost)
-                    {
-                        ShowInfo(MessageConstants.MESSAGE_NO_PERMISSION);
-                        return;
-                    }
                     IsCreate = true;
                     DepartmentUpdate = new DepartmentModel();
                     if (!ListCboBranch.IsNullOrEmpty()) DepartmentUpdate.branchId = BranchId;
                 }
                 else
                 {
-                    if (!IsAllowPut)
-                    {
-                        ShowInfo(MessageConstants.MESSAGE_NO_PERMISSION);
-                        return;
-                    }
                     DepartmentUpdate.id = pItemDetails!.id;
                     DepartmentUpdate.code = pItemDetails!.code;
                     DepartmentUpdate.name = pItemDetails!.name;
@@ -210,6 +196,12 @@ namespace HNOne.Web.Controllers
         {
             try
             {
+                await checkPermission(MenuId);
+                if ((IsCreate && !IsAllowPost) || (!IsCreate && !IsAllowPut))
+                {
+                    ShowInfo(MessageConstants.MESSAGE_NO_PERMISSION);
+                    return;
+                }
                 string errorMessage = string.Empty;
                 string fieldName = string.Empty;
                 validateForSave(ref errorMessage, ref fieldName);

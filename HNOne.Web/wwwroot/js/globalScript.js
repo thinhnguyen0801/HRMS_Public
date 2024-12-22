@@ -100,3 +100,43 @@ document.addEventListener('DOMContentLoaded', function () {
         window.scrollTo({ top: 0, behavior: 'smooth' });
     });
 });
+
+//Tải file từ stream
+async function downloadFileFromStream(fileName, mimeType, contentStreamReference) {
+    try {
+        const arrayBuffer = await contentStreamReference.arrayBuffer();
+        console.log(arrayBuffer);
+        const blob = new Blob([arrayBuffer], { type: mimeType });
+        console.log(blob);
+        const url = URL.createObjectURL(blob);
+        const anchorElement = document.createElement('a');
+        anchorElement.href = url;
+        anchorElement.download = fileName ?? '';
+        anchorElement.click();
+        anchorElement.remove();
+        URL.revokeObjectURL(url);
+    }
+    catch (error) {
+        console.error('Error downloading file:', error);
+    }
+}
+
+
+// khởi tạo file để preview trước. người dùng muốn tải thì tải
+async function createUrlViewer(contentStreamReference, type) {
+    var url = "";
+    if (type == ".pdf") {
+        const arrayBuffer = await contentStreamReference.arrayBuffer();
+        var file = new Blob([arrayBuffer], { type: "application/pdf" });
+    }
+    else if (type == ".docx") {
+        const arrayBuffer = await contentStreamReference.arrayBuffer();
+        var file = new Blob([arrayBuffer], { type: "application/vnd.openxmlformats-officedocument.wordprocessingml.document" });
+    }
+    else {
+        const arrayBuffer = await contentStreamReference.arrayBuffer();
+        var file = new Blob([arrayBuffer], { type: "image/png" });
+    }
+    url = URL.createObjectURL(file);
+    return url
+}

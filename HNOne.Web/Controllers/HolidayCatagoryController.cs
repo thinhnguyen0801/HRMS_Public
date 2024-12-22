@@ -19,9 +19,9 @@ namespace HNOne.Web.Controllers
         [Inject] IJSRuntime _jsRuntime { get; set; }
         public W1Confirm confirm { get; set; }
 
-        const string STRING_KEY_EVENT_POST = "BRANCH_CONTROLLER_POST";
-        const string STRING_KEY_EVENT_PUT = "BRANCH_CONTROLLER_PUT";
-        const string STRING_KEY_EVENT_DELETE = "BRANCH_CONTROLLER_DELETE";
+        const string STRING_KEY_EVENT_POST = "HOLIDAY_CONTROLLER_POST";
+        const string STRING_KEY_EVENT_PUT = "HOLIDAY_CONTROLLER_PUT";
+        const string STRING_KEY_EVENT_DELETE = "HOLIDAY_CONTROLLER_DELETE";
 
         #region Properties
         public List<HolidayCatagoryModel>? ListHoliday { get; set; }
@@ -46,10 +46,10 @@ namespace HNOne.Web.Controllers
             {
                 try
                 {
-                    //string errMessage = await CheckMenuPermissionAsync("chi-nhanh");
-                    //if (errMessage == "401") return; // kiểm quyền menu page danh sách
-                    //await ShowLoading();
-                    //await checkPermission(errMessage);
+                    string errMessage = await CheckMenuPermissionAsync("danh-muc-ngay-nghi");
+                    if (errMessage == "401") return; // kiểm quyền menu page danh sách
+                    await ShowLoading();
+                    await checkPermission(errMessage);
                     ListBreadcrumbs = new List<BreadcrumbModel>()
                     {
                         new BreadcrumbModel("Danh mục"),
@@ -68,7 +68,6 @@ namespace HNOne.Web.Controllers
                 finally
                 {
                     await ShowLoading(false);
-                    //await _progressService!.Done();
                     await InvokeAsync(StateHasChanged);
                 }
             }
@@ -81,13 +80,10 @@ namespace HNOne.Web.Controllers
         /// <returns></returns>
         private async Task checkPermission(string menuId)
         {
-            //List<string> lstKey = await CheckEventPermission(menuId);
-            //IsAllowPost = lstKey.FirstOrDefault(m => m == STRING_KEY_EVENT_POST) != null;
-            //IsAllowDelete = lstKey.FirstOrDefault(m => m == STRING_KEY_EVENT_DELETE) != null;
-            //IsAllowPut = lstKey.FirstOrDefault(m => m == STRING_KEY_EVENT_PUT) != null;
-            IsAllowPost = true;
-            IsAllowDelete = true;
-            IsAllowPut = true;
+            List<string> lstKey = await CheckEventPermission(menuId);
+            IsAllowPost = lstKey.FirstOrDefault(m => m == STRING_KEY_EVENT_POST) != null;
+            IsAllowDelete = lstKey.FirstOrDefault(m => m == STRING_KEY_EVENT_DELETE) != null;
+            IsAllowPut = lstKey.FirstOrDefault(m => m == STRING_KEY_EVENT_PUT) != null;
         }
 
         private async Task getHolidayCatagory()
@@ -145,18 +141,12 @@ namespace HNOne.Web.Controllers
             }
         }
 
-        protected async Task OnOpenDialogHandler(EnumType pAction = EnumType.Add, HolidayCatagoryModel? pItemDetails = null)
+        protected void OnOpenDialogHandler(EnumType pAction = EnumType.Add, HolidayCatagoryModel? pItemDetails = null)
         {
             try
             {
-                //await checkPermission(MenuId);
                 if (pAction == EnumType.Add)
                 {
-                    //if (!IsAllowPost)
-                    //{
-                    //    ShowInfo(MessageConstants.MESSAGE_NO_PERMISSION);
-                    //    return;
-                    //}
                     IsCreate = true;
                     HolidayUpdate = new HolidayCatagoryModel();
                     HolidayUpdate.fromDate = DateTime.Now;
@@ -164,11 +154,6 @@ namespace HNOne.Web.Controllers
                 }
                 else
                 {
-                    //if (!IsAllowPut)
-                    //{
-                    //    ShowInfo(MessageConstants.MESSAGE_NO_PERMISSION);
-                    //    return;
-                    //}
                     HolidayUpdate.id = pItemDetails!.id;
                     HolidayUpdate.name = pItemDetails!.name;
                     HolidayUpdate.fromDate = pItemDetails!.fromDate;
@@ -191,6 +176,12 @@ namespace HNOne.Web.Controllers
         {
             try
             {
+                await checkPermission(MenuId);
+                if ((IsCreate && !IsAllowPost) || (!IsCreate && !IsAllowPut))
+                {
+                    ShowInfo(MessageConstants.MESSAGE_NO_PERMISSION);
+                    return;
+                }
                 string errorMessage = string.Empty;
                 string fieldName = string.Empty;
                 validateForSave(ref errorMessage, ref fieldName);

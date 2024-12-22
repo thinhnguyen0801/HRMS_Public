@@ -50,6 +50,7 @@
         public const string GET_CONTRACT = "get-contract";
         public const string POST_CONTRACT = "post-contract";
         public const string PUT_CONTRACT = "put-contract";
+        public const string EXPORT_CONTRACT_WORD = "export-contract-word";
 
         public const string GET_PER_GROUP = "get-per-group";
         public const string POST_PER_GROUP = "post-per-group";
