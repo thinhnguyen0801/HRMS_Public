@@ -51,6 +51,7 @@ namespace HNOne.Web.Services
                         resUser.token = response.data.token;
                         resUser.refreshToken = response.data.refreshToken;
                         resUser.isAdmin = response.data.isAdmin;
+                        resUser.departmentId = response.data.departmentId;
                         string encryptUser = _encryptHelper.Encrypt(JsonConvert.SerializeObject(resUser));
                         await _localStorage.SetItemAsync("authToken", encryptUser);
                         return "";

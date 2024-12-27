@@ -11,6 +11,7 @@
         public int employeeId { get; set; }
         public string? employeeCode { get; set; }
         public string? employeeName { get; set; }
+        public int departmentId { get; set; }
         public string? token { get; set; }
         public string? refreshToken { get; set; }
         public bool isAdmin { get; set; }

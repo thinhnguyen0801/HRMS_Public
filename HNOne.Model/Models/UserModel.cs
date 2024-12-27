@@ -14,6 +14,7 @@ namespace HNOne.Model.Models
         public int employeeId { get; set; } // ID nhân viên gắn cho User
         public string? employeeCode { get; set; } // ID nhân viên gắn cho User
         public string? employeeName { get; set; } // ID nhân viên gắn cho User
+        public int departmentId { get; set; } // phòng ban làm việc
         public string? departmentIds { get; set; } // danh sách phòng ban sử dụng
         public string? branchIds { get; set; } // dánh sách chi nhánh được phép sử dụng
         public bool isActive { get; set; } = true;

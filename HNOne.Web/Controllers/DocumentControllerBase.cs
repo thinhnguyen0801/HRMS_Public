@@ -35,6 +35,7 @@ namespace HNOne.Web.Controllers
         public bool IsAdmin { get; set; }
         public int BranchId { get; set; }
         public int EmployeeId { get; set; }
+        public int DepartmentId { get; set; }
         public string? EmployeeCode { get; set; }
         public string? EmployeeName { get; set; }
         public string MenuId { get; set; } = string.Empty; // menu được chọn
@@ -64,6 +65,7 @@ namespace HNOne.Web.Controllers
                         EmployeeId = result.employeeId;
                         EmployeeCode = result.employeeCode;
                         EmployeeName = result.employeeName;
+                        DepartmentId = result.departmentId;
                     }
                 }
                 catch (Exception ex) { _logger.LogError(ex, "OnAfterRenderAsync"); }

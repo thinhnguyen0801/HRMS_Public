@@ -58,6 +58,7 @@ namespace HNOne.API.Controllers
                     user.employeeCode = response.data!.employeeCode;
                     user.employeeId = response.data!.employeeId;
                     user.isAdmin = response.data!.isAdmin;
+                    user.departmentId = response.data!.departmentId;
                     // generate token
                     string accessToken = generateAccessToken(user);
                     user.token = accessToken;

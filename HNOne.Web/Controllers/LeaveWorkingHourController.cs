@@ -99,6 +99,7 @@ namespace HNOne.Web.Controllers
             LeaveRequestDocument.employeeId = EmployeeId;
             LeaveRequestDocument.employeeCode = EmployeeCode;
             LeaveRequestDocument.employeeName = EmployeeName;
+            LeaveRequestDocument.departmentId = DepartmentId;
             var uri = _navigationManager?.ToAbsoluteUri(_navigationManager.Uri);
             if (uri != null && QueryHelpers.ParseQuery(uri.Query).Count > 0)
             {

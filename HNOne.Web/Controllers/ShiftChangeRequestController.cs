@@ -95,6 +95,7 @@ namespace HNOne.Web.Controllers
             ShiftRequestDocument.employeeId = EmployeeId;
             ShiftRequestDocument.employeeCode = EmployeeCode;
             ShiftRequestDocument.employeeName = EmployeeName;
+            ShiftRequestDocument.departmentId = DepartmentId;
             var uri = _navigationManager?.ToAbsoluteUri(_navigationManager.Uri);
             if (uri != null && QueryHelpers.ParseQuery(uri.Query).Count > 0)
             {

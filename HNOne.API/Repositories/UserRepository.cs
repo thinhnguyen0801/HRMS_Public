@@ -71,7 +71,7 @@ namespace HNOne.API.Repositories
                     // Kiểm tra đúng password chưa
                     strQuery = "Select T0.UserId, T0.UserName, T0.EmployeeId, T0.DepartmentIds, T0.BranchIds, T0.IsAdmin, T0.IsActive, T0.IsDelete" +
                         " , T1.BranchId, T1.BranchCode, T1.BranchName" +
-                        " , T2.[Code] EmployeeCode,T2.[Name] EmployeeName" +
+                        " , T2.[Code] EmployeeCode,T2.[Name] EmployeeName, T2.DepartmentId" +
                         " from [Users] as T0 with(nolock)" +
                         " inner join Employees as T2 with(nolock) on T0.EmployeeId = T2.Id" +
                         " cross apply (select T00.BranchId, T00.BranchCode, T00.BranchName from Branchs as T00 with(nolock) where T00.BranchId = @BranchId ) as T1" +

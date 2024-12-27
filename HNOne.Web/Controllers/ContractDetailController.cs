@@ -105,6 +105,7 @@ namespace HNOne.Web.Controllers
             ContractDocument.employeeId = EmployeeId;
             ContractDocument.employeeCode = EmployeeCode;
             ContractDocument.employeeName = EmployeeName;
+            ContractDocument.departmentId = DepartmentId;
             var uri = _navigationManager?.ToAbsoluteUri(_navigationManager.Uri);
             if (!isRefresh && uri != null && QueryHelpers.ParseQuery(uri.Query).Count > 0)
             {
