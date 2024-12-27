@@ -47,6 +47,8 @@
                                            Alignment="@ToolbarItemAlignment.Right" Click="@GenerateWorkHandler" />
                             <DxToolbarItem Text="Lưu" BeginGroup="true" IconCssClass="@($"{IconClassConstants.ICON_UPDATE}")" CssClass="w1FontSize"
                                            Alignment="@ToolbarItemAlignment.Right" Click="@SaveDataHandler" />
+                            <DxToolbarItem Text="Kết xuất" BeginGroup="true" IconCssClass="@($"{IconClassConstants.ICON_EXPORT_EXCEL}")" CssClass="w1FontSize"
+                                           Alignment="@ToolbarItemAlignment.Right" Click="@(()=> ExportExcelHandler())" />
                         </Items>
                     </DxToolbar>
                 </div>

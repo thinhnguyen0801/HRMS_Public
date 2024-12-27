@@ -143,6 +143,54 @@ namespace HNOne.Web.Controllers
             }
             catch { }
         }
+
+        /// <summary>
+        /// Kết xuất dữ liệu sang file excel
+        /// xlsx
+        /// </summary>
+        /// <returns></returns>
+        protected async Task ExportExcelHandler()
+        {
+            try
+            {
+                if (ActiveTabIndex == 0)
+                {
+                    if (GridPending == null || ListPending.IsNullOrEmpty())
+                    {
+                        ShowWarning(MessageConstants.MESSAGE_NOT_FOUNT);
+                        return;
+                    }
+                    await ShowLoading();
+                    await GridPending!.ExportToXlsxAsync("Danh-sach-de-nghi-nghi-phep", new GridXlExportOptions()
+                    {
+                        ExportTotalSummaries = false,
+                        ExportGroupSummaries = false
+                    });
+                    return;
+                }
+                if (GridAll == null || ListAll.IsNullOrEmpty())
+                {
+                    ShowWarning(MessageConstants.MESSAGE_NOT_FOUNT);
+                    return;
+                }
+                await ShowLoading();
+                await GridAll!.ExportToXlsxAsync("Danh-sach-de-nghi-nghi-phep", new GridXlExportOptions()
+                {
+                    ExportTotalSummaries = false,
+                    ExportGroupSummaries = false
+                });
+            }
+            catch (Exception ex)
+            {
+                _logger!.LogError(ex, "ExportExcelHandler");
+                ShowError(ex.Message);
+            }
+            finally
+            {
+                await ShowLoading(false);
+                await InvokeAsync(StateHasChanged);
+            }
+        }
         #endregion
     }
 

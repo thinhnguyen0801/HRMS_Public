@@ -242,7 +242,7 @@ namespace HNOne.Web.Controllers
         /// xóa danh mục loại hợp đồng
         /// </summary>
         /// <returns></returns>
-        public async Task DeleteDataHandler()
+        protected async Task DeleteDataHandler()
         {
             try
             {
@@ -287,6 +287,39 @@ namespace HNOne.Web.Controllers
             finally
             {
                 await Task.Delay(50);
+                await ShowLoading(false);
+                await InvokeAsync(StateHasChanged);
+            }
+        }
+        
+        /// <summary>
+        /// Kết xuất dữ liệu sang file excel
+        /// xlsx
+        /// </summary>
+        /// <returns></returns>
+        protected async Task ExportExcelHandler()
+        {
+            try
+            {
+                if(GridContractType == null || ListContractType.IsNullOrEmpty())
+                {
+                    ShowWarning(MessageConstants.MESSAGE_NOT_FOUNT);
+                    return;
+                }    
+                await ShowLoading();
+                await GridContractType!.ExportToXlsxAsync("Loai-hop-dong", new GridXlExportOptions()
+                {
+                    ExportTotalSummaries = false,
+                    ExportGroupSummaries = false
+                });
+            }
+            catch (Exception ex)
+            {
+                _logger!.LogError(ex, "ExportExcelHandler");
+                ShowError(ex.Message);
+            }
+            finally
+            {
                 await ShowLoading(false);
                 await InvokeAsync(StateHasChanged);
             }

@@ -248,6 +248,39 @@ namespace HNOne.Web.Controllers
                 await InvokeAsync(StateHasChanged);
             }
         }
+
+        /// <summary>
+        /// Kết xuất dữ liệu sang file excel
+        /// xlsx
+        /// </summary>
+        /// <returns></returns>
+        protected async Task ExportExcelHandler()
+        {
+            try
+            {
+                if (GridSalary == null || ListSalary.IsNullOrEmpty())
+                {
+                    ShowWarning(MessageConstants.MESSAGE_NOT_FOUNT);
+                    return;
+                }
+                await ShowLoading();
+                await GridSalary!.ExportToXlsxAsync("Danh-muc-loai-luong", new GridXlExportOptions()
+                {
+                    ExportTotalSummaries = false,
+                    ExportGroupSummaries = false
+                });
+            }
+            catch (Exception ex)
+            {
+                _logger!.LogError(ex, "ExportExcelHandler");
+                ShowError(ex.Message);
+            }
+            finally
+            {
+                await ShowLoading(false);
+                await InvokeAsync(StateHasChanged);
+            }
+        }
         #endregion
     }
 }

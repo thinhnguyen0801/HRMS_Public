@@ -35,6 +35,8 @@
                                            Alignment="@ToolbarItemAlignment.Right" Click="@RedirectPageDetailHandler" />
                             <DxToolbarItem Text="Xóa" BeginGroup="true" IconCssClass="@($"{IconClassConstants.ICON_DELETE}")" CssClass="w1FontSize"
                                            Alignment="@ToolbarItemAlignment.Right" />
+                            <DxToolbarItem Text="Kết xuất" BeginGroup="true" IconCssClass="@($"{IconClassConstants.ICON_EXPORT_EXCEL}")" CssClass="w1FontSize"
+                                           Alignment="@ToolbarItemAlignment.Right" Click="@(()=> ExportExcelHandler())" />
                         </Items>
                     </DxToolbar>
                 </div>
