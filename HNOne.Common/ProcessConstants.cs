@@ -126,6 +126,10 @@
         public const string POST_ATTENDENCE_SUMMARY = "post-attendance-summary"; // lấy dữ liệu tính công tháng
 
         public const string DELETE_DYNAMIC = "delete-dynamic"; // xóa động
+
+        public const string GET_TRAINING = "get-training";
+        public const string POST_TRAINING = "post-training";
+        public const string PUT_TRAINING = "put-training";
         #region Loại dưới store
         public const string GET_COMBO_TYPE_CONTRACT_BY_EMPLOYEEID = "CONTRACT_BY_EMPLOYEEID";
         public const string GET_COMBO_TYPE_SALARY_ADJUSTMENT_BY_CONTRACT = "SALARY_ADJUSTMENT_BY_CONTRACT";

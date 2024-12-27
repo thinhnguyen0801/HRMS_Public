@@ -17,5 +17,7 @@
         public const string USER_GET_DATA = "User/get-data";
         public const string WORKFORCE_GET_DATA = "Workforce/get-data";
         public const string WORKFORCE_POST_DATA = "Workforce/post-data";
+        public const string TRAINING_GET_DATA = "Training/get-data";
+        public const string TRAINING_POST_DATA = "Training/post-data";
     }
 }

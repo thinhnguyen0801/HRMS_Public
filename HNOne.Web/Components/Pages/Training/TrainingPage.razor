@@ -1,0 +1,214 @@
+﻿@page "/dao-tao"
+@inherits Controllers.TrainingController
+<PageTitle>Đào tạo</PageTitle>
+
+<div class="h-content-filter">
+    @if (!IsReadonlyControl)
+    {
+        <div class="card p-1">
+            <DxToolbar ItemRenderStyleMode="@ToolbarRenderStyleMode.Contained">
+                <Items>
+
+                    <DxToolbarItem Text="Lưu" BeginGroup="true" IconCssClass="@($"{IconClassConstants.ICON_UPDATE}")" CssClass="w1FontSize"
+                                   Alignment="@ToolbarItemAlignment.Right" />
+
+                    <DxToolbarItem Text="Gửi phê duyệt" BeginGroup="true" IconCssClass="@($"{IconClassConstants.ICON_SHARE}")" CssClass="w1FontSize"
+                                   Alignment="@ToolbarItemAlignment.Right"
+                                    />
+
+                    <DxToolbarItem Text="Hủy" BeginGroup="true" IconCssClass="@($"{IconClassConstants.ICON_DELETE}")" CssClass="w1FontSize"
+                                   Alignment="@ToolbarItemAlignment.Right" />
+
+                    <DxToolbarItem Text="Làm mới" BeginGroup="true" IconCssClass="@($"{IconClassConstants.ICON_REFRESH}")" CssClass="w1FontSize"
+                                   Alignment="@ToolbarItemAlignment.Right" />
+                </Items>
+            </DxToolbar>
+        </div>
+    }
+
+    <div class="card card-lg mt-1" style="padding: 5px">
+        <div class="row row-gap-2">
+            <div class="col-12">
+                <div class="accordion" id="accordion-info">
+                    <div class="accordion-item" style="border: none">
+                        <span class="accordion-header" id="heading-1">
+                            <button class="accordion-button " style="padding-top: 1px; padding-bottom: 1px;padding-left: 5px;"
+                                    type="button" data-bs-toggle="collapse" data-bs-target="#collapse-info" aria-expanded="true">
+                                <h4 class="mb-0 w1FontSize">Thông tin chung</h4>
+                            </button>
+                        </span>
+                        <div style="border-bottom: 1px solid var(--tblr-border-color); margin-top: 2px"></div>
+                        <div id="collapse-info" class="accordion-collapse collapse show" data-bs-parent="#accordion-info">
+                            <div class="accordion-body p-2">
+                                <div class="row row-gap-2">
+                                    <div class="col-md-6 col-sm-12">
+                                        <div class="d-flex ">
+                                            <W1Label Value="Số chứng từ" Styles="width: 120px" />
+                                            <div style="width: calc(100% - 120px)">
+                                                <DxTextBox @bind-Text="@TrainDocument.voucherNo" ReadOnly="true" CssClass="w1FontSize" />
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6 col-sm-12">
+                                        <div class="d-flex">
+                                            <W1Label Value="Tình trạng" Styles="width: 120px" />
+                                            <div style="width: calc(100% - 120px)">
+                                                <DxComboBox Data="@ListCboStatus"
+                                                            @bind-Value="@TrainDocument.statusCode"
+                                                            FilteringMode="DataGridFilteringMode.Contains"
+                                                            TextFieldName="@nameof(ComboboxModel.name)"
+                                                            ValueFieldName="@nameof(ComboboxModel.code)"
+                                                            ReadOnly="true"
+                                                            CssClass="w1FontSize">
+                                                </DxComboBox>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6 col-sm-12">
+                                        <div class="d-flex ">
+                                            <W1Label Value="Khóa đào tạo" Styles="width: 120px" IsRequired="true" />
+                                            <div style="width: calc(100% - 120px)">
+                                                <DxTextBox @bind-Text="@TrainDocument.trainingCourseName" CssClass="w1FontSize" Id="trainingCourseName"></DxTextBox>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6 col-sm-12">
+                                        <div class="d-flex ">
+                                            <W1Label Value="Hình thức" Styles="width: 120px" IsRequired="true" />
+                                            <div style="width: calc(100% - 120px)">
+                                                <DxComboBox Data="@ListCboStatus"
+                                                            @bind-Value="@TrainDocument.traningFormatCode"
+                                                            FilteringMode="DataGridFilteringMode.Contains"
+                                                            TextFieldName="@nameof(ComboboxModel.name)"
+                                                            ValueFieldName="@nameof(ComboboxModel.code)"
+                                                            Id="traningFormatCode"
+                                                            CssClass="w1FontSize">
+                                                </DxComboBox>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6 col-sm-12">
+                                        <div class="d-flex ">
+                                            <W1Label Value="Y/c đào tạo" Styles="width: 120px" IsRequired="true" />
+                                            <div style="width: calc(100% - 120px)">
+                                                <div class="d-flex">
+                                                    <div>
+                                                        <DxRadio SizeMode="@SizeMode.Small" GroupName="general-radio-group" Value="@("Nội bộ")" @bind-GroupValue="@TrainDocument.typeOfTraning" CssClass="w1FontSize">Nội bộ</DxRadio>
+                                                    </div>
+                                                    <div class="px-2">
+                                                        <DxRadio SizeMode="@SizeMode.Small" GroupName="general-radio-group" Value="@("Bên ngoài")" @bind-GroupValue="@TrainDocument.typeOfTraning" CssClass="w1FontSize">Bên ngoài</DxRadio>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6 col-sm-12">
+                                        <div class="d-flex ">
+                                            <W1Label Value="Người ký" Styles="width: 120px" IsRequired="true" />
+                                            <div style="width: calc(100% - 120px)">
+                                                <div class="grid gap-1 row-gap-2">
+                                                    <div class="g-col-md-4 g-col-sm-12 g-col-12">
+                                                        <DxTextBox @bind-Text="@TrainDocument.employeeSignatureCode" ReadOnly="true" CssClass="w1FontSize" Id="employeeSignatureId" />
+                                                    </div>
+                                                    <div class="g-col-md-8 g-col-sm-12 g-col-12">
+                                                        <DxTextBox @bind-Text="@TrainDocument.employeeSignatureName" CssClass="w1FontSize" ReadOnly="true">
+                                                            <Buttons>
+                                                                <DxEditorButton style="width: 29px" CssClass="w1FontSize" IconCssClass="fas fa-search" Tooltip="Tìm kiếm nhân viên"
+                                                                                Visible="@(!IsReadonlyControl)"
+                                                                                Click="@(async () => await OpenPopupHandler(nameof(EmployeeSelected), nameof(TrainDocument.employeeSignatureCode)))" />
+                                                            </Buttons>
+                                                        </DxTextBox>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6 col-sm-12">
+                                        <div class="d-flex ">
+                                            <W1Label Value="Ngày ký" Styles="width: 120px" />
+                                            <div style="width: calc(100% - 120px)">
+                                                <DxDateEdit @bind-Date="@TrainDocument.dateOfSigning"
+                                                            CssClass="w1FontSize"
+                                                            Mask="@GlobalContants.FORMAT_DATE" Format="@GlobalContants.FORMAT_DATE"
+                                                            DisplayFormat="@GlobalContants.FORMAT_DATE" ReadOnly="true" />
+                                            </div>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="col-md-6 col-sm-12">
+                                        <div class="d-flex ">
+                                            <W1Label Value="Từ ngày/đến ngày" Id="ngayBatDau" Styles="width: 120px" IsRequired="true" />
+                                            <div style="width: calc(100% - 120px)">
+                                                <div class="grid gap-1 row-gap-2">
+                                                    <div class="g-col-md-6 g-col-sm-12 g-col-12">
+                                                        <DxDateEdit @bind-Date="@TrainDocument.fromDate"
+                                                                    CssClass="w1FontSize" Id="startDate" ReadOnly="@IsReadonlyControl"
+                                                                    Mask="@GlobalContants.FORMAT_DATE" Format="@GlobalContants.FORMAT_DATE"
+                                                                    DisplayFormat="@GlobalContants.FORMAT_DATE" />
+                                                    </div>
+                                                    <div class="g-col-md-6 g-col-sm-12 g-col-12">
+                                                        <DxDateEdit @bind-Date="@TrainDocument.toDate"
+                                                                    CssClass="w1FontSize" Id="endDate" ReadOnly="@IsReadonlyControl"
+                                                                    Mask="@GlobalContants.FORMAT_DATE" Format="@GlobalContants.FORMAT_DATE"
+                                                                    DisplayFormat="@GlobalContants.FORMAT_DATE" />
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6 col-sm-12">
+                                        <div class="d-flex ">
+                                            <W1Label Value="Địa điểm" Styles="width: 120px" />
+                                            <div style="width: calc(100% - 120px)">
+                                                <DxTextBox @bind-Text="@TrainDocument.address" CssClass="w1FontSize"></DxTextBox>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6 col-sm-12">
+                                        <div class="d-flex ">
+                                            <W1Label Value="Nội dung đào tạo" Styles="width: 120px" />
+                                            <div style="width: calc(100% - 120px)">
+                                                <DxMemo @bind-Text="@TrainDocument.content" BindValueMode="@BindValueMode.OnInput" Rows="1"
+                                                        InputId="txtghiChu" CssClass="w1FontSize" ReadOnly="@IsReadonlyControl" />
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6 col-sm-12">
+                                        <div class="d-flex ">
+                                            <W1Label Value="Mục tiêu đào tạo" Styles="width: 120px" />
+                                            <div style="width: calc(100% - 120px)">
+                                                <DxMemo @bind-Text="@TrainDocument.objectives" BindValueMode="@BindValueMode.OnInput" Rows="1"
+                                                        InputId="txtghiChu" CssClass="w1FontSize" ReadOnly="@IsReadonlyControl" />
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6 col-sm-12">
+                                        <div class="d-flex ">
+                                            <W1Label Value="Chi tiết đào tạo" Styles="width: 120px" />
+                                            <div style="width: calc(100% - 120px)">
+                                                <DxMemo @bind-Text="@TrainDocument.noteForAll" BindValueMode="@BindValueMode.OnInput" Rows="1"
+                                                        InputId="txtghiChu" CssClass="w1FontSize" ReadOnly="@IsReadonlyControl" />
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6 col-sm-12">
+                                        <div class="d-flex ">
+                                            <W1Label Value="Ghi chú" Styles="width: 120px" />
+                                            <div style="width: calc(100% - 120px)">
+                                                <DxMemo @bind-Text="@TrainDocument.remark" BindValueMode="@BindValueMode.OnInput" Rows="1"
+                                                        InputId="txtghiChu" CssClass="w1FontSize" ReadOnly="@IsReadonlyControl" />
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
