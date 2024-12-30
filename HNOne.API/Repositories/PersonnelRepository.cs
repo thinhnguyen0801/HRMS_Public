@@ -367,6 +367,14 @@ namespace HNOne.API.Repositories
             {
                 using (var connection = _dapperDbContext.CreateConnection())
                 {
+                    // Kiểm cho có cho phép cập nhật thông tin nhân viên không
+                    EnumCatagories? enumConfig = await _dbContext.EnumCatagories.FirstOrDefaultAsync(m => m.EnumType == CommonConstants.ALLOW_UPDATE_EMPLOYEE_INFO);
+                    if (enumConfig?.Value != "Y")
+                    {
+                        response.status = StatusCodes.Status409Conflict;
+                        response.message = $"Bạn chưa được cấp quyền để thực hiện thay đổi thông tin nhân viên!!!";
+                        return response;
+                    }
                     string strQuery = "select * from Employees as T0 with(nolock) where T0.IsDelete = 0 and Id = @EmployeeId";
                     DynamicParameters parameters = new DynamicParameters();
                     parameters.Add("@EmployeeId", entity.Id, DbType.Int32);

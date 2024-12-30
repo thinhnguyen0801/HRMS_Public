@@ -19,6 +19,7 @@
             <Items>
 
                 <DxToolbarItem Text="Lưu" BeginGroup="true" IconCssClass="@($"{IconClassConstants.ICON_UPDATE}")" CssClass="w1FontSize"
+                               Visible="@(IsAllowPut)"
                                Alignment="@ToolbarItemAlignment.Right" Click="@(() => SaveDataHandler())" />
             </Items>
         </DxToolbar>

@@ -29,6 +29,7 @@
         CaLamViec,
         LoaiNgayNghi,
         QuyDinhSoGioTangCa,
+        CapNhatThongTinNhanVien,
     }
 
     public enum EnumObjType
@@ -39,6 +40,7 @@
         LeaveWorkingHours, // xin nghỉ trong giờ
         ShiftChanges, // xin nghỉ trong giờ
         OvertimeRequests, // đề nghị tăng ca
+        Trainings,
 
         // danh mục bảng
         Branchs,

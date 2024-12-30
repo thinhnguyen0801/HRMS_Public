@@ -205,6 +205,22 @@ namespace HNOne.API.Repositories
                         _dbContext.OvertimeRequests.Attach(overtimeRequest);
                         _dbContext.Entry(overtimeRequest).State = EntityState.Modified;
                         break;
+                    case GlobalConstants.TABLE_TRAINING:
+                        var trainingRequest = await _dbContext.Trainings.FirstOrDefaultAsync(m => m.Id == entity.DocEntry);
+                        if (trainingRequest == null)
+                        {
+                            response.status = StatusCodes.Status404NotFound;
+                            response.message = string.Format(MessageConstants.MESSAGE_NOT_FOUNT_FORMAT, "Đề nghị tăng ca");
+                            return response;
+                        }
+                        await _dbContext.Database.BeginTransactionAsync();
+                        isTran = true;
+                        voucherNo = trainingRequest.VoucherNo;
+                        trainingRequest.StatusCode = CommonConstants.STATUS_CODE_APPROVAL_PENDING; // ĐÃ GỬI YÊU CẦU PHÊ DUYỆT
+                        trainingRequest.DateTracking = dateTimeNow;
+                        _dbContext.Trainings.Attach(trainingRequest);
+                        _dbContext.Entry(trainingRequest).State = EntityState.Modified;
+                        break;
                     default:
                         response.status = StatusCodes.Status404NotFound;
                         response.message = $"ObjType {entity.ObjType} was not provider!!!";
@@ -359,6 +375,22 @@ namespace HNOne.API.Repositories
                             overtimeRequest.DateTracking = dateTimeNow; // cập nhật ngày tracking
                             _dbContext.OvertimeRequests.Attach(overtimeRequest);
                             _dbContext.Entry(overtimeRequest).State = EntityState.Modified;
+                            break;
+                        case GlobalConstants.TABLE_TRAINING:
+                            var trainingRequest = await _dbContext.Trainings.FirstOrDefaultAsync(m => m.Id == entity.DocEntry);
+                            if (trainingRequest == null)
+                            {
+                                response.status = StatusCodes.Status404NotFound;
+                                response.message = string.Format(MessageConstants.MESSAGE_NOT_FOUNT_FORMAT, "Đề nghị tăng ca");
+                                return response;
+                            }
+                            voucherNo = trainingRequest.VoucherNo;
+                            employeeId = -1;
+                            trainingRequest.StatusCode = entity.StatusCode; // tình trạng chứng từ "D": Đã duyệt, "T": từ chối, "C": đã hủy
+                            trainingRequest.DateOfSigning = dateTimeNow; // cập nhật ngày ký
+                            trainingRequest.DateTracking = dateTimeNow; // cập nhật ngày tracking
+                            _dbContext.Trainings.Attach(trainingRequest);
+                            _dbContext.Entry(trainingRequest).State = EntityState.Modified;
                             break;
                         default:
                             response.status = StatusCodes.Status404NotFound;

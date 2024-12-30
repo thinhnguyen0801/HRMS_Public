@@ -45,6 +45,9 @@ namespace HNOne.Web.Controllers
 
         public bool IsCreatePopup { get; set; }
         public bool IsShowPopupFamily { get; set; } // popup thêm mới Thông tin quan hệ gia đình
+
+        // nút quyền
+        public bool IsAllowPut { get; set; }
         #endregion
 
         protected override async Task OnAfterRenderAsync(bool firstRender)
@@ -86,10 +89,12 @@ namespace HNOne.Web.Controllers
         {
             try
             {
+                var getTask5 = _masterDataService.GetEnumAsync(UserId, Token, nameof(EnumCatagory.CapNhatThongTinNhanVien)); // lấy lên cấu hình thông tin nhân viên
                 var getTask6 = _masterDataService.GetLocationAsync(UserId, Token, nameof(EnumCatagory.County)); // ds quốc gia
                 var getTask7 = _masterDataService.GetEnumAsync(UserId, Token, nameof(EnumCatagory.QuanHeGiaDinh)); // ds quan hệ gia đình
                 var getTask8 = _masterDataService.GetLocationAsync(UserId, Token, nameof(EnumCatagory.Province), "VN"); // ds tỉnh thành
                 await Task.WhenAll(
+                    getTask5,
                     getTask6,
                     getTask7,
                     getTask8
@@ -97,6 +102,8 @@ namespace HNOne.Web.Controllers
                 ListCboCountry = await getTask6;
                 ListCboRelationship = await getTask7;
                 ListCboProvince = await getTask8;
+                var allowUpdate = (await getTask5)?.FirstOrDefault();
+                IsAllowPut = allowUpdate?.value == GlobalContants.ENUM_YES;
             }
             catch (Exception ex)
             {

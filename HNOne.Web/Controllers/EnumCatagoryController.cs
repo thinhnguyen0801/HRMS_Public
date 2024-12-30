@@ -49,6 +49,7 @@ namespace HNOne.Web.Controllers
         public DateTime? FromBreakTime { get; set; }
         public DateTime? ToBreakTime { get; set; }
         public double TotalHours { get; set; } = 0;
+        public bool IsChecked { get; set; }
         // nút quyền
         public bool IsAllowPost { get; set; }
         public bool IsAllowDelete { get; set; }
@@ -206,6 +207,11 @@ namespace HNOne.Web.Controllers
                     {
                         EnumUpdate.value = pItemDetails!.value;
                     }
+                    else if (EnumUpdate.enumType == nameof(EnumCatagory.CapNhatThongTinNhanVien))
+                    {
+                        EnumUpdate.value = pItemDetails!.value;
+                        IsChecked = pItemDetails!.value == GlobalContants.ENUM_YES;
+                    }
                     else if (EnumUpdate.enumType == nameof(EnumCatagory.CachTinhLuongPhuCap)
                         || EnumUpdate.enumType == nameof(EnumCatagory.QuyDinhSoGioTangCa))
                     {
@@ -273,6 +279,10 @@ namespace HNOne.Web.Controllers
                 else if (EnumUpdate.enumType == nameof(EnumCatagory.LoaiNhanVien))
                 {
                     EnumUpdate.value = EnumUpdate.value;
+                }
+                else if (EnumUpdate.enumType == nameof(EnumCatagory.CapNhatThongTinNhanVien))
+                {
+                    EnumUpdate.value = IsChecked ? GlobalContants.ENUM_YES : GlobalContants.ENUM_NO;
                 }
                 else if (EnumUpdate.enumType == nameof(EnumCatagory.CachTinhLuongPhuCap)
                     || EnumUpdate.enumType == nameof(EnumCatagory.QuyDinhSoGioTangCa))

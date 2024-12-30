@@ -35,6 +35,8 @@
         public int id { get; set; }
         public int trainId { get; set; } // id 
         public int employeeId { get; set; } // id nhân viên
+        public string? employeeCode { get; set; }
+        public string? employeeName { get; set; }
         public bool isAbsent { get; set; } // vắng mặt ?
         public string? noteForAll { get; set; } // đánh giá
         public string? remark { get; set; } // ghi chú
