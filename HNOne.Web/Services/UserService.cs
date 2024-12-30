@@ -35,7 +35,7 @@ namespace HNOne.Web.Services
                 else
                 {
                     var content = await httpResponse.Content.ReadAsStringAsync();
-                    ResponseModel<UserModel> response = JsonConvert.DeserializeObject<ResponseModel<UserModel>>(content)!; ;
+                    ResponseModel<UserModel> response = JsonConvert.DeserializeObject<ResponseModel<UserModel>>(content)!;
                     if (httpResponse.IsSuccessStatusCode
                             && response?.status == StatusCodes.Status200OK)
                     {

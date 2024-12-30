@@ -897,6 +897,16 @@ namespace HNOne.API.Repositories
             {
                 using (var connection = _dapperDbContext.CreateConnection())
                 {
+                    // kiểm tra số giờ tăng ca có vượt ngưỡng không
+                    EnumCatagories? enumConfig = await _dbContext.EnumCatagories.FirstOrDefaultAsync(m => m.EnumType == CommonConstants.MAX_OVERTIME_REQUEST);
+                    double.TryParse(enumConfig?.Value, out double totalHours);
+                    if (entity.TotalHours > totalHours)
+                    {
+                        response.status = StatusCodes.Status409Conflict;
+                        response.message = $"Tổng số giờ tăng ca không được vượt quá {totalHours.FormatCurrency()} giờ";
+                        return response;
+                    }    
+                    // kiểm tra trùng giờ tăng ca
                     var checkExists = await _dbContext.OvertimeRequests.FirstOrDefaultAsync(m => !(entity.ToDate!.Value.Date < m.FromDate!.Value.Date || entity.FromDate!.Value.Date > m.ToDate!.Value.Date) 
                                             && m.EmployeeId == entity.EmployeeId
                                             && m.StatusCode != CommonConstants.STATUS_CODE_CANCELED && m.StatusCode != CommonConstants.STATUS_CODE_DENY);
@@ -984,6 +994,16 @@ namespace HNOne.API.Repositories
                     response.message = MessageConstants.MESSAGE_DATA_CHECKING_MODIFIED;
                     return response;
                 }
+                // kiểm tra số giờ tăng ca có vượt ngưỡng không
+                EnumCatagories? enumConfig = await _dbContext.EnumCatagories.FirstOrDefaultAsync(m => m.EnumType == CommonConstants.MAX_OVERTIME_REQUEST);
+                double.TryParse(enumConfig?.Value, out double totalHours);
+                if (entity.TotalHours > totalHours)
+                {
+                    response.status = StatusCodes.Status409Conflict;
+                    response.message = $"Tổng số giờ tăng ca không được vượt quá {totalHours.FormatCurrency()} giờ";
+                    return response;
+                }
+                // kiểm tra trùng giờ tăng ca
                 DateTime dateTimeNow = _dateTimeHelper.GetCurrentVietnamTime();
                 data.EmployeeId = entity.EmployeeId;
                 data.EmployeeSignatureId = entity.EmployeeSignatureId;
@@ -993,6 +1013,7 @@ namespace HNOne.API.Repositories
                 data.FromDate = entity.FromDate;
                 data.ToDate = entity.ToDate;
                 data.Reason = entity.Reason;
+                data.TotalHours = entity.TotalHours;
                 data.DateTracking = dateTimeNow;
                 data.UpdateDate = dateTimeNow;
                 data.UserSign2 = entity.UserSign2;

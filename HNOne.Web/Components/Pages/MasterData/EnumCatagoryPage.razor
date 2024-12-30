@@ -103,6 +103,14 @@
                                 <DxGridDataColumn FieldName="@nameof(EnumCatagoryModel.userSignName)" Caption="Người tạo" MinWidth="120" />
                                 <DxGridDataColumn FieldName="@nameof(EnumCatagoryModel.userSign2Name)" Caption="Người cập nhật" MinWidth="120" />
                             }
+                            else if (pEnumTypeId == nameof(EnumCatagory.QuyDinhSoGioTangCa))
+                            {
+                                <DxGridDataColumn FieldName="@nameof(EnumCatagoryModel.value)" Caption="Số giờ" MinWidth="120" Width="130px"></DxGridDataColumn>
+                                <DxGridDataColumn FieldName="@nameof(EnumCatagoryModel.enumTypeName)" Caption="Loại danh mục" MinWidth="120" Width="180px" />
+                                <DxGridDataColumn FieldName="@nameof(EnumCatagoryModel.dateTracking)" Caption="Ngày cập nhật" MinWidth="120" DisplayFormat="@GlobalContants.FORMAT_DATE_TIME" />
+                                <DxGridDataColumn FieldName="@nameof(EnumCatagoryModel.userSignName)" Caption="Người tạo" MinWidth="120" />
+                                <DxGridDataColumn FieldName="@nameof(EnumCatagoryModel.userSign2Name)" Caption="Người cập nhật" MinWidth="120" />
+                            }
                             else
                             {
                                 <DxGridDataColumn FieldName="@nameof(EnumCatagoryModel.enumTypeName)" Caption="Loại danh mục" MinWidth="120" Width="180px" />
@@ -130,6 +138,21 @@
     <div class="row row-gap-2 w1FontSize">
         <div class="col-sm-12">
             <div class="d-flex ">
+                <W1Label Value="Loại danh mục" Styles="width: 110px" />
+                <div style="width: calc(100% - 110px)">
+                    <DxComboBox Data="@ListCboEnumType"
+                                @bind-Value="@EnumUpdate.enumType"
+                                Id="txtenumType" ReadOnly="true"
+                                FilteringMode="DataGridFilteringMode.Contains"
+                                TextFieldName="@nameof(ComboboxModel.name)"
+                                ValueFieldName="@nameof(ComboboxModel.code)"
+                                CssClass="w1FontSize">
+                    </DxComboBox>
+                </div>
+            </div>
+        </div>
+        <div class="col-sm-12">
+            <div class="d-flex ">
                 <W1Label Value="Mã danh mục" Styles="width: 110px" IsRequired="true" />
                 <div style="width: calc(100% - 110px)">
                      <DxTextBox @bind-Text="@EnumUpdate.code" CssClass="w1FontSize" ReadOnly="@(!IsCreate)" Id="txtCode"></DxTextBox>
@@ -144,21 +167,7 @@
                 </div>
             </div>
         </div>
-        <div class="col-sm-12">
-            <div class="d-flex ">
-                <W1Label Value="Loại danh mục" Styles="width: 110px" />
-                <div style="width: calc(100% - 110px)">
-                    <DxComboBox Data="@ListCboEnumType"
-                                @bind-Value="@EnumUpdate.enumType"
-                                Id="txtenumType" ReadOnly="true"
-                                FilteringMode="DataGridFilteringMode.Contains"
-                                TextFieldName="@nameof(ComboboxModel.name)"
-                                ValueFieldName="@nameof(ComboboxModel.code)"
-                                CssClass="w1FontSize">
-                    </DxComboBox>
-                </div>
-            </div>
-        </div>
+        
         @if(EnumUpdate.enumType == nameof(EnumCatagory.CaLamViec))
         {
             <div class="col-sm-12">
@@ -244,7 +253,20 @@
                     <W1Label Value="Hệ số lương" Styles="width: 110px" />
                     <div style="width: calc(100% - 110px)">
                         <DxSpinEdit @bind-Value="@TotalHours" InputCssClass="text-end"
-                                    ShowSpinButtons="false" MinValue="0" MaxValue="10"
+                                    ShowSpinButtons="true" MinValue="0" MaxValue="10"
+                                    DisplayFormat="@GlobalContants.FORMAT_CURRENCY" Mask="@GlobalContants.FORMAT_CURRENCY" CssClass="w1FontSize" />
+                    </div>
+                </div>
+            </div>
+        }
+        else if (EnumUpdate.enumType == nameof(EnumCatagory.QuyDinhSoGioTangCa))
+        {
+            <div class="col-sm-12">
+                <div class="d-flex ">
+                    <W1Label Value="Số giờ tăng ca" Styles="width: 110px" />
+                    <div style="width: calc(100% - 110px)">
+                        <DxSpinEdit @bind-Value="@TotalHours" InputCssClass="text-end"
+                                    ShowSpinButtons="true" MinValue="0"
                                     DisplayFormat="@GlobalContants.FORMAT_CURRENCY" Mask="@GlobalContants.FORMAT_CURRENCY" CssClass="w1FontSize" />
                     </div>
                 </div>

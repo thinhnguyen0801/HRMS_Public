@@ -30,6 +30,7 @@ namespace HNOne.Model.Entities
         public DateTime? ToDate { get; set; } // Ngày kết thúc
         [MaxLength(250)]
         public string? Reason { get; set; } // lý do tăng ca
+        public double TotalHours { get; set; } // tổng số giờ
     }
 
     /// <summary>

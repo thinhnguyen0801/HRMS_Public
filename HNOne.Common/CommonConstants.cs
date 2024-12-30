@@ -13,6 +13,7 @@ namespace HNOne.Common
 
         #region Cấu hình thông tin
         public const string WORK_TYPE_DEFAULT = "DEFAULT";
+        public const string MAX_OVERTIME_REQUEST = "QuyDinhSoGioTangCa";
         #endregion
     }
 }

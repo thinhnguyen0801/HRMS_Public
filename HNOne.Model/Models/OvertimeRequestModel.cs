@@ -26,6 +26,7 @@ namespace HNOne.Model.Models
         public string? requestType { get; set; } // loại yêu cầu
         public string? requestTypeName { get; set; } // loại yêu cầu
         public string? shiftCode { get; set; } // ca đổi
+        public double totalHours { get; set; } // tổng số giờ
     }
 
     public class OvertimeRequest1Model

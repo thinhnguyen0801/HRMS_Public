@@ -25,6 +25,7 @@ namespace HNOne.Web.Controllers
         const string STRING_KEY_EVENT_DELETE = "ENUM_CATAGORY_CONTROLLER_DELETE";
 
         #region Properties
+        public bool firstRender = true;
         public List<EnumCatagoryModel>? ListEnum { get; set; }
         public IGrid? GridEnum { get; set; }
         public IReadOnlyList<object>? SelectedEnums { get; set; } = null;
@@ -38,7 +39,7 @@ namespace HNOne.Web.Controllers
             get => enumType;
             set
             {
-                if (enumType != value) _ = RefreshHandler();
+                if (enumType != value && !firstRender) _ = RefreshHandler();
                 enumType = value;  
             }
         }
@@ -61,6 +62,7 @@ namespace HNOne.Web.Controllers
             {
                 try
                 {
+                    this.firstRender = firstRender;
                     string errMessage = await CheckMenuPermissionAsync("danh-muc-cau-hinh-chung");
                     if (errMessage == "401") return; // kiểm quyền menu page danh sách
                     await ShowLoading();
@@ -82,6 +84,7 @@ namespace HNOne.Web.Controllers
                 }
                 finally
                 {
+                    this.firstRender = false;
                     await ShowLoading(false);
                     await InvokeAsync(StateHasChanged);
                 }
@@ -113,13 +116,10 @@ namespace HNOne.Web.Controllers
         /// <returns></returns>
         private async Task checkPermission(string menuId)
         {
-            //List<string> lstKey = await CheckEventPermission(menuId);
-            //IsAllowPost = lstKey.FirstOrDefault(m => m == STRING_KEY_EVENT_POST) != null;
-            //IsAllowDelete = lstKey.FirstOrDefault(m => m == STRING_KEY_EVENT_DELETE) != null;
-            //IsAllowPut = lstKey.FirstOrDefault(m => m == STRING_KEY_EVENT_PUT) != null;
-            IsAllowPost = true;
-            IsAllowDelete = true;
-            IsAllowPut = true;
+            List<string> lstKey = await CheckEventPermission(menuId);
+            IsAllowPost = lstKey.FirstOrDefault(m => m == STRING_KEY_EVENT_POST) != null;
+            IsAllowDelete = lstKey.FirstOrDefault(m => m == STRING_KEY_EVENT_DELETE) != null;
+            IsAllowPut = lstKey.FirstOrDefault(m => m == STRING_KEY_EVENT_PUT) != null;
         }
 
         private void validateForSave(ref string errorMessage, ref string fieldName)
@@ -192,10 +192,10 @@ namespace HNOne.Web.Controllers
                     EnumUpdate.enumType = pItemDetails!.enumType;
                     if (EnumUpdate.enumType == nameof(EnumCatagory.CaLamViec))
                     {
-                        var value = pItemDetails!.value.Split(':');
-                        var value1 = pItemDetails!.value1.Split(':');
-                        var value2 = pItemDetails!.value2.Split(':');
-                        var value3 = pItemDetails!.value3.Split(':');
+                        var value = pItemDetails!.value!.Split(':');
+                        var value1 = pItemDetails!.value1!.Split(':');
+                        var value2 = pItemDetails!.value2!.Split(':');
+                        var value3 = pItemDetails!.value3!.Split(':');
                         FromTime = new DateTime(1900, 01, 01, int.Parse(value[0]), int.Parse(value[1]), 0);
                         ToTime = new DateTime(1900, 01, 01, int.Parse(value1[0]), int.Parse(value1[1]), 0);
                         FromBreakTime = new DateTime(1900, 01, 01, int.Parse(value2[0]), int.Parse(value2[1]), 0);
@@ -206,11 +206,13 @@ namespace HNOne.Web.Controllers
                     {
                         EnumUpdate.value = pItemDetails!.value;
                     }
-                    else if (EnumUpdate.enumType == nameof(EnumCatagory.CachTinhLuongPhuCap))
+                    else if (EnumUpdate.enumType == nameof(EnumCatagory.CachTinhLuongPhuCap)
+                        || EnumUpdate.enumType == nameof(EnumCatagory.QuyDinhSoGioTangCa))
                     {
                         EnumUpdate.value = pItemDetails!.value;
-                        TotalHours = double.Parse(pItemDetails!.value ?? "0");
-                    }
+                        double.TryParse(pItemDetails!.value, out double oValue);
+                        TotalHours = oValue;
+                    } 
                     IsCreate = false;
                 }
                 IsShowDialog = true;
@@ -230,6 +232,12 @@ namespace HNOne.Web.Controllers
         {
             try
             {
+                await checkPermission(MenuId);
+                if ((IsCreate && !IsAllowPost) || (!IsCreate && !IsAllowPut))
+                {
+                    ShowInfo(MessageConstants.MESSAGE_NO_PERMISSION);
+                    return;
+                }
                 string errorMessage = string.Empty;
                 string fieldName = string.Empty;
                 validateForSave(ref errorMessage, ref fieldName);
@@ -266,7 +274,8 @@ namespace HNOne.Web.Controllers
                 {
                     EnumUpdate.value = EnumUpdate.value;
                 }
-                else if (EnumUpdate.enumType == nameof(EnumCatagory.CachTinhLuongPhuCap))
+                else if (EnumUpdate.enumType == nameof(EnumCatagory.CachTinhLuongPhuCap)
+                    || EnumUpdate.enumType == nameof(EnumCatagory.QuyDinhSoGioTangCa))
                 {
                     EnumUpdate.value = TotalHours.ToString();
                 }
@@ -296,6 +305,12 @@ namespace HNOne.Web.Controllers
         {
             try
             {
+                await checkPermission(MenuId);
+                if (!IsAllowDelete)
+                {
+                    ShowInfo(MessageConstants.MESSAGE_NO_PERMISSION);
+                    return;
+                }
                 if (SelectedEnums.IsNullOrEmpty())
                 {
                     ShowWarning(MessageConstants.MESSAGE_NO_CHOSE_DATA);

@@ -322,14 +322,20 @@ namespace HNOne.Web.Controllers
         /// </summary>
         private void calcTotalWorkingHour()
         {
+            OvertimeRequestDocument.totalHours = 0;
             if (ListOvertimeDays.IsNullOrEmpty()) return;
+            double totalHours = 0;
             foreach(var item in ListOvertimeDays!)
             {
                 item.startTime = new DateTime(item.overtimeDate.Year, item.overtimeDate.Month, item.overtimeDate.Day, item.startTime.Hour, item.startTime.Minute, 0);
                 item.endTime = new DateTime(item.overtimeDate.Year, item.overtimeDate.Month, item.overtimeDate.Day, item.endTime.Hour, item.endTime.Minute, 0);
                 item.startBreakTime = new DateTime(item.overtimeDate.Year, item.overtimeDate.Month, item.overtimeDate.Day, item.startBreakTime?.Hour ?? 0, item.startBreakTime?.Minute ?? 0, 0);
                 item.endBreakTime = new DateTime(item.overtimeDate.Year, item.overtimeDate.Month, item.overtimeDate.Day, item.endBreakTime?.Hour ?? 0, item.endBreakTime?.Minute ?? 0, 0);
-            }    
+                TimeSpan workBeforeBreak = item.startBreakTime!.Value - item.startTime;
+                TimeSpan workAfterBreak = item.endTime - item.endBreakTime!.Value;
+                totalHours += workBeforeBreak.TotalHours + workAfterBreak.TotalHours;
+            }
+            OvertimeRequestDocument.totalHours = totalHours;
         }
 
         /// <summary>
