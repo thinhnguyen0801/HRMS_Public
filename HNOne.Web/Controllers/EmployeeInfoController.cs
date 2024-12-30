@@ -5,8 +5,10 @@ using HNOne.Model.Entities;
 using HNOne.Model.Models;
 using HNOne.Web.Commons;
 using HNOne.Web.Components.Controls;
+using HNOne.Web.Models;
 using HNOne.Web.Services.Interfaces;
 using Microsoft.AspNetCore.Components;
+using Microsoft.AspNetCore.WebUtilities;
 using Microsoft.JSInterop;
 using Newtonsoft.Json;
 
@@ -14,7 +16,6 @@ namespace HNOne.Web.Controllers
 {
     public class EmployeeInfoController : DocumentControllerBase
     {
-        [Inject] IWorkforceService _workforceService { get; init; }
         [Inject] IMasterDataService _masterDataService { get; init; }
         [Inject] IPersonnelService _personnelService { get; init; }
         [Inject] IEncryptHelper _encryptHelper { get; init; }
@@ -23,8 +24,6 @@ namespace HNOne.Web.Controllers
         [Inject] IConfiguration _configuration { get; init; }
         public W1Confirm confirm { get; set; }
         #region Properties
-        public string? pActionType { get; set; } = nameof(EnumType.Add);
-        private int pDocEntry { get; set; } = 0;
         public int ActiveTabIndex { get; set; } = 0;
         public bool firstRender = true;
         public EmployeeModel EmployeeUpdate { get; set; } = new EmployeeModel();
@@ -48,7 +47,119 @@ namespace HNOne.Web.Controllers
         public bool IsShowPopupFamily { get; set; } // popup thêm mới Thông tin quan hệ gia đình
         #endregion
 
+        protected override async Task OnAfterRenderAsync(bool firstRender)
+        {
+            await base.OnAfterRenderAsync(firstRender);
+            if (firstRender)
+            {
+                try
+                {
+                    this.firstRender = firstRender;
+                    await ShowLoading();
+                    ListBreadcrumbs = new List<BreadcrumbModel>()
+                    {
+                        new BreadcrumbModel("Thông tin nhân viên")
+                    };
+                    await NotifyBreadcrumb.InvokeAsync(ListBreadcrumbs);
+
+                    //
+                    await buildComboAsync();
+                    await showVoucher();
+                }
+                catch (Exception ex)
+                {
+                    _logger.LogError(ex, "OnAfterRenderAsync");
+                    ShowError(ex.Message);
+                }
+                finally
+                {
+                    this.firstRender = false;
+                    await ShowLoading(false);
+                    await InvokeAsync(StateHasChanged);
+                }
+            }
+        }
+
         #region Private Functions
+
+        private async Task buildComboAsync()
+        {
+            try
+            {
+                var getTask6 = _masterDataService.GetLocationAsync(UserId, Token, nameof(EnumCatagory.County)); // ds quốc gia
+                var getTask7 = _masterDataService.GetEnumAsync(UserId, Token, nameof(EnumCatagory.QuanHeGiaDinh)); // ds quan hệ gia đình
+                var getTask8 = _masterDataService.GetLocationAsync(UserId, Token, nameof(EnumCatagory.Province), "VN"); // ds tỉnh thành
+                await Task.WhenAll(
+                    getTask6,
+                    getTask7,
+                    getTask8
+                );
+                ListCboCountry = await getTask6;
+                ListCboRelationship = await getTask7;
+                ListCboProvince = await getTask8;
+            }
+            catch (Exception ex)
+            {
+                ShowError(ex.Message);
+                _logger.LogError(ex, "buildComboAsync");
+            }
+        }
+
+        private async Task showVoucher()
+        {
+            try
+            {
+                if (EmployeeId < 1) return;
+                RequestModel request = new RequestModel();
+                request.employeeId = EmployeeId;
+                request.userId = UserId;
+                request.branchId = BranchId;
+                request.token = Token;
+                var lstData = await _personnelService.GetEmployeeAsync(request);
+                if (!lstData.IsNullOrEmpty())
+                {
+                    EmployeeUpdate = lstData![0];
+                    if (!string.IsNullOrEmpty(EmployeeUpdate.imageUrl))
+                    {
+                        string apiUrl = _configuration.GetSection("appSettings:ApiUrl").Value + "";
+                        EmployeeUpdate.imageViewUrl = $"{apiUrl}{nameof(EmployeeController)}/{EmployeeUpdate.imageUrl}";
+                    }
+                    List<Task> lstTask = new List<Task>();
+                    // nếu có chọn quốc tịch
+                    if (!string.IsNullOrEmpty(EmployeeUpdate.countryCode1))
+                        lstTask.Add(getProvince(EmployeeUpdate.countryCode1).ContinueWith(t => ListCboProvince1 = t.Result));
+
+                    // nếu có chọn tỉnh thành
+                    if (!string.IsNullOrEmpty(EmployeeUpdate.provinceCode1))
+                        lstTask.Add(getDistrict(EmployeeUpdate.provinceCode1).ContinueWith(t => ListCboDistrict1 = t.Result));
+
+                    // nếu có chọn quận huyện
+                    if (!string.IsNullOrEmpty(EmployeeUpdate.districtCode1))
+                        lstTask.Add(getWard($"{EmployeeUpdate.provinceCode1}", EmployeeUpdate.districtCode1).ContinueWith(t => ListCboWard1 = t.Result));
+
+                    // nếu có chọn quốc tịch
+                    if (!string.IsNullOrEmpty(EmployeeUpdate.countryCode2))
+                        lstTask.Add(getProvince(EmployeeUpdate.countryCode2).ContinueWith(t => ListCboProvince2 = t.Result));
+
+                    // nếu có chọn tỉnh thành
+                    if (!string.IsNullOrEmpty(EmployeeUpdate.provinceCode2))
+                        lstTask.Add(getDistrict(EmployeeUpdate.provinceCode2).ContinueWith(t => ListCboDistrict2 = t.Result));
+
+                    // nếu có chọn quận huyện
+                    if (!string.IsNullOrEmpty(EmployeeUpdate.districtCode2))
+                        lstTask.Add(getWard($"{EmployeeUpdate.provinceCode2}", EmployeeUpdate.districtCode2).ContinueWith(t => ListCboWard2 = t.Result));
+
+                    //lstTask.Add(geInsurance()); // danh sách hợp đồng
+                    lstTask.Add(getFamilyRelationship()); // danh sách quan hệ gia đình
+                    //lstTask.Add(getEducation()); // danh sách trình độ đại học
+                    //lstTask.Add(getContractList()); // danh sách hợp đồng
+
+                    await Task.WhenAll(lstTask);
+                }
+            }
+            catch (Exception) { throw; }
+        }
+
         /// <summary>
         /// lấy danh sách tỉnh thành
         /// </summary>
@@ -99,6 +210,16 @@ namespace HNOne.Web.Controllers
                 return;
             }
         }
+
+        private void validateForSave(ref string errorMessage, ref string fieldName)
+        {
+            if (string.IsNullOrEmpty(EmployeeUpdate.cIC))
+            {
+                errorMessage = string.Format(MessageConstants.MESSAGE_STRING_REQUIRE, "CCCD/CMND");
+                fieldName = nameof(EmployeeUpdate.cIC);
+                return;
+            }
+        }
         #endregion Private Functions
 
         #region Protected Functions
@@ -135,6 +256,7 @@ namespace HNOne.Web.Controllers
                             FamilyRelationshipUpdate.cIC = family.cIC;
                             FamilyRelationshipUpdate.issuanceDateCIC = family.issuanceDateCIC;
                             FamilyRelationshipUpdate.remark = family.remark;
+                            IsCreatePopup = false;
                         }
                         IsShowPopupFamily = true;
                         break;
@@ -176,7 +298,70 @@ namespace HNOne.Web.Controllers
         /// <returns></returns>
         protected async Task SaveDataHandler()
         {
+            try
+            {
+                string errorMessage = string.Empty;
+                string fieldName = string.Empty; // trả ra trường nào cần validate
+                validateForSave(ref errorMessage, ref fieldName);
+                if (!string.IsNullOrEmpty(errorMessage))
+                {
+                    ShowWarning(errorMessage);
+                    await _jsRuntime.InvokeVoidAsync("focusInput", fieldName);
+                    return;
+                }
+                bool isConfirm = true;
+                errorMessage = string.Format(MessageConstants.MESSAGE_CONFIRM_UPDATE_FORMAT, "thông tin nhân viên");
+                isConfirm = await confirm.SetConfirm(MessageConstants.MESSAGE_TITLE, errorMessage);
+                if (!isConfirm) return;
+                await ShowLoading();
+                string processKey = ProcessConstants.PUT_EMPLOYEE_INFO;
+                if (!string.IsNullOrEmpty(EmployeeUpdate.provinceCode))
+                    EmployeeUpdate.provinceName = ListCboProvince?.FirstOrDefault(m => m.code == EmployeeUpdate.provinceCode)?.name;
+                // Lấy tên thông tin hộ khẩu thường trú
+                if (!string.IsNullOrEmpty(EmployeeUpdate.countryCode1))
+                    EmployeeUpdate.countryName1 = ListCboCountry?.FirstOrDefault(m => m.code == EmployeeUpdate.countryCode1)?.name;
+                if (!string.IsNullOrEmpty(EmployeeUpdate.provinceCode1))
+                    EmployeeUpdate.provinceName1 = ListCboProvince1?.FirstOrDefault(m => m.code == EmployeeUpdate.provinceCode1)?.name;
+                if (!string.IsNullOrEmpty(EmployeeUpdate.districtCode1))
+                    EmployeeUpdate.districtName1 = ListCboDistrict1?.FirstOrDefault(m => m.code == EmployeeUpdate.districtCode1)?.name;
+                if (!string.IsNullOrEmpty(EmployeeUpdate.wardCode1))
+                    EmployeeUpdate.wardName1 = ListCboDistrict1?.FirstOrDefault(m => m.code == EmployeeUpdate.wardCode1)?.name;
 
+                // Lấy tên thông tin Chỗ ở hiện nay
+                if (!string.IsNullOrEmpty(EmployeeUpdate.countryCode2))
+                    EmployeeUpdate.countryName2 = ListCboCountry?.FirstOrDefault(m => m.code == EmployeeUpdate.countryCode2)?.name;
+                if (!string.IsNullOrEmpty(EmployeeUpdate.provinceCode2))
+                    EmployeeUpdate.provinceName2 = ListCboProvince2?.FirstOrDefault(m => m.code == EmployeeUpdate.provinceCode2)?.name;
+                if (!string.IsNullOrEmpty(EmployeeUpdate.districtCode2))
+                    EmployeeUpdate.districtName2 = ListCboDistrict2?.FirstOrDefault(m => m.code == EmployeeUpdate.districtCode2)?.name;
+                if (!string.IsNullOrEmpty(EmployeeUpdate.wardCode2))
+                    EmployeeUpdate.wardName2 = ListCboDistrict2?.FirstOrDefault(m => m.code == EmployeeUpdate.wardCode2)?.name;
+
+                EmployeeUpdate.placeOfResidence = $"{EmployeeUpdate.houseNumber1?.Trim()} " +
+                    $"{EmployeeUpdate.wardName1?.Trim()} {EmployeeUpdate.districtName1?.Trim()} " +
+                    $"{EmployeeUpdate.provinceName1?.Trim()} {EmployeeUpdate.countryName1?.Trim()}";
+                EmployeeUpdate.placeOfResidence = EmployeeUpdate.placeOfResidence?.Trim();
+
+                EmployeeUpdate.temporaryAddress = $"{EmployeeUpdate.houseNumber2?.Trim()} " +
+                    $"{EmployeeUpdate.wardName2?.Trim()} {EmployeeUpdate.districtName2?.Trim()} " +
+                    $"{EmployeeUpdate.provinceName2?.Trim()} {EmployeeUpdate.countryName2?.Trim()}";
+                EmployeeUpdate.temporaryAddress = EmployeeUpdate.temporaryAddress?.Trim();
+                EmployeeUpdate.userSign = UserId;
+                EmployeeUpdate.userSign2 = UserId;
+                string content = JsonConvert.SerializeObject(EmployeeUpdate);
+                int result = await _personnelService.UpdateEmployeeAsync(processKey, UserId, Token, content);
+                if (result > 0) await showVoucher();
+            }
+            catch (Exception ex)
+            {
+                ShowError(ex.Message);
+                _logger.LogError(ex, "SaveDataHandler");
+            }
+            finally
+            {
+                await ShowLoading(false);
+                await InvokeAsync(StateHasChanged);
+            }
         }
 
         /// <summary>
@@ -281,6 +466,7 @@ namespace HNOne.Web.Controllers
             try
             {
                 EmployeeUpdate.isEqualsHousehold = value;
+                if (!value) return;
                 ListCboProvince2 = ListCboProvince1;
                 ListCboDistrict2 = ListCboDistrict1;
                 ListCboWard2 = ListCboWard1;

@@ -380,6 +380,7 @@ namespace HNOne.Web.Controllers
                             FamilyRelationshipUpdate.cIC = family.cIC;
                             FamilyRelationshipUpdate.issuanceDateCIC = family.issuanceDateCIC;
                             FamilyRelationshipUpdate.remark = family.remark;
+                            IsCreatePopup = false;
                         }
                         IsShowPopupFamily = true;
                         break;
@@ -667,6 +668,7 @@ namespace HNOne.Web.Controllers
             try
             {
                 EmployeeUpdate.isEqualsHousehold = value;
+                if (!value) return;
                 ListCboProvince2 = ListCboProvince1;
                 ListCboDistrict2 = ListCboDistrict1;
                 ListCboWard2 = ListCboWard1;

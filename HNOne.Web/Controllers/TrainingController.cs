@@ -54,7 +54,7 @@ namespace HNOne.Web.Controllers
                     await ShowLoading();
                     ListBreadcrumbs = new List<BreadcrumbModel>()
                     {
-                        new BreadcrumbModel("Công - Phép"),
+                        new BreadcrumbModel("Đào tạo"),
                         new BreadcrumbModel("Chứng từ đề nghị"),
                         new BreadcrumbModel("Đề nghị nghỉ phép", "danh-sach-de-nghi-nghi-phep"),
                         new BreadcrumbModel("Chi tiết đề nghị nghỉ phép", isActive: true),

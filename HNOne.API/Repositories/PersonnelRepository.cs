@@ -356,6 +356,43 @@ namespace HNOne.API.Repositories
         }
 
         /// <summary>
+        /// cập nhật thông tin nhân viên
+        /// </summary>
+        /// <param name="entity"></param>
+        /// <returns></returns>
+        public async Task<ResponseModel> UpdateEmployeeInfo(Employees entity)
+        {
+            ResponseModel response = new ResponseModel();
+            try
+            {
+                using (var connection = _dapperDbContext.CreateConnection())
+                {
+                    string strQuery = "select * from Employees as T0 with(nolock) where T0.IsDelete = 0 and Id = @EmployeeId";
+                    DynamicParameters parameters = new DynamicParameters();
+                    parameters.Add("@EmployeeId", entity.Id, DbType.Int32);
+                    var data = await connection.QueryFirstOrDefaultAsync<Employees>(strQuery, parameters, commandTimeout: 500, commandType: CommandType.Text);
+                    if (data == null)
+                    {
+                        response.status = StatusCodes.Status404NotFound;
+                        response.message = MessageConstants.MESSAGE_NOT_FOUNT;
+                        return response;
+                    }
+                    employeeInfoUpdate(ref data, entity);
+                    _dbContext.Employees.Attach(data);
+                    _dbContext.Entry(data).State = EntityState.Modified;
+                    await _dbContext.SaveChangesAsync();
+                    response.message = MessageConstants.MESSAGE_UPDATE_SUCCESS;
+                    response.data = entity.Id;
+                    return response;
+                }    
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+        }
+
+        /// <summary>
         /// Thêm mới thông tin hợp đồng
         /// </summary>
         /// <param name="entity"></param>
@@ -1018,6 +1055,75 @@ namespace HNOne.API.Repositories
             data.ManagerId2 = entity.ManagerId2;
             data.AttendanceSheetCode = entity.AttendanceSheetCode;
             data.ShiftCode = entity.ShiftCode; // ca làm việc
+        }
+
+        /// <summary>
+        /// gán dữ liệu cho nhân viên cập nhật thông tin
+        /// </summary>
+        /// <param name="data"></param>
+        /// <param name="entity"></param>
+        private void employeeInfoUpdate(ref Employees data, Employees entity)
+        {
+            DateTime dateTimeNow = _dateTimeHelper.GetCurrentVietnamTime();
+
+            // Thông tin cmnd, hộ chiếu
+            data.CIC = entity.CIC;
+            data.IssuanceDateCIC = entity.IssuanceDateCIC;
+            data.PlaceOfIssuanceCIC = entity.PlaceOfIssuanceCIC;
+            data.ExpiryDateCIC = entity.ExpiryDateCIC;
+            data.PassportNumber = entity.PassportNumber;
+            data.IssueDatePassport = entity.IssueDatePassport;
+            data.PlaceOfIssuePassport = entity.PlaceOfIssuePassport;
+            data.ExpiryDatePassport = entity.ExpiryDatePassport;
+            // Thông tin liên hệ
+            data.Phone1 = entity.Phone1;
+            data.Phone2 = entity.Phone2;
+            data.Phone3 = entity.Phone3;
+            data.Phone4 = entity.Phone4;
+            data.Email1 = entity.Email1;
+            data.Email2 = entity.Email2;
+            data.Email3 = entity.Email3;
+            data.PlaceOfOrigin = entity.PlaceOfOrigin;
+            data.PlaceOfBirth = entity.PlaceOfBirth;
+            data.ProvinceCode = entity.ProvinceCode;
+            data.ProvinceName = entity.ProvinceName;
+            // Hộ khẩu thường trú
+            data.CountryCode1 = entity.CountryCode1;
+            data.CountryName1 = entity.CountryName1;
+            data.ProvinceCode1 = entity.ProvinceCode1;
+            data.ProvinceName1 = entity.ProvinceName1;
+            data.DistrictCode1 = entity.DistrictCode1;
+            data.DistrictName1 = entity.DistrictName1;
+            data.WardCode1 = entity.WardCode1;
+            data.WardName1 = entity.WardName1;
+            data.HouseNumber1 = entity.HouseNumber1;
+            data.PlaceOfResidence = entity.PlaceOfResidence;
+            data.HouseholdRegistrationNumber = entity.HouseholdRegistrationNumber;
+            data.HouseholdNumber = entity.HouseholdNumber;
+            // Chổ ở hiện nay
+            data.CountryCode2 = entity.CountryCode2;
+            data.CountryName2 = entity.CountryName2;
+            data.ProvinceCode2 = entity.ProvinceCode2;
+            data.ProvinceName2 = entity.ProvinceName2;
+            data.DistrictCode2 = entity.DistrictCode2;
+            data.DistrictName2 = entity.DistrictName2;
+            data.WardCode2 = entity.WardCode2;
+            data.WardName2 = entity.WardName2;
+            data.HouseNumber2 = entity.HouseNumber2;
+            data.TemporaryAddress = entity.TemporaryAddress;
+            // Liên hệ khẩn cấp
+            data.FullName1 = entity.FullName1;
+            data.Relationship = entity.Relationship;
+            data.Phone5 = entity.Phone5;
+            data.Phone6 = entity.Phone6;
+            data.Email4 = entity.Email4;
+            data.ContactAddress = entity.ContactAddress;
+
+            // Tracking
+            data.DateTracking = dateTimeNow;
+            data.UpdateDate = dateTimeNow;
+            data.UserSign2 = entity.UserSign2;
+
         }
         #endregion
     }

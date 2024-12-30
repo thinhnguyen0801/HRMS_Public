@@ -90,6 +90,7 @@ namespace HNOne.API.Controllers
                 {
                     case ProcessConstants.POST_EMPLOYEE:
                     case ProcessConstants.PUT_EMPLOYEE:
+                    case ProcessConstants.PUT_EMPLOYEE_INFO:
                         var employee = JsonConvert.DeserializeObject<Employees>($"{request.json}");
                         bool.TryParse(request.opt, out bool isCreateAccount);
                         response = await _personnelService.UpdateEmployee(processKey, employee!, isCreateAccount);

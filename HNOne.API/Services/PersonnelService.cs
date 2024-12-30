@@ -67,6 +67,9 @@ namespace HNOne.API.Services
                     case ProcessConstants.PUT_EMPLOYEE:
                         response = await _personnelRepository.UpdateEmployee(entity, isCreateAccount);
                         break;
+                    case ProcessConstants.PUT_EMPLOYEE_INFO:
+                        response = await _personnelRepository.UpdateEmployeeInfo(entity);
+                        break;
                 }
                 return response;
             }

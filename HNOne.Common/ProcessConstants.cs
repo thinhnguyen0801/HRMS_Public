@@ -25,6 +25,7 @@
         public const string GET_EMPLOYEE = "get-employee";
         public const string POST_EMPLOYEE = "post-employee";
         public const string PUT_EMPLOYEE = "put-employee";
+        public const string PUT_EMPLOYEE_INFO = "put-employee-info";
         public const string GET_ENUM = "get-enum";
         public const string POST_ENUM_CATA = "post-enum-cata";
         public const string PUT_ENUM_CATA = "put-enum-cata";
