@@ -39,5 +39,8 @@ namespace HNOne.API.Repositories.Interfaces
         Task<ResponseModel> UpdateEnumCatagory(EnumCatagories entity);
         Task<ResponseModel> AddEnumCatagory(EnumCatagories entity);
         Task<ResponseModel> DeleteDynamic(RequestModel request);
+        Task<IEnumerable<SalaryParameterModel>> GetSalaryParameter(RequestModel request);
+        Task<ResponseModel> AddSalaryParameter(SalaryParameters entity);
+        Task<ResponseModel> UpdateSalaryParameter(SalaryParameters entity);
     }
 }

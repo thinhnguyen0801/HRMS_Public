@@ -1,0 +1,158 @@
+﻿@page "/thong-so-luong"
+@inherits Controllers.SalaryParameterController
+<PageTitle>Thông số lương</PageTitle>
+<div class="h-content-filter">
+    <div class="row row-gap-2">
+        <div class="col-12">
+            <div class="card w1FontSize">
+                <div class="card-header p-1">
+                    <DxToolbar ItemRenderStyleMode="@ToolbarRenderStyleMode.Contained">
+                        <Items>
+                            <DxToolbarItem Text="Làm mới" BeginGroup="true" IconCssClass="@($"{IconClassConstants.ICON_REFRESH}")" CssClass="w1FontSize"
+                                           Alignment="@ToolbarItemAlignment.Right" Click="@(()=> RefreshHandler())" />
+
+                            <DxToolbarItem Text="Thêm mới" BeginGroup="true" IconCssClass="@($"{IconClassConstants.ICON_ADD}")" CssClass="w1FontSize"
+                                           Alignment="@ToolbarItemAlignment.Right" Click="@(()=> OnOpenDialogHandler())" Visible="@(IsAllowPost)" />
+
+                            <DxToolbarItem Text="Xóa" BeginGroup="true" IconCssClass="@($"{IconClassConstants.ICON_DELETE}")" CssClass="w1FontSize"
+                                           Alignment="@ToolbarItemAlignment.Right" Visible="@(IsAllowDelete)" />
+                            <DxToolbarItem Text="Kết xuất" BeginGroup="true" IconCssClass="@($"{IconClassConstants.ICON_EXPORT_EXCEL}")" CssClass="w1FontSize"
+                                           Alignment="@ToolbarItemAlignment.Right" Click="@(()=> ExportExcelHandler())" />
+                        </Items>
+                    </DxToolbar>
+                </div>
+
+                <div class="card-body p-1" style="height: calc(100vh - 160px); min-height: 350px">
+                    <DxGrid Data="ListSalaryConfig" @ref="GridSalaryConfig"
+                            ShowFilterRow="true"
+                            ColumnResizeMode="GridColumnResizeMode.ColumnsContainer"
+                            PagerPosition="GridPagerPosition.Bottom"
+                            PageSizeSelectorVisible="true"
+                            PageSize="@GlobalContants.PageSize"
+                            PageSizeSelectorItems="@(GlobalContants.PageSizeList)"
+                            PageSizeSelectorAllRowsItemVisible="true"
+                            PagerSwitchToInputBoxButtonCount="10"
+                            PagerVisibleNumericButtonCount="10"
+                            TextWrapEnabled="false"
+                            FocusedRowEnabled="true"
+                            SelectionMode="@GridSelectionMode.Multiple"
+                            @bind-SelectedDataItems="@SelectedSalaries"
+                            KeyFieldName="@nameof(SalaryConfigurationModel.id)"
+                            CssClass="h-full">
+                        <Columns>
+                            <DxGridSelectionColumn Width="45px" />
+                            <DxGridDataColumn FieldName="@nameof(SalaryParameterModel.id)" Caption="STT" MinWidth="70" Width="80px">
+                                <CellDisplayTemplate>
+                                    @{
+                                        if (IsAllowPut)
+                                        {
+                                            <a @onclick="@(() => OnOpenDialogHandler(EnumType.Update, (context.DataItem as SalaryParameterModel)))">@context.Value</a>
+                                        }
+                                        else
+                                        {
+                                            <span>@context.Value</span>
+                                        }
+                                    }
+                                </CellDisplayTemplate>
+                            </DxGridDataColumn>
+                            <DxGridDataColumn FieldName="@nameof(SalaryParameterModel.createDate)" Caption="Ngày lập" MinWidth="130" DisplayFormat="@GlobalContants.FORMAT_DATE" />
+                            @* <DxGridDataColumn FieldName="@nameof(SalaryParameterModel.branchName)" Caption="Chi nhánh" MinWidth="160" /> *@
+                            <DxGridDataColumn FieldName="@nameof(SalaryParameterModel.isActive)" Caption="Đã áp dụng?" MinWidth="100" />
+                            <DxGridDataColumn FieldName="@nameof(SalaryParameterModel.fromDate)" Caption="Từ ngày" MinWidth="120" DisplayFormat="@GlobalContants.FORMAT_DATE" />
+                            <DxGridDataColumn FieldName="@nameof(SalaryParameterModel.toDate)" Caption="Đến ngày" MinWidth="120" DisplayFormat="@GlobalContants.FORMAT_DATE" />
+                            <DxGridDataColumn FieldName="@nameof(SalaryParameterModel.taxSalary)" Caption="Mức lương chịu thuế" MinWidth="150" DisplayFormat="@GlobalContants.FORMAT_CURRENCY" />
+                            <DxGridDataColumn FieldName="@nameof(SalaryParameterModel.taxSalaryProbationary)" Caption="Mức lương chịu thuế thử việc" MinWidth="170" DisplayFormat="@GlobalContants.FORMAT_CURRENCY" />
+                            <DxGridDataColumn FieldName="@nameof(SalaryParameterModel.salaryFamilyCircumstanceDeduction)" Caption="Mức tiền giảm trừ gia cảnh" MinWidth="170" DisplayFormat="@GlobalContants.FORMAT_CURRENCY" />
+                            <DxGridDataColumn FieldName="@nameof(SalaryParameterModel.dateTracking)" Caption="Ngày cập nhật" MinWidth="120" DisplayFormat="@GlobalContants.FORMAT_DATE_TIME" />
+                            <DxGridDataColumn FieldName="@nameof(SalaryParameterModel.userSignName)" Caption="Người tạo" MinWidth="120" />
+                            <DxGridDataColumn FieldName="@nameof(SalaryParameterModel.userSign2Name)" Caption="Người cập nhật" MinWidth="120" />
+                        </Columns>
+                        <TotalSummary>
+                            <DxGridSummaryItem DisplayText="@GlobalContants.FORMAT_GRID_DISPLAYTEXT_COUNT" SummaryType="GridSummaryItemType.Count"
+                                               FieldName="@nameof(SalaryParameterModel.createDate)" ValueDisplayFormat="@GlobalContants.FORMAT_CURRENCY"
+                                               FooterColumnName="@nameof(SalaryParameterModel.createDate)" />
+                        </TotalSummary>
+                    </DxGrid>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<W1Popup @bind-IsOpenModal="@IsShowDialog"
+         Width="60%" TextBtnAccept="Cập nhật"
+         HeaderText="@(IsCreate ? "Thêm mới thông số lương" : $"Cập nhật thông số lương")"
+         HandleClickAccept="@SaveDataHandler">
+    <div class="row row-gap-2">
+        <div class="col-sm-12">
+            <div class="d-flex ">
+                <W1Label Value="Mã loại lương" Id="bacLuong" Styles="width: 130px" IsRequired="true" />
+                <div style="width: calc(100% - 130px)">
+                    <div class="row row-gap-2">
+                        <div class="col-md-8 col-sm-12">
+                            <DxSpinEdit @bind-Value="@EntityUpdate.id" CssClass="w1FontSize" ReadOnly="true" Id="txtCode" InputCssClass="text-end"></DxSpinEdit>
+                        </div>
+                        <div class="col-md-4 col-sm-12">
+                            <DxCheckBox CssClass="w-100 w1FontSize"
+                                        SizeMode="@SizeMode.Small"
+                                        @bind-Checked="@EntityUpdate.isActive"
+                                        LabelPosition="@LabelPosition.Right">
+                                Hoạt động?
+                            </DxCheckBox>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+        <div class="col-sm-12">
+            <div class="d-flex ">
+                <W1Label Value="Ngày hiệu lực" Styles="width: 130px" IsRequired="true" />
+                <div style="width: calc(100% - 130px)">
+                    <div class="grid gap-1 row-gap-2">
+                        <div class="g-col-md-6 g-col-sm-12 g-col-12">
+                            <DxDateEdit @bind-Date="@EntityUpdate.fromDate"
+                                        CssClass="w1FontSize" Id="startDate"
+                                        Mask="@GlobalContants.FORMAT_DATE" Format="@GlobalContants.FORMAT_DATE"
+                                        DisplayFormat="@GlobalContants.FORMAT_DATE" />
+                        </div>
+                        <div class="g-col-md-6 g-col-sm-12 g-col-12">
+                            <DxDateEdit @bind-Date="@EntityUpdate.toDate" CssClass="w1FontSize" Id="endDate"
+                                        Mask="@GlobalContants.FORMAT_DATE" Format="@GlobalContants.FORMAT_DATE"
+                                        DisplayFormat="@GlobalContants.FORMAT_DATE" />
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-sm-12">
+            <div class="d-flex ">
+                <W1Label Value="Mức lương chịu thuế" Id="bacLuong" Styles="width: 130px" />
+                <div style="width: calc(100% - 130px)">
+                    <DxSpinEdit @bind-Value="@EntityUpdate.taxSalary" InputCssClass="text-end" ShowSpinButtons="true" MinValue="0" Increment="1"
+                                DisplayFormat="@GlobalContants.FORMAT_CURRENCY" Mask="@GlobalContants.FORMAT_CURRENCY" CssClass="w1FontSize" />
+                </div>
+            </div>
+        </div>
+        <div class="col-sm-12">
+            <div class="d-flex ">
+                <W1Label Value="Mức lương chịu thuế thử việc" Id="bacLuong" Styles="width: 130px" />
+                <div style="width: calc(100% - 130px)">
+                    <DxSpinEdit @bind-Value="@EntityUpdate.taxSalaryProbationary" InputCssClass="text-end" ShowSpinButtons="true" MinValue="0" Increment="1"
+                                DisplayFormat="@GlobalContants.FORMAT_CURRENCY" Mask="@GlobalContants.FORMAT_CURRENCY" CssClass="w1FontSize" />
+                </div>
+            </div>
+        </div>
+        <div class="col-sm-12">
+            <div class="d-flex ">
+                <W1Label Value="Số tiền giảm trừ gia cảnh" Id="bacLuong" Styles="width: 130px" />
+                <div style="width: calc(100% - 130px)">
+                    <DxSpinEdit @bind-Value="@EntityUpdate.salaryFamilyCircumstanceDeduction" InputCssClass="text-end" ShowSpinButtons="true" MinValue="0" Increment="1"
+                                DisplayFormat="@GlobalContants.FORMAT_CURRENCY" Mask="@GlobalContants.FORMAT_CURRENCY" CssClass="w1FontSize" />
+                </div>
+            </div>
+        </div>
+    </div>
+</W1Popup>
+
+<W1Confirm @ref="confirm" />

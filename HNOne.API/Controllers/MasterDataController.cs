@@ -115,6 +115,9 @@ namespace HNOne.API.Controllers
                     case ProcessConstants.GET_SALARY_CATEGORY:
                         response.data = await _masterDataService.GetSalaryCatagory(request);
                         break;
+                    case ProcessConstants.GET_SALARY_PARAMETER:
+                        response.data = await _masterDataService.GetSalaryParameter(request);
+                        break;
                     case ProcessConstants.GET_SALARY_CONFIG:
                         response.data = await _masterDataService.GetSalaryConfig();
                         break;
@@ -251,6 +254,11 @@ namespace HNOne.API.Controllers
                     case ProcessConstants.POST_SALARY_CONFIG:
                         var salaryConfig = JsonConvert.DeserializeObject<SalaryConfigurations>($"{request.json}");
                         response = await _masterDataService.UpdateSalaryConfig(processKey, salaryConfig!);
+                        break;
+                    case ProcessConstants.PUT_SALARY_PARAMETER:
+                    case ProcessConstants.POST_SALARY_PARAMETER:
+                        var salaryPara = JsonConvert.DeserializeObject<SalaryParameters>($"{request.json}");
+                        response = await _masterDataService.UpdateSalaryParameter(processKey, salaryPara!);
                         break;
                     case ProcessConstants.PUT_ENUM_CATA:
                     case ProcessConstants.POST_ENUM_CATA:

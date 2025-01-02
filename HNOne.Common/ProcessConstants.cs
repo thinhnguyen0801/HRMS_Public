@@ -46,6 +46,10 @@
         public const string POST_SALARY_CONFIG = "post-salary-config";
         public const string PUT_SALARY_CONFIG = "put-salary-config";
 
+        public const string GET_SALARY_PARAMETER= "get-salary-parameter";
+        public const string POST_SALARY_PARAMETER = "post-salary-parameter";
+        public const string PUT_SALARY_PARAMETER = "put-salary-parameter";
+
         public const string GET_DOCUMENT_NO = "get-document-no";
 
         public const string GET_CONTRACT = "get-contract";

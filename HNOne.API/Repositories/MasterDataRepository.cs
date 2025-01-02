@@ -212,6 +212,24 @@ namespace HNOne.API.Repositories
         }
 
         /// <summary>
+        /// lấy danh sách loại lương
+        /// </summary>
+        /// <param name="enumType"></param>
+        /// <returns></returns>
+        public async Task<IEnumerable<SalaryParameterModel>> GetSalaryParameter(RequestModel request)
+        {
+            using (var connection = _dapperDbContext.CreateConnection())
+            {
+                string query = "select T0.* from SalaryParameters as T0 with(nolock)" +
+                    " where T0.IsDelete = '0'";
+                // thêm điều kiện
+                if (request.opt == "ACTIVE") query += " and T0.IsActive = '1'";
+                var results = await connection.QueryAsync<SalaryParameterModel>(query, commandTimeout: GlobalConstants.COMMAND_TIMEOUT, commandType: CommandType.Text);
+                return results;
+            }
+        }
+
+        /// <summary>
         /// lấy danh sách cấu hình lương
         /// </summary>
         /// <returns></returns>
@@ -968,6 +986,63 @@ namespace HNOne.API.Repositories
                 var lstResult = await connection.QueryFirstAsync<ResponseModel>(StoreConstants.STORE_H1_DYNAMIC_DATA_DELETE, param: parameters, commandTimeout: GlobalConstants.COMMAND_TIMEOUT, commandType: CommandType.StoredProcedure);
                 return lstResult;
             }
+        }
+
+        /// <summary>
+        /// Thêm mới danh mục loại lương
+        /// </summary>
+        /// <param name="entity"></param>
+        /// <returns></returns>
+        public async Task<ResponseModel> AddSalaryParameter(SalaryParameters entity)
+        {
+            ResponseModel response = new ResponseModel();
+            try
+            {
+                entity.Id = await _dbContext.SalaryParameters.Select(m => m.Id).DefaultIfEmpty().MaxAsync() + 1;
+                entity.DateTracking = _dateTimeHelper.GetCurrentVietnamTime();
+                entity.CreateDate = _dateTimeHelper.GetCurrentVietnamTime();
+                await _dbContext.SalaryParameters.AddAsync(entity);
+                await _dbContext.SaveChangesAsync();
+                response.message = MessageConstants.MESSAGE_ADD_SUCCESS;
+                return response;
+            }
+            catch (Exception) { throw; }
+        }
+
+        /// <summary>
+        /// cập nhật thông tin loại lương
+        /// </summary>
+        /// <param name="entity"></param>
+        /// <returns></returns>
+        public async Task<ResponseModel> UpdateSalaryParameter(SalaryParameters entity)
+        {
+            ResponseModel response = new ResponseModel();
+            try
+            {
+                var result = await _dbContext.SalaryParameters.FirstOrDefaultAsync(m => m.Id == entity.Id);
+                if (result == null)
+                {
+                    response.status = StatusCodes.Status404NotFound;
+                    response.message = MessageConstants.MESSAGE_NOT_FOUNT;
+                    return response;
+                }
+                result.BranchId = entity.BranchId;
+                result.IsActive = entity.IsActive;
+                result.TaxSalary = entity.TaxSalary;
+                result.TaxSalaryProbationary = entity.TaxSalaryProbationary;
+                result.SalaryFamilyCircumstanceDeduction = entity.SalaryFamilyCircumstanceDeduction;
+                result.FromDate = entity.FromDate;
+                result.ToDate = entity.ToDate;
+                result.DateTracking = _dateTimeHelper.GetCurrentVietnamTime();
+                result.UpdateDate = _dateTimeHelper.GetCurrentVietnamTime();
+                result.UserSign2 = entity.UserSign2;
+                _dbContext.SalaryParameters.Attach(result);
+                _dbContext.Entry(result).State = EntityState.Modified;
+                await _dbContext.SaveChangesAsync();
+                response.message = MessageConstants.MESSAGE_UPDATE_SUCCESS;
+                return response;
+            }
+            catch (Exception) { throw; }
         }
         #endregion
     }

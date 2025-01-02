@@ -62,6 +62,9 @@ namespace HNOne.API.Services
         public async Task<IEnumerable<SalaryCategories>> GetSalaryCatagory(RequestModel request)
             => await _masterRepository.GetSalaryCatagory(request);
 
+        public async Task<IEnumerable<SalaryParameterModel>> GetSalaryParameter(RequestModel request)
+            => await _masterRepository.GetSalaryParameter(request);
+
         public async Task<IEnumerable<SalaryConfigurationModel>> GetSalaryConfig()
            => await _masterRepository.GetSalarySalaryConfig();
         
@@ -331,6 +334,37 @@ namespace HNOne.API.Services
                         break;
                     case ProcessConstants.PUT_SALARY_CONFIG:
                         response = await _masterRepository.UpdateSalaryConfig(entity);
+                        break;
+                }
+                return response;
+            }
+            catch (Exception ex)
+            {
+                response.status = StatusCodes.Status400BadRequest;
+                response.message = ex.Message;
+            }
+            return response;
+
+        }
+
+        /// <summary>
+        /// Cập nhật thông số lương
+        /// </summary>
+        /// <param name="actionType"></param>
+        /// <param name="entity"></param>
+        /// <returns></returns>
+        public async Task<ResponseModel> UpdateSalaryParameter(string actionType, SalaryParameters entity)
+        {
+            ResponseModel response = new ResponseModel();
+            try
+            {
+                switch (actionType)
+                {
+                    case ProcessConstants.POST_SALARY_PARAMETER:
+                        response = await _masterRepository.AddSalaryParameter(entity);
+                        break;
+                    case ProcessConstants.PUT_SALARY_PARAMETER:
+                        response = await _masterRepository.UpdateSalaryParameter(entity);
                         break;
                 }
                 return response;

@@ -632,6 +632,46 @@ namespace HNOne.Web.Services
         }
 
         /// <summary>
+        /// lấy danh sách loại lương
+        /// </summary>
+        /// <param name="userId"></param>
+        /// <param name="token"></param>
+        /// <param name="isShowToast"></param>
+        /// <returns></returns>
+        public async Task<List<SalaryParameterModel>?> GetSalaryParameterAsync(int userId, string token, string condition = "", bool isShowToast = false)
+        {
+
+            try
+            {
+                List<SalaryParameterModel>? data = null;
+                RequestModel request = new RequestModel();
+                request.process = ProcessConstants.GET_SALARY_PARAMETER;
+                request.userId = userId;
+                request.token = token;
+                request.opt = condition;
+                HttpResponseMessage httpResponse = await PostAsync(EnpointConstants.MASTERDATA_GET_DATA, request);
+                var checkContent = ValidateJsonContent(httpResponse.Content);
+                if (!checkContent) _toastService.ShowInfo(MessageConstants.MESSAGE_JSON_INVALID);
+                else
+                {
+                    var response = await httpResponse.Content.ReadFromJsonAsync<ResCliModel<SalaryParameterModel>>();
+                    if (response == null || response.status != StatusCodes.Status200OK)
+                    {
+                        if (isShowToast) _toastService.ShowWarning(response?.message ?? MessageConstants.MESSAGE_IT_SUPPORT);
+                        return data;
+                    }
+                    data = response.data?.ToList();
+                }
+                return data;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "GetSalaryParameterAsync");
+                throw ex;
+            }
+        }
+
+        /// <summary>
         /// cập nhật thông tin loại lương
         /// </summary>
         /// <param name="processKey"></param>
