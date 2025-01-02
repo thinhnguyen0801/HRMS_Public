@@ -17,9 +17,9 @@ namespace HNOne.Web.Controllers
         [Inject] IMasterDataService _masterDataService { get; init; }
         [Inject] IJSRuntime _jsRuntime { get; set; }
         public W1Confirm confirm { get; set; }
-        const string STRING_KEY_EVENT_POST = "SALARY_CONFIG_CONTROLLER_POST";
-        const string STRING_KEY_EVENT_PUT = "SALARY_CONFIG_CONTROLLER_PUT";
-        const string STRING_KEY_EVENT_DELETE = "SALARY_CONFIG_CONTROLLER_DELETE";
+        const string STRING_KEY_EVENT_POST = "SALARY_PARAMETER_CONTROLLER_POST";
+        const string STRING_KEY_EVENT_PUT = "SALARY_PARAMETER_CONTROLLER_PUT";
+        const string STRING_KEY_EVENT_DELETE = "SALARY_PARAMETER_CONTROLLER_DELETE";
 
         #region Properties
         public List<SalaryParameterModel>? ListSalaryConfig { get; set; }
@@ -43,7 +43,7 @@ namespace HNOne.Web.Controllers
             {
                 try
                 {
-                    string errMessage = await CheckMenuPermissionAsync("cau-hinh-tinh-luong");
+                    string errMessage = await CheckMenuPermissionAsync("thong-so-luong");
                     if (errMessage == "401") return; // kiểm quyền menu page danh sách
                     await ShowLoading();
                     await checkPermission(errMessage);
