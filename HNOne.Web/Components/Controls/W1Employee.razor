@@ -15,10 +15,11 @@
         PagerVisibleNumericButtonCount="10"
         TextWrapEnabled="false"
         FocusedRowEnabled="true"
-        SelectionMode="@GridSelectionMode.Single"
+        SelectionMode="@SelectionMode"
         AutoExpandAllGroupRows="true"
         AllowSelectRowByClick="true"
         @bind-SelectedDataItem="@SelectedDataItem"
+        @bind-SelectedDataItems="@SelectedDataItems"
         CssClass="h-full">
     <ToolbarTemplate>
         <DxToolbar ItemRenderStyleMode="@ToolbarRenderStyleMode.Plain">
@@ -30,6 +31,7 @@
         </DxToolbar>
     </ToolbarTemplate>
     <Columns>
+        <DxGridSelectionColumn Width="55px" Visible="@(SelectionMode != GridSelectionMode.Single)" />
         <DxGridDataColumn FieldName="@nameof(EmployeeModel.departmentName)" Caption="Phòng ban" MinWidth="120" GroupIndex="0" />
         <DxGridDataColumn FieldName="@nameof(EmployeeModel.code)" Caption="Mã nhân viên" MinWidth="120" />
         <DxGridDataColumn FieldName="@nameof(EmployeeModel.name)" Caption="Họ tên" MinWidth="150" />
@@ -48,6 +50,7 @@
     </TotalSummary>
 </DxGrid>
 @code{
+    [Parameter] public GridSelectionMode SelectionMode { get; set; } = GridSelectionMode.Single;
     [Parameter] public List<EmployeeModel>? ListEmpSearch { get; set; } // danh sách nhân viên
     [Parameter] public IGrid? GridEmpSearch { get; set; } = null;
     [Parameter] public int BranchId { get; set; }
@@ -57,7 +60,7 @@
     [Parameter] public string? StatusIds { get; set; } // chuỗi trạng thái nhân viên cách nhau dấu , nếu nhiều
     [Parameter] public object? SeletedItem { get; set; } = null;//thuộc tính này giúp giữ các thông tin đã selected
     [Parameter] public EventCallback<object?> SelectedDataItemChanged { get; set; }
-
+    [Parameter] public EventCallback<IReadOnlyList<object>?> SelectedDataItemsChanged { get; set; }
     object? selectedDataItem;
     public object? SelectedDataItem
     {
@@ -66,6 +69,18 @@
         {
             selectedDataItem = value;
             SelectedDataItemChanged.InvokeAsync(value);
+            InvokeAsync(StateHasChanged);
+        }
+    }
+
+    public IReadOnlyList<object>? selectedDataItems{ get; set; }
+    public IReadOnlyList<object>? SelectedDataItems
+    {
+        get => selectedDataItems;
+        set
+        {
+            selectedDataItems = value;
+            SelectedDataItemsChanged.InvokeAsync(value);
             InvokeAsync(StateHasChanged);
         }
     }

@@ -17,6 +17,8 @@
     <div class="card p-1 mt-1">
         <DxToolbar ItemRenderStyleMode="@ToolbarRenderStyleMode.Contained">
             <Items>
+                <DxToolbarItem Text="Đổi mật khẩu" BeginGroup="true" IconCssClass="@($"{IconClassConstants.ICON_EDIT}")" CssClass="w1FontSize"
+                               Alignment="@ToolbarItemAlignment.Right" Click="@(async () => await OpenPopupHandler(nameof(IsShowPopupChangePass)))" />
 
                 <DxToolbarItem Text="Lưu" BeginGroup="true" IconCssClass="@($"{IconClassConstants.ICON_UPDATE}")" CssClass="w1FontSize"
                                Visible="@(IsAllowPut)"
@@ -688,6 +690,63 @@
                 <W1Label Value="Ghi chú" Styles="width: 110px" />
                 <div style="width: calc(100% - 110px)">
                     <DxMemo @bind-Text="@FamilyRelationshipUpdate.remark" CssClass="w1FontSize" BindValueMode="@BindValueMode.OnInput" Rows="2" />
+                </div>
+            </div>
+        </div>
+    </div>
+</W1Popup>
+
+@* Thông tin thay đổi mật khẩu *@
+<W1Popup @bind-IsOpenModal="@IsShowPopupChangePass"
+         Width="60%" TextBtnAccept="Cập nhật"
+         HeaderText="Thay đổi mật khẩu"
+         HandleClickAccept="@ChangePassHandler">
+    <div class="row row-gap-2">
+        <div class="col-sm-12">
+            <div class="d-flex ">
+                <W1Label Value="Mã nhân viên" Styles="width: 110px" />
+                <div style="width: calc(100% - 110px)">
+                    <DxTextBox @bind-Text="@UserUpdate.employeeCode" CssClass="w1FontSize" ReadOnly="true"></DxTextBox>
+                </div>
+            </div>
+        </div>
+        <div class="col-sm-12">
+            <div class="d-flex ">
+                <W1Label Value="Họ tên" Styles="width: 110px" />
+                <div style="width: calc(100% - 110px)">
+                    <DxTextBox @bind-Text="@UserUpdate.employeeName" CssClass="w1FontSize" ReadOnly="true"></DxTextBox>
+                </div>
+            </div>
+        </div>
+        <div class="col-sm-12">
+            <div class="d-flex ">
+                <W1Label Value="Mã tài khoản" Styles="width: 110px" />
+                <div style="width: calc(100% - 110px)">
+                    <DxTextBox @bind-Text="@UserUpdate.userName" CssClass="w1FontSize" ReadOnly="true"></DxTextBox>
+                </div>
+            </div>
+        </div>
+        <div class="col-sm-12">
+            <div class="d-flex ">
+                <W1Label Value="Mật khẩu củ" Styles="width: 110px" />
+                <div style="width: calc(100% - 110px)">
+                    <DxTextBox @bind-Text="@UserUpdate.password" CssClass="w1FontSize" Password="true"></DxTextBox>
+                </div>
+            </div>
+        </div>
+        <div class="col-sm-12">
+            <div class="d-flex ">
+                <W1Label Value="Mật khẩu mới" Styles="width: 110px" />
+                <div style="width: calc(100% - 110px)">
+                    <DxTextBox @bind-Text="@UserUpdate.passwordNew" CssClass="w1FontSize" Password="true"></DxTextBox>
+                </div>
+            </div>
+        </div>
+        <div class="col-sm-12">
+            <div class="d-flex ">
+                <W1Label Value="Nhập lại mật khẩu mới" Styles="width: 110px" />
+                <div style="width: calc(100% - 110px)">
+                    <DxTextBox @bind-Text="@UserUpdate.rePassword" CssClass="w1FontSize" Password="true"></DxTextBox>
                 </div>
             </div>
         </div>

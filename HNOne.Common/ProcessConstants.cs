@@ -131,6 +131,7 @@
         public const string GET_TRAINING = "get-training";
         public const string POST_TRAINING = "post-training";
         public const string PUT_TRAINING = "put-training";
+        public const string PUT_TRAINING_EVALUATE = "put-training-evaluate";
         #region Loại dưới store
         public const string GET_COMBO_TYPE_CONTRACT_BY_EMPLOYEEID = "CONTRACT_BY_EMPLOYEEID";
         public const string GET_COMBO_TYPE_SALARY_ADJUSTMENT_BY_CONTRACT = "SALARY_ADJUSTMENT_BY_CONTRACT";

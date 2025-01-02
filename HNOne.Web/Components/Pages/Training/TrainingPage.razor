@@ -25,6 +25,18 @@
             </DxToolbar>
         </div>
     }
+    else
+    {
+        <div class="card p-1">
+            <DxToolbar ItemRenderStyleMode="@ToolbarRenderStyleMode.Contained">
+                <Items>
+
+                    <DxToolbarItem Text="Lưu đánh giá" BeginGroup="true" IconCssClass="@($"{IconClassConstants.ICON_UPDATE}")" CssClass="w1FontSize"
+                                   Alignment="@ToolbarItemAlignment.Right" Click="@SaveDataEvalueteHandler" />
+                </Items>
+            </DxToolbar>
+        </div>
+    }
 
     <div class="card card-lg mt-1" style="padding: 5px">
         <div class="row row-gap-2">
@@ -68,7 +80,7 @@
                                         <div class="d-flex ">
                                             <W1Label Value="Khóa đào tạo" Styles="width: 120px" IsRequired="true" />
                                             <div style="width: calc(100% - 120px)">
-                                                <DxTextBox @bind-Text="@TrainDocument.trainingCourseName" CssClass="w1FontSize" Id="trainingCourseName"></DxTextBox>
+                                                <DxTextBox @bind-Text="@TrainDocument.trainingCourseName" CssClass="w1FontSize" Id="trainingCourseName" ReadOnly="@IsReadonlyControl"></DxTextBox>
                                             </div>
                                         </div>
                                     </div>
@@ -76,12 +88,13 @@
                                         <div class="d-flex ">
                                             <W1Label Value="Hình thức" Styles="width: 120px" IsRequired="true" />
                                             <div style="width: calc(100% - 120px)">
-                                                <DxComboBox Data="@ListCboStatus"
+                                                <DxComboBox Data="@ListCboTrainFormat"
                                                             @bind-Value="@TrainDocument.traningFormatCode"
                                                             FilteringMode="DataGridFilteringMode.Contains"
                                                             TextFieldName="@nameof(ComboboxModel.name)"
                                                             ValueFieldName="@nameof(ComboboxModel.code)"
                                                             Id="traningFormatCode"
+                                                            ReadOnly="@IsReadonlyControl"
                                                             CssClass="w1FontSize">
                                                 </DxComboBox>
                                             </div>
@@ -125,10 +138,10 @@
                                             <div style="width: calc(100% - 120px)">
                                                 <div class="d-flex">
                                                     <div>
-                                                        <DxRadio SizeMode="@SizeMode.Small" GroupName="general-radio-group" Value="@("Nội bộ")" @bind-GroupValue="@TrainDocument.typeOfTraning" CssClass="w1FontSize">Nội bộ</DxRadio>
+                                                        <DxRadio SizeMode="@SizeMode.Small" GroupName="general-radio-group" Value="@("Nội bộ")" @bind-GroupValue="@TrainDocument.typeOfTraning" CssClass="w1FontSize" ReadOnly="@IsReadonlyControl">Nội bộ</DxRadio>
                                                     </div>
                                                     <div class="px-2">
-                                                        <DxRadio SizeMode="@SizeMode.Small" GroupName="general-radio-group" Value="@("Bên ngoài")" @bind-GroupValue="@TrainDocument.typeOfTraning" CssClass="w1FontSize">Bên ngoài</DxRadio>
+                                                        <DxRadio SizeMode="@SizeMode.Small" GroupName="general-radio-group" Value="@("Bên ngoài")" @bind-GroupValue="@TrainDocument.typeOfTraning" CssClass="w1FontSize" ReadOnly="@IsReadonlyControl">Bên ngoài</DxRadio>
                                                     </div>
                                                 </div>
                                             </div>
@@ -159,7 +172,7 @@
                                         <div class="d-flex ">
                                             <W1Label Value="Địa điểm" Styles="width: 120px" />
                                             <div style="width: calc(100% - 120px)">
-                                                <DxTextBox @bind-Text="@TrainDocument.address" CssClass="w1FontSize"></DxTextBox>
+                                                <DxTextBox @bind-Text="@TrainDocument.address" CssClass="w1FontSize" ReadOnly="@IsReadonlyControl"></DxTextBox>
                                             </div>
                                         </div>
                                     </div>
@@ -236,10 +249,11 @@
                                         KeyFieldNames="@(new [] {nameof(Training1Model.employeeId),nameof(Training1Model.id)})"
                                         ValidationEnabled="true"
                                         EditMode="GridEditMode.EditCell"
+                                        EditModelSaving="@GridEditSavingHandler"
                                         KeyboardNavigationEnabled="true"
                                         AllowSelectRowByClick="true"
                                         FocusedRowEnabled="true"
-                                        SelectionMode="GridSelectionMode.Single"
+                                        SelectionMode="GridSelectionMode.Multiple"
                                         CssClass="h-full">
                                     <ToolbarTemplate>
                                         <DxToolbar ItemRenderStyleMode="@ToolbarRenderStyleMode.Plain">
@@ -247,20 +261,25 @@
                                                 <DxToolbarItem IconCssClass="@IconClassConstants.ICON_ADD" BeginGroup="true"
                                                                Alignment="@ToolbarItemAlignment.Right" Tooltip="Thêm nhân viên"
                                                                Visible="@(!IsReadonlyControl)"
-                                                               Click="@(async () => await OpenPopupHandler(nameof(EmployeeSelected), nameof(ListOfTrainings)))" />
+                                                               Click="@(async () => await OpenPopupHandler(nameof(ListEmpSelected), nameof(ListEmpSelected)))" />
+                                                <DxToolbarItem IconCssClass="@IconClassConstants.ICON_DELETE" BeginGroup="true"
+                                                               Alignment="@ToolbarItemAlignment.Right" Tooltip="Xóa nhân viên"
+                                                               Visible="@(!IsReadonlyControl)"
+                                                               Click="@DeleteDataHandler" />
                                             </Items>
                                         </DxToolbar>
                                     </ToolbarTemplate>
                                     <Columns>
+                                        <DxGridSelectionColumn Width="35px" />
                                         <DxGridDataColumn FieldName="@nameof(Training1Model.employeeCode)" Caption="Mã nhân viên" MinWidth="120" Width="120px" DataRowEditorVisible="false" />
                                         <DxGridDataColumn FieldName="@nameof(Training1Model.employeeName)" Caption="Tên nhân viên" MinWidth="160" Width="160px" DataRowEditorVisible="false" />
-                                        <DxGridDataColumn FieldName="@nameof(Training1Model.isAbsent)" Caption="Vắng?" MinWidth="95" Width="95px" DataRowEditorVisible="@(!IsReadonlyControl)" />
-                                        <DxGridDataColumn FieldName="@nameof(Training1Model.noteForAll)" Caption="Đánh giá" MinWidth="170" DataRowEditorVisible="@(!IsReadonlyControl)">
+                                        <DxGridDataColumn FieldName="@nameof(Training1Model.isAbsent)" Caption="Vắng?" MinWidth="95" Width="95px" DataRowEditorVisible="@(IsReadonlyControl)" />
+                                        <DxGridDataColumn FieldName="@nameof(Training1Model.noteForAll)" Caption="Đánh giá" MinWidth="170" DataRowEditorVisible="@(IsReadonlyControl)">
                                             <HeaderCaptionTemplate>
                                                 <span>Đánh giá <span style="color: red;">&nbsp;(*)</span></span>
                                             </HeaderCaptionTemplate>
                                         </DxGridDataColumn>
-                                        <DxGridDataColumn FieldName="@nameof(Training1Model.remark)" Caption="Ghi chú" MinWidth="170" DataRowEditorVisible="@(!IsReadonlyControl)">
+                                        <DxGridDataColumn FieldName="@nameof(Training1Model.remark)" Caption="Ghi chú" MinWidth="170" DataRowEditorVisible="@(IsReadonlyControl)">
                                             <HeaderCaptionTemplate>
                                                 <span>Ghi chú <span style="color: red;">&nbsp;(*)</span></span>
                                             </HeaderCaptionTemplate>
@@ -287,7 +306,8 @@
          HeaderText="Danh sách nhân viên">
     <div style="height: 400px; min-height: 350px">
         <W1Employee UserId="@UserId" Token="@Token" BranchId="@BranchId" DepartmentIds="@DepartmentIds" StatusIds="@StatusIds"
-                    SelectedDataItemChanged="@EventCallbackEmpChangedHandler" />
+                    SelectionMode="@DxGridEmployeeSelectionMode"
+                    SelectedDataItemChanged="@EventCallbackEmpChangedHandler" SelectedDataItemsChanged="@EventCallbackEmpListChangedHandler" />
     </div>
 </W1Popup>
 

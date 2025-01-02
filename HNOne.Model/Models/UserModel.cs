@@ -25,6 +25,7 @@ namespace HNOne.Model.Models
         public string? branchCode { get; set; }
         public string? branchName { get; set; }
         public string? token { get; set; }
+        public string? passwordNew { get; set; }
 
     }
 }

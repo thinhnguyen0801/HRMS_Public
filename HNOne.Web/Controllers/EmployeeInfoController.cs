@@ -22,6 +22,7 @@ namespace HNOne.Web.Controllers
         [Inject] IJSRuntime _jsRuntime { get; set; }
         [Inject] IWebHostEnvironment _webHostEnvironment { get; init; }
         [Inject] IConfiguration _configuration { get; init; }
+        [Inject] IUserService _userDataService { get; init; }
         public W1Confirm confirm { get; set; }
         #region Properties
         public int ActiveTabIndex { get; set; } = 0;
@@ -30,6 +31,7 @@ namespace HNOne.Web.Controllers
         public List<FamilyRelationshipModel>? ListFamilyRelationship { get; set; } // danh sách quan hệ gia đình
         public IGrid? GridFamilyRelationship { get; set; }
         public FamilyRelationshipModel FamilyRelationshipUpdate { get; set; } = new FamilyRelationshipModel();
+        public UserModel UserUpdate { get; set; } = new UserModel(); // cập nhật thông tin đăng nhập
 
         //
         public List<EnumCatagoryModel>? ListCboRelationship { get; set; } // cbo ds quan hệ
@@ -45,6 +47,7 @@ namespace HNOne.Web.Controllers
 
         public bool IsCreatePopup { get; set; }
         public bool IsShowPopupFamily { get; set; } // popup thêm mới Thông tin quan hệ gia đình
+        public bool IsShowPopupChangePass { get; set; } // popup đổi mật khẩu
 
         // nút quyền
         public bool IsAllowPut { get; set; }
@@ -227,6 +230,25 @@ namespace HNOne.Web.Controllers
                 return;
             }
         }
+
+        /// <summary>
+        /// lấy thông tin nhân viên theo id
+        /// </summary>
+        /// <returns></returns>
+        private async Task getUserById()
+        {
+            RequestModel request = new RequestModel();
+            request.userId = UserId;
+            request.branchId = BranchId;
+            request.opt = "";
+            request.documentId = UserId;
+            var listUser = await _userDataService.GetUserAsync(request);
+            if (!listUser.IsNullOrEmpty())
+            {
+                UserUpdate = listUser![0];
+                IsShowPopupChangePass = true;
+            }
+        }
         #endregion Private Functions
 
         #region Protected Functions
@@ -266,6 +288,10 @@ namespace HNOne.Web.Controllers
                             IsCreatePopup = false;
                         }
                         IsShowPopupFamily = true;
+                        break;
+                    case nameof(IsShowPopupChangePass):
+                        await ShowLoading();
+                        await getUserById();
                         break;
                 }
             }
@@ -550,6 +576,25 @@ namespace HNOne.Web.Controllers
             catch (Exception ex)
             {
                 _logger!.LogError(ex, "SaveFamilyRelationshipHandler");
+                ShowError(ex.Message);
+            }
+            finally
+            {
+                await Task.Delay(50);
+                await ShowLoading(false);
+                await InvokeAsync(StateHasChanged);
+            }
+        }
+        
+        protected async Task ChangePassHandler()
+        {
+            try
+            {
+
+            }
+            catch (Exception ex)
+            {
+                _logger!.LogError(ex, "ChangePassHandler");
                 ShowError(ex.Message);
             }
             finally

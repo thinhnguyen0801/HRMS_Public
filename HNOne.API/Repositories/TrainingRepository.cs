@@ -40,7 +40,7 @@ namespace HNOne.API.Repositories
                 parameters.Add("@FromDate", request.fromDate, DbType.Date);
                 parameters.Add("@ToDate", request.toDate, DbType.Date);
                 IEnumerable<TrainingModel>? lstResult = null;
-                var dtResult = await connection.QueryMultipleAsync(StoreConstants.STORE_H1_OVERTIME_REQUEST_SELECT, param: parameters
+                var dtResult = await connection.QueryMultipleAsync(StoreConstants.STORE_H1_TRAINING_SELECT, param: parameters
                     , commandTimeout: GlobalConstants.COMMAND_TIMEOUT, commandType: CommandType.StoredProcedure);
                 if (dtResult != null)
                 {
@@ -142,6 +142,17 @@ namespace HNOne.API.Repositories
                     return response;
                 }
                 DateTime dateTimeNow = _dateTimeHelper.GetCurrentVietnamTime();
+                data.EmployeeSignatureId = entity.EmployeeSignatureId;
+                data.TrainingCourseName = entity.TrainingCourseName;
+                data.TypeOfTraning = entity.TypeOfTraning;
+                data.TraningFormatCode = entity.TraningFormatCode;
+                data.Address = entity.Address;
+                data.FromDate = entity.FromDate;
+                data.ToDate = entity.ToDate;
+                data.Content = entity.Content;
+                data.Objectives = entity.Objectives;
+                data.NoteForAll = entity.NoteForAll;
+                data.Remark = entity.Remark;
                 data.DateTracking = dateTimeNow;
                 data.UpdateDate = dateTimeNow;
                 data.UserSign2 = entity.UserSign2;
@@ -165,6 +176,59 @@ namespace HNOne.API.Repositories
                     entity1.UserSign = entity.UserSign;
                     await _dbContext.Training1s.AddAsync(entity1);
                 }
+                await _dbContext.SaveChangesAsync();
+                await _dbContext.Database.CommitTransactionAsync();
+                response.message = MessageConstants.MESSAGE_UPDATE_SUCCESS;
+                response.data = data.Id;
+                return response;
+            }
+            catch (Exception)
+            {
+                if (isTrans) await _dbContext.Database.RollbackTransactionAsync();
+                throw;
+            }
+        }
+        
+        /// <summary>
+        /// cập nhật đánh giá đào tạo
+        /// </summary>
+        /// <param name="entity"></param>
+        /// <param name="lstEntity1"></param>
+        /// <returns></returns>
+        public async Task<ResponseModel> UpdateEvaluateTraining(Trainings entity, IEnumerable<Training1s> lstEntity1)
+        {
+            bool isTrans = false;
+            ResponseModel response = new ResponseModel();
+            try
+            {
+                var data = await _dbContext.Trainings.FirstOrDefaultAsync(m => m.Id == entity.Id);
+                if (data == null)
+                {
+                    response.status = StatusCodes.Status404NotFound;
+                    response.message = MessageConstants.MESSAGE_NOT_FOUNT;
+                    return response;
+                }
+                var lstRequest1s = await _dbContext.Training1s.Where(m => m.TrainId == data.Id).ToListAsync();
+                if(!lstRequest1s.IsNullOrEmpty())
+                {
+                    DateTime dateTimeNow = _dateTimeHelper.GetCurrentVietnamTime();
+                    foreach (var item in lstRequest1s)
+                    {
+                        foreach(var entity1 in lstEntity1)
+                        {
+                            if (item.Id != entity1.Id) continue;
+                            item.IsAbsent = entity1.IsAbsent;
+                            item.NoteForAll = entity1.NoteForAll;
+                            item.Remark = entity1.Remark;
+                            item.DateTracking = dateTimeNow;
+                            item.UserSign = entity.UserSign2;
+                            _dbContext.Training1s.Attach(item);
+                            _dbContext.Entry(item).State = EntityState.Modified;
+                        }    
+                    }
+                }    
+                await _dbContext.Database.BeginTransactionAsync();
+                isTrans = true;
                 await _dbContext.SaveChangesAsync();
                 await _dbContext.Database.CommitTransactionAsync();
                 response.message = MessageConstants.MESSAGE_UPDATE_SUCCESS;

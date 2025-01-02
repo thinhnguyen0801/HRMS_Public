@@ -21,6 +21,7 @@ namespace HNOne.Web.Controllers
         [Inject] ITrainingService _trainingService { get; init; }
         [Inject] IJSRuntime _jsRuntime { get; set; }
         public W1Confirm confirm { get; set; }
+        const string YCDT_NB = "Nội bộ";
         #region Properties
         public string? pActionType { get; set; } = nameof(EnumType.Add);
         private int pDocEntry { get; set; } = 0;
@@ -35,7 +36,9 @@ namespace HNOne.Web.Controllers
         public bool IsShowDialogEmpSearch { get; set; }
         public string? DepartmentIds { get; set; }
         public string? StatusIds { get; set; } // Tình trạng nào
+        public GridSelectionMode DxGridEmployeeSelectionMode { get; set; } = GridSelectionMode.Single; // chọn môt/nhiều
         public object? EmployeeSelected { get; set; } // Nhân viên được chọn
+        public IReadOnlyList<object>? ListEmpSelected { get; set; } // danh sách nhân viên được chọn
         public bool firstRender = true;
         public string? VoucherHistory { get; set; } = string.Empty; // lịch sử chứng từ
         // lock control lại
@@ -56,9 +59,8 @@ namespace HNOne.Web.Controllers
                     ListBreadcrumbs = new List<BreadcrumbModel>()
                     {
                         new BreadcrumbModel("Đào tạo"),
-                        new BreadcrumbModel("Chứng từ đề nghị"),
-                        new BreadcrumbModel("Đề nghị nghỉ phép", "danh-sach-de-nghi-nghi-phep"),
-                        new BreadcrumbModel("Chi tiết đề nghị nghỉ phép", isActive: true),
+                        new BreadcrumbModel("Đào tạo", "danh-sach-dao-tao"),
+                        new BreadcrumbModel("Chi tiết đào tạo", isActive: true),
                     };
                     await NotifyBreadcrumb.InvokeAsync(ListBreadcrumbs);
                     //
@@ -89,6 +91,7 @@ namespace HNOne.Web.Controllers
         {
             // GÁN DỮ LIỆU MẶC ĐỊNH
             TrainDocument.statusCode = CommonConstants.STATUS_CODE_ADD; // mặc định là chờ xử lý
+            TrainDocument.typeOfTraning = YCDT_NB;
             var uri = _navigationManager?.ToAbsoluteUri(_navigationManager.Uri);
             if (!isRefresh && uri != null && QueryHelpers.ParseQuery(uri.Query).Count > 0)
             {
@@ -108,10 +111,13 @@ namespace HNOne.Web.Controllers
             try
             {
                 var getTask5 = _masterDataService.GetFunEnumAsync(UserId, Token, nameof(EnumCatagory.TrangThaiHopDong)); // ds trạng thái
+                var getTask6 = _masterDataService.GetFunEnumAsync(UserId, Token, nameof(EnumCatagory.HinhThucDaoTao)); // ds trạng thái
                 await Task.WhenAll(
-                    getTask5
+                    getTask5,
+                    getTask6
                 );
                 ListCboStatus = await getTask5;
+                ListCboTrainFormat = await getTask6;
             }
             catch (Exception) { throw; }
         }
@@ -175,6 +181,12 @@ namespace HNOne.Web.Controllers
                 fieldName = "traningFormatCode";
                 return;
             }
+            if (string.IsNullOrWhiteSpace(TrainDocument.typeOfTraning))
+            {
+                errorMessage = string.Format(MessageConstants.MESSAGE_COMBOBOX_REQUIRE, "Y/c đào tạo");
+                fieldName = "typeOfTraning";
+                return;
+            }
             if (TrainDocument.employeeSignatureId < 1)
             {
                 errorMessage = string.Format(MessageConstants.MESSAGE_COMBOBOX_REQUIRE, "Người ký");
@@ -235,6 +247,12 @@ namespace HNOne.Web.Controllers
                     case nameof(EmployeeSelected):
                         //ListCboDepartment ??= new();
                         //DepartmentIds = string.Join(",", ListCboDepartment.Select(m => m.id));
+                        // chỗ chọn nhân viên lập
+                        DxGridEmployeeSelectionMode = GridSelectionMode.Single;
+                        IsShowDialogEmpSearch = true;
+                        break;
+                    case nameof(ListEmpSelected):
+                        DxGridEmployeeSelectionMode = GridSelectionMode.Multiple;
                         IsShowDialogEmpSearch = true;
                         break;
                 }
@@ -265,16 +283,29 @@ namespace HNOne.Web.Controllers
                     ShowWarning(string.Format(MessageConstants.MESSAGE_COMBOBOX_REQUIRE, "Nhân viên"));
                     return;
                 }
-                EmployeeModel employee = (EmployeeModel)EmployeeSelected;
                 switch (pPopupType)
                 {
                     case nameof(TrainDocument.employeeSignatureCode):
+                        EmployeeModel employee = (EmployeeModel)EmployeeSelected;
                         TrainDocument.employeeSignatureId = employee.id;
                         TrainDocument.employeeSignatureCode = employee.code;
                         TrainDocument.employeeSignatureName = employee.name;
                         IsShowDialogEmpSearch = false;
                         break;
-                    case nameof(ListOfTrainings):
+                    case nameof(ListEmpSelected):
+                        if (ListEmpSelected.IsNullOrEmpty()) break;
+                        ListOfTrainings ??= new List<Training1Model>();
+                        foreach (var item in ListEmpSelected!.Cast<EmployeeModel>())
+                        {
+                            if (ListOfTrainings.Any(m => m.employeeCode == item.code)) continue;
+                            var otraining1 = new Training1Model();
+                            otraining1.employeeId = item.id;
+                            otraining1.employeeCode = item.code;
+                            otraining1.employeeName = item.name;
+                            ListOfTrainings.Add(otraining1);
+                        }
+                        GridOfTrainings?.Reload();
+                        IsShowDialogEmpSearch = false;
                         break;
                 }
             }
@@ -295,6 +326,7 @@ namespace HNOne.Web.Controllers
         /// </summary>
         /// <param name="lstEmp"></param>
         protected void EventCallbackEmpChangedHandler(object? lstEmp) => EmployeeSelected = lstEmp;
+        protected void EventCallbackEmpListChangedHandler(IReadOnlyList<object>? lstEmp) => ListEmpSelected = lstEmp;
 
         protected async Task SaveDataHandler()
         {
@@ -333,6 +365,47 @@ namespace HNOne.Web.Controllers
             {
                 ShowError(ex.Message);
                 _logger.LogError(ex, "SaveDataHandler");
+            }
+            finally
+            {
+                await ShowLoading(false);
+                await InvokeAsync(StateHasChanged);
+            }
+        }
+
+        /// <summary>
+        /// lưu thông tin đánh giá nhân viên
+        /// </summary>
+        /// <returns></returns>
+        protected async Task SaveDataEvalueteHandler()
+        {
+            try
+            {
+                bool isConfirm = true;
+                string errorMessage = string.Format(MessageConstants.MESSAGE_CONFIRM_UPDATE_FORMAT, "thông tin đánh giá");
+                await Task.Yield();
+                isConfirm = await confirm.SetConfirm(MessageConstants.MESSAGE_TITLE, errorMessage);
+                if (!isConfirm) return;
+                if (!isConfirm) return;
+                await ShowLoading();
+                string processKey = ProcessConstants.PUT_TRAINING_EVALUATE;
+                TrainDocument.branchId = BranchId;
+                TrainDocument.userSign = UserId;
+                TrainDocument.userSign2 = UserId;
+                string json = JsonConvert.SerializeObject(TrainDocument);
+                string jsonDetail = JsonConvert.SerializeObject(ListOfTrainings);
+                int result = await _trainingService.UpdateTrainingAsync(processKey, UserId, Token, BranchId, json, jsonDetail);
+                if (result > 0)
+                {
+                    pActionType = nameof(EnumType.Update);
+                    pDocEntry = result;
+                    await showVoucher();
+                }
+            }
+            catch (Exception ex)
+            {
+                ShowError(ex.Message);
+                _logger.LogError(ex, "SaveDataEvalueteHandler");
             }
             finally
             {
@@ -385,6 +458,49 @@ namespace HNOne.Web.Controllers
             {
                 await ShowLoading(false);
                 await InvokeAsync(StateHasChanged);
+            }
+        }
+
+        protected void GridEditSavingHandler(GridEditModelSavingEventArgs e)
+        {
+            try
+            {
+                var itemEdit = (Training1Model)e.EditModel;
+                var itemFind = ListOfTrainings?.FirstOrDefault(m => m.employeeId == itemEdit.employeeId && m.id == itemEdit.id);
+                if (itemFind == null) return;
+                itemFind.isAbsent = itemEdit.isAbsent;
+                itemFind.noteForAll = itemEdit.noteForAll;
+                itemFind.remark = itemEdit.remark;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "GridEditSavingHandler");
+            }
+        }
+
+        protected void DeleteDataHandler()
+        {
+            try
+            {
+                if (ListOfTrainings.IsNullOrEmpty())
+                {
+                    ShowWarning(MessageConstants.MESSAGE_NOT_FOUNT);
+                    return;
+                }
+                var lstSelected = GridOfTrainings!.SelectedDataItems;
+                if (lstSelected.IsNullOrEmpty())
+                {
+                    ShowWarning(MessageConstants.MESSAGE_NO_CHOSE_DATA);
+                    return;
+                }
+                foreach (Training1Model item in lstSelected) ListOfTrainings!.Remove(item);
+                GridOfTrainings?.Reload();
+                InvokeAsync(StateHasChanged);
+            }
+            catch (Exception ex)
+            {
+                _logger!.LogError(ex, "DeleteDataHandler");
+                ShowError(ex.Message);
             }
         }
         #endregion

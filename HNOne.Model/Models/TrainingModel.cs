@@ -10,7 +10,9 @@
         public string? trainingCourseName { get; set; } // tên khóa đào tạo
         public string? typeOfTraning { get; set; } // loại đào tạo (Nội bộ/ ngoài)
         public string? traningFormatCode { get; set; } // hình thức đào tạo (Bắt buộc,...)
+        public string? traningFormatName { get; set; }
         public string? statusCode { get; set; } // tình trạng
+        public string? statusName { get; set; } // trạng thái lấy từ enum
         public string? address { get; set; } // địa điểm
         public DateTime? fromDate { get; set; } // Ngày bắt đầu
         public DateTime? toDate { get; set; } // Ngày kết thúc 

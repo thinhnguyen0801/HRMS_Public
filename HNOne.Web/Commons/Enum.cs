@@ -30,6 +30,7 @@
         LoaiNgayNghi,
         QuyDinhSoGioTangCa,
         CapNhatThongTinNhanVien,
+        HinhThucDaoTao,
     }
 
     public enum EnumObjType

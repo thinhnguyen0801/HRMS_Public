@@ -146,6 +146,11 @@ namespace HNOne.API.Repositories
                     " left join Employees as T2 with(nolock) on T0.EmployeeId = T2.Id" +
                     " left join PermissionGroups as T3 with(nolock) on T0.PerGroupId = T3.Id" +
                     " where T0.IsDelete = 0";
+                if (request.documentId > 0)
+                {
+                    strQuery += " and T0.UserId = @UserId";
+                    parameters.Add("@UserId", request.documentId, DbType.Int32);
+                }
                 var result = await connection.QueryAsync<UserModel>(strQuery, parameters, commandTimeout: 500, commandType: CommandType.Text);
                 return result;
             }

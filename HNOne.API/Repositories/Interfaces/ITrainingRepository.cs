@@ -9,5 +9,6 @@ namespace HNOne.API.Repositories.Interfaces
         Task<IEnumerable<TrainingModel>> GetTraining(RequestModel request);
         Task<ResponseModel> AddTraining(Trainings entity, IEnumerable<Training1s> lstEntity1);
         Task<ResponseModel> UpdateTraining(Trainings entity, IEnumerable<Training1s> lstEntity1);
+        Task<ResponseModel> UpdateEvaluateTraining(Trainings entity, IEnumerable<Training1s> lstEntity1);
     }
 }

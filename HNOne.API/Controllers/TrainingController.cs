@@ -32,6 +32,7 @@ namespace HNOne.API.Controllers
                 switch (processKey)
                 {
                     case ProcessConstants.GET_TRAINING:
+                        response.data = await _trainingRepository.GetTraining(request);
                         break;
                     default:
                         response.status = StatusCodes.Status404NotFound;
@@ -74,6 +75,11 @@ namespace HNOne.API.Controllers
                         var trainPut = DeserializeJson<Trainings>($"{request.json}");
                         var lstTrainPut = DeserializeJson<List<Training1s>>($"{request.jsonDetail}");
                         response = await _trainingRepository.UpdateTraining(trainPut!, lstTrainPut!);
+                        break;
+                    case ProcessConstants.PUT_TRAINING_EVALUATE:
+                        var trainPutEv = DeserializeJson<Trainings>($"{request.json}");
+                        var lstTrainPutEv = DeserializeJson<List<Training1s>>($"{request.jsonDetail}");
+                        response = await _trainingRepository.UpdateEvaluateTraining(trainPutEv!, lstTrainPutEv!);
                         break;
                     default:
                         response.status = StatusCodes.Status404NotFound;

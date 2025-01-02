@@ -11,6 +11,7 @@
             ListUris.Add("ContractAppendices", "chi-tiet-phu-luc-hop-dong?key=");
             ListUris.Add("ShiftChanges", "dang-ky-doi-ca?key=");
             ListUris.Add("OvertimeRequests", "de-nghi-lam-them?key=");
+            ListUris.Add("Trainings", "dao-tao?key=");
         }
     }
 }
