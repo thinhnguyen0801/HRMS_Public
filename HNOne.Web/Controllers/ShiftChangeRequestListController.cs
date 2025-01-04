@@ -13,6 +13,9 @@ namespace HNOne.Web.Controllers
     public class ShiftChangeRequestListController : DocumentControllerBase
     {
         [Inject] IWorkforceService _workforceService { get; init; }
+        const string STRING_KEY_EVENT_POST = "SHIFT_CHANGE_REQUEST_CONTROLLER_POST";
+        const string STRING_KEY_EVENT_PUT = "SHIFT_CHANGE_REQUEST_CONTROLLER_PUT";
+        const string STRING_KEY_EVENT_DELETE = "SHIFT_CHANGE_REQUEST_CONTROLLER_DELETE";
         #region Properties
         public List<ShiftChangeModel>? ListPending { get; set; }
         public IGrid? GridPending { get; set; }
@@ -23,6 +26,10 @@ namespace HNOne.Web.Controllers
         public DateTime? FromDate { get; set; }
         public DateTime? ToDate { get; set; }
 
+        // nút quyền
+        public bool IsAllowPost { get; set; }
+        public bool IsAllowDelete { get; set; }
+        public bool IsAllowPut { get; set; }
         #endregion
 
         protected override async Task OnAfterRenderAsync(bool firstRender)
@@ -32,9 +39,10 @@ namespace HNOne.Web.Controllers
             {
                 try
                 {
-                    //string errMessage = await CheckMenuPermissionAsync("danh-sach-phu-luc-hop-dong");
-                    //if (errMessage == "401") return; // kiểm quyền menu page danh sách
+                    string errMessage = await CheckMenuPermissionAsync("danh-sach-dang-ky-doi-ca");
+                    if (errMessage == "401") return; // kiểm quyền menu page danh sách
                     await ShowLoading();
+                    await checkPermission(errMessage);
                     ListBreadcrumbs = new List<BreadcrumbModel>()
                     {
                         new BreadcrumbModel("Công - Phép", isActive: true),
@@ -59,6 +67,18 @@ namespace HNOne.Web.Controllers
         }
 
         #region Private Functions
+        /// <summary>
+        /// kiểm tra quyền nút
+        /// </summary>
+        /// <returns></returns>
+        private async Task checkPermission(string menuId)
+        {
+            List<string> lstKey = await CheckEventPermission(menuId);
+            IsAllowPost = lstKey.FirstOrDefault(m => m == STRING_KEY_EVENT_POST) != null;
+            IsAllowDelete = lstKey.FirstOrDefault(m => m == STRING_KEY_EVENT_DELETE) != null;
+            IsAllowPut = lstKey.FirstOrDefault(m => m == STRING_KEY_EVENT_PUT) != null;
+        }
+
         private async Task getShiftRequestList()
         {
             RequestModel request = new RequestModel();
@@ -128,10 +148,20 @@ namespace HNOne.Web.Controllers
             }
         }
 
-        protected void RedirectPageDetailHandler()
+        /// <summary>
+        /// đi sang page tạo mới
+        /// </summary>
+        /// <returns></returns>
+        protected async Task RedirectPageDetailHandler()
         {
             try
             {
+                await checkPermission(MenuId);
+                if (!IsAllowPost)
+                {
+                    ShowInfo(MessageConstants.MESSAGE_NO_PERMISSION);
+                    return;
+                }
                 Dictionary<string, string> pParams = new Dictionary<string, string>
                 {
                     { "pActionType", nameof(EnumType.Add) },

@@ -10,17 +10,19 @@
                 <Items>
 
                     <DxToolbarItem Text="Lưu" BeginGroup="true" IconCssClass="@($"{IconClassConstants.ICON_UPDATE}")" CssClass="w1FontSize"
-                                   Alignment="@ToolbarItemAlignment.Right" Click="@SaveDataHandler" />
+                                   Alignment="@ToolbarItemAlignment.Right" Click="@SaveDataHandler"
+                                   Visible="@((pActionType == nameof(EnumType.Add) && IsAllowPost) || (pActionType != nameof(EnumType.Add) && IsAllowPut))" />
 
                     <DxToolbarItem Text="Gửi phê duyệt" BeginGroup="true" IconCssClass="@($"{IconClassConstants.ICON_SHARE}")" CssClass="w1FontSize"
                                    Alignment="@ToolbarItemAlignment.Right" Click="@(()=> SubmitForApprovalHandler())"
-                                   Visible="@(ShiftRequestDocument.statusCode == CommonConstants.STATUS_CODE_ADD)" />
+                                   Visible="@(ShiftRequestDocument.statusCode == CommonConstants.STATUS_CODE_ADD && IsAllowDelete)" />
 
                     <DxToolbarItem Text="Hủy" BeginGroup="true" IconCssClass="@($"{IconClassConstants.ICON_DELETE}")" CssClass="w1FontSize"
-                                   Alignment="@ToolbarItemAlignment.Right" />
+                                   Alignment="@ToolbarItemAlignment.Right" Click="@CancelDocumentHandler"
+                                   Visible="@(pActionType != nameof(EnumType.Add) && ShiftRequestDocument.statusCode == CommonConstants.STATUS_CODE_ADD && IsAllowDelete)" />
 
                     <DxToolbarItem Text="Làm mới" BeginGroup="true" IconCssClass="@($"{IconClassConstants.ICON_REFRESH}")" CssClass="w1FontSize"
-                                   Alignment="@ToolbarItemAlignment.Right" />
+                                   Alignment="@ToolbarItemAlignment.Right" Click="@RefreshDataHandler" />
                 </Items>
             </DxToolbar>
         </div>
@@ -241,7 +243,7 @@
                                         <DxGridDataColumn FieldName="@nameof(ShiftChange1Model.shiftCode1)" Caption="Ca mặc định" Width="180px" MinWidth="150" 
                                                           DataRowEditorVisible="false" />
 
-                                        <DxGridDataColumn FieldName="@nameof(ShiftChange1Model.shiftCode2)" Caption="Ca thay đổi" Width="210px" MinWidth="210">
+                                        <DxGridDataColumn FieldName="@nameof(ShiftChange1Model.shiftCode2)" Caption="Ca thay đổi" Width="210px" MinWidth="210" DataRowEditorVisible="@(!IsReadonlyControl)">
                                             <HeaderCaptionTemplate>
                                                 <span>Ca thay đổi <span style="color: red;">&nbsp;(*)</span></span>
                                             </HeaderCaptionTemplate>
@@ -259,7 +261,7 @@
                                             </EditSettings>
                                         </DxGridDataColumn>
                                         <DxGridDataColumn FieldName="@nameof(OvertimeRequest1Model.symbol)" Caption="Ký hiệu" Width="100px" MinWidth="90" DataRowEditorVisible="false" />
-                                        <DxGridDataColumn FieldName="@nameof(ShiftChange1Model.remark)" Caption="Ghi chú" MinWidth="170">
+                                        <DxGridDataColumn FieldName="@nameof(ShiftChange1Model.remark)" Caption="Ghi chú" MinWidth="170" DataRowEditorVisible="@(!IsReadonlyControl)">
                                             <HeaderCaptionTemplate>
                                                 <span>Ghi chú <span style="color: red;">&nbsp;(*)</span></span>
                                             </HeaderCaptionTemplate>

@@ -108,7 +108,7 @@
                                             <div class="d-flex">
                                                 @foreach (var item in lstEvent)
                                                 {
-                                                    <div style="min-width: 120px; max-width: 120px; margin-right: 5px">
+                                                    <div style="min-width: 120px; max-width: 120px; margin-right: 5px" title="@item.actionName">
                                                         <DxCheckBox CssClass="w-full w1FontSize" LabelWrapMode="@LabelWrapMode.Ellipsis"
                                                                     SizeMode="@SizeMode.Small"
                                                                     @bind-Checked="@item.isAllow"
