@@ -55,6 +55,8 @@ namespace HNOne.Model.Models
         public string? symbol { get; set; } // kí hiệu
         public bool isDayOff { get; set; } // là ngày nghỉ
         public int holidayId { get; set; } // Rơi vô kì nghỉ lễ nào
-
+        public DateTime? fromTime { get; set; } // Ngày bắt đầu
+        public DateTime? toTime { get; set; } // Ngày kết thúc
+        public double totalHours { get; set; } // tổng số giờ làm việc
     }
 }

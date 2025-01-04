@@ -66,6 +66,21 @@
                                         </div>
                                     </div>
                                     <div class="col-md-6 col-sm-12">
+                                        <div class="d-flex">
+                                            <W1Label Value="Loại đăng ký" Styles="width: 120px" IsRequired="true" />
+                                            <div style="width: calc(100% - 120px)">
+                                                <DxComboBox Data="@ListCboRequestType"
+                                                            @bind-Value="@LeaveRequestDocument.requestType"
+                                                            FilteringMode="DataGridFilteringMode.Contains"
+                                                            TextFieldName="@nameof(ComboboxModel.name)"
+                                                            ValueFieldName="@nameof(ComboboxModel.code)"
+                                                            Id="requestType" ReadOnly="@IsReadonlyControl"
+                                                            CssClass="w1FontSize">
+                                                </DxComboBox>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6 col-sm-12">
                                         <div class="d-flex ">
                                             <W1Label Value="Ngày chứng từ" Styles="width: 120px" />
                                             <div style="width: calc(100% - 120px)">
@@ -73,21 +88,6 @@
                                                             CssClass="w1FontSize"
                                                             Mask="@GlobalContants.FORMAT_DATE" Format="@GlobalContants.FORMAT_DATE"
                                                             DisplayFormat="@GlobalContants.FORMAT_DATE" ReadOnly="true" />
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <div class="col-md-6 col-sm-12">
-                                        <div class="d-flex ">
-                                            <W1Label Value="Phòng ban" Styles="width: 120px" IsRequired="true" />
-                                            <div style="width: calc(100% - 120px)">
-                                                <DxComboBox Data="@ListCboDepartment"
-                                                            @bind-Value="@LeaveRequestDocument.departmentId"
-                                                            FilteringMode="DataGridFilteringMode.Contains"
-                                                            TextFieldName="@nameof(ComboboxModel.name)"
-                                                            ValueFieldName="@nameof(ComboboxModel.id)"
-                                                            Id="departmentId" ReadOnly="@IsReadonlyControl"
-                                                            CssClass="w1FontSize">
-                                                </DxComboBox>
                                             </div>
                                         </div>
                                     </div>
@@ -112,10 +112,24 @@
                                             </div>
                                         </div>
                                     </div>
-                                    <div class="col-md-6 col-sm-12"></div>
                                     <div class="col-md-6 col-sm-12">
                                         <div class="d-flex ">
-                                            <W1Label Value="Người ký" Styles="width: 120px" />
+                                            <W1Label Value="Phòng ban" Styles="width: 120px" IsRequired="true" />
+                                            <div style="width: calc(100% - 120px)">
+                                                <DxComboBox Data="@ListCboDepartment"
+                                                            @bind-Value="@LeaveRequestDocument.departmentId"
+                                                            FilteringMode="DataGridFilteringMode.Contains"
+                                                            TextFieldName="@nameof(ComboboxModel.name)"
+                                                            ValueFieldName="@nameof(ComboboxModel.id)"
+                                                            Id="departmentId" ReadOnly="true"
+                                                            CssClass="w1FontSize">
+                                                </DxComboBox>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6 col-sm-12">
+                                        <div class="d-flex ">
+                                            <W1Label Value="Người ký" Styles="width: 120px" IsRequired="true" />
                                             <div style="width: calc(100% - 120px)">
                                                 <div class="grid gap-1 row-gap-2">
                                                     <div class="g-col-md-4 g-col-sm-12 g-col-12">
@@ -146,54 +160,23 @@
                                         </div>
                                     </div>
                                     <div class="col-md-6 col-sm-12">
-                                        <div class="d-flex">
-                                            <W1Label Value="Loại đăng ký" Styles="width: 120px" IsRequired="true" />
-                                            <div style="width: calc(100% - 120px)">
-                                                <DxComboBox Data="@ListCboRequestType"
-                                                            @bind-Value="@LeaveRequestDocument.requestType"
-                                                            FilteringMode="DataGridFilteringMode.Contains"
-                                                            TextFieldName="@nameof(ComboboxModel.name)"
-                                                            ValueFieldName="@nameof(ComboboxModel.code)"
-                                                            Id="requestType" ReadOnly="@IsReadonlyControl"
-                                                            CssClass="w1FontSize">
-                                                </DxComboBox>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <div class="col-md-6 col-sm-12">
                                         <div class="d-flex ">
-                                            <W1Label Value="Ngày đăng ký" Styles="width: 120px" IsRequired="true" />
-                                            <div style="width: calc(100% - 120px)">
-                                                <DxDateEdit @bind-Date="@LeaveRequestDocument.fromDate"
-                                                            CssClass="w1FontSize" Id="startDate" ReadOnly="@IsReadonlyControl"
-                                                            Mask="@GlobalContants.FORMAT_DATE" Format="@GlobalContants.FORMAT_DATE"
-                                                            DisplayFormat="@GlobalContants.FORMAT_DATE" />
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <div class="col-md-6 col-sm-12">
-                                        <div class="d-flex ">
-                                            <W1Label Value="Từ giờ/Đến giờ" Styles="width: 120px" IsRequired="true" />
+                                            <W1Label Value="Từ ngày/đến ngày" Id="ngayBatDau" Styles="width: 120px" IsRequired="true" />
                                             <div style="width: calc(100% - 120px)">
                                                 <div class="grid gap-1 row-gap-2">
-                                                    <div class="g-col-md-5 g-col-sm-12 g-col-12">
-                                                        <DxTimeEdit Time="@LeaveRequestDocument.fromDateTime"
-                                                                    TimeChanged="@((DateTime? fromDateTime)=>DateEditValueChangedHandler(fromDateTime, controlID: nameof(LeaveRequestDocument.fromDateTime)))"
-                                                                    CssClass="w1FontSize" Id="startDateTime" ReadOnly="@IsReadonlyControl"
-                                                                    Mask="@GlobalContants.FORMAT_TIME" Format="@GlobalContants.FORMAT_TIME"
-                                                                    DisplayFormat="@GlobalContants.FORMAT_TIME" />
+                                                    <div class="g-col-md-6 g-col-sm-12 g-col-12">
+                                                        <DxDateEdit Date="@LeaveRequestDocument.fromDate"
+                                                                    DateChanged="@((DateTime? fromDate)=>DateEditValueChangedHandler(fromDate, controlID: nameof(LeaveRequestDocument.fromDate)))"
+                                                                    CssClass="w1FontSize" Id="startDate" ReadOnly="@IsReadonlyControl"
+                                                                    Mask="@GlobalContants.FORMAT_DATE" Format="@GlobalContants.FORMAT_DATE"
+                                                                    DisplayFormat="@GlobalContants.FORMAT_DATE" />
                                                     </div>
-                                                    <div class="g-col-md-5 g-col-sm-12 g-col-12">
-                                                        <DxTimeEdit Time="@LeaveRequestDocument.toDate"
-                                                                    TimeChanged="@((DateTime? toDate)=>DateEditValueChangedHandler(toDate, controlID: nameof(LeaveRequestDocument.toDate)))"
+                                                    <div class="g-col-md-6 g-col-sm-12 g-col-12">
+                                                        <DxDateEdit Date="@LeaveRequestDocument.toDate"
+                                                                    DateChanged="@((DateTime? toDate)=>DateEditValueChangedHandler(toDate, controlID: nameof(LeaveRequestDocument.toDate)))"
                                                                     CssClass="w1FontSize" Id="endDate" ReadOnly="@IsReadonlyControl"
-                                                                    Mask="@GlobalContants.FORMAT_TIME" Format="@GlobalContants.FORMAT_TIME"
-                                                                    DisplayFormat="@GlobalContants.FORMAT_TIME" />
-                                                    </div>
-                                                    <div class="g-col-md-2 g-col-sm-12 g-col-12">
-                                                        <DxSpinEdit @bind-Value="@LeaveRequestDocument.totalHours" InputCssClass="text-end"
-                                                                    ShowSpinButtons="false" ReadOnly="true"
-                                                                    DisplayFormat="@GlobalContants.FORMAT_CURRENCY" Mask="@GlobalContants.FORMAT_CURRENCY" CssClass="w1FontSize" />
+                                                                    Mask="@GlobalContants.FORMAT_DATE" Format="@GlobalContants.FORMAT_DATE"
+                                                                    DisplayFormat="@GlobalContants.FORMAT_DATE" />
                                                     </div>
                                                 </div>
                                             </div>
@@ -222,14 +205,84 @@
         <div class="col-12">
             <div class="card w1FontSize">
                 <div class="card-header p-0 border-bottom-0">
-                    <DxTabs CssClass="w-full w1FontSize">
+                    <DxTabs @bind-ActiveTabIndex="@ActiveTabIndex" Id="tabActive" CssClass="w-full w1FontSize">
+                        <DxTabPage Text="Danh sách ngày nghỉ" Id="tabTTL" CssClass="w1FontSize"></DxTabPage>
                         <DxTabPage Text="Lịch sử chứng từ" Id="tabPLHD" CssClass="w1FontSize"></DxTabPage>
                     </DxTabs>
                 </div>
                 <div class="card-body p-1">
-                    <div style="height: 150px; min-height: 150px">
-                         @((MarkupString)$"{VoucherHistory}")
-                    </div>
+                    @switch (ActiveTabIndex)
+                    {
+                        case 0:
+                            <div style="height: 350px; min-height: 350px">
+                                <DxGrid Data="ListOfVacationDays" @ref="GridOfVacationDays"
+                                        ShowFilterRow="false"
+                                        PageSize="500"
+                                        ColumnResizeMode="GridColumnResizeMode.ColumnsContainer"
+                                        PagerPosition="GridPagerPosition.Bottom"
+                                        PageSizeSelectorVisible="false"
+                                        PageSizeSelectorAllRowsItemVisible="false"
+                                        PagerSwitchToInputBoxButtonCount="10"
+                                        PagerVisibleNumericButtonCount="10"
+                                        TextWrapEnabled="false"
+                                        KeyFieldNames="@(new [] {nameof(LeaveRequest1Model.dateOff),nameof(LeaveRequest1Model.id)})"
+                                        ValidationEnabled="true"
+                                        EditMode="GridEditMode.EditCell"
+                                        EditModelSaving="@GridLeaveDateEditSavingHandler"
+                                        CustomizeElement="@GridLeaveDateCustomizeElement"
+                                        KeyboardNavigationEnabled="true"
+                                        AllowSelectRowByClick="true"
+                                        FocusedRowEnabled="true"
+                                        SelectionMode="GridSelectionMode.Single"
+                                        CssClass="h-full">
+                                    <ToolbarTemplate>
+                                        <DxToolbar ItemRenderStyleMode="@ToolbarRenderStyleMode.Plain">
+                                            <Items>
+                                                <DxToolbarItem IconCssClass="@IconClassConstants.ICON_REFRESH" BeginGroup="true" Visible="@(!IsReadonlyControl)"
+                                                               Alignment="@ToolbarItemAlignment.Right" Tooltip="Lấy thông tin ngày nghỉ" Click="@CreateLeaveDateHandler" />
+                                            </Items>
+                                        </DxToolbar>
+                                    </ToolbarTemplate>
+                                    <Columns>
+                                        <DxGridDataColumn FieldName="@nameof(LeaveRequest1Model.dateOff)" Caption="Ngày đăng ký" MinWidth="140" Width="140px"
+                                                          DisplayFormat="@GlobalContants.FORMAT_DATE" DataRowEditorVisible="false" />
+                                        <DxGridDataColumn FieldName="@nameof(LeaveRequest1Model.fromTime)" Caption="Từ giờ" Width="140px" MinWidth="120"
+                                                          DisplayFormat="@GlobalContants.FORMAT_TIME" DataRowEditorVisible="@(!IsReadonlyControl)">
+                                            <EditSettings>
+                                                <DxTimeEditSettings CssClass="w1FontSize" Mask="@GlobalContants.FORMAT_TIME" Format="@GlobalContants.FORMAT_TIME"
+                                                                    DisplayFormat="@GlobalContants.FORMAT_TIME" />
+                                            </EditSettings>
+                                        </DxGridDataColumn>
+                                        <DxGridDataColumn FieldName="@nameof(LeaveRequest1Model.toTime)" Caption="Đến giờ" Width="140px" MinWidth="120"
+                                                          DisplayFormat="@GlobalContants.FORMAT_TIME" DataRowEditorVisible="@(!IsReadonlyControl)">
+                                            <EditSettings>
+                                                <DxTimeEditSettings CssClass="w1FontSize" Mask="@GlobalContants.FORMAT_TIME" Format="@GlobalContants.FORMAT_TIME"
+                                                                    DisplayFormat="@GlobalContants.FORMAT_TIME" />
+                                            </EditSettings>
+                                        </DxGridDataColumn>
+                                        <DxGridDataColumn FieldName="@nameof(LeaveRequest1Model.totalHours)" Caption="Số giờ" Width="140px" MinWidth="120"
+                                                          DisplayFormat="@GlobalContants.FORMAT_NUMBER" DataRowEditorVisible="false" />
+                                        <DxGridDataColumn FieldName="@nameof(LeaveRequest1Model.symbol)" Caption="Ký hiệu" Width="100px" MinWidth="90" DataRowEditorVisible="false" />
+                                        <DxGridDataColumn FieldName="@nameof(LeaveRequest1Model.remark)" Caption="Ghi chú" MinWidth="170" DataRowEditorVisible="@(!IsReadonlyControl)">
+                                            <HeaderCaptionTemplate>
+                                                <span>Ghi chú <span style="color: red;">&nbsp;(*)</span></span>
+                                            </HeaderCaptionTemplate>
+                                        </DxGridDataColumn>
+                                    </Columns>
+                                    <TotalSummary>
+                                        <DxGridSummaryItem DisplayText="@GlobalContants.FORMAT_GRID_DISPLAYTEXT_SUM" SummaryType="GridSummaryItemType.Sum"
+                                                           FieldName="@nameof(LeaveRequest1Model.totalHours)" ValueDisplayFormat="@GlobalContants.FORMAT_CURRENCY"
+                                                           FooterColumnName="@nameof(LeaveRequest1Model.totalHours)" />
+                                    </TotalSummary>
+                                </DxGrid>
+                            </div>
+                            break;
+                        case 1:
+                            <div style="height: 350px; min-height: 350px; line-height: 20px" class="w1FontSize px-2 py-1 text-truncate">
+                                @((MarkupString)$"{VoucherHistory}")
+                            </div>
+                            break;
+                    }
                 </div>
             </div>
         </div>

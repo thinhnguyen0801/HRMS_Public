@@ -43,11 +43,10 @@ namespace HNOne.Model.Entities
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)] // tự tăng
         public int Id { get; set; }
         public int LeaveWorkingHourId { get; set; } // id 
-        public DateTime WorkingDay { get; set; } // ngày nghỉ
-        public DateTime? FromTime { get; set; } // giờ nghỉ bắt đầy
-        public DateTime? ToTime { get; set; } // Giờ nghỉ kết thúc
+        public DateTime DateOff { get; set; } // ngày nghỉ
+        public DateTime FromTime { get; set; } // giờ nghỉ bắt đầy
+        public DateTime ToTime { get; set; } // Giờ nghỉ kết thúc
         public double TotalHours { get; set; } // tổng số giờ
-
         [MaxLength(250)]
         public string? Remark { get; set; } // ghi chú
         public bool IsDayOff { get; set; } // là ngày nghỉ

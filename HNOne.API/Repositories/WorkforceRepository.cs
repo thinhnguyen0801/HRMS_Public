@@ -128,12 +128,12 @@ namespace HNOne.API.Repositories
                 if (dtResult != null)
                 {
                     lstResult = dtResult.Read<LeaveRequestModel>();
-                    //if (request.documentId > 0)
-                    //{
-                    //    var lstDetail = dtResult.Read<LeaveRequest1Model>();
-                    //    string jsonDetail = JsonConvert.SerializeObject(lstDetail);
-                    //    lstResult = lstResult.Update(m => m.jsonDetail = jsonDetail);
-                    //}
+                    if (request.documentId > 0)
+                    {
+                        var lstDetail = dtResult.Read<LeaveRequest1Model>();
+                        string jsonDetail = JsonConvert.SerializeObject(lstDetail);
+                        lstResult = lstResult.Update(m => m.jsonDetail = jsonDetail);
+                    }
                 }
                 return lstResult ?? new List<LeaveRequestModel>();
             }
@@ -600,7 +600,7 @@ namespace HNOne.API.Repositories
         /// <param name="actionType"></param>
         /// <param name="entity"></param>
         /// <returns></returns>
-        public async Task<ResponseModel> UpdateLeaveWorkingHours(string actionType, LeaveWorkingHours entity)
+        public async Task<ResponseModel> UpdateLeaveWorkingHours(string actionType, LeaveWorkingHours entity, IEnumerable<LeaveWorkingHour1s> lstEntity1)
         {
             bool isTrans = false;
             ResponseModel response = new ResponseModel();
@@ -629,12 +629,33 @@ namespace HNOne.API.Repositories
                             response.message = $"Ngày đăng ký đã tồn tại trong hệ thống. Số chứng từ [{checkExists.VoucherNo}]";
                             return response;
                         }
+                        await _dbContext.Database.BeginTransactionAsync();
+                        isTrans = true;
                         entity.Id = await _dbContext.LeaveWorkingHours.Select(m => m.Id).DefaultIfEmpty().MaxAsync() + 1;
                         entity.VoucherNo = voucherNo;
                         entity.DateTracking = dateTimeNow;
                         entity.CreateDate = dateTimeNow;
                         await _dbContext.LeaveWorkingHours.AddAsync(entity);
+                        // thêm chi tiết
+                        foreach (var item in lstEntity1)
+                        {
+                            LeaveWorkingHour1s entity1 = new LeaveWorkingHour1s();
+                            entity1.LeaveWorkingHourId = entity.Id;
+                            entity1.DateOff = item.DateOff;
+                            entity1.FromTime = item.FromTime;
+                            entity1.ToTime = item.ToTime;
+                            entity1.TotalHours = item.TotalHours;
+                            entity1.Remark = item.Remark;
+                            entity1.IsDayOff = item.IsDayOff;
+                            entity1.BgColor = item.BgColor;
+                            entity1.Symbol = item.Symbol;
+                            entity1.HolidayId = item.HolidayId;
+                            entity1.DateTracking = dateTimeNow;
+                            entity1.UserSign = entity.UserSign;
+                            await _dbContext.LeaveWorkingHour1s.AddAsync(entity1);
+                        }
                         await _dbContext.SaveChangesAsync();
+                        await _dbContext.Database.CommitTransactionAsync();
                         response.message = MessageConstants.MESSAGE_ADD_SUCCESS;
                         response.data = entity.Id;
                     }
@@ -661,13 +682,38 @@ namespace HNOne.API.Repositories
                     data.FromDate = entity.FromDate;
                     data.ToDate = entity.ToDate;
                     data.Remark = entity.Remark;
+                    data.RequestType = entity.RequestType;
                     data.TotalHours = entity.TotalHours;
                     data.DateTracking = dateTimeNow;
                     data.UpdateDate = dateTimeNow;
                     data.UserSign2 = entity.UserSign2;
+                    await _dbContext.Database.BeginTransactionAsync();
+                    isTrans = true;
                     _dbContext.LeaveWorkingHours.Attach(data);
                     _dbContext.Entry(data).State = EntityState.Modified;
+                    // thêm chi tiết đề nghị nghỉ phép
+                    // bỏ dữ liệu củ đi
+                    var lstLeaveRequest1s = await _dbContext.LeaveWorkingHour1s.Where(m => m.LeaveWorkingHourId == data.Id).ToListAsync();
+                    if (!lstLeaveRequest1s.IsNullOrEmpty()) _dbContext.LeaveWorkingHour1s.RemoveRange(lstLeaveRequest1s);
+                    foreach (var item in lstEntity1)
+                    {
+                        LeaveWorkingHour1s entity1 = new LeaveWorkingHour1s();
+                        entity1.LeaveWorkingHourId = entity.Id;
+                        entity1.DateOff = item.DateOff;
+                        entity1.FromTime = item.FromTime;
+                        entity1.ToTime = item.ToTime;
+                        entity1.TotalHours = item.TotalHours;
+                        entity1.Remark = item.Remark;
+                        entity1.IsDayOff = item.IsDayOff;
+                        entity1.BgColor = item.BgColor;
+                        entity1.Symbol = item.Symbol;
+                        entity1.HolidayId = item.HolidayId;
+                        entity1.DateTracking = dateTimeNow;
+                        entity1.UserSign = entity.UserSign;
+                        await _dbContext.LeaveWorkingHour1s.AddAsync(entity1);
+                    }
                     await _dbContext.SaveChangesAsync();
+                    await _dbContext.Database.CommitTransactionAsync();
                     response.message = MessageConstants.MESSAGE_UPDATE_SUCCESS;
                     response.data = data.Id;
                 }

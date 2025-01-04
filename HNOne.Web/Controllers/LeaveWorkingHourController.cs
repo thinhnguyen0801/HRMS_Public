@@ -89,19 +89,16 @@ namespace HNOne.Web.Controllers
 
         private void initDataAsync(bool isRefresh = false)
         {
-           
-
             // GÁN DỮ LIỆU MẶC ĐỊNH
             LeaveRequestDocument.statusCode = CommonConstants.STATUS_CODE_ADD; // mặc định là chờ xử lý
             LeaveRequestDocument.createDate = DateTime.Now;
             LeaveRequestDocument.fromDate = DateTime.Now;
-            LeaveRequestDocument.fromDateTime = DateTime.Now;
             LeaveRequestDocument.employeeId = EmployeeId;
             LeaveRequestDocument.employeeCode = EmployeeCode;
             LeaveRequestDocument.employeeName = EmployeeName;
             LeaveRequestDocument.departmentId = DepartmentId;
             var uri = _navigationManager?.ToAbsoluteUri(_navigationManager.Uri);
-            if (uri != null && QueryHelpers.ParseQuery(uri.Query).Count > 0)
+            if (!isRefresh && uri != null && QueryHelpers.ParseQuery(uri.Query).Count > 0)
             {
                 string key = uri.Query.Substring(5); // bỏ ?key=
                 Dictionary<string, string> pParams = JsonConvert.DeserializeObject<Dictionary<string, string>>(_encryptHelper.Decrypt(key))!;
@@ -145,6 +142,20 @@ namespace HNOne.Web.Controllers
         /// <param name="fieldName"></param>
         private void validateForSave(ref string errorMessage, ref string fieldName)
         {
+            if (ListOfVacationDays.IsNullOrEmpty())
+            {
+                errorMessage = "Không tìm thấy danh sách ngày nghỉ. Vui lòng làm mới danh sách ngày nghỉ!!!";
+                fieldName = "gridInfo";
+                return;
+            }
+            // kiểm tra trong lưới dữ liệu hợp lệ chưa
+            LeaveRequest1Model? itemCheck = ListOfVacationDays!.FirstOrDefault(m => m.fromTime >= m.toTime);
+            if (itemCheck != null)
+            {
+                errorMessage = $"Ngày [{itemCheck.dateOff.ToString(GlobalContants.FORMAT_DATE)}] {MessageConstants.MESSAGE_FROM_TIME_TO_TIME_INVALID}";
+                fieldName = "gridInfo";
+                return;
+            }
             if (LeaveRequestDocument.departmentId < 1)
             {
                 errorMessage = string.Format(MessageConstants.MESSAGE_COMBOBOX_REQUIRE, "Phòng ban");
@@ -160,31 +171,25 @@ namespace HNOne.Web.Controllers
             if (string.IsNullOrEmpty(LeaveRequestDocument.requestType))
             {
                 errorMessage = string.Format(MessageConstants.MESSAGE_COMBOBOX_REQUIRE, "Loại đăng ký");
-                fieldName = nameof(LeaveRequestDocument.reasonId);
+                fieldName = "requestType";
                 return;
             }
             if (LeaveRequestDocument.fromDate == null)
             {
-                errorMessage = string.Format(MessageConstants.MESSAGE_COMBOBOX_REQUIRE, "Ngày đăng kí"); ;
+                errorMessage = string.Format(MessageConstants.MESSAGE_COMBOBOX_REQUIRE, "Từ ngày"); ;
                 fieldName = "startDate";
-                return;
-            }
-            if (LeaveRequestDocument.fromDateTime == null)
-            {
-                errorMessage = string.Format(MessageConstants.MESSAGE_COMBOBOX_REQUIRE, "Từ giờ"); ;
-                fieldName = "startDateTime";
                 return;
             }
             if (LeaveRequestDocument.toDate == null)
             {
-                errorMessage = string.Format(MessageConstants.MESSAGE_COMBOBOX_REQUIRE, "Đến giờ"); ;
+                errorMessage = string.Format(MessageConstants.MESSAGE_COMBOBOX_REQUIRE, "Đến ngày"); ;
                 fieldName = "endDate";
                 return;
             }
-            if (LeaveRequestDocument.toDate.Value < LeaveRequestDocument.fromDateTime.Value)
+            if (LeaveRequestDocument.toDate.Value.Date < LeaveRequestDocument.fromDate.Value.Date)
             {
-                errorMessage = MessageConstants.MESSAGE_FROM_TIME_TO_TIME_INVALID;
-                fieldName = "startDateTime";
+                errorMessage = MessageConstants.MESSAGE_FROM_DATE_TO_DATE_INVALID;
+                fieldName = "startDate";
                 return;
             }
             if (string.IsNullOrEmpty(LeaveRequestDocument.remark))
@@ -216,8 +221,8 @@ namespace HNOne.Web.Controllers
             }
             if (LeaveRequestDocument.toDate.Value.Date < LeaveRequestDocument.fromDate.Value.Date)
             {
-                errorMessage = MessageConstants.MESSAGE_FROM_TIME_TO_TIME_INVALID;
-                fieldName = "startDateTime";
+                errorMessage = MessageConstants.MESSAGE_FROM_DATE_TO_DATE_INVALID;
+                fieldName = "startDate";
                 return;
             }
         }
@@ -286,6 +291,43 @@ namespace HNOne.Web.Controllers
         /// <returns></returns>
         private async Task getDocumentHistory()
             => VoucherHistory = await _approvalService.GetFunDocumentHistoryAsync(UserId, BranchId, Token, nameof(EnumObjType.LeaveWorkingHours), pDocEntry);
+
+        /// <summary>
+        /// tạo ra danh sách ngày chi tiết
+        /// </summary>
+        /// <returns></returns>
+        private async Task generateListDays()
+        {
+            RequestModel request = new RequestModel();
+            request.process = ProcessConstants.GET_WORKFORCE_MASTER_DATA;
+            request.userId = UserId;
+            request.token = Token;
+            request.opt = LeaveRequestDocument.fromDate!.FormatDateTimeSql();
+            request.opt1 = LeaveRequestDocument.toDate!.FormatDateTimeSql();
+            request.type = ProcessConstants.GET_COMBO_LIST_OF_VACATION_DAY;
+            var result = await _workforceService.GetMasterDataAsync<LeaveRequest1Model>(request, isShowToast: true);
+            ListOfVacationDays = result;
+            calcTotalHour();
+        }
+
+        /// <summary>
+        /// cập nhật lại thời gian cho đúng với ngày đăng kí + tổng số giờ làm việc
+        /// </summary>s
+        private void calcTotalHour()
+        {
+            LeaveRequestDocument.totalHours = 0;
+            if (ListOfVacationDays.IsNullOrEmpty()) return;
+            double totalHours = 0;
+            foreach (var item in ListOfVacationDays!)
+            {
+                item.fromTime = new DateTime(item.dateOff.Year, item.dateOff.Month, item.dateOff.Day, item.fromTime?.Hour ?? 0, item.fromTime?.Minute ?? 0, 0);
+                item.toTime = new DateTime(item.dateOff.Year, item.dateOff.Month, item.dateOff.Day, item.toTime?.Hour ?? 0, item.toTime?.Minute ?? 0, 0);
+                TimeSpan workBeforeBreak = item.toTime.Value - item.fromTime.Value;
+                item.totalHours = workBeforeBreak.TotalHours;
+                totalHours += workBeforeBreak.TotalHours;
+            }
+            LeaveRequestDocument.totalHours = totalHours;
+        }
         #endregion
 
 
@@ -367,47 +409,6 @@ namespace HNOne.Web.Controllers
         /// <param name="lstEmp"></param>
         protected void EventCallbackEmpChangedHandler(object? lstEmp) => EmployeeSelected = lstEmp;
 
-        /// <summary>
-        /// tạo danh sách ngày nghỉ
-        /// </summary>
-        /// <returns></returns>
-        protected async Task CreateLeaveDateHandler()
-        {
-            try
-            {
-                string errorMessage = string.Empty;
-                string fieldName = string.Empty; // trả ra trường nào cần validate
-                validateForCreateLeaveDate(ref errorMessage, ref fieldName);
-                if (!string.IsNullOrEmpty(errorMessage))
-                {
-                    ShowWarning(errorMessage);
-                    await _jsRuntime.InvokeVoidAsync("focusInput", fieldName);
-                    return;
-                }
-                await ShowLoading();
-                RequestModel request = new RequestModel();
-                request.process = ProcessConstants.GET_WORKFORCE_MASTER_DATA;
-                request.userId = UserId;
-                request.token = Token;
-                request.opt = LeaveRequestDocument.fromDate!.FormatDateTimeSql();
-                request.opt1 = LeaveRequestDocument.toDate!.FormatDateTimeSql();
-                request.type = ProcessConstants.GET_COMBO_LIST_OF_VACATION_DAY;
-                var result = await _workforceService.GetMasterDataAsync<LeaveRequest1Model>(request, isShowToast: true);
-                ListOfVacationDays = result;
-            }
-            catch (Exception ex)
-            {
-                ShowError(ex.Message);
-                _logger.LogError(ex, "CreateLeaveDateHandler");
-            }
-            finally
-            {
-                await Task.Delay(100);
-                await ShowLoading(false);
-                await InvokeAsync(StateHasChanged);
-            }
-        }
-
         protected void GridLeaveDateEditSavingHandler(GridEditModelSavingEventArgs e)
         {
             try
@@ -416,8 +417,16 @@ namespace HNOne.Web.Controllers
                 var itemFind = ListOfVacationDays?.FirstOrDefault(m => m.dateOff == itemEdit.dateOff && m.id == itemEdit.id);
                 if (itemFind == null) return;
                 itemFind.remark = itemEdit.remark;
-                itemFind.isMorningBreak = itemEdit.isMorningBreak;
-                itemFind.isAfternoonBreak = itemEdit.isAfternoonBreak;
+                itemFind.fromTime = itemEdit.fromTime;
+                itemFind.toTime = itemEdit.toTime;
+                // Tính tổng giờ làm việc
+                double totalHours = 0;
+                if (itemFind.fromTime != null && itemFind.toTime != null)
+                {
+                    TimeSpan workBeforeBreak = itemFind.toTime.Value - itemFind.fromTime.Value;
+                    totalHours = workBeforeBreak.TotalHours;
+                }
+                itemFind.totalHours = totalHours;
                 StateHasChanged();
             }
             catch (Exception ex)
@@ -469,19 +478,14 @@ namespace HNOne.Web.Controllers
                 isConfirm = await confirm.SetConfirm(MessageConstants.MESSAGE_TITLE, errorMessage);
                 if (!isConfirm) return;
                 await ShowLoading();
+                calcTotalHour();
                 string processKey = pActionType == nameof(EnumType.Add) ? ProcessConstants.POST_LEAVE_WORKING_HOUR : ProcessConstants.PUT_LEAVE_WORKING_HOUR;
                 LeaveRequestDocument.branchId = BranchId;
                 LeaveRequestDocument.userSign = UserId;
                 LeaveRequestDocument.userSign2 = UserId;
-                DateTime fromDateTemp = LeaveRequestDocument.fromDate!.Value;
-                DateTime fromTimeTemp = LeaveRequestDocument.fromDateTime!.Value;
-                DateTime toTimeTemp = LeaveRequestDocument.toDate!.Value;
-                LeaveRequestDocument.fromDate = new DateTime(fromDateTemp.Year
-                    , fromDateTemp.Month, fromDateTemp.Day, fromTimeTemp.Hour, fromTimeTemp.Minute, 0);
-                LeaveRequestDocument.toDate = new DateTime(fromDateTemp.Year
-                    , fromDateTemp.Month, fromDateTemp.Day, toTimeTemp.Hour, toTimeTemp.Minute, 0);
                 string json = JsonConvert.SerializeObject(LeaveRequestDocument);
-                int result = await _workforceService.UpdateLeaveRequestAsync(processKey, UserId, Token, BranchId, json, "");
+                string jsonDetail = JsonConvert.SerializeObject(ListOfVacationDays);
+                int result = await _workforceService.UpdateLeaveRequestAsync(processKey, UserId, Token, BranchId, json, jsonDetail);
                 if (result > 0)
                 {
                     pActionType = nameof(EnumType.Update);
@@ -553,39 +557,30 @@ namespace HNOne.Web.Controllers
         /// </summary>
         /// <param name="value"></param>
         /// <param name="controlID"></param>
-        protected void DateEditValueChangedHandler(object? value
+        protected async void DateEditValueChangedHandler(object? value
             , string controlID = nameof(LeaveRequestDocument.fromDate))
         {
             try
             {
                 if (firstRender) return;
-                double total = 0;
                 switch (controlID)
                 {
-                    case nameof(LeaveRequestDocument.fromDateTime):
-                        LeaveRequestDocument.fromDateTime = (DateTime?)value;
+                    case nameof(LeaveRequestDocument.fromDate):
+                        LeaveRequestDocument.fromDate = (DateTime?)value;
                         LeaveRequestDocument.toDate = null;
-                        
-                        if(LeaveRequestDocument.fromDateTime != null
-                            && LeaveRequestDocument.toDate != null
-                            && LeaveRequestDocument.toDate > LeaveRequestDocument.fromDateTime)
-                                                            {
-                            TimeSpan workBeforeBreak = LeaveRequestDocument.toDate!.Value - LeaveRequestDocument.fromDateTime!.Value;
-                            total = workBeforeBreak.TotalHours;
-                        }
-                        LeaveRequestDocument.totalHours = total;
-                        StateHasChanged();
+                        ListOfVacationDays = new List<LeaveRequest1Model>();
                         break;
                     case nameof(LeaveRequestDocument.toDate):
                         LeaveRequestDocument.toDate = (DateTime?)value;
-                        if (LeaveRequestDocument.fromDateTime != null
+                        ListOfVacationDays = new List<LeaveRequest1Model>();
+                        if (LeaveRequestDocument.fromDate != null
                             && LeaveRequestDocument.toDate != null
-                            && LeaveRequestDocument.toDate > LeaveRequestDocument.fromDateTime)
+                            && LeaveRequestDocument.toDate.Value.Date >= LeaveRequestDocument.fromDate.Value.Date)
                         {
-                            TimeSpan workBeforeBreak = LeaveRequestDocument.toDate!.Value - LeaveRequestDocument.fromDateTime!.Value;
-                            total = workBeforeBreak.TotalHours;
+                            await ShowLoading();
+                            await generateListDays();
+                            await Task.Delay(100);
                         }
-                        LeaveRequestDocument.totalHours = total;
                         StateHasChanged();
                         break;
                 }
@@ -594,6 +589,80 @@ namespace HNOne.Web.Controllers
             {
                 ShowError(ex.Message);
                 _logger.LogError(ex, "SpinEditValueChangeHandler");
+            }
+            finally
+            {
+                await ShowLoading(false);
+                await InvokeAsync(StateHasChanged);
+            }
+        }
+
+        /// <summary>
+        /// tạo danh sách ngày nghỉ
+        /// </summary>
+        /// <returns></returns>
+        protected async Task CreateLeaveDateHandler()
+        {
+            try
+            {
+                string errorMessage = string.Empty;
+                string fieldName = string.Empty; // trả ra trường nào cần validate
+                validateForCreateLeaveDate(ref errorMessage, ref fieldName);
+                if (!string.IsNullOrEmpty(errorMessage))
+                {
+                    ShowWarning(errorMessage);
+                    await _jsRuntime.InvokeVoidAsync("focusInput", fieldName);
+                    return;
+                }
+                await ShowLoading();
+                await generateListDays();
+            }
+            catch (Exception ex)
+            {
+                ShowError(ex.Message);
+                _logger.LogError(ex, "CreateLeaveDateHandler");
+            }
+            finally
+            {
+                await Task.Delay(100);
+                await ShowLoading(false);
+                await InvokeAsync(StateHasChanged);
+            }
+        }
+
+        /// <summary>
+        /// làm mới dữ liệu
+        /// </summary>
+        /// <returns></returns>
+        protected async Task RefreshDataHandler()
+        {
+            try
+            {
+                await ShowLoading();
+                Dictionary<string, string> pParams = new Dictionary<string, string>
+                {
+                    { "pActionType", $"{nameof(EnumType.Add)}" },
+                    { "pDocEntry", $"{-1}" },
+                };
+                string key = _encryptHelper.Encrypt(JsonConvert.SerializeObject(pParams)); // mã hóa key
+                _navigationManager.NavigateTo($"/xin-nghi-trong-gio?key={key}");
+                LeaveRequestDocument = new LeaveRequestModel();
+                ListOfVacationDays = new List<LeaveRequest1Model>();
+                pActionType = nameof(EnumType.Add);
+                pDocEntry = -1;
+                VoucherHistory = string.Empty;
+                initDataAsync(isRefresh: true);
+                await buildComboAsync();
+            }
+            catch (Exception ex)
+            {
+                ShowError(ex.Message);
+                _logger.LogError(ex, "RefreshDataHandler");
+            }
+            finally
+            {
+                await ShowLoading(false);
+                await InvokeAsync(StateHasChanged);
             }
         }
         #endregion

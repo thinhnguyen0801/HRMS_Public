@@ -212,13 +212,21 @@ namespace HNOne.Web.Controllers
                         EnumUpdate.value = pItemDetails!.value;
                         IsChecked = pItemDetails!.value == GlobalContants.ENUM_YES;
                     }
-                    else if (EnumUpdate.enumType == nameof(EnumCatagory.CachTinhLuongPhuCap)
-                        || EnumUpdate.enumType == nameof(EnumCatagory.QuyDinhSoGioTangCa))
+                    else if (EnumUpdate.enumType == nameof(EnumCatagory.CachTinhLuongPhuCap))
                     {
                         EnumUpdate.value = pItemDetails!.value;
                         double.TryParse(pItemDetails!.value, out double oValue);
                         TotalHours = oValue;
                     } 
+                    else if (EnumUpdate.enumType == nameof(EnumCatagory.QuyDinhSoGioTangCa))
+                    {
+                        EnumUpdate.value = pItemDetails!.value;
+                        EnumUpdate.value1 = pItemDetails!.value1;
+                        double.TryParse(pItemDetails!.value, out double oValue);
+                        DateTime.TryParse(pItemDetails!.value1, out DateTime oFromDate);
+                        TotalHours = oValue;
+                        FromTime = oFromDate;
+                    }    
                     IsCreate = false;
                 }
                 IsShowDialog = true;
@@ -284,10 +292,14 @@ namespace HNOne.Web.Controllers
                 {
                     EnumUpdate.value = IsChecked ? GlobalContants.ENUM_YES : GlobalContants.ENUM_NO;
                 }
-                else if (EnumUpdate.enumType == nameof(EnumCatagory.CachTinhLuongPhuCap)
-                    || EnumUpdate.enumType == nameof(EnumCatagory.QuyDinhSoGioTangCa))
+                else if (EnumUpdate.enumType == nameof(EnumCatagory.CachTinhLuongPhuCap))
                 {
                     EnumUpdate.value = TotalHours.ToString();
+                }
+                else if (EnumUpdate.enumType == nameof(EnumCatagory.QuyDinhSoGioTangCa))
+                {
+                    EnumUpdate.value = TotalHours.ToString();
+                    EnumUpdate.value1 = FromTime.FormatDateTimeSql();
                 }
                 string content = JsonConvert.SerializeObject(EnumUpdate);
                 isConfirm = await _masterDataService.UpdateContractTypeAsync(processKey, UserId, Token, content);

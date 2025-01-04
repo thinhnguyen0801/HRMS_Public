@@ -8,7 +8,6 @@ using HNOne.Web.Services.Interfaces;
 using Microsoft.AspNetCore.Components;
 using System.Data;
 using HNOne.Web.Components.Controls;
-using DevExpress.Pdf.Native.BouncyCastle.Asn1.Ocsp;
 using Newtonsoft.Json;
 
 namespace HNOne.Web.Controllers
@@ -57,8 +56,8 @@ namespace HNOne.Web.Controllers
                     ListBreadcrumbs = new List<BreadcrumbModel>()
                     {
                         new BreadcrumbModel("Công - phép"),
-                        new BreadcrumbModel("Tình công", isActive: true),
-                        new BreadcrumbModel("Thông tin phép năm", isActive: true)
+                        new BreadcrumbModel("Tính công", isActive: true),
+                        new BreadcrumbModel("Tính công nhân viên", isActive: true)
                     };
                     await NotifyBreadcrumb.InvokeAsync(ListBreadcrumbs);
                     //
@@ -356,6 +355,22 @@ namespace HNOne.Web.Controllers
                 await ShowLoading(false);
                 await InvokeAsync(StateHasChanged);
             }
+        }
+        
+        protected void GridTimesheetDetailCustomizeElement(GridCustomizeElementEventArgs e)
+        {
+            try
+            {
+                if (e.ElementType == GridElementType.DataRow && GridTimesheetDetail != null)
+                {
+                    var employee = (ShiftAssignmentModel)GridTimesheetDetail.GetDataItem(e.VisibleIndex);
+                    if (!string.IsNullOrEmpty(employee?.bgColor))
+                    {
+                        e.Style = $"background-color: {employee.bgColor}";
+                    }
+                }
+            }
+            catch (Exception ex) { }
         }
         #endregion
     }

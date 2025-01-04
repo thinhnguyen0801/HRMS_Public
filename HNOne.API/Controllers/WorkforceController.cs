@@ -126,7 +126,8 @@ namespace HNOne.API.Controllers
                     case ProcessConstants.POST_LEAVE_WORKING_HOUR:
                     case ProcessConstants.PUT_LEAVE_WORKING_HOUR:
                         var leaveWorkingHour = DeserializeJson<LeaveWorkingHours>($"{request.json}");
-                        response = await _workforceRepository.UpdateLeaveWorkingHours(processKey, leaveWorkingHour!);
+                        var lstleaveWorkingHour1s = DeserializeJson<List<LeaveWorkingHour1s>>($"{request.jsonDetail}");
+                        response = await _workforceRepository.UpdateLeaveWorkingHours(processKey, leaveWorkingHour!, lstleaveWorkingHour1s!);
                         break;
                     case ProcessConstants.POST_HOILDAY_CATAGORY:
                     case ProcessConstants.PUT_HOILDAY_CATAGORY:

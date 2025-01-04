@@ -89,7 +89,7 @@
                             }
                             else if (pEnumTypeId == nameof(EnumCatagory.LoaiNhanVien))
                             {
-                                <DxGridDataColumn FieldName="@nameof(EnumCatagoryModel.value)" Caption="Quy cách đánh mã" MinWidth="140" Width="150px"></DxGridDataColumn>
+                                <DxGridDataColumn FieldName="@nameof(EnumCatagoryModel.value)" Caption="Quy cách đánh mã" MinWidth="140" Width="150px" />
                                 <DxGridDataColumn FieldName="@nameof(EnumCatagoryModel.enumTypeName)" Caption="Loại danh mục" MinWidth="120" Width="180px" />
                                 <DxGridDataColumn FieldName="@nameof(EnumCatagoryModel.dateTracking)" Caption="Ngày cập nhật" MinWidth="120" DisplayFormat="@GlobalContants.FORMAT_DATE_TIME" />
                                 <DxGridDataColumn FieldName="@nameof(EnumCatagoryModel.userSignName)" Caption="Người tạo" MinWidth="120" />
@@ -97,7 +97,7 @@
                             }
                             else if (pEnumTypeId == nameof(EnumCatagory.CachTinhLuongPhuCap))
                             {
-                                <DxGridDataColumn FieldName="@nameof(EnumCatagoryModel.value)" Caption="Hệ số" MinWidth="120" Width="130px"></DxGridDataColumn>
+                                <DxGridDataColumn FieldName="@nameof(EnumCatagoryModel.value)" Caption="Hệ số" MinWidth="120" Width="130px" />
                                 <DxGridDataColumn FieldName="@nameof(EnumCatagoryModel.enumTypeName)" Caption="Loại danh mục" MinWidth="120" Width="180px" />
                                 <DxGridDataColumn FieldName="@nameof(EnumCatagoryModel.dateTracking)" Caption="Ngày cập nhật" MinWidth="120" DisplayFormat="@GlobalContants.FORMAT_DATE_TIME" />
                                 <DxGridDataColumn FieldName="@nameof(EnumCatagoryModel.userSignName)" Caption="Người tạo" MinWidth="120" />
@@ -105,7 +105,8 @@
                             }
                             else if (pEnumTypeId == nameof(EnumCatagory.QuyDinhSoGioTangCa))
                             {
-                                <DxGridDataColumn FieldName="@nameof(EnumCatagoryModel.value)" Caption="Số giờ" MinWidth="120" Width="130px"></DxGridDataColumn>
+                                <DxGridDataColumn FieldName="@nameof(EnumCatagoryModel.value)" Caption="Số giờ" MinWidth="120" Width="130px" />
+                                <DxGridDataColumn FieldName="@nameof(EnumCatagoryModel.value1)" Caption="Áp dụng từ" MinWidth="120" Width="130px" DisplayFormat="@GlobalContants.FORMAT_DATE" />
                                 <DxGridDataColumn FieldName="@nameof(EnumCatagoryModel.enumTypeName)" Caption="Loại danh mục" MinWidth="120" Width="180px" />
                                 <DxGridDataColumn FieldName="@nameof(EnumCatagoryModel.dateTracking)" Caption="Ngày cập nhật" MinWidth="120" DisplayFormat="@GlobalContants.FORMAT_DATE_TIME" />
                                 <DxGridDataColumn FieldName="@nameof(EnumCatagoryModel.userSignName)" Caption="Người tạo" MinWidth="120" />
@@ -113,7 +114,7 @@
                             }
                             else if (pEnumTypeId == nameof(EnumCatagory.CapNhatThongTinNhanVien))
                             {
-                                <DxGridDataColumn FieldName="@nameof(EnumCatagoryModel.value)" Caption="Cho phép cập nhật?" MinWidth="120" Width="130px" TextAlignment="@GridTextAlignment.Center"></DxGridDataColumn>
+                                <DxGridDataColumn FieldName="@nameof(EnumCatagoryModel.value)" Caption="Cho phép cập nhật?" MinWidth="120" Width="130px" TextAlignment="@GridTextAlignment.Center" />
                                 <DxGridDataColumn FieldName="@nameof(EnumCatagoryModel.enumTypeName)" Caption="Loại danh mục" MinWidth="120" Width="180px" />
                                 <DxGridDataColumn FieldName="@nameof(EnumCatagoryModel.dateTracking)" Caption="Ngày cập nhật" MinWidth="120" DisplayFormat="@GlobalContants.FORMAT_DATE_TIME" />
                                 <DxGridDataColumn FieldName="@nameof(EnumCatagoryModel.userSignName)" Caption="Người tạo" MinWidth="120" />
@@ -271,11 +272,22 @@
         {
             <div class="col-sm-12">
                 <div class="d-flex ">
-                    <W1Label Value="Số giờ tăng ca" Styles="width: 110px" />
+                    <W1Label Value="Số giờ tăng ca" Styles="width: 110px" IsRequired="true" />
                     <div style="width: calc(100% - 110px)">
                         <DxSpinEdit @bind-Value="@TotalHours" InputCssClass="text-end"
                                     ShowSpinButtons="true" MinValue="0"
                                     DisplayFormat="@GlobalContants.FORMAT_CURRENCY" Mask="@GlobalContants.FORMAT_CURRENCY" CssClass="w1FontSize" />
+                    </div>
+                </div>
+            </div>
+            <div class="col-sm-12">
+                <div class="d-flex ">
+                    <W1Label Value="Áp dụng từ" Styles="width: 110px" IsRequired="true" />
+                    <div style="width: calc(100% - 110px)">
+                        <DxDateEdit @bind-Date="@FromTime"
+                                    CssClass="w1FontSize"
+                                    Mask="@GlobalContants.FORMAT_DATE" Format="@GlobalContants.FORMAT_DATE"
+                                    DisplayFormat="@GlobalContants.FORMAT_DATE" />
                     </div>
                 </div>
             </div>

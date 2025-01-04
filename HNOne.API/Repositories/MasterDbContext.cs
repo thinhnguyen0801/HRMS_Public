@@ -37,6 +37,7 @@ namespace HNOne.API.Repositories
         public DbSet<LeaveRequests> LeaveRequests { get; set; }
         public DbSet<LeaveRequest1s> LeaveRequest1s { get; set; }
         public DbSet<LeaveWorkingHours> LeaveWorkingHours { get; set; }
+        public DbSet<LeaveWorkingHour1s> LeaveWorkingHour1s { get; set; }
         public DbSet<Notifications> Notifications { get; set; }
         public DbSet<Timesheets> Timesheets { get; set; }
         public DbSet<ShiftChanges> ShiftChanges { get; set; }
