@@ -10,14 +10,16 @@
                 <Items>
 
                     <DxToolbarItem Text="Lưu" BeginGroup="true" IconCssClass="@($"{IconClassConstants.ICON_UPDATE}")" CssClass="w1FontSize"
-                                   Alignment="@ToolbarItemAlignment.Right" Click="@SaveDataHandler" />
+                                   Alignment="@ToolbarItemAlignment.Right" Click="@SaveDataHandler"
+                                   Visible="@((pActionType == nameof(EnumType.Add) && IsAllowPost) || (pActionType != nameof(EnumType.Add) && IsAllowPut))" />
 
                     <DxToolbarItem Text="Gửi phê duyệt" BeginGroup="true" IconCssClass="@($"{IconClassConstants.ICON_SHARE}")" CssClass="w1FontSize"
                                    Alignment="@ToolbarItemAlignment.Right" Click="@(()=> SubmitForApprovalHandler())"
-                                   Visible="@(LeaveRequestDocument.statusCode == CommonConstants.STATUS_CODE_ADD)" />
+                                   Visible="@(LeaveRequestDocument.statusCode == CommonConstants.STATUS_CODE_ADD && IsAllowDelete)" />
 
                     <DxToolbarItem Text="Hủy" BeginGroup="true" IconCssClass="@($"{IconClassConstants.ICON_DELETE}")" CssClass="w1FontSize"
-                                   Alignment="@ToolbarItemAlignment.Right" Click="@RefreshDataHandler" />
+                                   Alignment="@ToolbarItemAlignment.Right" Click="@RefreshDataHandler"
+                                   Visible="@(pActionType != nameof(EnumType.Add) && LeaveRequestDocument.statusCode == CommonConstants.STATUS_CODE_ADD && IsAllowDelete)" />
 
                     <DxToolbarItem Text="Làm mới" BeginGroup="true" IconCssClass="@($"{IconClassConstants.ICON_REFRESH}")" CssClass="w1FontSize"
                                    Alignment="@ToolbarItemAlignment.Right" Click="@RefreshDataHandler" />
