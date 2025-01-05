@@ -9,19 +9,19 @@
 
                 <DxToolbarItem Text="Lưu" BeginGroup="true" IconCssClass="@($"{IconClassConstants.ICON_UPDATE}")" CssClass="w1FontSize"
                                Alignment="@ToolbarItemAlignment.Right" Click="@SaveDataHandler"
-                               Visible="@(!IsReadonlyControl)" />
+                               Visible="@(!IsReadonlyControl && ((pActionType == nameof(EnumType.Add) && IsAllowPost) || (pActionType != nameof(EnumType.Add) && IsAllowPut)))" />
 
                 <DxToolbarItem Text="Gửi phê duyệt" BeginGroup="true" IconCssClass="@($"{IconClassConstants.ICON_SHARE}")" CssClass="w1FontSize"
                                Alignment="@ToolbarItemAlignment.Right" Click="@(()=> SubmitForApprovalHandler())"
-                               Visible="@(ContractDocument.statusCode == CommonConstants.STATUS_CODE_ADD && !IsReadonlyControl)" />
+                               Visible="@(!IsReadonlyControl && ContractDocument.statusCode == CommonConstants.STATUS_CODE_ADD && IsAllowDelete)" />
+
+                <DxToolbarItem Text="Hủy" BeginGroup="true" IconCssClass="@($"{IconClassConstants.ICON_DELETE}")" CssClass="w1FontSize"
+                               Alignment="@ToolbarItemAlignment.Right"
+                               Visible="@(!IsReadonlyControl && pActionType != nameof(EnumType.Add) && ContractDocument.statusCode == CommonConstants.STATUS_CODE_ADD && IsAllowDelete)" />
 
                 <DxToolbarItem Text="In" BeginGroup="true" IconCssClass="@($"{IconClassConstants.ICON_PRINT}")" CssClass="w1FontSize"
                                Alignment="@ToolbarItemAlignment.Right" Click="@PrintDocHandler"
                                Visible="@(pActionType != nameof(EnumType.Add))" />
-
-                <DxToolbarItem Text="Hủy" BeginGroup="true" IconCssClass="@($"{IconClassConstants.ICON_DELETE}")" CssClass="w1FontSize"
-                               Alignment="@ToolbarItemAlignment.Right"
-                               Visible="@(!IsReadonlyControl)" />
 
                 <DxToolbarItem Text="Làm mới" BeginGroup="true" IconCssClass="@($"{IconClassConstants.ICON_REFRESH}")" CssClass="w1FontSize"
                                Alignment="@ToolbarItemAlignment.Right" Click="@RefreshDataHandler"
@@ -143,7 +143,7 @@
 
                                     <div class="col-md-6 col-sm-12">
                                         <div class="d-flex ">
-                                            <W1Label Value="Người ký" Styles="width: 120px" />
+                                            <W1Label Value="Người ký" Styles="width: 120px" IsRequired="true" />
                                             <div style="width: calc(100% - 120px)">
                                                 <div class="grid gap-1 row-gap-2">
                                                     <div class="g-col-md-4 g-col-sm-12 g-col-12">

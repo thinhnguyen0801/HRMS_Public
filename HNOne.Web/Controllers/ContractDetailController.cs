@@ -22,6 +22,10 @@ namespace HNOne.Web.Controllers
         [Inject] IApprovalService _approvalService { get; init; }
         [Inject] IJSRuntime _jsRuntime { get; set; }
         public W1Confirm confirm { get; set; }
+
+        const string STRING_KEY_EVENT_POST = "CONTRACT_CONTROLLER_POST";
+        const string STRING_KEY_EVENT_PUT = "CONTRACT_CONTROLLER_PUT";
+        const string STRING_KEY_EVENT_DELETE = "CONTRACT_CONTROLLER_DELETE";
         #region Properties
         public string? pActionType { get; set; } = nameof(EnumType.Add);
         private int pDocEntry { get; set; } = 0;
@@ -50,6 +54,11 @@ namespace HNOne.Web.Controllers
 
         // lock control lại
         public bool IsReadonlyControl { get; set; } = false;
+
+        // nút quyền
+        public bool IsAllowPost { get; set; }
+        public bool IsAllowDelete { get; set; }
+        public bool IsAllowPut { get; set; }
         #endregion
 
         protected override async Task OnAfterRenderAsync(bool firstRender)
@@ -63,6 +72,7 @@ namespace HNOne.Web.Controllers
                     if (errMessage == "401") return; // kiểm quyền menu page danh sách
                     this.firstRender = firstRender;
                     await ShowLoading();
+                    await checkPermission(errMessage);
                     ListBreadcrumbs = new List<BreadcrumbModel>()
                     {
                         new BreadcrumbModel("Nhân sự"),
@@ -93,6 +103,17 @@ namespace HNOne.Web.Controllers
         }
 
         #region Private Functions
+        /// <summary>
+        /// kiểm tra quyền nút
+        /// </summary>
+        /// <returns></returns>
+        private async Task checkPermission(string menuId)
+        {
+            List<string> lstKey = await CheckEventPermission(menuId);
+            IsAllowPost = lstKey.FirstOrDefault(m => m == STRING_KEY_EVENT_POST) != null;
+            IsAllowDelete = lstKey.FirstOrDefault(m => m == STRING_KEY_EVENT_DELETE) != null;
+            IsAllowPut = lstKey.FirstOrDefault(m => m == STRING_KEY_EVENT_PUT) != null;
+        }
         private void initDataAsync(bool isRefresh = false)
         {
             
@@ -102,10 +123,10 @@ namespace HNOne.Web.Controllers
             ContractDocument.contractNumber = 1;
             ContractDocument.numberOfDaysReduced = 1;
             ContractDocument.statusCode = CommonConstants.STATUS_CODE_ADD; // mặc định là chờ xử lý
-            ContractDocument.employeeId = EmployeeId;
-            ContractDocument.employeeCode = EmployeeCode;
-            ContractDocument.employeeName = EmployeeName;
-            ContractDocument.departmentId = DepartmentId;
+            //ContractDocument.employeeId = EmployeeId;
+            //ContractDocument.employeeCode = EmployeeCode;
+            //ContractDocument.employeeName = EmployeeName;
+            //ContractDocument.departmentId = DepartmentId;
             var uri = _navigationManager?.ToAbsoluteUri(_navigationManager.Uri);
             if (!isRefresh && uri != null && QueryHelpers.ParseQuery(uri.Query).Count > 0)
             {
@@ -201,6 +222,12 @@ namespace HNOne.Web.Controllers
             {
                 errorMessage = string.Format(MessageConstants.MESSAGE_COMBOBOX_REQUIRE, "Nhân viên");
                 fieldName = nameof(ContractDocument.employeeId);
+                return;
+            }
+            if (ContractDocument.employeeSignatureId < 1)
+            {
+                errorMessage = string.Format(MessageConstants.MESSAGE_COMBOBOX_REQUIRE, "Người ký");
+                fieldName = nameof(ContractDocument.employeeSignatureId);
                 return;
             }
             if (ContractDocument.positionId < 1)
@@ -581,6 +608,12 @@ namespace HNOne.Web.Controllers
         {
             try
             {
+                await checkPermission(MenuId);
+                if ((pActionType == nameof(EnumType.Add) && !IsAllowPost) || (pActionType != nameof(EnumType.Add) && !IsAllowPut))
+                {
+                    ShowInfo(MessageConstants.MESSAGE_NO_PERMISSION);
+                    return;
+                }
                 string errorMessage = string.Empty;
                 string fieldName = string.Empty; // trả ra trường nào cần validate
                 validateForSave(ref errorMessage, ref fieldName);
@@ -654,6 +687,12 @@ namespace HNOne.Web.Controllers
         {
             try
             {
+                await checkPermission(MenuId);
+                if (!IsAllowDelete)
+                {
+                    ShowInfo(MessageConstants.MESSAGE_NO_PERMISSION);
+                    return;
+                }
                 string errorMessage = string.Empty;
                 string fieldName = string.Empty; // trả ra trường nào cần validate
                 bool isConfirm = true;

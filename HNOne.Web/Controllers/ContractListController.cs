@@ -13,7 +13,9 @@ namespace HNOne.Web.Controllers
     public class ContractListController : DocumentControllerBase
     {
         [Inject] IPersonnelService _personnelService { get; init; }
-
+        const string STRING_KEY_EVENT_POST = "CONTRACT_CONTROLLER_POST";
+        const string STRING_KEY_EVENT_PUT = "CONTRACT_CONTROLLER_PUT";
+        const string STRING_KEY_EVENT_DELETE = "CONTRACT_CONTROLLER_DELETE";
         #region Properties
         public List<ContractModel>? ListContract { get; set; }
         public IGrid? GridContract { get; set; }
@@ -24,6 +26,10 @@ namespace HNOne.Web.Controllers
         public DateTime? FromDate { get; set; }
         public DateTime? ToDate { get; set; }
 
+        // nút quyền
+        public bool IsAllowPost { get; set; }
+        public bool IsAllowDelete { get; set; }
+        public bool IsAllowPut { get; set; }
         #endregion
 
         protected override async Task OnAfterRenderAsync(bool firstRender)
@@ -36,6 +42,7 @@ namespace HNOne.Web.Controllers
                     string errMessage = await CheckMenuPermissionAsync("danh-sach-hop-dong");
                     if (errMessage == "401") return; // kiểm quyền menu page danh sách
                     await ShowLoading();
+                    await checkPermission(errMessage);
                     ListBreadcrumbs = new List<BreadcrumbModel>()
                     {
                         new BreadcrumbModel("Nhân sự", isActive: true),
@@ -60,6 +67,17 @@ namespace HNOne.Web.Controllers
         }
 
         #region Private Functions
+        /// <summary>
+        /// kiểm tra quyền nút
+        /// </summary>
+        /// <returns></returns>
+        private async Task checkPermission(string menuId)
+        {
+            List<string> lstKey = await CheckEventPermission(menuId);
+            IsAllowPost = lstKey.FirstOrDefault(m => m == STRING_KEY_EVENT_POST) != null;
+            IsAllowDelete = lstKey.FirstOrDefault(m => m == STRING_KEY_EVENT_DELETE) != null;
+            IsAllowPut = lstKey.FirstOrDefault(m => m == STRING_KEY_EVENT_PUT) != null;
+        }
         private async Task getContractList()
         {
             RequestModel request = new RequestModel();
@@ -77,7 +95,7 @@ namespace HNOne.Web.Controllers
                     { "pActionType", nameof(EnumType.Update) },
                     { "pDocEntry", $"{m.id}" },
                 };
-                m.link = _encryptHelper.Encrypt(JsonConvert.SerializeObject(pParams));
+                m.link = "chi-tiet-hop-dong?key="+ _encryptHelper.Encrypt(JsonConvert.SerializeObject(pParams));
             })?.ToList();
             if (ActiveTabIndex == 0)
             {
@@ -132,10 +150,16 @@ namespace HNOne.Web.Controllers
             }
         }
 
-        protected void RedirectPageDetailHandler()
+        protected async Task RedirectPageDetailHandler()
         {
             try
             {
+                await checkPermission(MenuId);
+                if (!IsAllowPost)
+                {
+                    ShowInfo(MessageConstants.MESSAGE_NO_PERMISSION);
+                    return;
+                }
                 Dictionary<string, string> pParams = new Dictionary<string, string>
                 {
                     { "pActionType", nameof(EnumType.Add) },
