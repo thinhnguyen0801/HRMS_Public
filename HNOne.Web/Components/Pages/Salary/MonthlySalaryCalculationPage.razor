@@ -114,7 +114,7 @@
                     <DxToolbar ItemRenderStyleMode="@ToolbarRenderStyleMode.Contained">
                         <Items>
                             <DxToolbarItem Text="Làm mới" BeginGroup="true" IconCssClass="@($"{IconClassConstants.ICON_REFRESH}")" CssClass="w1FontSize"
-                                           Alignment="@ToolbarItemAlignment.Right" />
+                                           Alignment="@ToolbarItemAlignment.Right" Click="@RefreshHandler" />
 
                             <DxToolbarItem Text="Tính lương tháng" BeginGroup="true" IconCssClass="@($"{IconClassConstants.ICON_UPDATE}")" CssClass="w1FontSize"
                                            Alignment="@ToolbarItemAlignment.Right" />
@@ -130,16 +130,16 @@
                 <div class="card-header p-0 border-bottom-0">
                     <DxTabs @bind-ActiveTabIndex="@ActiveTabIndex" Id="tabActive" CssClass="w-full w1FontSize">
                         <DxTabPage Text="Bảng lương" Id="tabTTL" CssClass="w1FontSize"></DxTabPage>
-                        <DxTabPage Text="Trích nộp" Id="tabTTL" CssClass="w1FontSize"></DxTabPage>
+                        @* <DxTabPage Text="Trích nộp" Id="tabTTL" CssClass="w1FontSize"></DxTabPage>
                         <DxTabPage Text="Thuế TNCN" Id="tabTTL" CssClass="w1FontSize"></DxTabPage>
-                        <DxTabPage Text="Tổng hợp lương" Id="tabTTL" CssClass="w1FontSize"></DxTabPage>
+                        <DxTabPage Text="Tổng hợp lương" Id="tabTTL" CssClass="w1FontSize"></DxTabPage> *@
                     </DxTabs>
                 </div>
                 <div class="card-body p-1" style="height: calc(100vh - 190px); min-height: 450px">
                     @switch (ActiveTabIndex)
                     {
                         case 0:
-                            <DxGrid Data="ListTimesheet" @ref="GridTimesheet"
+                            <DxGrid Data="ListSalary" @ref="GridSalary"
                                     ShowFilterRow="true"
                                     ColumnResizeMode="GridColumnResizeMode.ColumnsContainer"
                                     PagerPosition="GridPagerPosition.Bottom"
@@ -158,32 +158,63 @@
                                     KeyboardNavigationEnabled="true"
                                     CssClass="h-full">
                                 <Columns>
-                                    <DxGridDataColumn FieldName="@nameof(ShiftAssignmentModel.departmentName)" Caption="Phòng ban" Width="145px" MinWidth="120" GroupIndex="0" FixedPosition="@GridColumnFixedPosition.Left" />
+                                    <DxGridDataColumn FieldName="@nameof(MonthlySalaryModel.departmentName)" Caption="Phòng ban" Width="145px" MinWidth="120" GroupIndex="0" FixedPosition="@GridColumnFixedPosition.Left" />
                                     <DxGridSelectionColumn Width="45px" FixedPosition="@GridColumnFixedPosition.Left" />
-                                    <DxGridDataColumn FieldName="@nameof(ShiftAssignmentModel.employeeCode)" Caption="Mã nhân viên" Width="110px" MinWidth="100" FixedPosition="@GridColumnFixedPosition.Left" />
-                                    <DxGridDataColumn FieldName="@nameof(ShiftAssignmentModel.employeeName)" Caption="Họ tên" Width="135px" MinWidth="100" FixedPosition="@GridColumnFixedPosition.Left" />
-                                    <DxGridDataColumn FieldName="@nameof(ShiftAssignmentModel.titleName)" Caption="Chức danh" Width="125px" MinWidth="100" />
-                                    <DxGridDataColumn FieldName="@nameof(ShiftAssignmentModel.shiftCode)" Caption="Ca làm việc" Width="90px" MinWidth="70" />
-                                    <DxGridDataColumn FieldName="@nameof(SalaryConfigurationModel.amount)" Caption="Tháng" MinWidth="120" />
-                                    <DxGridDataColumn FieldName="@nameof(SalaryConfigurationModel.amount)" Caption="Năm" MinWidth="120" />
-                                    <DxGridDataColumn FieldName="@nameof(SalaryConfigurationModel.amount)" Caption="Lương CB" MinWidth="120" DisplayFormat="@GlobalContants.FORMAT_CURRENCY" />
-                                    <DxGridDataColumn FieldName="@nameof(SalaryConfigurationModel.amount)" Caption="Lương QĐ" MinWidth="120" DisplayFormat="@GlobalContants.FORMAT_CURRENCY" />
-                                    <DxGridDataColumn FieldName="@nameof(SalaryConfigurationModel.amount)" Caption="Công định mức" MinWidth="120" DisplayFormat="@GlobalContants.FORMAT_CURRENCY" />
-                                    <DxGridDataColumn FieldName="@nameof(SalaryConfigurationModel.amount)" Caption="Giờ công định mức" MinWidth="120" DisplayFormat="@GlobalContants.FORMAT_CURRENCY" />
-                                    <DxGridDataColumn FieldName="@nameof(SalaryConfigurationModel.amount)" Caption="Công thực tế" MinWidth="120" DisplayFormat="@GlobalContants.FORMAT_CURRENCY" />
-                                    <DxGridDataColumn FieldName="@nameof(SalaryConfigurationModel.amount)" Caption="Giờ công thực tế" MinWidth="120" DisplayFormat="@GlobalContants.FORMAT_CURRENCY" />
-                                    <DxGridDataColumn FieldName="@nameof(SalaryConfigurationModel.amount)" Caption="Trừ công" MinWidth="120" DisplayFormat="@GlobalContants.FORMAT_CURRENCY" />
-                                    <DxGridDataColumn FieldName="@nameof(SalaryConfigurationModel.amount)" Caption="Lương công thực tế" MinWidth="120" DisplayFormat="@GlobalContants.FORMAT_CURRENCY" />
-                                    <DxGridDataColumn FieldName="@nameof(SalaryConfigurationModel.amount)" Caption="Lương công phép năm" MinWidth="120" DisplayFormat="@GlobalContants.FORMAT_CURRENCY" />
-                                    <DxGridDataColumn FieldName="@nameof(SalaryConfigurationModel.amount)" Caption="Lương công chế độ" MinWidth="120" DisplayFormat="@GlobalContants.FORMAT_CURRENCY" />
-                                    <DxGridDataColumn FieldName="@nameof(SalaryConfigurationModel.amount)" Caption="Lương công thiếu" MinWidth="120" DisplayFormat="@GlobalContants.FORMAT_CURRENCY" />
-                                    <DxGridDataColumn FieldName="@nameof(SalaryConfigurationModel.amount)" Caption="Lương trừ công" MinWidth="120" DisplayFormat="@GlobalContants.FORMAT_CURRENCY" />
-                                    <DxGridDataColumn FieldName="@nameof(SalaryConfigurationModel.amount)" Caption="Công tăng ca" MinWidth="120" DisplayFormat="@GlobalContants.FORMAT_CURRENCY" />
-                                    <DxGridDataColumn FieldName="@nameof(SalaryConfigurationModel.amount)" Caption="Công tăng ca chưa quy đổi" MinWidth="120" DisplayFormat="@GlobalContants.FORMAT_CURRENCY" />
-                                    <DxGridDataColumn FieldName="@nameof(SalaryConfigurationModel.amount)" Caption="Công tính phụ cấp" MinWidth="120" DisplayFormat="@GlobalContants.FORMAT_CURRENCY" />
-                                    <DxGridDataColumn FieldName="@nameof(SalaryConfigurationModel.amount)" Caption="Công tăng ca tính thuế" MinWidth="120" DisplayFormat="@GlobalContants.FORMAT_CURRENCY" />
-                                    <DxGridDataColumn FieldName="@nameof(SalaryConfigurationModel.amount)" Caption="Lương tăng ca" MinWidth="120" DisplayFormat="@GlobalContants.FORMAT_CURRENCY" />
-                                    <DxGridDataColumn FieldName="@nameof(SalaryConfigurationModel.amount)" Caption="Phụ cấp" MinWidth="120" DisplayFormat="@GlobalContants.FORMAT_CURRENCY" />
+                                    <DxGridDataColumn FieldName="@nameof(MonthlySalaryModel.employeeCode)" Caption="Mã nhân viên" Width="110px" MinWidth="100" FixedPosition="@GridColumnFixedPosition.Left" />
+                                    <DxGridDataColumn FieldName="@nameof(MonthlySalaryModel.employeeName)" Caption="Họ tên" Width="135px" MinWidth="100" FixedPosition="@GridColumnFixedPosition.Left" />
+                                    <DxGridDataColumn FieldName="@nameof(MonthlySalaryModel.titleName)" Caption="Chức danh" Width="125px" MinWidth="100" />
+                                    <DxGridDataColumn FieldName="@nameof(MonthlySalaryModel.shiftCode)" Caption="Ca làm việc" Width="90px" MinWidth="70" />
+                                    <DxGridDataColumn FieldName="@nameof(MonthlySalaryModel.isLocked)" Caption="Đã chốt?" Width="90px" MinWidth="70" />
+                                    <DxGridDataColumn FieldName="@nameof(MonthlySalaryModel.month)" Caption="Tháng" MinWidth="70" DisplayFormat="D" />
+                                    <DxGridDataColumn FieldName="@nameof(MonthlySalaryModel.year)" Caption="Năm" MinWidth="70" DisplayFormat="D" />
+                                    <DxGridDataColumn FieldName="@nameof(MonthlySalaryModel.lCB)" Caption="Lương cơ bản" MinWidth="110" DisplayFormat="@GlobalContants.FORMAT_CURRENCY" />
+                                    <DxGridDataColumn FieldName="@nameof(MonthlySalaryModel.lQD)" Caption="Lương quyết định" MinWidth="120" DisplayFormat="@GlobalContants.FORMAT_CURRENCY" />
+                                    <DxGridDataColumn FieldName="@nameof(MonthlySalaryModel.salaryCoefficient)" Caption="Hệ số lương" MinWidth="120" DisplayFormat="@GlobalContants.FORMAT_CURRENCY" />
+                                    <DxGridDataColumn FieldName="@nameof(MonthlySalaryModel.tL)" Caption="Tổng lương" MinWidth="120" DisplayFormat="@GlobalContants.FORMAT_CURRENCY" />
+                                    
+
+                                    <DxGridDataColumn FieldName="@nameof(MonthlySalaryModel.isCompanyDeduction)" Caption="Công ty đóng thuế thay?" Width="90px" MinWidth="70" />
+                                    <DxGridDataColumn FieldName="@nameof(MonthlySalaryModel.taxTypeName)" Caption="Loại tính thuế" MinWidth="120" />
+                                    <DxGridDataColumn FieldName="@nameof(MonthlySalaryModel.lCTTNCN)" Caption="Thuế định mức" MinWidth="140" DisplayFormat="@GlobalContants.FORMAT_CURRENCY" />
+                                    <DxGridDataColumn FieldName="@nameof(MonthlySalaryModel.lDTTNCN)" Caption="Lương chịu thuế" MinWidth="140" DisplayFormat="@GlobalContants.FORMAT_CURRENCY" />
+                                    <DxGridDataColumn FieldName="@nameof(MonthlySalaryModel.tNNCN)" Caption="Số tiền đóng thuế" MinWidth="140" DisplayFormat="@GlobalContants.FORMAT_CURRENCY" />
+
+                                    <DxGridDataColumn FieldName="@nameof(MonthlySalaryModel.isCompanyInsurance)" Caption="Công ty đóng trích nộp thay?" Width="90px" MinWidth="70" />
+                                    <DxGridDataColumn FieldName="@nameof(MonthlySalaryModel.bhxh)" Caption="BHXH" MinWidth="120" DisplayFormat="@GlobalContants.FORMAT_CURRENCY" />
+                                    <DxGridDataColumn FieldName="@nameof(MonthlySalaryModel.bhyt)" Caption="BHYT" MinWidth="120" DisplayFormat="@GlobalContants.FORMAT_CURRENCY" />
+                                    <DxGridDataColumn FieldName="@nameof(MonthlySalaryModel.bhtn)" Caption="BHTN" MinWidth="120" DisplayFormat="@GlobalContants.FORMAT_CURRENCY" />
+
+                                    <DxGridDataColumn FieldName="@nameof(MonthlySalaryModel.lNet)" Caption="Tổng lương thực nhận" MinWidth="140" DisplayFormat="@GlobalContants.FORMAT_CURRENCY" />
+
+                                    <DxGridDataColumn FieldName="@nameof(MonthlySalaryModel.cDM)" Caption="Công định mức" MinWidth="110" DisplayFormat="@GlobalContants.FORMAT_CURRENCY" />
+                                    <DxGridDataColumn FieldName="@nameof(MonthlySalaryModel.gCDM)" Caption="Giờ công định mức" MinWidth="125" DisplayFormat="@GlobalContants.FORMAT_CURRENCY" />
+                                    <DxGridDataColumn FieldName="@nameof(MonthlySalaryModel.cTT)" Caption="Công thực tế" MinWidth="110" DisplayFormat="@GlobalContants.FORMAT_CURRENCY" />
+                                    <DxGridDataColumn FieldName="@nameof(MonthlySalaryModel.gCTT)" Caption="Giờ công thực tế" MinWidth="120" DisplayFormat="@GlobalContants.FORMAT_CURRENCY" />
+                                    <DxGridDataColumn FieldName="@nameof(MonthlySalaryModel.lCTT)" Caption="Lương công thực tế" MinWidth="130" DisplayFormat="@GlobalContants.FORMAT_CURRENCY" />
+
+                                    <DxGridDataColumn FieldName="@nameof(MonthlySalaryModel.nPN)" Caption="Công phép năm" MinWidth="120" DisplayFormat="@GlobalContants.FORMAT_CURRENCY" />
+                                    <DxGridDataColumn FieldName="@nameof(MonthlySalaryModel.lCPN)" Caption="Lương công phép năm" MinWidth="140" DisplayFormat="@GlobalContants.FORMAT_CURRENCY" />
+
+                                    <DxGridDataColumn FieldName="@nameof(MonthlySalaryModel.nCD)" Caption="Công chế độ" MinWidth="120" DisplayFormat="@GlobalContants.FORMAT_CURRENCY" />
+                                    <DxGridDataColumn FieldName="@nameof(MonthlySalaryModel.lCCD)" Caption="Lương công chế độ" MinWidth="130" DisplayFormat="@GlobalContants.FORMAT_CURRENCY" />
+
+                                    <DxGridDataColumn FieldName="@nameof(MonthlySalaryModel.nL)" Caption="Nghỉ lễ" MinWidth="80" DisplayFormat="@GlobalContants.FORMAT_CURRENCY" />
+                                    <DxGridDataColumn FieldName="@nameof(MonthlySalaryModel.lNL)" Caption="Lương nghỉ lễ" MinWidth="120" DisplayFormat="@GlobalContants.FORMAT_CURRENCY" />
+
+                                    <DxGridDataColumn FieldName="@nameof(MonthlySalaryModel.sGT)" Caption="Số giờ thiếu" MinWidth="120" DisplayFormat="@GlobalContants.FORMAT_CURRENCY" />
+                                    <DxGridDataColumn FieldName="@nameof(MonthlySalaryModel.lCT)" Caption="Lương công thiếu" MinWidth="120" DisplayFormat="@GlobalContants.FORMAT_CURRENCY" />
+                                    @* <DxGridDataColumn FieldName="@nameof(MonthlySalaryModel.cDM)" Caption="Lương trừ công" MinWidth="120" DisplayFormat="@GlobalContants.FORMAT_CURRENCY" /> *@
+                                    
+                                    <DxGridDataColumn FieldName="@nameof(MonthlySalaryModel.cTPC)" Caption="Công tính phụ cấp" MinWidth="120" DisplayFormat="@GlobalContants.FORMAT_CURRENCY" />
+                                    <DxGridDataColumn FieldName="@nameof(MonthlySalaryModel.lPC)" Caption="Lương phụ cấp" MinWidth="120" DisplayFormat="@GlobalContants.FORMAT_CURRENCY" />
+
+                                    <DxGridDataColumn FieldName="@nameof(MonthlySalaryModel.sGTCTC)" Caption="Giờ công tăng ca định mức" MinWidth="140" DisplayFormat="@GlobalContants.FORMAT_CURRENCY" />
+                                    <DxGridDataColumn FieldName="@nameof(MonthlySalaryModel.tGTC)" Caption="Giờ công tăng ca" MinWidth="120" DisplayFormat="@GlobalContants.FORMAT_CURRENCY" />
+                                    @* <DxGridDataColumn FieldName="@nameof(MonthlySalaryModel.cDM)" Caption="Công tăng ca chưa quy đổi" MinWidth="140" DisplayFormat="@GlobalContants.FORMAT_CURRENCY" />
+                                    <DxGridDataColumn FieldName="@nameof(MonthlySalaryModel.cDM)" Caption="Công tăng ca tính thuế" MinWidth="140" DisplayFormat="@GlobalContants.FORMAT_CURRENCY" /> *@
+                                    <DxGridDataColumn FieldName="@nameof(MonthlySalaryModel.lTC)" Caption="Lương tăng ca" MinWidth="120" DisplayFormat="@GlobalContants.FORMAT_CURRENCY" />
+
+                                    
                                 </Columns>
                             </DxGrid>
                             break;

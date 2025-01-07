@@ -18,5 +18,8 @@ namespace HNOne.Model.Models
         public string? cIC { get; set; } // số căn cước
         public DateTime? issuanceDateCIC { get; set; } // Ngày cấp CCCD
         public string? remark { get; set; } // ghi chú
+        public bool isDeduction { get; set; } // là giảm trừ gia cảnh
+        public DateTime? fromDate { get; set; }
+        public DateTime? toDate { get; set; }
     }
 }

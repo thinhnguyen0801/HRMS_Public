@@ -56,6 +56,7 @@
         Users,
         LeaveConfigs,
         Employees,
-        EnumCatagories
+        EnumCatagories,
+        TaxRates,
     }
 }

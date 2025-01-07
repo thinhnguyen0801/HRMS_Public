@@ -17,6 +17,10 @@ namespace HNOne.Web.Controllers
         [Inject] IMasterDataService _masterDataService { get; init; }
         [Inject] IWorkforceService _workforceService { get; init; }
         public W1Confirm confirm { get; set; }
+
+        const string STRING_KEY_EVENT_POST = "WORK_CALCULATION_CONTROLLER_POST";
+        const string STRING_KEY_EVENT_PUT = "LEAVE_REQUEST_CONTROLLER_PUT";
+        const string STRING_KEY_EVENT_PUT_ACCEPT = "WORK_CALCULATION_CONTROLLER_PUT_ACCEPT";
         #region Properties
         public int ActiveTabIndex { get; set; } = 0;
         public SearchModel SearchUpdate { get; set; } = new SearchModel();
@@ -40,6 +44,11 @@ namespace HNOne.Web.Controllers
         public int MaxDaysInMonth { get; set; } = 30; // max số ngày trong tháng
         public bool IsShowDetail { get; set; } // show popup chi tiết ngày công
         public string HeaderTextDetail = "";
+
+        // nút quyền
+        public bool IsAllowPost { get; set; }
+        public bool IsAllowPut { get; set; }
+        public bool IsAllowPutAccept { get; set; }
         #endregion
 
         protected override async Task OnAfterRenderAsync(bool firstRender)
@@ -49,10 +58,10 @@ namespace HNOne.Web.Controllers
             {
                 try
                 {
-                    //string errMessage = await CheckMenuPermissionAsync("chi-nhanh");
-                    //if (errMessage == "401") return; // kiểm quyền menu page danh sách
-                    //await checkPermission(errMessage);
+                    string errMessage = await CheckMenuPermissionAsync("tinh-cong-nhan-vien");
+                    if (errMessage == "401") return;
                     await ShowLoading();
+                    //await checkPermission(errMessage);
                     ListBreadcrumbs = new List<BreadcrumbModel>()
                     {
                         new BreadcrumbModel("Công - phép"),
@@ -79,6 +88,18 @@ namespace HNOne.Web.Controllers
         }
 
         #region Private Functions
+        /// <summary>
+        /// kiểm tra quyền nút
+        /// </summary>
+        /// <returns></returns>
+        private async Task checkPermission(string menuId)
+        {
+            List<string> lstKey = await CheckEventPermission(menuId);
+            IsAllowPost = lstKey.FirstOrDefault(m => m == STRING_KEY_EVENT_POST) != null;
+            IsAllowPut = lstKey.FirstOrDefault(m => m == STRING_KEY_EVENT_PUT) != null;
+            IsAllowPutAccept = lstKey.FirstOrDefault(m => m == STRING_KEY_EVENT_PUT_ACCEPT) != null;
+        }
+
         private void initDataAsync()
         {
             SearchUpdate.year = DateTime.Now.Year;
@@ -267,11 +288,20 @@ namespace HNOne.Web.Controllers
             }
         }
 
-
+        /// <summary>
+        /// Lưu công tháng
+        /// </summary>
+        /// <returns></returns>
         protected async Task SaveDataHandler()
         {
             try
             {
+                await checkPermission(MenuId);
+                if (!IsAllowPost)
+                {
+                    ShowInfo(MessageConstants.MESSAGE_NO_PERMISSION);
+                    return;
+                }
                 if (SelectedItems.IsNullOrEmpty())
                 {
                     ShowWarning(MessageConstants.MESSAGE_NO_CHOSE_DATA);
@@ -319,6 +349,12 @@ namespace HNOne.Web.Controllers
         {
             try
             {
+                //await checkPermission(MenuId);
+                //if (!IsAllowPut)
+                //{
+                //    ShowInfo(MessageConstants.MESSAGE_NO_PERMISSION);
+                //    return;
+                //}
                 if (SelectedItems.IsNullOrEmpty())
                 {
                     ShowWarning(MessageConstants.MESSAGE_NO_CHOSE_DATA);

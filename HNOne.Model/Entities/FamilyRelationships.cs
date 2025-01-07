@@ -35,5 +35,9 @@ namespace HNOne.Model.Entities
         public DateTime? IssuanceDateCIC { get; set; } // Ngày cấp CCCD
         [MaxLength(1000)]
         public string? Remark { get; set; } // ghi chú
+
+        public bool IsDeduction { get; set; } // giảm trừ ca cảnh
+        public DateTime? FromDate { get; set; }
+        public DateTime? ToDate { get; set; }
     }
 }

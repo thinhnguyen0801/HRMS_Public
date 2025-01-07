@@ -70,6 +70,7 @@
         public double cDM { get; set; } // công định mức của tháng
         public double cTT { get; set; } // công thực tế
         public double nPN { get; set; } // nghỉ phép năm
+        public double nL { get; set; } // nghỉ lễ
         public double nCD { get; set; } // nghỉ chết độ
         public double nPKL { get; set; } // nghỉ phép không lương
         public double nB { get; set; } // nghỉ bù
@@ -80,7 +81,10 @@
         public double sGT { get; set; } // số giờ thiếu
         public double sGTC { get; set; } // số giờ trừ công
         public double gCTC { get; set; } // giờ công của 1 ngày
-        public double tGTC { get; set; } // số giờ thiếu
+        public double tGTC { get; set; } // số giờ tăng ca
+        public double sGTCTC { get; set; } // số giờ tăng ca tiêu chuẩn
+        public double sGTCTT { get; set; } // số giờ tăng ca của tháng trước
+        public double sGTCKT { get; set; } // số giờ tăng ca được chuyển sang tháng tiếp theo
         public bool isLocked { get; set; }
         #endregion
     }

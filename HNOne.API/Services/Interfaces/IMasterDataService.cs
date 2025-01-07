@@ -33,5 +33,7 @@ namespace HNOne.API.Services.Interfaces
         Task<IEnumerable<EnumCatagoryModel>> GetFnEnum(RequestModel request);
         Task<ResponseModel> UpdateEnumCatagory(string actionType, EnumCatagories entity);
         Task<ResponseModel> DeleteDynamic(RequestModel request);
+        Task<IEnumerable<TaxRateModel>> GetTaxRate(RequestModel request);
+        Task<ResponseModel> UpdateTaxRate(string actionType, TaxRates entity);
     }
 }

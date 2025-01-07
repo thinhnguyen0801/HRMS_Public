@@ -1,4 +1,5 @@
-﻿using HNOne.API.Repositories.Interfaces;
+﻿using HNOne.API.Repositories;
+using HNOne.API.Repositories.Interfaces;
 using HNOne.API.Services.Interfaces;
 using HNOne.Common;
 using HNOne.Model;
@@ -92,10 +93,12 @@ namespace HNOne.API.Services
 
         public async Task<IEnumerable<dynamic>?> GetMasterData(RequestModel request)
             => await _masterRepository.GetMasterData(request);
-
-
+        
         public async Task<IEnumerable<EnumCatagoryModel>> GetFnEnum(RequestModel request)
             => await _masterRepository.GetFnEnum(request);
+        
+        public async Task<IEnumerable<TaxRateModel>> GetTaxRate(RequestModel request)
+            => await _masterRepository.GetTaxRate(request);
         #endregion
 
         #region Command
@@ -410,6 +413,15 @@ namespace HNOne.API.Services
         /// <returns></returns>
         public async Task<ResponseModel> DeleteDynamic(RequestModel request)
             => await _masterRepository.DeleteDynamic(request);
+
+        /// <summary>
+        /// cập nhật thông tin danh mục tính thuế
+        /// </summary>
+        /// <param name="actionType"></param>
+        /// <param name="entity"></param>
+        /// <returns></returns>
+        public async Task<ResponseModel> UpdateTaxRate(string actionType, TaxRates entity)
+           => await _masterRepository.UpdateTaxRate(actionType, entity);
         #endregion
     }
 }

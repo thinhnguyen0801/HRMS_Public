@@ -76,6 +76,9 @@ namespace HNOne.API.Controllers
                     case ProcessConstants.GET_WORK_CALCULATE:
                         response.data = await _workforceRepository.GetWorkCalculate(request);
                         break;
+                    case ProcessConstants.GET_MONTHLY_SALARY:
+                        response.data = await _workforceRepository.GetMonthlySalary(request);
+                        break;
                     default:
                         response.status = StatusCodes.Status404NotFound;
                         response.message = $"Process Key {processKey} was not provider!!!";

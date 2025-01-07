@@ -42,5 +42,7 @@ namespace HNOne.API.Repositories.Interfaces
         Task<IEnumerable<SalaryParameterModel>> GetSalaryParameter(RequestModel request);
         Task<ResponseModel> AddSalaryParameter(SalaryParameters entity);
         Task<ResponseModel> UpdateSalaryParameter(SalaryParameters entity);
+        Task<ResponseModel> UpdateTaxRate(string actionType, TaxRates entity);
+        Task<IEnumerable<TaxRateModel>> GetTaxRate(RequestModel request);
     }
 }

@@ -31,12 +31,12 @@ namespace HNOne.Model.Entities
         public string? ShiftCode { get; set; } // ca làm việc lấy từ bảng enum
         public int Month { get; set; } // tháng công
         public int Year { get; set; } // năm công
-        public double totalWorkingHoursActual { get; set; } // tổng số giờ làm việc thực tế
         public double TNC { get; set; } // tổng ngày công
         public double CDM { get; set; } // công định mức của tháng
         public double CTT { get; set; } // công thực tế
+        public double NL { get; set; } // những ngày nghỉ lễ
         public double NPN { get; set; } // nghỉ phép năm
-        public double NCD { get; set; } // nghỉ chết độ
+        public double NCD { get; set; } // nghỉ chế độ
         public double NPKL { get; set; } // nghỉ phép không lương
         public double NB { get; set; } // nghỉ bù
         public double NKP { get; set; } // nghỉ không phép
@@ -46,7 +46,10 @@ namespace HNOne.Model.Entities
         public double SGT { get; set; } // số giờ thiếu
         public double SGTC { get; set; } // số giờ trừ công
         public double GCTC { get; set; } // giờ công của 1 ngày
-        public double TGTC { get; set; } // số giờ thiếu
+        public double TGTC { get; set; } // số giờ tăng ca
+        public double SGTCTC { get; set; } // số giờ tăng ca tiêu chuẩn
+        public double SGTCTT { get; set; } // số giờ tăng ca của tháng trước
+        public double SGTCKT { get; set; } // số giờ tăng ca được chuyển sang tháng tiếp theo
         public bool IsLocked { get; set; } // chốt chưa, chốt những ai
         [MaxLength(50)]
         public string? N01 { get; set; }

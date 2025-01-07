@@ -380,6 +380,9 @@ namespace HNOne.Web.Controllers
                             FamilyRelationshipUpdate.cIC = family.cIC;
                             FamilyRelationshipUpdate.issuanceDateCIC = family.issuanceDateCIC;
                             FamilyRelationshipUpdate.remark = family.remark;
+                            FamilyRelationshipUpdate.isDeduction = family.isDeduction;
+                            FamilyRelationshipUpdate.fromDate = family.fromDate;
+                            FamilyRelationshipUpdate.toDate = family.toDate;
                             IsCreatePopup = false;
                         }
                         IsShowPopupFamily = true;

@@ -343,6 +343,24 @@ namespace HNOne.API.Repositories
                 return results?.OrderBy(m=>m.rowOrder)?.ToList() ?? new List<EnumCatagoryModel>();
             }
         }
+
+        /// <summary>
+        /// lấy danh sách danh mục mức thuế
+        /// </summary>
+        /// <param name="enumType"></param>
+        /// <returns></returns>
+        public async Task<IEnumerable<TaxRateModel>> GetTaxRate(RequestModel request)
+        {
+            using (var connection = _dapperDbContext.CreateConnection())
+            {
+                string query = "select T0.*, T2.BranchCode, T2.BranchName" +
+                    " from TaxRates as T0 with(nolock)" +
+                    " inner join Branchs as T2 with(nolock) on T0.BranchId = T2.BranchId" +
+                    " where T0.IsDelete = '0'";
+                var results = await connection.QueryAsync<TaxRateModel>(query, commandTimeout: GlobalConstants.COMMAND_TIMEOUT, commandType: CommandType.Text);
+                return results;
+            }
+        }
         #endregion 
 
         #region Command
@@ -1043,6 +1061,59 @@ namespace HNOne.API.Repositories
                 return response;
             }
             catch (Exception) { throw; }
+        }
+        
+        /// <summary>
+        /// lưu + cập nhật thông tin danh mục thuế
+        /// </summary>
+        /// <param name="actionType"></param>
+        /// <param name="entity"></param>
+        /// <returns></returns>
+        public async Task<ResponseModel> UpdateTaxRate(string actionType, TaxRates entity)
+        {
+            ResponseModel response = new ResponseModel();
+            try
+            {
+                DateTime dateTimeNow = _dateTimeHelper.GetCurrentVietnamTime();
+                if (actionType == ProcessConstants.POST_TAXT_RATE)
+                {
+                    // Tạo mới
+                    entity.Id = await _dbContext.TaxRates.Select(m => m.Id).DefaultIfEmpty().MaxAsync() + 1;
+                    entity.DateTracking = dateTimeNow;
+                    entity.CreateDate = dateTimeNow;
+                    await _dbContext.TaxRates.AddAsync(entity);
+                    await _dbContext.SaveChangesAsync();
+                    response.message = MessageConstants.MESSAGE_ADD_SUCCESS;
+                    return response;
+                }
+                // cập nhật
+                var data = await _dbContext.TaxRates.FirstOrDefaultAsync(m => m.Id == entity.Id);
+                if (data == null)
+                {
+                    response.status = StatusCodes.Status404NotFound;
+                    response.message = MessageConstants.MESSAGE_NOT_FOUNT;
+                    return response;
+                }
+                data.BranchId = entity.BranchId;
+                data.MinSalary = entity.MinSalary;
+                data.MaxSalary = entity.MaxSalary;
+                data.ProgressiveAmount = entity.ProgressiveAmount;
+                data.TaxRate = entity.TaxRate;
+                data.TaxBracket = entity.TaxBracket;
+                data.DateTracking = dateTimeNow;
+                data.UpdateDate = dateTimeNow;
+                data.UserSign2 = entity.UserSign2;
+                _dbContext.TaxRates.Attach(data);
+                _dbContext.Entry(data).State = EntityState.Modified;
+                await _dbContext.SaveChangesAsync();
+                response.message = MessageConstants.MESSAGE_UPDATE_SUCCESS;
+            }
+            catch (Exception ex)
+            {
+                response.status = StatusCodes.Status400BadRequest;
+                response.message = ex.Message;
+            }
+            return response;
         }
         #endregion
     }

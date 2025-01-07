@@ -20,8 +20,8 @@ namespace HNOne.Web.Controllers
         #region Properties
         public int ActiveTabIndex { get; set; } = 0;
         public SearchModel SearchUpdate { get; set; } = new SearchModel();
-        public List<ShiftAssignmentModel>? ListTimesheet { get; set; }
-        public IGrid? GridTimesheet { get; set; }
+        public List<MonthlySalaryModel>? ListSalary { get; set; }
+        public IGrid? GridSalary { get; set; }
         public IReadOnlyList<object>? SelectedItems { get; set; } = null;
         public List<ComboboxModel>? ListCboYear { get; set; }
         public List<ComboboxModel>? ListCboMonth { get; set; }
@@ -111,6 +111,24 @@ namespace HNOne.Web.Controllers
             }
             catch (Exception) { throw; }
         }
+
+        private async Task getMonthlySalaryList()
+        {
+            SelectedItems = null;
+            MaxDaysInMonth = DateTime.DaysInMonth(SearchUpdate.year, SearchUpdate.month);
+            RequestModel request = new RequestModel();
+            request.process = ProcessConstants.GET_MONTHLY_SALARY;
+            request.userId = UserId;
+            request.branchId = BranchId;
+            request.token = Token;
+            request.opt = SearchUpdate.year.ToString(); // năm
+            request.opt1 = SearchUpdate.month.ToString(); // tháng
+            request.opt2 = ListDepartmentSelected.IsNullOrEmpty() ? "" : string.Join(",", ListDepartmentSelected!.Select(m => m.id));
+            request.opt3 = "";
+            request.opt4 = ListCboStatusSelected.IsNullOrEmpty() ? "" : string.Join(",", ListCboStatusSelected!.Select(m => m.code));
+            var response = await _workforceService.GetMasterDataAsync<MonthlySalaryModel>(request, isShowToast: true);
+            ListSalary = response;
+        }
         #endregion
 
         #region Protected Functions
@@ -183,6 +201,29 @@ namespace HNOne.Web.Controllers
         /// </summary>
         /// <param name="lstEmp"></param>
         protected void EventCallbackEmpChangedHandler(object? lstEmp) => EmployeeSelected = lstEmp;
+
+        /// <summary>
+        /// lấy danh sách thông tin quản lý phép năm
+        /// </summary>
+        /// <returns></returns>
+        protected async Task RefreshHandler()
+        {
+            try
+            {
+                await ShowLoading();
+                await getMonthlySalaryList();
+            }
+            catch (Exception ex)
+            {
+                _logger!.LogError(ex, "ReLoadDataHandler");
+                ShowError(ex.Message);
+            }
+            finally
+            {
+                await ShowLoading(false);
+                await InvokeAsync(StateHasChanged);
+            }
+        }
         #endregion
     }
 }

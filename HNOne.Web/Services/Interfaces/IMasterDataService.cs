@@ -35,5 +35,7 @@ namespace HNOne.Web.Services.Interfaces
             , string tableName, string pKey, string fKey, string documentId, string reasonDelete);
         Task<DotNetStreamReference?> PrintDocumentAsync(int userId, string token, int branchId, int documentId, string processKey, string fileName);
         Task<List<SalaryParameterModel>?> GetSalaryParameterAsync(int userId, string token, string condition = "", bool isShowToast = false);
+        Task<List<T>?> GetMasterAsync<T>(RequestModel request, bool isShowToast = false) where T : class;
+        Task<bool> UpdateMasterAsync(RequestModel request);
     }
 }

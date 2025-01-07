@@ -783,6 +783,9 @@ namespace HNOne.API.Repositories
                 data.PhoneNumber = entity.PhoneNumber;
                 data.CIC = entity.CIC;
                 data.IssuanceDateCIC = entity.IssuanceDateCIC;
+                data.IsDeduction = entity.IsDeduction;
+                data.FromDate = entity.FromDate;
+                data.ToDate = entity.ToDate;
                 data.Remark = entity.Remark;
                 data.DateTracking = _dateTimeHelper.GetCurrentVietnamTime();
                 data.UpdateDate = _dateTimeHelper.GetCurrentVietnamTime();

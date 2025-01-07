@@ -133,6 +133,9 @@ namespace HNOne.API.Controllers
                     case ProcessConstants.GET_FUN_ENUM:
                         response.data = await _masterDataService.GetFnEnum(request);
                         break;
+                    case ProcessConstants.GET_TAXT_RATE:
+                        response.data = await _masterDataService.GetTaxRate(request);
+                        break;
                     default:
                         response.status = StatusCodes.Status404NotFound;
                         response.message = $"Process Key {processKey} was not provider!!!";
@@ -264,6 +267,11 @@ namespace HNOne.API.Controllers
                     case ProcessConstants.POST_ENUM_CATA:
                         var enumCata = JsonConvert.DeserializeObject<EnumCatagories>($"{request.json}");
                         response = await _masterDataService.UpdateEnumCatagory(processKey, enumCata!);
+                        break;
+                    case ProcessConstants.PUT_TAXT_RATE:
+                    case ProcessConstants.POST_TAXT_RATE:
+                        var taxRate = JsonConvert.DeserializeObject<TaxRates>($"{request.json}");
+                        response = await _masterDataService.UpdateTaxRate(processKey, taxRate!);
                         break;
                     case ProcessConstants.DELETE_DYNAMIC:
                         response = await _masterDataService.DeleteDynamic(request);

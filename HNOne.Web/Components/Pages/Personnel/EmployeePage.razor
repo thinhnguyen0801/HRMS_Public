@@ -1048,6 +1048,9 @@
                                                         </CellDisplayTemplate>
                                                     </DxGridDataColumn>
                                                     <DxGridDataColumn FieldName="@nameof(FamilyRelationshipModel.relationshipName)" Caption="Mối quan hệ" MinWidth="110" />
+                                                    <DxGridDataColumn FieldName="@nameof(FamilyRelationshipModel.isDeduction)" Caption="G/t gia cảnh" MinWidth="120" />
+                                                    <DxGridDataColumn FieldName="@nameof(FamilyRelationshipModel.fromDate)" Caption="Từ ngày" MinWidth="120" DisplayFormat="@GlobalContants.FORMAT_DATE" />
+                                                    <DxGridDataColumn FieldName="@nameof(FamilyRelationshipModel.toDate)" Caption="Đến ngày" MinWidth="120" DisplayFormat="@GlobalContants.FORMAT_DATE" />
                                                     <DxGridDataColumn FieldName="@nameof(FamilyRelationshipModel.phoneNumber)" Caption="Số điện thoại" MinWidth="110" />
                                                     <DxGridDataColumn FieldName="@nameof(FamilyRelationshipModel.dateOfBirth)" Caption="Ngày sinh" MinWidth="110" DisplayFormat="@GlobalContants.FORMAT_DATE" />
                                                     @* <DxGridDataColumn FieldName="@nameof(FamilyRelationshipModel.occupation)" Caption="Nghề nghiệp" MinWidth="140" /> *@
@@ -1474,10 +1477,47 @@
                     <div class="d-flex ">
                         <W1Label Value="Ghi chú" Styles="width: 110px" />
                         <div style="width: calc(100% - 110px)">
-                            <DxMemo @bind-Text="@FamilyRelationshipUpdate.remark" CssClass="w1FontSize" BindValueMode="@BindValueMode.OnInput" Rows="2" />`
+                            <DxMemo @bind-Text="@FamilyRelationshipUpdate.remark" CssClass="w1FontSize" BindValueMode="@BindValueMode.OnInput" Rows="2" />
                         </div>
                     </div>
                 </div>
+                <div class="col-sm-12">
+                    <div class="d-flex ">
+                        <W1Label Value="" Styles="width: 110px" />
+                        <div style="width: calc(100% - 110px)">
+                            <DxCheckBox CssClass="w-100 w1FontSize"
+                                        SizeMode="@SizeMode.Small"
+                                        @bind-Checked="@FamilyRelationshipUpdate.isDeduction"
+                                        LabelPosition="@LabelPosition.Right">
+                                Giảm trừ gia cảnh?
+                            </DxCheckBox>
+                        </div>
+                    </div>
+                </div>
+                @if(FamilyRelationshipUpdate.isDeduction)
+                {
+                    <div class="col-sm-12">
+                        <div class="d-flex ">
+                            <W1Label Value="Từ ngày/đến ngày" Id="ngayBatDau" Styles="width: 110px" IsRequired="true" />
+                            <div style="width: calc(100% - 110px)">
+                                <div class="grid gap-1 row-gap-2">
+                                    <div class="g-col-md-6 g-col-sm-12 g-col-12">
+                                        <DxDateEdit @bind-Date="@FamilyRelationshipUpdate.fromDate"
+                                                    CssClass="w1FontSize" Id="startDate"
+                                                    Mask="@GlobalContants.FORMAT_DATE" Format="@GlobalContants.FORMAT_DATE"
+                                                    DisplayFormat="@GlobalContants.FORMAT_DATE" />
+                                    </div>
+                                    <div class="g-col-md-6 g-col-sm-12 g-col-12">
+                                        <DxDateEdit @bind-Date="@FamilyRelationshipUpdate.toDate"
+                                                    CssClass="w1FontSize" Id="endDate"
+                                                    Mask="@GlobalContants.FORMAT_DATE" Format="@GlobalContants.FORMAT_DATE"
+                                                    DisplayFormat="@GlobalContants.FORMAT_DATE" />
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                }
             </div>
         </W1Popup>
     }
