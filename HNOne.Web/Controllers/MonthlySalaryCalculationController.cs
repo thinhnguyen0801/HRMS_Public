@@ -20,7 +20,7 @@ namespace HNOne.Web.Controllers
         #region Properties
         public int ActiveTabIndex { get; set; } = 0;
         public SearchModel SearchUpdate { get; set; } = new SearchModel();
-        public List<MonthlySalaryModel>? ListSalary { get; set; }
+        public List<PayrollModel>? ListSalary { get; set; }
         public IGrid? GridSalary { get; set; }
         public IReadOnlyList<object>? SelectedItems { get; set; } = null;
         public List<ComboboxModel>? ListCboYear { get; set; }
@@ -126,7 +126,7 @@ namespace HNOne.Web.Controllers
             request.opt2 = ListDepartmentSelected.IsNullOrEmpty() ? "" : string.Join(",", ListDepartmentSelected!.Select(m => m.id));
             request.opt3 = "";
             request.opt4 = ListCboStatusSelected.IsNullOrEmpty() ? "" : string.Join(",", ListCboStatusSelected!.Select(m => m.code));
-            var response = await _workforceService.GetMasterDataAsync<MonthlySalaryModel>(request, isShowToast: true);
+            var response = await _workforceService.GetMasterDataAsync<PayrollModel>(request, isShowToast: true);
             ListSalary = response;
         }
         #endregion

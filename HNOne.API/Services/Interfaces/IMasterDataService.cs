@@ -35,5 +35,7 @@ namespace HNOne.API.Services.Interfaces
         Task<ResponseModel> DeleteDynamic(RequestModel request);
         Task<IEnumerable<TaxRateModel>> GetTaxRate(RequestModel request);
         Task<ResponseModel> UpdateTaxRate(string actionType, TaxRates entity);
+        Task<ResponseModel> UpdateDeductionConfig(string actionType, DeductionConfigs entity);
+        Task<IEnumerable<DeductionConfigModel>> GetDeductionConfig(RequestModel request);
     }
 }

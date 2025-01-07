@@ -371,7 +371,7 @@ namespace HNOne.API.Repositories
         /// </summary>
         /// <param name="request"></param>
         /// <returns></returns>
-        public async Task<IEnumerable<MonthlySalaryModel>> GetMonthlySalary(RequestModel request)
+        public async Task<IEnumerable<PayrollModel>> GetMonthlySalary(RequestModel request)
         {
             using (var connection = _dapperDbContext.CreateConnection())
             {
@@ -388,7 +388,7 @@ namespace HNOne.API.Repositories
                 parameters.Add("@EmployeeIds", request.opt3);
                 parameters.Add("@StatusIds", request.opt4);
                 parameters.Add("@Type", $"{request.type}");
-                var lstResult = await connection.QueryAsync<MonthlySalaryModel>(StoreConstants.STORE_H1_MONTHLY_SALARY_CALCULATION_SELECT, param: parameters, commandTimeout: GlobalConstants.COMMAND_TIMEOUT, commandType: CommandType.StoredProcedure);
+                var lstResult = await connection.QueryAsync<PayrollModel>(StoreConstants.STORE_H1_PAYROLL_CALCULATION_SELECT, param: parameters, commandTimeout: GlobalConstants.COMMAND_TIMEOUT, commandType: CommandType.StoredProcedure);
                 return lstResult;
             }
         }

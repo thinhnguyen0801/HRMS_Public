@@ -1,6 +1,8 @@
-﻿namespace HNOne.Model.Models
+﻿using System.Text.RegularExpressions;
+
+namespace HNOne.Model.Models
 {
-    public class MonthlySalaryModel
+    public class PayrollModel
     {
         public int rowOrder { get; set; } // số thứ tự
         public int employeeId { get; set; }
@@ -18,7 +20,29 @@
         public string? taxTypeName { get; set; } // loại tính thuế
         public int month { get; set; }
         public int year { get; set; }
+
+
+        #region Thuế thu nhập cá nhân
+        public int taxtRateId { get; set; } // Id mức thuế
+        public int taxBracket { get; set; } // bậc thuế
+        public decimal minTaxSalary { get; set; }
+        public decimal maxTaxSalary { get; set; }
+        public double taxRate { get; set; } // % thuế
+        public decimal progressiveAmount { get; set; } // số tiền lũy tiến
+        public decimal standardTax { get; set; } // Thuế giảm trừ bản thân
+        public decimal familyCircumstanceTaxDeduction { get; set; } // Giảm trừ gia cảnh
+        public int numOfPeopleTaxFCTaxDeduction { get; set; } // số người giảm trừ
+        public decimal totalFCTaxDeduction { get; set; } // tổng tiền giảm trừ gia cảnh
+        public decimal taxableIncome { get; set; } // Thu nhập tính thuế
+        public decimal taxPaymentGross { get; set; } // Số tiền đóng thuế Gross
+        public decimal taxPaymentNet { get; set; } // Số tiền đóng thuế Gross
+        
+        #endregion
+        public decimal totalSalaryNotYet { get; set; } // Tổng lương chưa quy đổi
+        public decimal totalSalary { get; set; } // Tổng lương đã quy đổi
         public double salaryCoefficient { get; set; } // Hệ số lương
+        public decimal netSalary { get; set; } // lương đã chịu thuế
+
         public decimal lCB { get; set; } // lương cơ bản
         public decimal lQD { get; set; } // lương quyết định
         public double tNC { get; set; } // tổng ngày công

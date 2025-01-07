@@ -31,6 +31,7 @@
         QuyDinhSoGioTangCa,
         CapNhatThongTinNhanVien,
         HinhThucDaoTao,
+        TrichNop,
     }
 
     public enum EnumObjType
@@ -58,5 +59,6 @@
         Employees,
         EnumCatagories,
         TaxRates,
+        DeductionConfigs,
     }
 }

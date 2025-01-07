@@ -1,0 +1,192 @@
+﻿@page "/cau-hinh-trich-nop"
+@inherits Controllers.DeductionConfigController
+
+<PageTitle>Cấu hình trích nộp</PageTitle>
+
+<div class="h-content-filter">
+    <div class="row row-gap-2">
+        <div class="col-12">
+            <div class="card w1FontSize">
+                <div class="card-header p-1">
+                    <DxToolbar ItemRenderStyleMode="@ToolbarRenderStyleMode.Contained">
+                        <Items>
+                            <DxToolbarItem Text="Làm mới" BeginGroup="true" IconCssClass="@($"{IconClassConstants.ICON_REFRESH}")" CssClass="w1FontSize"
+                                           Alignment="@ToolbarItemAlignment.Right" Click="@(()=> RefreshHandler())" />
+
+                            <DxToolbarItem Text="Thêm mới" BeginGroup="true" IconCssClass="@($"{IconClassConstants.ICON_ADD}")" CssClass="w1FontSize"
+                                           Alignment="@ToolbarItemAlignment.Right" Click="@(()=> OnOpenDialogHandler())" Visible="@(IsAllowPost)" />
+
+                            <DxToolbarItem Text="Xóa" BeginGroup="true" IconCssClass="@($"{IconClassConstants.ICON_DELETE}")" CssClass="w1FontSize"
+                                           Alignment="@ToolbarItemAlignment.Right" Click="@(()=> DeleteDataHandler())" Visible="@(IsAllowDelete)" />
+                            <DxToolbarItem Text="Kết xuất" BeginGroup="true" IconCssClass="@($"{IconClassConstants.ICON_EXPORT_EXCEL}")" CssClass="w1FontSize"
+                                           Alignment="@ToolbarItemAlignment.Right" Click="@(()=> ExportExcelHandler())" />
+                        </Items>
+                    </DxToolbar>
+                </div>
+                <div class="card-body p-1" style="height: calc(100vh - 155px); min-height: 350px">
+                    <DxGrid Data="ListDeduction" @ref="GridDeduction"
+                            ShowFilterRow="true"
+                            ColumnResizeMode="GridColumnResizeMode.ColumnsContainer"
+                            PagerPosition="GridPagerPosition.Bottom"
+                            PageSizeSelectorVisible="true"
+                            PageSize="@GlobalContants.PageSize"
+                            PageSizeSelectorItems="@(GlobalContants.PageSizeList)"
+                            PageSizeSelectorAllRowsItemVisible="true"
+                            PagerSwitchToInputBoxButtonCount="10"
+                            PagerVisibleNumericButtonCount="10"
+                            TextWrapEnabled="false"
+                            FocusedRowEnabled="true"
+                            SelectionMode="@GridSelectionMode.Multiple"
+                            @bind-SelectedDataItems="@SelectedItems"
+                            KeyFieldName="@nameof(DeductionConfigModel.id)"
+                            CssClass="h-full">
+                        <Columns>
+                            <DxGridSelectionColumn Width="35px" />
+                            <DxGridDataColumn FieldName="@nameof(DeductionConfigModel.typeName)" Caption="Loại trích nộp" MinWidth="120" Width="120px">
+                                <CellDisplayTemplate>
+                                    @{
+                                        if (IsAllowPut)
+                                        {
+                                            <a @onclick="@(() => OnOpenDialogHandler(EnumType.Update, (context.DataItem as DeductionConfigModel)))">@context.Value</a>
+                                        }
+                                        else
+                                        {
+                                            <span>@context.Value</span>
+                                        }
+                                    }
+                                </CellDisplayTemplate>
+                            </DxGridDataColumn>
+                            <DxGridDataColumn FieldName="@nameof(DeductionConfigModel.branchName)" Caption="Chi nhánh" MinWidth="160" />
+                            <DxGridDataColumn FieldName="@nameof(DeductionConfigModel.coefficientEnterprise)" Caption="H/s doanh nghiệp" MinWidth="130" DisplayFormat="@GlobalContants.FORMAT_CURRENCY" />
+                            <DxGridDataColumn FieldName="@nameof(DeductionConfigModel.coefficientEmployee)" Caption="H/s nhân viên" MinWidth="130" DisplayFormat="@GlobalContants.FORMAT_CURRENCY" />
+                            <DxGridDataColumn FieldName="@nameof(DeductionConfigModel.maxEnterprise)" Caption="Giới hạn doanh nghiệp" MinWidth="145" DisplayFormat="@GlobalContants.FORMAT_CURRENCY" />
+                            <DxGridDataColumn FieldName="@nameof(DeductionConfigModel.maxEmployee)" Caption="Giới hạn nhân viên" MinWidth="130" DisplayFormat="@GlobalContants.FORMAT_CURRENCY" />
+                            <DxGridDataColumn FieldName="@nameof(DepartmentModel.isActive)" Caption="Hoạt động?" MinWidth="100" />
+                            <DxGridDataColumn FieldName="@nameof(DeductionConfigModel.fromDate)" Caption="Từ ngày" MinWidth="120" DisplayFormat="@GlobalContants.FORMAT_DATE" />
+                            <DxGridDataColumn FieldName="@nameof(DeductionConfigModel.toDate)" Caption="Đến ngày" MinWidth="120" DisplayFormat="@GlobalContants.FORMAT_DATE" />
+                            <DxGridDataColumn FieldName="@nameof(DeductionConfigModel.dateTracking)" Caption="Ngày cập nhật" MinWidth="120" DisplayFormat="@GlobalContants.FORMAT_DATE_TIME" />
+                            <DxGridDataColumn FieldName="@nameof(DeductionConfigModel.userSignName)" Caption="Người tạo" MinWidth="120" />
+                            <DxGridDataColumn FieldName="@nameof(DeductionConfigModel.userSign2Name)" Caption="Người cập nhật" MinWidth="120" />
+                        </Columns>
+                        <TotalSummary>
+                            <DxGridSummaryItem DisplayText="@GlobalContants.FORMAT_GRID_DISPLAYTEXT_COUNT" SummaryType="GridSummaryItemType.Count"
+                                               FieldName="@nameof(DeductionConfigModel.typeName)" ValueDisplayFormat="@GlobalContants.FORMAT_CURRENCY"
+                                               FooterColumnName="@nameof(DeductionConfigModel.typeName)" />
+                        </TotalSummary>
+                    </DxGrid>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<W1Popup @bind-IsOpenModal="@IsShowDialog"
+         Width="60%" TextBtnAccept="Cập nhật"
+         HeaderText="@(IsCreate ? "Thêm mới cấu hình trích nộp" : $"Cập nhật cấu hình trích nộp")"
+         HandleClickAccept="@SaveDataHandler">
+    <div class="row row-gap-2">
+        <div class="col-sm-12">
+            <div class="d-flex ">
+                <W1Label Value="Chi nhánh" Styles="width: 120px" IsRequired="true" />
+                <div style="width: calc(100% - 120px)">
+                    <div class="row row-gap-2">
+                        <div class="col-md-8 col-sm-12">
+                            <DxComboBox Data="@ListCboBranch"
+                                        @bind-Value="@DeductionUpdate.branchId"
+                                        FilteringMode="DataGridFilteringMode.Contains"
+                                        TextFieldName="@nameof(ComboboxModel.name)"
+                                        Id="txtBranchId"
+                                        ValueFieldName="@nameof(ComboboxModel.id)" CssClass="w1FontSize">
+                            </DxComboBox>
+                        </div>
+                        <div class="col-md-4 col-sm-12">
+                            <DxCheckBox CssClass="w-100 w1FontSize"
+                                        SizeMode="@SizeMode.Small"
+                                        @bind-Checked="@DeductionUpdate.isActive"
+                                        LabelPosition="@LabelPosition.Right">
+                                Hoạt động?
+                            </DxCheckBox>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-sm-12">
+            <div class="d-flex ">
+                <W1Label Value="Loại trích nộp" Styles="width: 120px" IsRequired="true" />
+                <div style="width: calc(100% - 120px)">
+                    <DxComboBox Data="@ListCboType"
+                                @bind-Value="@DeductionUpdate.type"
+                                FilteringMode="DataGridFilteringMode.Contains"
+                                TextFieldName="@nameof(ComboboxModel.name)"
+                                ValueFieldName="@nameof(ComboboxModel.code)"
+                                CssClass="w1FontSize">
+                    </DxComboBox>
+                </div>
+            </div>
+        </div>
+        <div class="col-sm-12">
+            <div class="d-flex ">
+                <W1Label Value="H/số doanh nghiệp" Styles="width: 120px" />
+                <div style="width: calc(100% - 120px)">
+                    <DxSpinEdit @bind-Value="@DeductionUpdate.coefficientEnterprise" InputCssClass="text-end"
+                                ShowSpinButtons="true" MinValue="0"
+                                DisplayFormat="@GlobalContants.FORMAT_CURRENCY" Mask="@GlobalContants.FORMAT_CURRENCY" CssClass="w1FontSize" />
+                </div>
+            </div>
+        </div>
+        <div class="col-sm-12">
+            <div class="d-flex ">
+                <W1Label Value="H/số nhân viên" Styles="width: 120px" IsRequired="true" />
+                <div style="width: calc(100% - 120px)">
+                    <DxSpinEdit @bind-Value="@DeductionUpdate.coefficientEmployee" InputCssClass="text-end"
+                                ShowSpinButtons="true" MinValue="0"
+                                DisplayFormat="@GlobalContants.FORMAT_CURRENCY" Mask="@GlobalContants.FORMAT_CURRENCY" CssClass="w1FontSize" />
+                </div>
+            </div>
+        </div>
+        <div class="col-sm-12">
+            <div class="d-flex ">
+                <W1Label Value="Từ ngày/Đến ngày" Styles="width: 120px" IsRequired="true" />
+                <div style="width: calc(100% - 120px)">
+                    <div class="grid gap-1 row-gap-2">
+                        <div class="g-col-md-6 g-col-sm-12 g-col-12">
+                            <DxDateEdit @bind-Date="@DeductionUpdate.fromDate"
+                                        CssClass="w1FontSize" Id="startDate"
+                                        Mask="@GlobalContants.FORMAT_DATE" Format="@GlobalContants.FORMAT_DATE"
+                                        DisplayFormat="@GlobalContants.FORMAT_DATE" />
+                        </div>
+                        <div class="g-col-md-6 g-col-sm-12 g-col-12">
+                            <DxDateEdit @bind-Date="@DeductionUpdate.toDate"
+                                        CssClass="w1FontSize" Id="startDate"
+                                        Mask="@GlobalContants.FORMAT_DATE" Format="@GlobalContants.FORMAT_DATE"
+                                        DisplayFormat="@GlobalContants.FORMAT_DATE" />
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-sm-12">
+            <div class="d-flex ">
+                <W1Label Value="G/hạn doanh nghiệp" Styles="width: 120px" />
+                <div style="width: calc(100% - 120px)">
+                    <DxSpinEdit @bind-Value="@DeductionUpdate.coefficientEnterprise" InputCssClass="text-end"
+                                ShowSpinButtons="true" MinValue="0"
+                                DisplayFormat="@GlobalContants.FORMAT_CURRENCY" Mask="@GlobalContants.FORMAT_CURRENCY" CssClass="w1FontSize" />
+                </div>
+            </div>
+        </div>
+        <div class="col-sm-12">
+            <div class="d-flex ">
+                <W1Label Value="G/hạn nhân viên" Styles="width: 120px" IsRequired="true" />
+                <div style="width: calc(100% - 120px)">
+                    <DxSpinEdit @bind-Value="@DeductionUpdate.coefficientEmployee" InputCssClass="text-end"
+                                ShowSpinButtons="true" MinValue="0"
+                                DisplayFormat="@GlobalContants.FORMAT_CURRENCY" Mask="@GlobalContants.FORMAT_CURRENCY" CssClass="w1FontSize" />
+                </div>
+            </div>
+        </div>
+    </div>
+</W1Popup>
+
+<W1Confirm @ref="confirm" />

@@ -141,6 +141,10 @@
         public const string GET_TAXT_RATE = "get-taxt-rate";
         public const string POST_TAXT_RATE = "post-taxt-rate";
         public const string PUT_TAXT_RATE = "put-taxt-rate";
+
+        public const string GET_DEDUCTION_CONFIG = "get-deduction-config";
+        public const string POST_DEDUCTION_CONFIG = "post-deduction-config";
+        public const string PUT_DEDUCTION_CONFIG = "put-deduction-config";
         #region Loại dưới store
         public const string GET_COMBO_TYPE_CONTRACT_BY_EMPLOYEEID = "CONTRACT_BY_EMPLOYEEID";
         public const string GET_COMBO_TYPE_SALARY_ADJUSTMENT_BY_CONTRACT = "SALARY_ADJUSTMENT_BY_CONTRACT";

@@ -136,6 +136,9 @@ namespace HNOne.API.Controllers
                     case ProcessConstants.GET_TAXT_RATE:
                         response.data = await _masterDataService.GetTaxRate(request);
                         break;
+                    case ProcessConstants.GET_DEDUCTION_CONFIG:
+                        response.data = await _masterDataService.GetDeductionConfig(request);
+                        break;
                     default:
                         response.status = StatusCodes.Status404NotFound;
                         response.message = $"Process Key {processKey} was not provider!!!";
@@ -272,6 +275,11 @@ namespace HNOne.API.Controllers
                     case ProcessConstants.POST_TAXT_RATE:
                         var taxRate = JsonConvert.DeserializeObject<TaxRates>($"{request.json}");
                         response = await _masterDataService.UpdateTaxRate(processKey, taxRate!);
+                        break;
+                    case ProcessConstants.PUT_DEDUCTION_CONFIG:
+                    case ProcessConstants.POST_DEDUCTION_CONFIG:
+                        var deductionConfig = JsonConvert.DeserializeObject<DeductionConfigs>($"{request.json}");
+                        response = await _masterDataService.UpdateDeductionConfig(processKey, deductionConfig!);
                         break;
                     case ProcessConstants.DELETE_DYNAMIC:
                         response = await _masterDataService.DeleteDynamic(request);

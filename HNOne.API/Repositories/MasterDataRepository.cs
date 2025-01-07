@@ -361,6 +361,25 @@ namespace HNOne.API.Repositories
                 return results;
             }
         }
+
+        /// <summary>
+        /// lấy danh sách danh mục mức thuế
+        /// </summary>
+        /// <param name="enumType"></param>
+        /// <returns></returns>
+        public async Task<IEnumerable<DeductionConfigModel>> GetDeductionConfig(RequestModel request)
+        {
+            using (var connection = _dapperDbContext.CreateConnection())
+            {
+                string query = "select T0.*, T1.Name as TypeName, T2.BranchCode, T2.BranchName" +
+                    " from DeductionConfigs as T0 with(nolock)" +
+                    " inner join [dbo].[HRM_FN_GET_ENUM] ('TrichNop', '', '') as T1 on T0.Type = T1.Code" +
+                    " inner join Branchs as T2 with(nolock) on T0.BranchId = T2.BranchId" +
+                    " where T0.IsDelete = '0'";
+                var results = await connection.QueryAsync<DeductionConfigModel>(query, commandTimeout: GlobalConstants.COMMAND_TIMEOUT, commandType: CommandType.Text);
+                return results;
+            }
+        }
         #endregion 
 
         #region Command
@@ -1104,6 +1123,62 @@ namespace HNOne.API.Repositories
                 data.UpdateDate = dateTimeNow;
                 data.UserSign2 = entity.UserSign2;
                 _dbContext.TaxRates.Attach(data);
+                _dbContext.Entry(data).State = EntityState.Modified;
+                await _dbContext.SaveChangesAsync();
+                response.message = MessageConstants.MESSAGE_UPDATE_SUCCESS;
+            }
+            catch (Exception ex)
+            {
+                response.status = StatusCodes.Status400BadRequest;
+                response.message = ex.Message;
+            }
+            return response;
+        }
+
+        /// <summary>
+        /// lưu + cập nhật thông tin cấu hình trích nộp
+        /// </summary>
+        /// <param name="actionType"></param>
+        /// <param name="entity"></param>
+        /// <returns></returns>
+        public async Task<ResponseModel> UpdateDeductionConfig(string actionType, DeductionConfigs entity)
+        {
+            ResponseModel response = new ResponseModel();
+            try
+            {
+                DateTime dateTimeNow = _dateTimeHelper.GetCurrentVietnamTime();
+                if (actionType == ProcessConstants.POST_DEDUCTION_CONFIG)
+                {
+                    // Tạo mới
+                    entity.Id = await _dbContext.DeductionConfigs.Select(m => m.Id).DefaultIfEmpty().MaxAsync() + 1;
+                    entity.DateTracking = dateTimeNow;
+                    entity.CreateDate = dateTimeNow;
+                    await _dbContext.DeductionConfigs.AddAsync(entity);
+                    await _dbContext.SaveChangesAsync();
+                    response.message = MessageConstants.MESSAGE_ADD_SUCCESS;
+                    return response;
+                }
+                // cập nhật
+                var data = await _dbContext.DeductionConfigs.FirstOrDefaultAsync(m => m.Id == entity.Id);
+                if (data == null)
+                {
+                    response.status = StatusCodes.Status404NotFound;
+                    response.message = MessageConstants.MESSAGE_NOT_FOUNT;
+                    return response;
+                }
+                data.BranchId = entity.BranchId;
+                data.Type = entity.Type;
+                data.CoefficientEnterprise = entity.CoefficientEnterprise;
+                data.CoefficientEmployee = entity.CoefficientEmployee;
+                data.IsActive = entity.IsActive;
+                data.FromDate = entity.FromDate;
+                data.ToDate = entity.ToDate;
+                data.MaxEnterprise = entity.MaxEnterprise;
+                data.MaxEmployee = entity.MaxEmployee;
+                data.DateTracking = dateTimeNow;
+                data.UpdateDate = dateTimeNow;
+                data.UserSign2 = entity.UserSign2;
+                _dbContext.DeductionConfigs.Attach(data);
                 _dbContext.Entry(data).State = EntityState.Modified;
                 await _dbContext.SaveChangesAsync();
                 response.message = MessageConstants.MESSAGE_UPDATE_SUCCESS;

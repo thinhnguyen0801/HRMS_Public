@@ -44,5 +44,7 @@ namespace HNOne.API.Repositories.Interfaces
         Task<ResponseModel> UpdateSalaryParameter(SalaryParameters entity);
         Task<ResponseModel> UpdateTaxRate(string actionType, TaxRates entity);
         Task<IEnumerable<TaxRateModel>> GetTaxRate(RequestModel request);
+        Task<ResponseModel> UpdateDeductionConfig(string actionType, DeductionConfigs entity);
+        Task<IEnumerable<DeductionConfigModel>> GetDeductionConfig(RequestModel request);
     }
 }

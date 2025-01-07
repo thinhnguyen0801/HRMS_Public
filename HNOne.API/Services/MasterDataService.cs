@@ -99,6 +99,9 @@ namespace HNOne.API.Services
         
         public async Task<IEnumerable<TaxRateModel>> GetTaxRate(RequestModel request)
             => await _masterRepository.GetTaxRate(request);
+
+        public async Task<IEnumerable<DeductionConfigModel>> GetDeductionConfig(RequestModel request)
+            => await _masterRepository.GetDeductionConfig(request);
         #endregion
 
         #region Command
@@ -422,6 +425,15 @@ namespace HNOne.API.Services
         /// <returns></returns>
         public async Task<ResponseModel> UpdateTaxRate(string actionType, TaxRates entity)
            => await _masterRepository.UpdateTaxRate(actionType, entity);
+
+        /// <summary>
+        /// cập nhật thông tin danh mục tính thuế
+        /// </summary>
+        /// <param name="actionType"></param>
+        /// <param name="entity"></param>
+        /// <returns></returns>
+        public async Task<ResponseModel> UpdateDeductionConfig(string actionType, DeductionConfigs entity)
+           => await _masterRepository.UpdateDeductionConfig(actionType, entity);
         #endregion
     }
 }

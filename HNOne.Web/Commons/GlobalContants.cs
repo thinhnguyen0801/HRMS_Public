@@ -6,8 +6,8 @@
         public static int PageSize = 50;
         public const string FORMAT_GRID_DISPLAYTEXT_COUNT = "Số dòng: {0}";
         public const string FORMAT_GRID_DISPLAYTEXT_SUM = "Tổng: {0}";
-        public const string FORMAT_NUMBER = "#,###0.##";//
-        public const string FORMAT_CURRENCY = "###,###,###,##0.##";//
+        public const string FORMAT_NUMBER = "#,###0.###";//
+        public const string FORMAT_CURRENCY = "###,###,###,##0.###";//
         public const string FORMAT_DATE = "dd/MM/yyyy";
         public const string FORMAT_MONTH = "MM/yyyy";
         public const string FORMAT_TIME = "HH:mm";

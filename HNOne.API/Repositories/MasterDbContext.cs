@@ -52,6 +52,7 @@ namespace HNOne.API.Repositories
         public DbSet<Training1s> Training1s { get; set; }
         public DbSet<SalaryParameters> SalaryParameters { get; set; }
         public DbSet<TaxRates> TaxRates { get; set; }
+        public DbSet<DeductionConfigs> DeductionConfigs { get; set; }
 
         public MasterDbContext(DbContextOptions<MasterDbContext> options)
             : base(options)
