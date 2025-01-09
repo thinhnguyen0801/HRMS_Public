@@ -9,6 +9,7 @@ using Microsoft.AspNetCore.Components;
 using System.Data;
 using HNOne.Web.Components.Controls;
 using Newtonsoft.Json;
+using HNOne.Web.Services;
 
 namespace HNOne.Web.Controllers
 {
@@ -291,6 +292,110 @@ namespace HNOne.Web.Controllers
             {
                 ShowError(ex.Message);
                 _logger.LogError(ex, "SaveDataHandler");
+            }
+            finally
+            {
+                await ShowLoading(false);
+                await InvokeAsync(StateHasChanged);
+            }
+        }
+
+        /// <summary>
+        /// Chốt lương nhân viên
+        /// </summary>
+        /// <returns></returns>
+        protected async Task LockPayrollEmployeeHandler()
+        {
+            try
+            {
+                //await checkPermission(MenuId);
+                //if (!IsAllowPut)
+                //{
+                //    ShowInfo(MessageConstants.MESSAGE_NO_PERMISSION);
+                //    return;
+                //}
+                if (SelectedItems.IsNullOrEmpty())
+                {
+                    ShowWarning(MessageConstants.MESSAGE_NO_CHOSE_DATA);
+                    return;
+                }
+                string errorMessage = string.Empty;
+                string fieldName = string.Empty; // trả ra trường nào cần validate
+                bool isConfirm = true;
+                errorMessage = $"Bạn có chắc muốn chốt kỳ lương tháng {SearchUpdate.month} năm {SearchUpdate.year} của nhân viên đang chọn không?";
+                await Task.Yield();
+                isConfirm = await confirm.SetConfirm(MessageConstants.MESSAGE_TITLE, errorMessage);
+                if (!isConfirm) return;
+                await ShowLoading();
+                RequestModel request = new RequestModel();
+                request.process = ProcessConstants.POST_PAYROLL_SALARY;
+                request.userId = UserId;
+                request.branchId = BranchId;
+                request.token = Token;
+                request.json = JsonConvert.SerializeObject(SelectedItems);
+                request.type = "L";
+                isConfirm = await _salaryService.UpdateMasterDataAsync(request);
+                if (isConfirm)
+                {
+                    await getMonthlySalaryList();
+                }
+            }
+            catch (Exception ex)
+            {
+                _logger!.LogError(ex, "LockPayrollEmployeeHandler");
+                ShowError(ex.Message);
+            }
+            finally
+            {
+                await ShowLoading(false);
+                await InvokeAsync(StateHasChanged);
+            }
+        }
+
+        /// <summary>
+        /// Chốt lương nhân viên
+        /// </summary>
+        /// <returns></returns>
+        protected async Task LockPayrollBranchHandler()
+        {
+            try
+            {
+                //await checkPermission(MenuId);
+                //if (!IsAllowPut)
+                //{
+                //    ShowInfo(MessageConstants.MESSAGE_NO_PERMISSION);
+                //    return;
+                //}
+                if (SelectedItems.IsNullOrEmpty())
+                {
+                    ShowWarning(MessageConstants.MESSAGE_NO_CHOSE_DATA);
+                    return;
+                }
+                string errorMessage = string.Empty;
+                string fieldName = string.Empty; // trả ra trường nào cần validate
+                bool isConfirm = true;
+                errorMessage = $"Bạn có chắc muốn chốt kỳ lương tháng {SearchUpdate.month} năm {SearchUpdate.year} của chi nhánh?";
+                await Task.Yield();
+                isConfirm = await confirm.SetConfirm(MessageConstants.MESSAGE_TITLE, errorMessage);
+                if (!isConfirm) return;
+                await ShowLoading();
+                RequestModel request = new RequestModel();
+                request.process = ProcessConstants.POST_PAYROLL_SALARY;
+                request.userId = UserId;
+                request.branchId = BranchId;
+                request.token = Token;
+                request.json = JsonConvert.SerializeObject(SelectedItems);
+                //request.type = "L";
+                //isConfirm = await _salaryService.UpdateMasterDataAsync(request);
+                //if (isConfirm)
+                //{
+                //    await getMonthlySalaryList();
+                //}
+            }
+            catch (Exception ex)
+            {
+                _logger!.LogError(ex, "LockPayrollEmployeeHandler");
+                ShowError(ex.Message);
             }
             finally
             {

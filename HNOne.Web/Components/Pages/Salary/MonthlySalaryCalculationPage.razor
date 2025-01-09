@@ -123,10 +123,10 @@
                                            Alignment="@ToolbarItemAlignment.Right" Click="@SaveDataHandler" />
 
                             <DxToolbarItem Text="Chốt lương" BeginGroup="true" IconCssClass="@($"{IconClassConstants.ICON_TABLE_LOCK}")" CssClass="w1FontSize"
-                                           Alignment="@ToolbarItemAlignment.Right" />
+                                           Alignment="@ToolbarItemAlignment.Right" Click="@LockPayrollEmployeeHandler" />
 
                             <DxToolbarItem Text="Chốt lương chi nhánh" BeginGroup="true" IconCssClass="@($"{IconClassConstants.ICON_TABLE_LOCK}")" CssClass="w1FontSize"
-                                           Alignment="@ToolbarItemAlignment.Right" />
+                                           Alignment="@ToolbarItemAlignment.Right" Click="@LockPayrollBranchHandler" />
 
                             <DxToolbarItem Text="Kết xuất" BeginGroup="true" IconCssClass="@($"{IconClassConstants.ICON_EXPORT_EXCEL}")" CssClass="w1FontSize"
                                            Alignment="@ToolbarItemAlignment.Right" Click="@(()=> ExportExcelHandler())" />
