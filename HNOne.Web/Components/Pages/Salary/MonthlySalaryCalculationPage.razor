@@ -129,10 +129,10 @@
                 </div>
                 <div class="card-header p-0 border-bottom-0">
                     <DxTabs @bind-ActiveTabIndex="@ActiveTabIndex" Id="tabActive" CssClass="w-full w1FontSize">
-                        <DxTabPage Text="Bảng lương" Id="tabTTL" CssClass="w1FontSize"></DxTabPage>
-                        <DxTabPage Text="Trích nộp" Id="tabTTL" CssClass="w1FontSize"></DxTabPage>
-                        <DxTabPage Text="Thuế TNCN" Id="tabTTL" CssClass="w1FontSize"></DxTabPage>
-                        <DxTabPage Text="Tổng hợp lương" Id="tabTTL" CssClass="w1FontSize"></DxTabPage>
+                        <DxTabPage Text="Bảng lương" Id="tabBL" CssClass="w1FontSize"></DxTabPage>
+                        <DxTabPage Text="Trích nộp" Id="tabTN" CssClass="w1FontSize"></DxTabPage>
+                        <DxTabPage Text="Thuế thu nhập cá nhân" Id="tabTTNCN" CssClass="w1FontSize"></DxTabPage>
+                        <DxTabPage Text="Tổng hợp lương" Id="tabTHL" CssClass="w1FontSize"></DxTabPage>
                     </DxTabs>
                 </div>
                 <div class="card-body p-1" style="height: calc(100vh - 190px); min-height: 450px">
@@ -242,17 +242,188 @@
                                     <DxGridSelectionColumn Width="45px" FixedPosition="@GridColumnFixedPosition.Left" />
                                     <DxGridDataColumn FieldName="@nameof(PayrollModel.employeeCode)" Caption="Mã nhân viên" Width="110px" MinWidth="100" FixedPosition="@GridColumnFixedPosition.Left" />
                                     <DxGridDataColumn FieldName="@nameof(PayrollModel.employeeName)" Caption="Họ tên" Width="135px" MinWidth="100" FixedPosition="@GridColumnFixedPosition.Left" />
-                                    <DxGridDataColumn FieldName="@nameof(PayrollModel.titleName)" Caption="Chức danh" Width="125px" MinWidth="100" />
-                                    <DxGridDataColumn FieldName="@nameof(PayrollModel.shiftCode)" Caption="Ca làm việc" Width="90px" MinWidth="70" />
                                     <DxGridDataColumn FieldName="@nameof(PayrollModel.isLocked)" Caption="Đã chốt?" Width="90px" MinWidth="70" />
-                                    <DxGridDataColumn FieldName="@nameof(PayrollModel.month)" Caption="Tháng" MinWidth="70" DisplayFormat="D" />
-                                    <DxGridDataColumn FieldName="@nameof(PayrollModel.year)" Caption="Năm" MinWidth="70" DisplayFormat="D" />
-                                    <DxGridDataColumn FieldName="@nameof(PayrollModel.lCB)" Caption="Lương cơ bản" MinWidth="110" DisplayFormat="@GlobalContants.FORMAT_CURRENCY" />
-                                    <DxGridDataColumn FieldName="@nameof(PayrollModel.lQD)" Caption="Lương quyết định" MinWidth="120" DisplayFormat="@GlobalContants.FORMAT_CURRENCY" />
-                                    <DxGridDataColumn FieldName="@nameof(PayrollModel.salaryCoefficient)" Caption="Hệ số lương" MinWidth="120" DisplayFormat="@GlobalContants.FORMAT_CURRENCY" />
-                                    <DxGridDataColumn FieldName="@nameof(PayrollModel.tL)" Caption="Tổng lương" MinWidth="120" DisplayFormat="@GlobalContants.FORMAT_CURRENCY" />
+                                    <DxGridDataColumn FieldName="@nameof(PayrollModel.month)" Caption="Tháng" MinWidth="70" DisplayFormat="d" />
+                                    <DxGridDataColumn FieldName="@nameof(PayrollModel.year)" Caption="Năm" MinWidth="70" DisplayFormat="d" />
+                                    <DxGridDataColumn FieldName="@nameof(PayrollModel.isCompanyInsurance)" Caption="Công ty đóng thay?" Width="90px" MinWidth="80" CaptionAlignment="@GridTextAlignment.Center">
+                                        <HeaderCaptionTemplate>
+                                            <div>Công ty</div>
+                                            <div>đóng thay?</div>
+                                        </HeaderCaptionTemplate>
+                                    </DxGridDataColumn>
+                                    <DxGridDataColumn FieldName="@nameof(PayrollModel.totalDeduction)" Caption="Tổng cộng" MinWidth="110" DisplayFormat="@GlobalContants.FORMAT_CURRENCY" />
+                                    <DxGridDataColumn FieldName="@nameof(PayrollModel.totalDeductionEnterprise)" Caption="Tổng trích nộp công ty" MinWidth="120"
+                                        CaptionAlignment="@GridTextAlignment.Center" DisplayFormat="@GlobalContants.FORMAT_CURRENCY">
+                                        <HeaderCaptionTemplate>
+                                            <div>Tổng trích nộp</div>
+                                            <div>Công ty <span style="color: red;">&nbsp;(*)</span></div>
+                                        </HeaderCaptionTemplate>
+                                    </DxGridDataColumn>
+                                    <DxGridDataColumn FieldName="@nameof(PayrollModel.totalDeductionEmployee)" Caption="Tổng trích nộp nhân viên" MinWidth="120"                                      
+                                        CaptionAlignment="@GridTextAlignment.Center" DisplayFormat="@GlobalContants.FORMAT_CURRENCY" >
+                                        <HeaderCaptionTemplate>
+                                            <div>Tổng trích nộp</div>
+                                            <div>Nhân viên <span style="color: red;">&nbsp;(*)</span></div>
+                                        </HeaderCaptionTemplate>
+                                    </DxGridDataColumn>
 
+                                    <DxGridDataColumn FieldName="@nameof(PayrollModel.contributionSalarySI)" Caption="Mức đóng bảo hiểm" MinWidth="130"
+                                        CaptionAlignment="@GridTextAlignment.Center" DisplayFormat="@GlobalContants.FORMAT_CURRENCY">
+                                        <HeaderCaptionTemplate>
+                                            <div>Bảo hiểm xã hội</div>
+                                            <div>Mức đóng</div>
+                                        </HeaderCaptionTemplate>
+                                    </DxGridDataColumn>
+                                    <DxGridDataColumn FieldName="@nameof(PayrollModel.deductionEnterpriseSI)" Caption="Trích nộp công ty" MinWidth="130"
+                                        CaptionAlignment="@GridTextAlignment.Center" DisplayFormat="@GlobalContants.FORMAT_CURRENCY">
+                                        <HeaderCaptionTemplate>
+                                            <div>Bảo hiểm xã hội</div>
+                                            <div>Trích nộp công ty</div>
+                                        </HeaderCaptionTemplate>
+                                    </DxGridDataColumn>
+                                    <DxGridDataColumn FieldName="@nameof(PayrollModel.deductionEmployeeSI)" Caption="Trích nộp nhân viên" MinWidth="130" 
+                                        CaptionAlignment="@GridTextAlignment.Center" DisplayFormat="@GlobalContants.FORMAT_CURRENCY">
+                                        <HeaderCaptionTemplate>
+                                            <div>Bảo hiểm xã hội</div>
+                                            <div>Trích nộp nhân viên</div>
+                                        </HeaderCaptionTemplate>
+                                    </DxGridDataColumn>
+
+                                    <DxGridDataColumn FieldName="@nameof(PayrollModel.contributionSalaryHI)" Caption="Mức đóng bảo hiểm" MinWidth="130"
+                                        CaptionAlignment="@GridTextAlignment.Center" DisplayFormat="@GlobalContants.FORMAT_CURRENCY">
+                                        <HeaderCaptionTemplate>
+                                            <div>Bảo hiểm y tế</div>
+                                            <div>Mức đóng</div>
+                                        </HeaderCaptionTemplate>
+                                    </DxGridDataColumn>
+                                    <DxGridDataColumn FieldName="@nameof(PayrollModel.deductionEnterpriseHI)" Caption="Trích nộp công ty" MinWidth="130"
+                                        CaptionAlignment="@GridTextAlignment.Center" DisplayFormat="@GlobalContants.FORMAT_CURRENCY">
+                                        <HeaderCaptionTemplate>
+                                            <div>Bảo hiểm y tế</div>
+                                            <div>Trích nộp công ty</div>
+                                        </HeaderCaptionTemplate>
+                                    </DxGridDataColumn>
+                                    <DxGridDataColumn FieldName="@nameof(PayrollModel.deductionEmployeeHI)" Caption="Trích nộp nhân viên" MinWidth="130" 
+                                        CaptionAlignment="@GridTextAlignment.Center" DisplayFormat="@GlobalContants.FORMAT_CURRENCY">
+                                        <HeaderCaptionTemplate>
+                                            <div>Bảo hiểm y tế</div>
+                                            <div>Trích nộp nhân viên</div>
+                                        </HeaderCaptionTemplate>
+                                    </DxGridDataColumn>
+
+                                    <DxGridDataColumn FieldName="@nameof(PayrollModel.contributionSalaryUI)" Caption="Mức đóng bảo hiểm" MinWidth="140"
+                                        CaptionAlignment="@GridTextAlignment.Center" DisplayFormat="@GlobalContants.FORMAT_CURRENCY">
+                                        <HeaderCaptionTemplate>
+                                            <div>Bảo hiểm thất nghiệp</div>
+                                            <div>Mức đóng</div>
+                                        </HeaderCaptionTemplate>
+                                    </DxGridDataColumn>
+                                    <DxGridDataColumn FieldName="@nameof(PayrollModel.deductionEnterpriseUI)" Caption="Trích nộp công ty" MinWidth="140"
+                                        CaptionAlignment="@GridTextAlignment.Center" DisplayFormat="@GlobalContants.FORMAT_CURRENCY">
+                                        <HeaderCaptionTemplate>
+                                            <div>Bảo hiểm thất nghiệp</div>
+                                            <div>Trích nộp công ty</div>
+                                        </HeaderCaptionTemplate>
+                                    </DxGridDataColumn>
+                                    <DxGridDataColumn FieldName="@nameof(PayrollModel.deductionEmployeeUI)" Caption="Trích nộp nhân viên" MinWidth="140" 
+                                        CaptionAlignment="@GridTextAlignment.Center" DisplayFormat="@GlobalContants.FORMAT_CURRENCY">
+                                        <HeaderCaptionTemplate>
+                                            <div>Bảo hiểm thất nghiệp</div>
+                                            <div>Trích nộp nhân viên</div>
+                                        </HeaderCaptionTemplate>
+                                    </DxGridDataColumn>
+
+                                    <DxGridDataColumn FieldName="@nameof(PayrollModel.contributionSalaryAI)" Caption="Mức đóng bảo hiểm" MinWidth="130"
+                                        CaptionAlignment="@GridTextAlignment.Center" DisplayFormat="@GlobalContants.FORMAT_CURRENCY">
+                                        <HeaderCaptionTemplate>
+                                            <div>Bảo hiểm tai nạn</div>
+                                            <div>Mức đóng</div>
+                                        </HeaderCaptionTemplate>
+                                    </DxGridDataColumn>
+                                    <DxGridDataColumn FieldName="@nameof(PayrollModel.deductionEnterpriseAI)" Caption="Trích nộp công ty" MinWidth="130"
+                                        CaptionAlignment="@GridTextAlignment.Center" DisplayFormat="@GlobalContants.FORMAT_CURRENCY">
+                                        <HeaderCaptionTemplate>
+                                            <div>Bảo hiểm tai nạn</div>
+                                            <div>Trích nộp công ty</div>
+                                        </HeaderCaptionTemplate>
+                                    </DxGridDataColumn>
+                                    <DxGridDataColumn FieldName="@nameof(PayrollModel.deductionEmployeeAI)" Caption="Trích nộp nhân viên" MinWidth="130" 
+                                        CaptionAlignment="@GridTextAlignment.Center" DisplayFormat="@GlobalContants.FORMAT_CURRENCY">
+                                        <HeaderCaptionTemplate>
+                                            <div>Bảo hiểm tai nạn</div>
+                                            <div>Trích nộp nhân viên</div>
+                                        </HeaderCaptionTemplate>
+                                    </DxGridDataColumn>
+
+                                    <DxGridDataColumn FieldName="@nameof(PayrollModel.unionFeeSalary)" Caption="Mức đóng công đoàn phí" MinWidth="130"
+                                        CaptionAlignment="@GridTextAlignment.Center" DisplayFormat="@GlobalContants.FORMAT_CURRENCY">
+                                        <HeaderCaptionTemplate>
+                                            <div>Công đoàn phí</div>
+                                            <div>Mức đóng</div>
+                                        </HeaderCaptionTemplate>
+                                    </DxGridDataColumn>
+                                    <DxGridDataColumn FieldName="@nameof(PayrollModel.deductionEnterpriseUF)" Caption="Trích nộp công ty" MinWidth="130"
+                                        CaptionAlignment="@GridTextAlignment.Center" DisplayFormat="@GlobalContants.FORMAT_CURRENCY">
+                                        <HeaderCaptionTemplate>
+                                            <div>Công đoàn phí</div>
+                                            <div>Trích nộp công ty</div>
+                                        </HeaderCaptionTemplate>
+                                    </DxGridDataColumn>
+                                    <DxGridDataColumn FieldName="@nameof(PayrollModel.deductionEmployeeUF)" Caption="Trích nộp nhân viên" MinWidth="130" 
+                                        CaptionAlignment="@GridTextAlignment.Center" DisplayFormat="@GlobalContants.FORMAT_CURRENCY">
+                                        <HeaderCaptionTemplate>
+                                            <div>Công đoàn phí</div>
+                                            <div>Trích nộp nhân viên</div>
+                                        </HeaderCaptionTemplate>
+                                    </DxGridDataColumn>
                                 </Columns>
+                                <TotalSummary>
+                                    <DxGridSummaryItem DisplayText="@GlobalContants.FORMAT_GRID_DISPLAYTEXT_SUM_PAYROLL" SummaryType="GridSummaryItemType.Sum"
+                                                       FieldName="@nameof(PayrollModel.totalDeduction)" ValueDisplayFormat="@GlobalContants.FORMAT_CURRENCY"
+                                                       FooterColumnName="@nameof(PayrollModel.totalDeduction)" />
+
+                                    <DxGridSummaryItem DisplayText="@GlobalContants.FORMAT_GRID_DISPLAYTEXT_SUM_PAYROLL" SummaryType="GridSummaryItemType.Sum"
+                                                       FieldName="@nameof(PayrollModel.totalDeductionEnterprise)" ValueDisplayFormat="@GlobalContants.FORMAT_CURRENCY"
+                                                       FooterColumnName="@nameof(PayrollModel.totalDeductionEnterprise)" />
+                                    <DxGridSummaryItem DisplayText="@GlobalContants.FORMAT_GRID_DISPLAYTEXT_SUM_PAYROLL" SummaryType="GridSummaryItemType.Sum"
+                                                       FieldName="@nameof(PayrollModel.totalDeductionEmployee)" ValueDisplayFormat="@GlobalContants.FORMAT_CURRENCY"
+                                                       FooterColumnName="@nameof(PayrollModel.totalDeductionEmployee)" />
+
+                                    <DxGridSummaryItem DisplayText="@GlobalContants.FORMAT_GRID_DISPLAYTEXT_SUM_PAYROLL" SummaryType="GridSummaryItemType.Sum"
+                                                       FieldName="@nameof(PayrollModel.deductionEnterpriseSI)" ValueDisplayFormat="@GlobalContants.FORMAT_CURRENCY"
+                                                       FooterColumnName="@nameof(PayrollModel.deductionEnterpriseSI)" />
+                                    <DxGridSummaryItem DisplayText="@GlobalContants.FORMAT_GRID_DISPLAYTEXT_SUM_PAYROLL" SummaryType="GridSummaryItemType.Sum"
+                                                       FieldName="@nameof(PayrollModel.deductionEmployeeSI)" ValueDisplayFormat="@GlobalContants.FORMAT_CURRENCY"
+                                                       FooterColumnName="@nameof(PayrollModel.deductionEmployeeSI)" />
+
+                                    <DxGridSummaryItem DisplayText="@GlobalContants.FORMAT_GRID_DISPLAYTEXT_SUM_PAYROLL" SummaryType="GridSummaryItemType.Sum"
+                                                       FieldName="@nameof(PayrollModel.deductionEnterpriseHI)" ValueDisplayFormat="@GlobalContants.FORMAT_CURRENCY"
+                                                       FooterColumnName="@nameof(PayrollModel.deductionEnterpriseHI)" />
+                                    <DxGridSummaryItem DisplayText="@GlobalContants.FORMAT_GRID_DISPLAYTEXT_SUM_PAYROLL" SummaryType="GridSummaryItemType.Sum"
+                                                       FieldName="@nameof(PayrollModel.deductionEmployeeHI)" ValueDisplayFormat="@GlobalContants.FORMAT_CURRENCY"
+                                                       FooterColumnName="@nameof(PayrollModel.deductionEmployeeHI)" />
+
+                                    <DxGridSummaryItem DisplayText="@GlobalContants.FORMAT_GRID_DISPLAYTEXT_SUM_PAYROLL" SummaryType="GridSummaryItemType.Sum"
+                                                       FieldName="@nameof(PayrollModel.deductionEnterpriseUI)" ValueDisplayFormat="@GlobalContants.FORMAT_CURRENCY"
+                                                       FooterColumnName="@nameof(PayrollModel.deductionEnterpriseUI)" />
+                                    <DxGridSummaryItem DisplayText="@GlobalContants.FORMAT_GRID_DISPLAYTEXT_SUM_PAYROLL" SummaryType="GridSummaryItemType.Sum"
+                                                       FieldName="@nameof(PayrollModel.deductionEmployeeUI)" ValueDisplayFormat="@GlobalContants.FORMAT_CURRENCY"
+                                                       FooterColumnName="@nameof(PayrollModel.deductionEmployeeUI)" />
+
+                                    <DxGridSummaryItem DisplayText="@GlobalContants.FORMAT_GRID_DISPLAYTEXT_SUM_PAYROLL" SummaryType="GridSummaryItemType.Sum"
+                                                       FieldName="@nameof(PayrollModel.deductionEnterpriseAI)" ValueDisplayFormat="@GlobalContants.FORMAT_CURRENCY"
+                                                       FooterColumnName="@nameof(PayrollModel.deductionEnterpriseAI)" />
+                                    <DxGridSummaryItem DisplayText="@GlobalContants.FORMAT_GRID_DISPLAYTEXT_SUM_PAYROLL" SummaryType="GridSummaryItemType.Sum"
+                                                       FieldName="@nameof(PayrollModel.deductionEmployeeAI)" ValueDisplayFormat="@GlobalContants.FORMAT_CURRENCY"
+                                                       FooterColumnName="@nameof(PayrollModel.deductionEmployeeAI)" />
+
+                                    <DxGridSummaryItem DisplayText="@GlobalContants.FORMAT_GRID_DISPLAYTEXT_SUM_PAYROLL" SummaryType="GridSummaryItemType.Sum"
+                                                       FieldName="@nameof(PayrollModel.deductionEnterpriseUF)" ValueDisplayFormat="@GlobalContants.FORMAT_CURRENCY"
+                                                       FooterColumnName="@nameof(PayrollModel.deductionEnterpriseUF)" />
+                                    <DxGridSummaryItem DisplayText="@GlobalContants.FORMAT_GRID_DISPLAYTEXT_SUM_PAYROLL" SummaryType="GridSummaryItemType.Sum"
+                                                       FieldName="@nameof(PayrollModel.deductionEmployeeUF)" ValueDisplayFormat="@GlobalContants.FORMAT_CURRENCY"
+                                                       FooterColumnName="@nameof(PayrollModel.deductionEmployeeUF)" />
+                                </TotalSummary>
                             </DxGrid>
                             break;
                         case 2:
@@ -283,25 +454,101 @@
                                     <DxGridDataColumn FieldName="@nameof(PayrollModel.month)" Caption="Tháng" MinWidth="70" DisplayFormat="d" />
                                     <DxGridDataColumn FieldName="@nameof(PayrollModel.year)" Caption="Năm" MinWidth="70" DisplayFormat="d" />
                                     <DxGridDataColumn FieldName="@nameof(PayrollModel.taxTypeName)" Caption="Loại tính thuế" MinWidth="120" />
+                                    <DxGridDataColumn FieldName="@nameof(PayrollModel.isCompanyDeduction)" Caption="Công ty đóng thay?" Width="90px" MinWidth="80" CaptionAlignment="@GridTextAlignment.Center">
+                                        <HeaderCaptionTemplate>
+                                            <div>Công ty</div>
+                                            <div>Đóng thay?</div>
+                                        </HeaderCaptionTemplate>
+                                    </DxGridDataColumn>
+                                    <DxGridDataColumn FieldName="@nameof(PayrollModel.totalSalaryGross)" Caption="Lương trước thuế" MinWidth="120" 
+                                        CaptionAlignment="@GridTextAlignment.Center" DisplayFormat="@GlobalContants.FORMAT_CURRENCY">
+                                        <HeaderCaptionTemplate>
+                                            <div>Tổng thu nhập</div>
+                                            <div>Trước thuế</div>
+                                        </HeaderCaptionTemplate>
+                                    </DxGridDataColumn>
 
-                                    <DxGridDataColumn FieldName="@nameof(PayrollModel.standardTax)" Caption="Giảm trừ bản thân" MinWidth="120" DisplayFormat="@GlobalContants.FORMAT_CURRENCY" />
-                                    <DxGridDataColumn FieldName="@nameof(PayrollModel.familyCircumstanceTaxDeduction)" Caption="Giảm trừ gia cảnh" MinWidth="120" DisplayFormat="@GlobalContants.FORMAT_CURRENCY" />
-                                    <DxGridDataColumn FieldName="@nameof(PayrollModel.numOfPeopleTaxFCTaxDeduction)" Caption="SL giảm trừ" MinWidth="100" DisplayFormat="d" />
-                                    <DxGridDataColumn FieldName="@nameof(PayrollModel.totalFCTaxDeduction)" Caption="Tổng tiền giảm trừ" MinWidth="120" DisplayFormat="@GlobalContants.FORMAT_CURRENCY" />
+                                    <DxGridDataColumn FieldName="@nameof(PayrollModel.taxAllowance)" Caption="Phụ cấp tính thuế" MinWidth="110" 
+                                        CaptionAlignment="@GridTextAlignment.Center" DisplayFormat="@GlobalContants.FORMAT_CURRENCY">
+                                        <HeaderCaptionTemplate>
+                                            <div>Phụ cấp</div>
+                                            <div>Tính thuế</div>
+                                        </HeaderCaptionTemplate>
+                                    </DxGridDataColumn>
+                                    <DxGridDataColumn FieldName="@nameof(PayrollModel.taxableIncome)" Caption="Lương tính thuế" MinWidth="130" 
+                                        CaptionAlignment="@GridTextAlignment.Center" DisplayFormat="@GlobalContants.FORMAT_CURRENCY">
+                                        <HeaderCaptionTemplate>
+                                            <div>Thu nhập tính thuế</div>
+                                            <div>Sau giảm trừ</div>
+                                        </HeaderCaptionTemplate>
+                                    </DxGridDataColumn>
+                                    <DxGridDataColumn FieldName="@nameof(PayrollModel.taxPayment)" Caption="Tổng thuế" MinWidth="130" 
+                                        CaptionAlignment="@GridTextAlignment.Center" DisplayFormat="@GlobalContants.FORMAT_CURRENCY">
+                                        <HeaderCaptionTemplate>
+                                            <div>Tổng tiền thuế</div>
+                                            <div>Phải đóng <span style="color: red;">&nbsp;(*)</span></div>
+                                        </HeaderCaptionTemplate>
+                                    </DxGridDataColumn>
 
-                                    <DxGridDataColumn FieldName="@nameof(PayrollModel.totalSalary)" Caption="Lương đóng thuế" MinWidth="120" DisplayFormat="@GlobalContants.FORMAT_CURRENCY" />
-                                    <DxGridDataColumn FieldName="@nameof(PayrollModel.taxableIncome)" Caption="Lương tính thuế" MinWidth="120" DisplayFormat="@GlobalContants.FORMAT_CURRENCY" />
+                                    <DxGridDataColumn FieldName="@nameof(PayrollModel.totalDeductionEmployee)" Caption="Tiền trích nộp" MinWidth="110" 
+                                        CaptionAlignment="@GridTextAlignment.Center" DisplayFormat="@GlobalContants.FORMAT_CURRENCY">
+                                        <HeaderCaptionTemplate>
+                                            <div>Tổng tiền</div>
+                                            <div>Trích nộp</div>
+                                        </HeaderCaptionTemplate>
+                                    </DxGridDataColumn>
+                                    <DxGridDataColumn FieldName="@nameof(PayrollModel.standardTax)" Caption="Giảm trừ bản thân" MinWidth="110" 
+                                        CaptionAlignment="@GridTextAlignment.Center" DisplayFormat="@GlobalContants.FORMAT_CURRENCY">
+                                        <HeaderCaptionTemplate>
+                                            <div>Giảm trừ</div>
+                                            <div>Bản thân</div>
+                                        </HeaderCaptionTemplate>
+                                    </DxGridDataColumn>
+                                    <DxGridDataColumn FieldName="@nameof(PayrollModel.familyCircumstanceTaxDeduction)" Caption="Giảm trừ gia cảnh" MinWidth="110" 
+                                        CaptionAlignment="@GridTextAlignment.Center" DisplayFormat="@GlobalContants.FORMAT_CURRENCY">
+                                        <HeaderCaptionTemplate>
+                                            <div>Giảm trừ</div>
+                                            <div>Gia cảnh</div>
+                                        </HeaderCaptionTemplate>
+                                    </DxGridDataColumn>
+                                    <DxGridDataColumn FieldName="@nameof(PayrollModel.numOfPeopleTaxFCTaxDeduction)" Caption="SL giảm trừ" MinWidth="90" 
+                                        CaptionAlignment="@GridTextAlignment.Center" DisplayFormat="d">
+                                        <HeaderCaptionTemplate>
+                                            <div>Số lượng</div>
+                                            <div>Giảm trừ</div>
+                                        </HeaderCaptionTemplate>
+                                    </DxGridDataColumn>
+                                    <DxGridDataColumn FieldName="@nameof(PayrollModel.totalFCTaxDeduction)" Caption="Tổng tiền giảm trừ" MinWidth="110" 
+                                        CaptionAlignment="@GridTextAlignment.Center" DisplayFormat="@GlobalContants.FORMAT_CURRENCY">
+                                        <HeaderCaptionTemplate>
+                                            <div>Tổng tiền</div>
+                                            <div>Giảm trừ</div>
+                                        </HeaderCaptionTemplate>
+                                    </DxGridDataColumn>
                                     <DxGridDataColumn FieldName="@nameof(PayrollModel.taxRate)" Caption="Thuế suất" MinWidth="70" DisplayFormat="@GlobalContants.FORMAT_CURRENCY" />
-                                    <DxGridDataColumn FieldName="@nameof(PayrollModel.taxPaymentGross)" Caption="Tiền thuế (G)" MinWidth="120" DisplayFormat="@GlobalContants.FORMAT_CURRENCY" />
-                                    <DxGridDataColumn FieldName="@nameof(PayrollModel.taxPaymentNet)" Caption="Tiền thuế (N)" MinWidth="120" DisplayFormat="@GlobalContants.FORMAT_CURRENCY" />
-
-                                    <DxGridDataColumn FieldName="@nameof(PayrollModel.isCompanyDeduction)" Caption="Công ty đóng?" Width="100px" MinWidth="70" />
                                     <DxGridDataColumn FieldName="@nameof(PayrollModel.taxBracket)" Caption="Bậc thuế" MinWidth="100" DisplayFormat="d" />
                                     <DxGridDataColumn FieldName="@nameof(PayrollModel.minTaxSalary)" Caption="Khung lương từ" MinWidth="120" DisplayFormat="@GlobalContants.FORMAT_CURRENCY" />
                                     <DxGridDataColumn FieldName="@nameof(PayrollModel.maxTaxSalary)" Caption="Khung lương đến" MinWidth="120" DisplayFormat="@GlobalContants.FORMAT_CURRENCY" />
                                     <DxGridDataColumn FieldName="@nameof(PayrollModel.progressiveAmount)" Caption="Tiền lũy tiến" MinWidth="120" DisplayFormat="@GlobalContants.FORMAT_CURRENCY" />
                                     
                                 </Columns>
+                                <TotalSummary>
+                                    <DxGridSummaryItem DisplayText="@GlobalContants.FORMAT_GRID_DISPLAYTEXT_SUM_PAYROLL" SummaryType="GridSummaryItemType.Sum"
+                                                       FieldName="@nameof(PayrollModel.taxAllowance)" ValueDisplayFormat="@GlobalContants.FORMAT_CURRENCY"
+                                                       FooterColumnName="@nameof(PayrollModel.taxAllowance)" />
+
+                                    <DxGridSummaryItem DisplayText="@GlobalContants.FORMAT_GRID_DISPLAYTEXT_SUM_PAYROLL" SummaryType="GridSummaryItemType.Sum"
+                                                       FieldName="@nameof(PayrollModel.taxPayment)" ValueDisplayFormat="@GlobalContants.FORMAT_CURRENCY"
+                                                       FooterColumnName="@nameof(PayrollModel.taxPayment)" />
+
+                                    <DxGridSummaryItem DisplayText="@GlobalContants.FORMAT_GRID_DISPLAYTEXT_SUM_PAYROLL" SummaryType="GridSummaryItemType.Sum"
+                                                       FieldName="@nameof(PayrollModel.totalDeductionEmployee)" ValueDisplayFormat="@GlobalContants.FORMAT_CURRENCY"
+                                                       FooterColumnName="@nameof(PayrollModel.totalDeductionEmployee)" />
+
+                                    <DxGridSummaryItem DisplayText="@GlobalContants.FORMAT_GRID_DISPLAYTEXT_SUM_PAYROLL" SummaryType="GridSummaryItemType.Sum"
+                                                       FieldName="@nameof(PayrollModel.totalFCTaxDeduction)" ValueDisplayFormat="@GlobalContants.FORMAT_CURRENCY"
+                                                       FooterColumnName="@nameof(PayrollModel.totalFCTaxDeduction)" />
+                                </TotalSummary>
                             </DxGrid>
                             break;
                         case 3:

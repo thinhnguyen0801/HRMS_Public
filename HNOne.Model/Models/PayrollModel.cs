@@ -20,6 +20,23 @@ namespace HNOne.Model.Models
         public string? taxTypeName { get; set; } // loại tính thuế
         public int month { get; set; }
         public int year { get; set; }
+        public bool isLocked { get; set; }
+
+        #region Thông tin hợp đồng & lương
+        public int contractId { get; set; } // Id hợp đồng
+        public string? contractCode { get; set; }
+        public int contractTypeId { get; set; } // Loại hợp đồng
+        public string? contractTypeName { get; set; } // Loại hợp đồng
+        public bool isCompanyDeduction { get; set; } // cty đóng trích nộp thay
+        public bool isCompanyInsurance { get; set; } // cty đóng trích nộp thay
+        public decimal basicSalary { get; set; } // Lương cơ bản
+        public decimal negotiatedSalary { get; set; } // Lương thỏa thuận
+        public double salaryCoefficient { get; set; } // Hệ số lương
+        public decimal convertedNegotiatedSalary { get; set; } // Lương thỏa thuận đã quy đổi với hệ số lương
+        public decimal allowanceSalary { get; set; } // Lương phụ cấp
+        public decimal totalSalary { get; set; } // Tổng lương đã quy đổi
+        public decimal totalSalaryGross { get; set; } // Tổng lương trước thuế
+        #endregion
 
 
         #region Thuế thu nhập cá nhân
@@ -34,13 +51,39 @@ namespace HNOne.Model.Models
         public int numOfPeopleTaxFCTaxDeduction { get; set; } // số người giảm trừ
         public decimal totalFCTaxDeduction { get; set; } // tổng tiền giảm trừ gia cảnh
         public decimal taxableIncome { get; set; } // Thu nhập tính thuế
-        public decimal taxPaymentGross { get; set; } // Số tiền đóng thuế Gross
-        public decimal taxPaymentNet { get; set; } // Số tiền đóng thuế Gross
-        
+        public decimal taxAllowance { get; set; } // phụ cấp tính thuế
+        public decimal taxPayment { get; set; } // Số tiền đóng thuế
+
         #endregion
-        public decimal totalSalaryNotYet { get; set; } // Tổng lương chưa quy đổi
-        public decimal totalSalary { get; set; } // Tổng lương đã quy đổi
-        public double salaryCoefficient { get; set; } // Hệ số lương
+
+        #region Thông tin về trích nộp
+        public decimal contributionSalarySI { get; set; } // mức đóng BHXH
+        public decimal deductionEnterpriseSI { get; set; } // trích nộp bảo hiểm xã hội công ty (SI social insurance)
+        public decimal deductionEmployeeSI { get; set; } // trích nộp bảo hiểm xã hội nhân viên (SI social insurance)
+
+        public decimal contributionSalaryHI { get; set; } // mức đóng bảo hiểm y tế
+        public decimal deductionEnterpriseHI { get; set; } // trích nộp bảo hiểm y tế công ty (HI health insurance)
+        public decimal deductionEmployeeHI { get; set; } // trích nộp bảo hiểm y tế nhân viên (HI health insurance) 
+
+        public decimal contributionSalaryUI { get; set; } // mức đóng bảo hiểm thất nghiệp
+        public decimal deductionEnterpriseUI { get; set; } // trích nộp bảo hiểm thất nghiệp công ty (UI unemployment insurance)
+        public decimal deductionEmployeeUI { get; set; } // trích nộp bảo hiểm thất nghiệp nhân viên (UI unemployment insurance) 
+
+        public decimal contributionSalaryAI { get; set; } // mức đóng bảo hiểm tai nạn
+        public decimal deductionEnterpriseAI { get; set; } // trích nộp bảo hiểm tai nạn công ty (AI accident insurance)
+        public decimal deductionEmployeeAI { get; set; } // trích nộp bảo hiểm tai nạn nhân viên (AI accident insurance) 
+
+        public decimal totalDeductionEnterprise { get; set; } // tổng trích nộp công ty
+        public decimal totalDeductionEmployee { get; set; } // tổng trích nộp công ty
+        public decimal totalDeduction { get; set; } // tổng trích nộp
+
+        public decimal unionFeeSalary { get; set; } // lương đóng phí công đoàn
+        public decimal deductionEnterpriseUF { get; set; } // trích nộp công ty Phí công đoàn (UF Union fees)
+        public decimal deductionEmployeeUF { get; set; } // trích nộp nhân viên Phí công đoàn (UF Union fees) 
+        #endregion
+
+        
+
         public decimal netSalary { get; set; } // lương đã chịu thuế
 
         public decimal lCB { get; set; } // lương cơ bản
@@ -75,9 +118,7 @@ namespace HNOne.Model.Models
         public decimal bhxh { get; set; } // lương đóng thuế
         public decimal bhyt { get; set; } // lương đóng thuế
         public decimal bhtn { get; set; } // lương đóng thuế
-        public bool isLocked { get; set; }
-        public bool isCompanyDeduction { get; set; }
-        public bool isCompanyInsurance { get; set; }
+        
         public decimal lNet { get; set; } // lương đóng thuế
     }
 }
