@@ -210,7 +210,7 @@ namespace HNOne.API.Repositories
                         if (trainingRequest == null)
                         {
                             response.status = StatusCodes.Status404NotFound;
-                            response.message = string.Format(MessageConstants.MESSAGE_NOT_FOUNT_FORMAT, "Đề nghị tăng ca");
+                            response.message = string.Format(MessageConstants.MESSAGE_NOT_FOUNT_FORMAT, "Yêu cầu đào tạo");
                             return response;
                         }
                         await _dbContext.Database.BeginTransactionAsync();
@@ -220,6 +220,22 @@ namespace HNOne.API.Repositories
                         trainingRequest.DateTracking = dateTimeNow;
                         _dbContext.Trainings.Attach(trainingRequest);
                         _dbContext.Entry(trainingRequest).State = EntityState.Modified;
+                        break;
+                    case GlobalConstants.TABLE_CONFIRM_WORKING_DAY:
+                        var confirmWorkingDayRequest = await _dbContext.ConfirmWorkingDays.FirstOrDefaultAsync(m => m.Id == entity.DocEntry);
+                        if (confirmWorkingDayRequest == null)
+                        {
+                            response.status = StatusCodes.Status404NotFound;
+                            response.message = string.Format(MessageConstants.MESSAGE_NOT_FOUNT_FORMAT, "Xác nhận giờ công");
+                            return response;
+                        }
+                        await _dbContext.Database.BeginTransactionAsync();
+                        isTran = true;
+                        voucherNo = confirmWorkingDayRequest.VoucherNo;
+                        confirmWorkingDayRequest.StatusCode = CommonConstants.STATUS_CODE_APPROVAL_PENDING; // ĐÃ GỬI YÊU CẦU PHÊ DUYỆT
+                        confirmWorkingDayRequest.DateTracking = dateTimeNow;
+                        _dbContext.ConfirmWorkingDays.Attach(confirmWorkingDayRequest);
+                        _dbContext.Entry(confirmWorkingDayRequest).State = EntityState.Modified;
                         break;
                     default:
                         response.status = StatusCodes.Status404NotFound;
@@ -381,7 +397,7 @@ namespace HNOne.API.Repositories
                             if (trainingRequest == null)
                             {
                                 response.status = StatusCodes.Status404NotFound;
-                                response.message = string.Format(MessageConstants.MESSAGE_NOT_FOUNT_FORMAT, "Đề nghị tăng ca");
+                                response.message = string.Format(MessageConstants.MESSAGE_NOT_FOUNT_FORMAT, "Yêu cầu đào tạo");
                                 return response;
                             }
                             voucherNo = trainingRequest.VoucherNo;
@@ -391,6 +407,23 @@ namespace HNOne.API.Repositories
                             trainingRequest.DateTracking = dateTimeNow; // cập nhật ngày tracking
                             _dbContext.Trainings.Attach(trainingRequest);
                             _dbContext.Entry(trainingRequest).State = EntityState.Modified;
+                            break;
+                        case GlobalConstants.TABLE_CONFIRM_WORKING_DAY:
+                            var confirmWorkingDayRequest = await _dbContext.ConfirmWorkingDays.FirstOrDefaultAsync(m => m.Id == entity.DocEntry);
+                            if (confirmWorkingDayRequest == null)
+                            {
+                                response.status = StatusCodes.Status404NotFound;
+                                response.message = string.Format(MessageConstants.MESSAGE_NOT_FOUNT_FORMAT, "Đề nghị nghỉ phép");
+                                await _dbContext.Database.RollbackTransactionAsync(); // nếu không tìm thấy thì rollback hết
+                                return response;
+                            }
+                            voucherNo = confirmWorkingDayRequest.VoucherNo;
+                            employeeId = confirmWorkingDayRequest.EmployeeId;
+                            confirmWorkingDayRequest.StatusCode = entity.StatusCode; // tình trạng chứng từ "D": Đã duyệt, "T": từ chối, "C": đã hủy
+                            confirmWorkingDayRequest.DateOfSigning = dateTimeNow; // cập nhật ngày ký
+                            confirmWorkingDayRequest.DateTracking = dateTimeNow; // cập nhật ngày tracking
+                            _dbContext.ConfirmWorkingDays.Attach(confirmWorkingDayRequest);
+                            _dbContext.Entry(confirmWorkingDayRequest).State = EntityState.Modified;
                             break;
                         default:
                             response.status = StatusCodes.Status404NotFound;

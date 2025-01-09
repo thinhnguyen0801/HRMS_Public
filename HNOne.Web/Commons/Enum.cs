@@ -43,6 +43,7 @@
         ShiftChanges, // xin nghỉ trong giờ
         OvertimeRequests, // đề nghị tăng ca
         Trainings,
+        ConfirmWorkingDays, // xin nghỉ trong giờ
 
         // danh mục bảng
         Branchs,

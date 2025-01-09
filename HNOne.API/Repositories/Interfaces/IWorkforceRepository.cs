@@ -33,5 +33,9 @@ namespace HNOne.API.Repositories.Interfaces
         Task<ResponseModel> UpdateWorkConfig(WorkConfigs entity);
         Task<IEnumerable<ShiftAssignmentModel>> GetWorkCalculate(RequestModel request);
         Task<ResponseModel> UpdateAttendanceSummary(bool isLocked, int userId, IEnumerable<AttendanceSummarys> lstEntity);
+        Task<IEnumerable<ShiftAssignmentModel>> GetWorkingDayMissingHours(RequestModel request);
+        Task<ResponseModel> AddConfirmWorkingDay(ConfirmWorkingDays entity, IEnumerable<ConfirmWorkingDay1s> lstEntity1);
+        Task<ResponseModel> UpdateConfirmWorkingDay(ConfirmWorkingDays entity, IEnumerable<ConfirmWorkingDay1s> lstEntity1);
+        Task<IEnumerable<ConfirmWorkingDayModel>> GetConfirmWorkingDay(RequestModel request);
     }
 }

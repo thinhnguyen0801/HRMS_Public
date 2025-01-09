@@ -76,6 +76,12 @@ namespace HNOne.API.Controllers
                     case ProcessConstants.GET_WORK_CALCULATE:
                         response.data = await _workforceRepository.GetWorkCalculate(request);
                         break;
+                    case ProcessConstants.GET_WORKING_DAY_MISSING_HOURS:
+                        response.data = await _workforceRepository.GetWorkingDayMissingHours(request);
+                        break;
+                    case ProcessConstants.GET_CONFIRM_WORKING_HOUR_REQUEST:
+                        response.data = await _workforceRepository.GetConfirmWorkingDay(request);
+                        break;
                     default:
                         response.status = StatusCodes.Status404NotFound;
                         response.message = $"Process Key {processKey} was not provider!!!";
@@ -171,6 +177,16 @@ namespace HNOne.API.Controllers
                     case ProcessConstants.POST_ATTENDENCE_SUMMARY:
                         var lstAttendencePut = DeserializeJson<List<AttendanceSummarys>>($"{request.json}");
                         response = await _workforceRepository.UpdateAttendanceSummary(request.type == "L", request.userId, lstAttendencePut!);
+                        break;
+                    case ProcessConstants.POST_CONFIRM_WORKING_HOUR_REQUEST:
+                        var confirmWorkingHourPost = DeserializeJson<ConfirmWorkingDays>($"{request.json}");
+                        var lstconfirmWorkingHour1sPost = DeserializeJson<List<ConfirmWorkingDay1s>>($"{request.jsonDetail}");
+                        response = await _workforceRepository.AddConfirmWorkingDay(confirmWorkingHourPost!, lstconfirmWorkingHour1sPost!);
+                        break;
+                    case ProcessConstants.PUT_CONFIRM_WORKING_HOUR_REQUEST:
+                        var confirmWorkingHourPut = DeserializeJson<ConfirmWorkingDays>($"{request.json}");
+                        var lstconfirmWorkingHour1sPut = DeserializeJson<List<ConfirmWorkingDay1s>>($"{request.jsonDetail}");
+                        response = await _workforceRepository.UpdateConfirmWorkingDay(confirmWorkingHourPut!, lstconfirmWorkingHour1sPut!);
                         break;
                     default:
                         response.status = StatusCodes.Status404NotFound;
