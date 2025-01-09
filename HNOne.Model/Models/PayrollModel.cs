@@ -17,7 +17,6 @@ namespace HNOne.Model.Models
         public string? titleCode { get; set; } // chức danh
         public string? titleName { get; set; } //
         public string? shiftCode { get; set; } // ca làm việc mặc định của nhân viên
-        public string? taxTypeName { get; set; } // loại tính thuế
         public int month { get; set; }
         public int year { get; set; }
         public bool isLocked { get; set; }
@@ -34,12 +33,15 @@ namespace HNOne.Model.Models
         public double salaryCoefficient { get; set; } // Hệ số lương
         public decimal convertedNegotiatedSalary { get; set; } // Lương thỏa thuận đã quy đổi với hệ số lương
         public decimal allowanceSalary { get; set; } // Lương phụ cấp
-        public decimal totalSalary { get; set; } // Tổng lương đã quy đổi
         public decimal totalSalaryGross { get; set; } // Tổng lương trước thuế
+        public decimal totalSalaryNet { get; set; } // Tổng lương trước thuế
         #endregion
 
 
         #region Thuế thu nhập cá nhân
+        public int salaryParameterId { get; set; } // Id mức thuế
+        public string? taxTypeCode { get; set; } // loại tính thuế
+        public string? taxTypeName { get; set; } // tên loại tính thuế TNCN
         public int taxtRateId { get; set; } // Id mức thuế
         public int taxBracket { get; set; } // bậc thuế
         public decimal minTaxSalary { get; set; }
@@ -82,43 +84,34 @@ namespace HNOne.Model.Models
         public decimal deductionEmployeeUF { get; set; } // trích nộp nhân viên Phí công đoàn (UF Union fees) 
         #endregion
 
-        
-
-        public decimal netSalary { get; set; } // lương đã chịu thuế
-
-        public decimal lCB { get; set; } // lương cơ bản
-        public decimal lQD { get; set; } // lương quyết định
+        #region Thông tin về công
+        public int attendanceSummaryId { get; set; }
         public double tNC { get; set; } // tổng ngày công
         public double cDM { get; set; } // công định mức của tháng
         public double gCDM { get; set; } // giờ công định mức của tháng
         public double cTT { get; set; } // công thực tế
-        public double gCTT { get; set; } // giờ công thực tế
-        public decimal lCTT { get; set; } // lương công thực tế
         public double nPN { get; set; } // nghỉ phép năm
-        public decimal lCPN { get; set; } // Lương công phép năm
-        public double nCD { get; set; } // nghỉ chế độ
-        public decimal lCCD { get; set; } // lương công chế độ
-        public double cTPC { get; set; } // số công tính phụ cấp
-        public double sGT { get; set; } // số giờ thiếu
-        public decimal lCT { get; set; } // lương giờ thiếu
-        public decimal lPC { get; set; } // lương phụ cấp
-        
         public double nL { get; set; } // nghỉ lễ
-        public decimal lNL { get; set; } // lương nghỉ lễ
-
+        public double nCD { get; set; } // nghỉ chết độ
+        public double nPKL { get; set; } // nghỉ phép không lương
+        public double nB { get; set; } // nghỉ bù
+        public double nKP { get; set; } // nghỉ không phép
+        public double cTPC { get; set; } // số công tính phụ cấp
+        public double tGDLTVS { get; set; } // thời gian đi trễ về sớm
+        public double sLDLTVS { get; set; } // số lần đi trễ về sớm
+        public double sGT { get; set; } // số giờ thiếu
+        public double sGTC { get; set; } // số giờ trừ công
+        public double gCTC { get; set; } // giờ công của 1 ngày
         public double tGTC { get; set; } // số giờ tăng ca
         public double sGTCTC { get; set; } // số giờ tăng ca tiêu chuẩn
         public double sGTCTT { get; set; } // số giờ tăng ca của tháng trước
         public double sGTCKT { get; set; } // số giờ tăng ca được chuyển sang tháng tiếp theo
-        public decimal lTC { get; set; } // lương tăng ca
-        public decimal tL { get; set; } // tổng lương
-        public decimal lCTTNCN { get; set; } // tổng lương
-        public decimal lDTTNCN { get; set; } // lương đóng thuế
-        public decimal tNNCN { get; set; } // lương đóng thuế
-        public decimal bhxh { get; set; } // lương đóng thuế
-        public decimal bhyt { get; set; } // lương đóng thuế
-        public decimal bhtn { get; set; } // lương đóng thuế
-        
-        public decimal lNet { get; set; } // lương đóng thuế
+        public decimal overtimeSalary { get; set; } // lương số giờ tăng ca
+        public decimal actualSalary { get; set; } // lương công thực tế
+        public decimal annualLeaveSalary { get; set; } // lương nghỉ phép năm
+        public decimal regulatedSalary { get; set; } // lương nghỉ chế độ
+        public decimal holidaySalary { get; set; } // lương nghỉ lễ
+        #endregion
+
     }
 }

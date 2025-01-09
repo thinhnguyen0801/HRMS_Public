@@ -15,13 +15,18 @@ namespace HNOne.Web.Controllers
     public class MonthlySalaryCalculationController : DocumentControllerBase
     {
         [Inject] IMasterDataService _masterDataService { get; init; }
-        [Inject] IWorkforceService _workforceService { get; init; }
+        [Inject] ISalaryService _salaryService { get; init; }
         public W1Confirm confirm { get; set; }
+        const string STRING_KEY_EVENT_POST = "WORK_CALCULATION_CONTROLLER_POST";
+        const string STRING_KEY_EVENT_PUT = "LEAVE_REQUEST_CONTROLLER_PUT";
+        const string STRING_KEY_EVENT_PUT_ACCEPT = "WORK_CALCULATION_CONTROLLER_PUT_ACCEPT";
         #region Properties
         public int ActiveTabIndex { get; set; } = 0;
         public SearchModel SearchUpdate { get; set; } = new SearchModel();
         public List<PayrollModel>? ListSalary { get; set; }
         public IGrid? GridSalary { get; set; }
+        public IGrid? GridInsuranceSalary { get; set; }
+        public IGrid? GridTaxSalary { get; set; }
         public IReadOnlyList<object>? SelectedItems { get; set; } = null;
         public List<ComboboxModel>? ListCboYear { get; set; }
         public List<ComboboxModel>? ListCboMonth { get; set; }
@@ -38,6 +43,11 @@ namespace HNOne.Web.Controllers
         public int MaxDaysInMonth { get; set; } = 30; // max số ngày trong tháng
         public bool IsShowDetail { get; set; } // show popup chi tiết ngày công
         public string HeaderTextDetail = "";
+
+        // nút quyền
+        public bool IsAllowPost { get; set; }
+        public bool IsAllowPut { get; set; }
+        public bool IsAllowPutAccept { get; set; }
         #endregion
 
         protected override async Task OnAfterRenderAsync(bool firstRender)
@@ -126,8 +136,20 @@ namespace HNOne.Web.Controllers
             request.opt2 = ListDepartmentSelected.IsNullOrEmpty() ? "" : string.Join(",", ListDepartmentSelected!.Select(m => m.id));
             request.opt3 = "";
             request.opt4 = ListCboStatusSelected.IsNullOrEmpty() ? "" : string.Join(",", ListCboStatusSelected!.Select(m => m.code));
-            var response = await _workforceService.GetMasterDataAsync<PayrollModel>(request, isShowToast: true);
+            var response = await _salaryService.GetMasterDataAsync<PayrollModel>(request, isShowToast: true);
             ListSalary = response;
+        }
+
+        /// <summary>
+        /// kiểm tra quyền nút
+        /// </summary>
+        /// <returns></returns>
+        private async Task checkPermission(string menuId)
+        {
+            List<string> lstKey = await CheckEventPermission(menuId);
+            IsAllowPost = lstKey.FirstOrDefault(m => m == STRING_KEY_EVENT_POST) != null;
+            IsAllowPut = lstKey.FirstOrDefault(m => m == STRING_KEY_EVENT_PUT) != null;
+            IsAllowPutAccept = lstKey.FirstOrDefault(m => m == STRING_KEY_EVENT_PUT_ACCEPT) != null;
         }
         #endregion
 
@@ -216,6 +238,121 @@ namespace HNOne.Web.Controllers
             catch (Exception ex)
             {
                 _logger!.LogError(ex, "ReLoadDataHandler");
+                ShowError(ex.Message);
+            }
+            finally
+            {
+                await ShowLoading(false);
+                await InvokeAsync(StateHasChanged);
+            }
+        }
+
+        /// <summary>
+        /// Lưu công tháng
+        /// </summary>
+        /// <returns></returns>
+        protected async Task SaveDataHandler()
+        {
+            try
+            {
+                //await checkPermission(MenuId);
+                //if (!IsAllowPost)
+                //{
+                //    ShowInfo(MessageConstants.MESSAGE_NO_PERMISSION);
+                //    return;
+                //}
+                if (SelectedItems.IsNullOrEmpty())
+                {
+                    ShowWarning(MessageConstants.MESSAGE_NO_CHOSE_DATA);
+                    return;
+                }
+                string errorMessage = string.Empty;
+                string fieldName = string.Empty; // trả ra trường nào cần validate
+                bool isConfirm = true;
+                errorMessage = $"Bạn có chắc muốn lưu kỳ lương tháng {SearchUpdate.month} năm {SearchUpdate.year} của nhân viên đang chọn không?";
+                await Task.Yield();
+                isConfirm = await confirm.SetConfirm(MessageConstants.MESSAGE_TITLE, errorMessage);
+                if (!isConfirm) return;
+                await ShowLoading();
+                RequestModel request = new RequestModel();
+                request.process = ProcessConstants.POST_PAYROLL_SALARY;
+                request.userId = UserId;
+                request.branchId = BranchId;
+                request.token = Token;
+                request.json = JsonConvert.SerializeObject(SelectedItems);
+                request.type = "N";
+                isConfirm = await _salaryService.UpdateMasterDataAsync(request);
+                if (isConfirm)
+                {
+                    await getMonthlySalaryList();
+                }
+            }
+            catch (Exception ex)
+            {
+                ShowError(ex.Message);
+                _logger.LogError(ex, "SaveDataHandler");
+            }
+            finally
+            {
+                await ShowLoading(false);
+                await InvokeAsync(StateHasChanged);
+            }
+        }
+
+        /// <summary>
+        /// Kết xuất dữ liệu sang file excel
+        /// xlsx
+        /// </summary>
+        /// <returns></returns>
+        protected async Task ExportExcelHandler()
+        {
+            try
+            {
+                if (ActiveTabIndex == 0)
+                {
+                    if (GridSalary == null || ListSalary.IsNullOrEmpty())
+                    {
+                        ShowWarning(MessageConstants.MESSAGE_NOT_FOUNT);
+                        return;
+                    }
+                    await ShowLoading();
+                    await GridSalary!.ExportToXlsxAsync($"Bang-luong-thang-{SearchUpdate.month}-{SearchUpdate.year}", new GridXlExportOptions()
+                    {
+                        ExportTotalSummaries = true,
+                        ExportGroupSummaries = false
+                    });
+                    return;
+                }
+                if (ActiveTabIndex == 1)
+                {
+                    if (GridInsuranceSalary == null || ListSalary.IsNullOrEmpty())
+                    {
+                        ShowWarning(MessageConstants.MESSAGE_NOT_FOUNT);
+                        return;
+                    }
+                    await ShowLoading();
+                    await GridInsuranceSalary!.ExportToXlsxAsync($"Bang-luong-trich-nop-thang-{SearchUpdate.month}-{SearchUpdate.year}", new GridXlExportOptions()
+                    {
+                        ExportTotalSummaries = true,
+                        ExportGroupSummaries = false
+                    });
+                    return;
+                }
+                if (GridTaxSalary == null || ListSalary.IsNullOrEmpty())
+                {
+                    ShowWarning(MessageConstants.MESSAGE_NOT_FOUNT);
+                    return;
+                }
+                await ShowLoading();
+                await GridTaxSalary!.ExportToXlsxAsync($"Bang-luong-TTNCN-thang-{SearchUpdate.month}-{SearchUpdate.year}", new GridXlExportOptions()
+                {
+                    ExportTotalSummaries = true,
+                    ExportGroupSummaries = false
+                });
+            }
+            catch (Exception ex)
+            {
+                _logger!.LogError(ex, "ExportExcelHandler");
                 ShowError(ex.Message);
             }
             finally

@@ -366,32 +366,6 @@ namespace HNOne.API.Repositories
             }
         }
 
-        /// <summary>
-        /// lấy dữ liệu tính lương của nhân viên
-        /// </summary>
-        /// <param name="request"></param>
-        /// <returns></returns>
-        public async Task<IEnumerable<PayrollModel>> GetMonthlySalary(RequestModel request)
-        {
-            using (var connection = _dapperDbContext.CreateConnection())
-            {
-                int.TryParse(request.opt, out int year);
-                int.TryParse(request.opt1, out int month);
-                if (year == 0) year = DateTime.Now.Year;
-                if (month == 0) month = DateTime.Now.Month;
-                var parameters = new DynamicParameters();
-                parameters.Add("@UserId", request.userId);
-                parameters.Add("@BranchId", request.branchId);
-                parameters.Add("@Year", year);
-                parameters.Add("@Month", month);
-                parameters.Add("@DepartmentIds", request.opt2);
-                parameters.Add("@EmployeeIds", request.opt3);
-                parameters.Add("@StatusIds", request.opt4);
-                parameters.Add("@Type", $"{request.type}");
-                var lstResult = await connection.QueryAsync<PayrollModel>(StoreConstants.STORE_H1_PAYROLL_CALCULATION_SELECT, param: parameters, commandTimeout: GlobalConstants.COMMAND_TIMEOUT, commandType: CommandType.StoredProcedure);
-                return lstResult;
-            }
-        }
         #endregion
 
         #region Command
@@ -1377,6 +1351,7 @@ namespace HNOne.API.Repositories
                     data.TNC = entity.TNC;
                     data.CDM = entity.CDM;
                     data.CTT = entity.CTT;
+                    data.NL = entity.NL;
                     data.NPN = entity.NPN;
                     data.NCD = entity.NCD;
                     data.NPKL = entity.NPKL;

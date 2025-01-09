@@ -19,5 +19,7 @@
         public const string WORKFORCE_POST_DATA = "Workforce/post-data";
         public const string TRAINING_GET_DATA = "Training/get-data";
         public const string TRAINING_POST_DATA = "Training/post-data";
+        public const string SALARY_GET_DATA = "Salary/get-data";
+        public const string SALARY_POST_DATA = "Salary/post-data";
     }
 }

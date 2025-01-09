@@ -33,6 +33,5 @@ namespace HNOne.API.Repositories.Interfaces
         Task<ResponseModel> UpdateWorkConfig(WorkConfigs entity);
         Task<IEnumerable<ShiftAssignmentModel>> GetWorkCalculate(RequestModel request);
         Task<ResponseModel> UpdateAttendanceSummary(bool isLocked, int userId, IEnumerable<AttendanceSummarys> lstEntity);
-        Task<IEnumerable<PayrollModel>> GetMonthlySalary(RequestModel request);
     }
 }

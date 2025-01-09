@@ -129,8 +129,7 @@
         public const string GET_CHECK_IN_OUT = "get-check-in-out"; // lịch làm việc
         public const string GET_WORK_CALCULATE = "get-work-calculate"; // lấy dữ liệu tính công tháng
         public const string POST_ATTENDENCE_SUMMARY = "post-attendance-summary"; // lấy dữ liệu tính công tháng
-        public const string GET_MONTHLY_SALARY = "get-monthly-salary"; // lấy dữ liệu tính công tháng
-
+        
         public const string DELETE_DYNAMIC = "delete-dynamic"; // xóa động
 
         public const string GET_TRAINING = "get-training";
@@ -145,6 +144,9 @@
         public const string GET_DEDUCTION_CONFIG = "get-deduction-config";
         public const string POST_DEDUCTION_CONFIG = "post-deduction-config";
         public const string PUT_DEDUCTION_CONFIG = "put-deduction-config";
+
+        public const string GET_MONTHLY_SALARY = "get-monthly-salary"; // lấy dữ liệu tính công tháng
+        public const string POST_PAYROLL_SALARY = "post-payroll-salary"; // lưu dữ liệu lương tháng
         #region Loại dưới store
         public const string GET_COMBO_TYPE_CONTRACT_BY_EMPLOYEEID = "CONTRACT_BY_EMPLOYEEID";
         public const string GET_COMBO_TYPE_SALARY_ADJUSTMENT_BY_CONTRACT = "SALARY_ADJUSTMENT_BY_CONTRACT";
