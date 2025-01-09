@@ -13,9 +13,9 @@ namespace HNOne.Web.Controllers
     public class ConfirmWorkingDayListController : DocumentControllerBase
     {
         [Inject] IWorkforceService _workforceService { get; init; }
-        const string STRING_KEY_EVENT_POST = "LEAVE_REQUEST_CONTROLLER_POST";
-        const string STRING_KEY_EVENT_PUT = "LEAVE_REQUEST_CONTROLLER_PUT";
-        const string STRING_KEY_EVENT_DELETE = "LEAVE_REQUEST_CONTROLLER_DELETE";
+        const string STRING_KEY_EVENT_POST = "CONFIRM_WORKING_DAY_CONTROLLER_POST";
+        const string STRING_KEY_EVENT_PUT = "CONFIRM_WORKING_DAY_CONTROLLER_PUT";
+        const string STRING_KEY_EVENT_DELETE = "CONFIRM_WORKING_DAY_CONTROLLER_DELETE";
 
         #region Properties
         public List<ConfirmWorkingDayModel>? ListPending { get; set; }
@@ -40,7 +40,7 @@ namespace HNOne.Web.Controllers
             {
                 try
                 {
-                    string errMessage = await CheckMenuPermissionAsync("danh-sach-de-nghi-nghi-phep");
+                    string errMessage = await CheckMenuPermissionAsync("danh-sach-xac-nhan-gio-cong");
                     if (errMessage == "401") return; // kiểm quyền menu page danh sách
                     await ShowLoading();
                     await checkPermission(errMessage);

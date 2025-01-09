@@ -22,6 +22,10 @@ namespace HNOne.Web.Controllers
         [Inject] IJSRuntime _jsRuntime { get; set; }
         public W1Confirm confirm { get; set; }
         const string YCDT_NB = "Nội bộ";
+        const string STRING_KEY_EVENT_POST = "TRAINING_CONTROLLER_POST";
+        const string STRING_KEY_EVENT_PUT = "TRAINING_CONTROLLER_PUT";
+        const string STRING_KEY_EVENT_PUT_EVALUETE = "TRAINING_CONTROLLER_PUT_EVALUETE";
+        const string STRING_KEY_EVENT_DELETE = "TRAINING_CONTROLLER_DELETE";
         #region Properties
         public string? pActionType { get; set; } = nameof(EnumType.Add);
         private int pDocEntry { get; set; } = 0;
@@ -43,6 +47,12 @@ namespace HNOne.Web.Controllers
         public string? VoucherHistory { get; set; } = string.Empty; // lịch sử chứng từ
         // lock control lại
         public bool IsReadonlyControl { get; set; } = false;
+
+        // nút quyền
+        public bool IsAllowPost { get; set; }
+        public bool IsAllowDelete { get; set; }
+        public bool IsAllowPut { get; set; }
+        public bool IsAllowPutEvaluete { get; set; }
         #endregion
 
         protected override async Task OnAfterRenderAsync(bool firstRender)
@@ -52,10 +62,11 @@ namespace HNOne.Web.Controllers
             {
                 try
                 {
-                    //string errMessage = await CheckMenuPermissionAsync("danh-sach-hop-dong");
-                    //if (errMessage == "401") return; // kiểm quyền menu page danh sách
+                    string errMessage = await CheckMenuPermissionAsync("danh-sach-dao-tao");
+                    if (errMessage == "401") return; // kiểm quyền menu page danh sách
                     this.firstRender = firstRender;
                     await ShowLoading();
+                    await checkPermission(errMessage);
                     ListBreadcrumbs = new List<BreadcrumbModel>()
                     {
                         new BreadcrumbModel("Đào tạo"),
@@ -87,6 +98,19 @@ namespace HNOne.Web.Controllers
         }
 
         #region Private Functions
+        /// <summary>
+        /// kiểm tra quyền nút
+        /// </summary>
+        /// <returns></returns>
+        private async Task checkPermission(string menuId)
+        {
+            List<string> lstKey = await CheckEventPermission(menuId);
+            IsAllowPost = lstKey.FirstOrDefault(m => m == STRING_KEY_EVENT_POST) != null;
+            IsAllowDelete = lstKey.FirstOrDefault(m => m == STRING_KEY_EVENT_DELETE) != null;
+            IsAllowPut = lstKey.FirstOrDefault(m => m == STRING_KEY_EVENT_PUT) != null;
+            IsAllowPutEvaluete = lstKey.FirstOrDefault(m => m == STRING_KEY_EVENT_PUT_EVALUETE) != null;
+        }
+
         private void initDataAsync(bool isRefresh = false)
         {
             // GÁN DỮ LIỆU MẶC ĐỊNH
@@ -332,6 +356,12 @@ namespace HNOne.Web.Controllers
         {
             try
             {
+                await checkPermission(MenuId);
+                if ((pActionType == nameof(EnumType.Add) && !IsAllowPost) || (pActionType != nameof(EnumType.Add) && !IsAllowPut))
+                {
+                    ShowInfo(MessageConstants.MESSAGE_NO_PERMISSION);
+                    return;
+                }
                 string errorMessage = string.Empty;
                 string fieldName = string.Empty; // trả ra trường nào cần validate
                 validateForSave(ref errorMessage, ref fieldName);
@@ -381,6 +411,12 @@ namespace HNOne.Web.Controllers
         {
             try
             {
+                await checkPermission(MenuId);
+                if (!IsAllowPutEvaluete)
+                {
+                    ShowInfo(MessageConstants.MESSAGE_NO_PERMISSION);
+                    return;
+                }
                 bool isConfirm = true;
                 string errorMessage = string.Format(MessageConstants.MESSAGE_CONFIRM_UPDATE_FORMAT, "thông tin đánh giá");
                 await Task.Yield();
@@ -501,6 +537,42 @@ namespace HNOne.Web.Controllers
             {
                 _logger!.LogError(ex, "DeleteDataHandler");
                 ShowError(ex.Message);
+            }
+        }
+
+        /// <summary>
+        /// làm mới dữ liệu
+        /// </summary>
+        /// <returns></returns>
+        protected async Task RefreshDataHandler()
+        {
+            try
+            {
+                await ShowLoading();
+                Dictionary<string, string> pParams = new Dictionary<string, string>
+                {
+                    { "pActionType", $"{nameof(EnumType.Add)}" },
+                    { "pDocEntry", $"{-1}" },
+                };
+                string key = _encryptHelper.Encrypt(JsonConvert.SerializeObject(pParams)); // mã hóa key
+                _navigationManager.NavigateTo($"/dao-tao?key={key}");
+                TrainDocument = new TrainingModel();
+                ListOfTrainings = new List<Training1Model>();
+                pActionType = nameof(EnumType.Add);
+                pDocEntry = -1;
+                VoucherHistory = string.Empty;
+                initDataAsync(isRefresh: true);
+                await buildComboAsync();
+            }
+            catch (Exception ex)
+            {
+                ShowError(ex.Message);
+                _logger.LogError(ex, "RefreshDataHandler");
+            }
+            finally
+            {
+                await ShowLoading(false);
+                await InvokeAsync(StateHasChanged);
             }
         }
         #endregion

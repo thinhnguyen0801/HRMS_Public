@@ -10,32 +10,36 @@
                 <Items>
 
                     <DxToolbarItem Text="Lưu" BeginGroup="true" IconCssClass="@($"{IconClassConstants.ICON_UPDATE}")" CssClass="w1FontSize"
-                                   Alignment="@ToolbarItemAlignment.Right" Click="@SaveDataHandler" />
+                                   Alignment="@ToolbarItemAlignment.Right" Click="@SaveDataHandler"
+                                   Visible="@((pActionType == nameof(EnumType.Add) && IsAllowPost) || (pActionType != nameof(EnumType.Add) && IsAllowPut))" />
 
                     <DxToolbarItem Text="Gửi phê duyệt" BeginGroup="true" IconCssClass="@($"{IconClassConstants.ICON_SHARE}")" CssClass="w1FontSize"
                                    Alignment="@ToolbarItemAlignment.Right" Click="@(()=> SubmitForApprovalHandler())"
-                                   Visible="@(TrainDocument.statusCode == CommonConstants.STATUS_CODE_ADD)" />
+                                   Visible="@(TrainDocument.statusCode == CommonConstants.STATUS_CODE_ADD && IsAllowDelete)"/>
 
                     <DxToolbarItem Text="Hủy" BeginGroup="true" IconCssClass="@($"{IconClassConstants.ICON_DELETE}")" CssClass="w1FontSize"
-                                   Alignment="@ToolbarItemAlignment.Right" />
+                                   Alignment="@ToolbarItemAlignment.Right"
+                                   Visible="@(pActionType != nameof(EnumType.Add) && TrainDocument.statusCode == CommonConstants.STATUS_CODE_ADD && IsAllowDelete)"/>
 
                     <DxToolbarItem Text="Làm mới" BeginGroup="true" IconCssClass="@($"{IconClassConstants.ICON_REFRESH}")" CssClass="w1FontSize"
-                                   Alignment="@ToolbarItemAlignment.Right" />
+                                   Alignment="@ToolbarItemAlignment.Right" Click="@RefreshDataHandler" />
                 </Items>
             </DxToolbar>
         </div>
     }
     else
     {
-        <div class="card p-1">
-            <DxToolbar ItemRenderStyleMode="@ToolbarRenderStyleMode.Contained">
-                <Items>
-
-                    <DxToolbarItem Text="Lưu đánh giá" BeginGroup="true" IconCssClass="@($"{IconClassConstants.ICON_UPDATE}")" CssClass="w1FontSize"
-                                   Alignment="@ToolbarItemAlignment.Right" Click="@SaveDataEvalueteHandler" />
-                </Items>
-            </DxToolbar>
-        </div>
+        @if(IsAllowPutEvaluete)
+        {
+            <div class="card p-1">
+                <DxToolbar ItemRenderStyleMode="@ToolbarRenderStyleMode.Contained">
+                    <Items>
+                        <DxToolbarItem Text="Lưu đánh giá" BeginGroup="true" IconCssClass="@($"{IconClassConstants.ICON_UPDATE}")" CssClass="w1FontSize"
+                                       Alignment="@ToolbarItemAlignment.Right" Click="@SaveDataEvalueteHandler" />
+                    </Items>
+                </DxToolbar>
+            </div>
+        }
     }
 
     <div class="card card-lg mt-1" style="padding: 5px">

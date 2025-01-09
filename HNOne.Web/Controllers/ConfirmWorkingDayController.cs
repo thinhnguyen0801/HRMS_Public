@@ -22,9 +22,9 @@ namespace HNOne.Web.Controllers
         [Inject] IJSRuntime _jsRuntime { get; set; }
         public W1Confirm confirm { get; set; }
 
-        const string STRING_KEY_EVENT_POST = "LEAVE_WORKING_HOUR_CONTROLLER_POST";
-        const string STRING_KEY_EVENT_PUT = "LEAVE_WORKING_HOUR_CONTROLLER_PUT";
-        const string STRING_KEY_EVENT_DELETE = "LEAVE_WORKING_HOUR_CONTROLLER_DELETE";
+        const string STRING_KEY_EVENT_POST = "CONFIRM_WORKING_DAY_CONTROLLER_POST";
+        const string STRING_KEY_EVENT_PUT = "CONFIRM_WORKING_DAY_CONTROLLER_PUT";
+        const string STRING_KEY_EVENT_DELETE = "CONFIRM_WORKING_DAY_CONTROLLER_DELETE";
 
         #region Properties
         public string? pActionType { get; set; } = nameof(EnumType.Add);
@@ -65,7 +65,7 @@ namespace HNOne.Web.Controllers
             {
                 try
                 {
-                    string errMessage = await CheckMenuPermissionAsync("danh-sach-xin-nghi-trong-gio");
+                    string errMessage = await CheckMenuPermissionAsync("danh-sach-xac-nhan-gio-cong");
                     if (errMessage == "401") return; // kiểm quyền menu page danh sách
                     await ShowLoading();
                     await checkPermission(errMessage);
@@ -236,7 +236,7 @@ namespace HNOne.Web.Controllers
                 request.branchId = BranchId;
                 request.token = Token;
                 request.process = ProcessConstants.GET_CONFIRM_WORKING_HOUR_REQUEST;
-                var task1 = _workforceService.GetMasterDataAsync<ConfirmWorkingDayModel>(request, isShowToast: true);
+                var task1 = _workforceService.GetMasterDataAsync<ConfirmWorkingDayModel>(request);
                 var task2 = getDocumentHistory();
                 await Task.WhenAll(task1, task2);
                 List<ConfirmWorkingDayModel>? lstData = await task1;
