@@ -11,11 +11,14 @@
                             <DxToolbarItem Text="Làm mới" BeginGroup="true" IconCssClass="@($"{IconClassConstants.ICON_REFRESH}")" CssClass="w1FontSize"
                                            Alignment="@ToolbarItemAlignment.Right" Click="@RefreshHandler" />
                             <DxToolbarItem Text="Duyệt" BeginGroup="true" IconCssClass="@($"{IconClassConstants.ICON_APPROVAL}")" CssClass="w1FontSize"
-                                           Alignment="@ToolbarItemAlignment.Right" Click="@ApprovalHandler" />
+                                           Alignment="@ToolbarItemAlignment.Right" Click="@ApprovalHandler"
+                                           Visible="@(IsAllowPut)" />
                             <DxToolbarItem Text="Từ chối" BeginGroup="true" IconCssClass="@($"{IconClassConstants.ICON_REJECT}")" CssClass="w1FontSize"
-                                           Alignment="@ToolbarItemAlignment.Right" Click="@RejectHandler" />
+                                           Alignment="@ToolbarItemAlignment.Right" Click="@RejectHandler"
+                                           Visible="@(IsAllowPut)" />
                             <DxToolbarItem Text="Trả về" BeginGroup="true" IconCssClass="@($"{IconClassConstants.ICON_RETURN}")" CssClass="w1FontSize"
-                                           Alignment="@ToolbarItemAlignment.Right" />
+                                           Alignment="@ToolbarItemAlignment.Right"
+                                           Visible="@(IsAllowPut)" />
                         </Items>
                     </DxToolbar>
                 </div>

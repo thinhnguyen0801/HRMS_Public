@@ -20,9 +20,7 @@ namespace HNOne.Web.Controllers
         [Inject] DataHelperService _dataHelperService { get; set; }
         public W1Confirm confirm { get; set; }
 
-        const string STRING_KEY_EVENT_APPROVAL = "APPROVAL_CONTROLLER_APPROVAL";
-        const string STRING_KEY_EVENT_DENY = "APPROVAL_CONTROLLER_DENY";
-        const string STRING_KEY_EVENT_ = "APPROVAL_CONTROLLER_DELETE";
+        const string STRING_KEY_EVENT_PUT = "APPROVAL_CONTROLLER_PUT";
         #region Properties
         public List<ApprovalModel>? ListPending { get; set; } // ds chờ xử lý
         public IGrid? GridPending { get; set; }
@@ -34,6 +32,9 @@ namespace HNOne.Web.Controllers
         public int ActiveTabIndex { get; set; } = 0;
         public DateTime? FromDate { get; set; }
         public DateTime? ToDate { get; set; }
+
+        // nút quyền
+        public bool IsAllowPut { get; set; }
         #endregion
 
         protected override async Task OnAfterRenderAsync(bool firstRender)
@@ -43,9 +44,10 @@ namespace HNOne.Web.Controllers
             {
                 try
                 {
-                    //string errMessage = await CheckMenuPermissionAsync("danh-sach-phu-luc-hop-dong");
-                    //if (errMessage == "401") return; // kiểm quyền menu page danh sách
+                    string errMessage = await CheckMenuPermissionAsync("phe-duyet");
+                    if (errMessage == "401") return; // kiểm quyền menu page danh sách
                     await ShowLoading();
+                    await checkPermission(errMessage);
                     ListBreadcrumbs = new List<BreadcrumbModel>()
                     {
                         new BreadcrumbModel("Phê duyệt chứng từ", isActive: true)
@@ -69,6 +71,16 @@ namespace HNOne.Web.Controllers
         }
 
         #region Private Functions
+        /// <summary>
+        /// kiểm tra quyền nút
+        /// </summary>
+        /// <returns></returns>
+        private async Task checkPermission(string menuId)
+        {
+            List<string> lstKey = await CheckEventPermission(menuId);
+            IsAllowPut = lstKey.FirstOrDefault(m => m == STRING_KEY_EVENT_PUT) != null;
+        }
+
         private void initDataAsync()
         {
             FromDate = new DateTime(DateTime.Now.Year, 01, 01);
@@ -117,6 +129,12 @@ namespace HNOne.Web.Controllers
         {
             try
             {
+                await checkPermission(MenuId);
+                if (!IsAllowPut)
+                {
+                    ShowInfo(MessageConstants.MESSAGE_NO_PERMISSION);
+                    return;
+                }
                 if (SelectedPendings.IsNullOrEmpty())
                 {
                     ShowWarning(MessageConstants.MESSAGE_NO_CHOSE_DATA);

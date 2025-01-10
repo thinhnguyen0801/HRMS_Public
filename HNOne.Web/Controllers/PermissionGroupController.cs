@@ -21,7 +21,9 @@ namespace HNOne.Web.Controllers
         [Inject] IJSRuntime _jsRuntime { get; set; }
         public W1Confirm confirm { get; set; }
         const string MENU_TYPE = "AUTHENTICATION";
-
+        const string STRING_KEY_EVENT_POST = "PERMISSION_GROUP_CONTROLLER_POST";
+        const string STRING_KEY_EVENT_PUT = "PERMISSION_GROUP_CONTROLLER_PUT";
+        const string STRING_KEY_EVENT_DELETE = "PERMISSION_GROUP_CONTROLLER_DELETE";
         #region Properties
         public List<PermissionGroupModel>? ListData { get; set; }
         public IGrid? GridData { get; set; }
@@ -33,6 +35,11 @@ namespace HNOne.Web.Controllers
 
         public bool IsCreate { get; set; } = true;
         public bool IsShowDialog { get; set; }
+
+        // nút quyền
+        public bool IsAllowPost { get; set; }
+        public bool IsAllowDelete { get; set; }
+        public bool IsAllowPut { get; set; }
         #endregion
 
         protected override async Task OnAfterRenderAsync(bool firstRender)
@@ -42,7 +49,10 @@ namespace HNOne.Web.Controllers
             {
                 try
                 {
+                    string errMessage = await CheckMenuPermissionAsync("nhom-quyen");
+                    if (errMessage == "401") return; // kiểm quyền menu page danh sách
                     await ShowLoading();
+                    await checkPermission(errMessage);
                     ListBreadcrumbs = new List<BreadcrumbModel>()
                     {
                         new BreadcrumbModel("Hệ thống"),
@@ -66,6 +76,18 @@ namespace HNOne.Web.Controllers
         }
 
         #region Private Functions
+        /// <summary>
+        /// kiểm tra quyền nút
+        /// </summary>
+        /// <returns></returns>
+        private async Task checkPermission(string menuId)
+        {
+            List<string> lstKey = await CheckEventPermission(menuId);
+            IsAllowPost = lstKey.FirstOrDefault(m => m == STRING_KEY_EVENT_POST) != null;
+            IsAllowDelete = lstKey.FirstOrDefault(m => m == STRING_KEY_EVENT_DELETE) != null;
+            IsAllowPut = lstKey.FirstOrDefault(m => m == STRING_KEY_EVENT_PUT) != null;
+        }
+
         private async Task getPermissionGroup()
         {
             RequestModel request = new RequestModel();
@@ -184,6 +206,12 @@ namespace HNOne.Web.Controllers
         {
             try
             {
+                await checkPermission(MenuId);
+                if ((IsCreate && !IsAllowPost) || (!IsCreate && !IsAllowPut))
+                {
+                    ShowInfo(MessageConstants.MESSAGE_NO_PERMISSION);
+                    return;
+                }
                 string errorMessage = string.Empty;
                 string fieldName = string.Empty;
                 validateForSave(ref errorMessage, ref fieldName);
@@ -226,7 +254,12 @@ namespace HNOne.Web.Controllers
         { 
             try
             {
-
+                await checkPermission(MenuId);
+                if (!IsAllowDelete)
+                {
+                    ShowInfo(MessageConstants.MESSAGE_NO_PERMISSION);
+                    return;
+                }
             }
             catch (Exception ex)
             {
@@ -249,6 +282,12 @@ namespace HNOne.Web.Controllers
         {
             try
             {
+                await checkPermission(MenuId);
+                if (!IsAllowPut)
+                {
+                    ShowInfo(MessageConstants.MESSAGE_NO_PERMISSION);
+                    return;
+                }
                 string errorMessage = string.Empty;
                 validateForSavePermission(ref errorMessage);
                 if (!string.IsNullOrEmpty(errorMessage))
