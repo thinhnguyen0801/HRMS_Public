@@ -188,6 +188,10 @@ namespace HNOne.API.Controllers
                         var lstconfirmWorkingHour1sPut = DeserializeJson<List<ConfirmWorkingDay1s>>($"{request.jsonDetail}");
                         response = await _workforceRepository.UpdateConfirmWorkingDay(confirmWorkingHourPut!, lstconfirmWorkingHour1sPut!);
                         break;
+                    case ProcessConstants.PUT_UNLOCK_ATTENDENCE_SUMMARY:
+                        var lstAttendencePutUnlock = DeserializeJson<List<AttendanceSummarys>>($"{request.json}");
+                        response = await _workforceRepository.UnLockAttendanceSummary(request.userId, lstAttendencePutUnlock!);
+                        break;
                     default:
                         response.status = StatusCodes.Status404NotFound;
                         response.message = $"Process Key {processKey} was not provider!!!";

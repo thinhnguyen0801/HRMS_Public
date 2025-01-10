@@ -359,7 +359,7 @@ namespace HNOne.Web.Controllers
         /// chốt kỳ công tháng
         /// </summary>
         /// <returns></returns>
-        protected async Task SummitWork()
+        protected async Task LockTimeSheetEmployeeHandler()
         {
             try
             {
@@ -377,7 +377,7 @@ namespace HNOne.Web.Controllers
                 string errorMessage = string.Empty;
                 string fieldName = string.Empty; // trả ra trường nào cần validate
                 bool isConfirm = true;
-                errorMessage = $"Bạn có chắc muốn chốt kỳ công tháng {SearchUpdate.month} năm {SearchUpdate.year} của nhân viên đang chọn không?";
+                errorMessage = $"Bạn có chắc muốn khóa kỳ công tháng {SearchUpdate.month} năm {SearchUpdate.year} của nhân viên đang chọn không?";
                 await Task.Yield();
                 isConfirm = await confirm.SetConfirm(MessageConstants.MESSAGE_TITLE, errorMessage);
                 if (!isConfirm) return;
@@ -397,7 +397,7 @@ namespace HNOne.Web.Controllers
             }
             catch (Exception ex)
             {
-                _logger!.LogError(ex, "ReLoadDataHandler");
+                _logger!.LogError(ex, "LockTimeSheetEmployeeHandler");
                 ShowError(ex.Message);
             }
             finally
@@ -406,7 +406,55 @@ namespace HNOne.Web.Controllers
                 await InvokeAsync(StateHasChanged);
             }
         }
-        
+
+        protected async Task UnlockTimeSheetEmployeeHandler()
+        {
+            try
+            {
+                //await checkPermission(MenuId);
+                //if (!IsAllowPut)
+                //{
+                //    ShowInfo(MessageConstants.MESSAGE_NO_PERMISSION);
+                //    return;
+                //}
+                if (SelectedItems.IsNullOrEmpty())
+                {
+                    ShowWarning(MessageConstants.MESSAGE_NO_CHOSE_DATA);
+                    return;
+                }
+                string errorMessage = string.Empty;
+                string fieldName = string.Empty; // trả ra trường nào cần validate
+                bool isConfirm = true;
+                errorMessage = $"Bạn có chắc muốn mở khóa kỳ công tháng {SearchUpdate.month} năm {SearchUpdate.year} của nhân viên đang chọn không?";
+                await Task.Yield();
+                isConfirm = await confirm.SetConfirm(MessageConstants.MESSAGE_TITLE, errorMessage);
+                if (!isConfirm) return;
+                await ShowLoading();
+                RequestModel request = new RequestModel();
+                request.process = ProcessConstants.PUT_UNLOCK_ATTENDENCE_SUMMARY;
+                request.userId = UserId;
+                request.branchId = BranchId;
+                request.token = Token;
+                request.json = JsonConvert.SerializeObject(SelectedItems);
+                request.type = "UL";
+                isConfirm = await _workforceService.UpdateMasterDataAsync(request);
+                if (isConfirm)
+                {
+                    await getDataAttendanceList();
+                }
+            }
+            catch (Exception ex)
+            {
+                _logger!.LogError(ex, "UnlockTimeSheetEmployeeHandler");
+                ShowError(ex.Message);
+            }
+            finally
+            {
+                await ShowLoading(false);
+                await InvokeAsync(StateHasChanged);
+            }
+        }
+
         protected void GridTimesheetDetailCustomizeElement(GridCustomizeElementEventArgs e)
         {
             try
@@ -421,6 +469,40 @@ namespace HNOne.Web.Controllers
                 }
             }
             catch (Exception ex) { }
+        }
+
+        /// <summary>
+        /// Kết xuất dữ liệu sang file excel
+        /// xlsx
+        /// </summary>
+        /// <returns></returns>
+        protected async Task ExportExcelHandler()
+        {
+            try
+            {
+                if (GridTimesheet == null || ListTimesheet.IsNullOrEmpty())
+                {
+                    ShowWarning(MessageConstants.MESSAGE_NOT_FOUNT);
+                    return;
+                }
+                await ShowLoading();
+                await GridTimesheet!.ExportToXlsxAsync($"Bang-cong-thang-{SearchUpdate.month}-{SearchUpdate.year}", new GridXlExportOptions()
+                {
+                    ExportTotalSummaries = true,
+                    ExportGroupSummaries = false
+                });
+                return;
+            }
+            catch (Exception ex)
+            {
+                _logger!.LogError(ex, "ExportExcelHandler");
+                ShowError(ex.Message);
+            }
+            finally
+            {
+                await ShowLoading(false);
+                await InvokeAsync(StateHasChanged);
+            }
         }
         #endregion
     }

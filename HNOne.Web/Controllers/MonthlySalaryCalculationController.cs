@@ -322,7 +322,7 @@ namespace HNOne.Web.Controllers
                 string errorMessage = string.Empty;
                 string fieldName = string.Empty; // trả ra trường nào cần validate
                 bool isConfirm = true;
-                errorMessage = $"Bạn có chắc muốn chốt kỳ lương tháng {SearchUpdate.month} năm {SearchUpdate.year} của nhân viên đang chọn không?";
+                errorMessage = $"Bạn có chắc muốn khóa kỳ lương tháng {SearchUpdate.month} năm {SearchUpdate.year} của nhân viên đang chọn không?";
                 await Task.Yield();
                 isConfirm = await confirm.SetConfirm(MessageConstants.MESSAGE_TITLE, errorMessage);
                 if (!isConfirm) return;
@@ -334,6 +334,52 @@ namespace HNOne.Web.Controllers
                 request.token = Token;
                 request.json = JsonConvert.SerializeObject(SelectedItems);
                 request.type = "L";
+                isConfirm = await _salaryService.UpdateMasterDataAsync(request);
+                if (isConfirm)
+                {
+                    await getMonthlySalaryList();
+                }
+            }
+            catch (Exception ex)
+            {
+                _logger!.LogError(ex, "LockPayrollEmployeeHandler");
+                ShowError(ex.Message);
+            }
+            finally
+            {
+                await ShowLoading(false);
+                await InvokeAsync(StateHasChanged);
+            }
+        }
+
+        /// <summary>
+        /// Mở khóa kỳ lương để chỉnh sửa
+        /// </summary>
+        /// <returns></returns>
+        protected async Task UnlockPayrollEmployeeHandler()
+        {
+            try
+            {
+                if (SelectedItems.IsNullOrEmpty())
+                {
+                    ShowWarning(MessageConstants.MESSAGE_NO_CHOSE_DATA);
+                    return;
+                }
+                string errorMessage = string.Empty;
+                string fieldName = string.Empty; // trả ra trường nào cần validate
+                bool isConfirm = true;
+                errorMessage = $"Bạn có chắc muốn mở kỳ lương tháng {SearchUpdate.month} năm {SearchUpdate.year} của nhân viên đang chọn không?";
+                await Task.Yield();
+                isConfirm = await confirm.SetConfirm(MessageConstants.MESSAGE_TITLE, errorMessage);
+                if (!isConfirm) return;
+                await ShowLoading();
+                RequestModel request = new RequestModel();
+                request.process = ProcessConstants.PUT_UNLOCK_PAYROLL_SALARY;
+                request.userId = UserId;
+                request.branchId = BranchId;
+                request.token = Token;
+                request.json = JsonConvert.SerializeObject(SelectedItems);
+                request.type = "UL";
                 isConfirm = await _salaryService.UpdateMasterDataAsync(request);
                 if (isConfirm)
                 {

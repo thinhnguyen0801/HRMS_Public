@@ -69,6 +69,10 @@ namespace HNOne.API.Controllers
                         var lstPayroll = DeserializeJson<List<Payrolls>>($"{request.json}");
                         response = await _salaryRepository.UpdatePayroll(request.type == "L", request.userId, lstPayroll!);
                         break;
+                    case ProcessConstants.PUT_UNLOCK_PAYROLL_SALARY:
+                        var lstPayrollUnlock = DeserializeJson<List<Payrolls>>($"{request.json}");
+                        response = await _salaryRepository.UnLockPayroll(request.userId, lstPayrollUnlock!);
+                        break;
                     default:
                         response.status = StatusCodes.Status404NotFound;
                         response.message = $"Process Key {processKey} was not provider!!!";

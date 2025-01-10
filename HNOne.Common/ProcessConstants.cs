@@ -130,6 +130,7 @@
         public const string GET_WORK_CALCULATE = "get-work-calculate"; // lấy dữ liệu tính công tháng
         public const string POST_ATTENDENCE_SUMMARY = "post-attendance-summary"; // lấy dữ liệu tính công tháng
         public const string GET_WORKING_DAY_MISSING_HOURS = "get-working-day-missing-hours"; // lấy dữ liệu tính công tháng
+        public const string PUT_UNLOCK_ATTENDENCE_SUMMARY = "put-unlock-attendance-summary"; // lấy dữ liệu tính công tháng
 
         public const string DELETE_DYNAMIC = "delete-dynamic"; // xóa động
 
@@ -148,6 +149,7 @@
 
         public const string GET_MONTHLY_SALARY = "get-monthly-salary"; // lấy dữ liệu tính công tháng
         public const string POST_PAYROLL_SALARY = "post-payroll-salary"; // lưu dữ liệu lương tháng
+        public const string PUT_UNLOCK_PAYROLL_SALARY = "put-unlock-payroll-salary"; // lưu dữ liệu lương tháng
 
         public const string GET_CONFIRM_WORKING_HOUR_REQUEST = "get-confirm-working-hour-request";
         public const string POST_CONFIRM_WORKING_HOUR_REQUEST = "post-confirm-working-hour-request";

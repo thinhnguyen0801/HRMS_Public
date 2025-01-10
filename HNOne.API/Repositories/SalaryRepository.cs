@@ -90,7 +90,7 @@ namespace HNOne.API.Repositories
                     if (data.IsLocked)
                     {
                         response.status = StatusCodes.Status409Conflict;
-                        response.message = $"Nhân viên {data.EmployeeCode} đã được chốt dữ liệu lương!!!";
+                        response.message = $"Nhân viên {data.EmployeeCode} đã được khóa kỳ dữ liệu lương!!!";
                         if (isTrans) await _dbContext.Database.RollbackTransactionAsync();
                         return response;
                     }
@@ -193,6 +193,52 @@ namespace HNOne.API.Repositories
                     _dbContext.Payrolls.Attach(data);
                     _dbContext.Entry(data).State = EntityState.Modified;
                 }
+                await _dbContext.SaveChangesAsync();
+                await _dbContext.Database.CommitTransactionAsync();
+                response.message = MessageConstants.MESSAGE_UPDATE_SUCCESS;
+                return response;
+            }
+            catch (Exception)
+            {
+                if (isTrans) await _dbContext.Database.RollbackTransactionAsync();
+                throw;
+            }
+        }
+        
+        /// <summary>
+        /// mở khóa kỳ lương cho nhân viên
+        /// </summary>
+        /// <param name="userId"></param>
+        /// <param name="lstEntity"></param>
+        /// <returns></returns>
+        public async Task<ResponseModel> UnLockPayroll(int userId, IEnumerable<Payrolls> lstEntity)
+        {
+            ResponseModel response = new ResponseModel();
+            bool isTrans = false;
+            try
+            {
+                DateTime dateTimeNow = _dateTimeHelper.GetCurrentVietnamTime();
+                // Tạo mới
+                await _dbContext.Database.BeginTransactionAsync();
+                isTrans = true;
+                foreach (var entity in lstEntity)
+                {
+                    var data = await _dbContext.Payrolls.FirstOrDefaultAsync(m => m.EmployeeId == entity.EmployeeId && m.Month == entity.Month && m.Year == entity.Year);
+                    if(data == null || !data.IsLocked)
+                    {
+                        response.status = StatusCodes.Status409Conflict;
+                        response.message = $"Nhân viên {entity.EmployeeCode} chưa được khóa kỳ dữ liệu lương!!!";
+                        if (isTrans) await _dbContext.Database.RollbackTransactionAsync();
+                        return response;
+                    }    
+                    data.IsLocked = false;
+                    data.DateTracking = dateTimeNow;
+                    data.UpdateDate = dateTimeNow;
+                    data.UserSign2 = userId;
+
+                    _dbContext.Payrolls.Attach(data);
+                    _dbContext.Entry(data).State = EntityState.Modified;
+                }    
                 await _dbContext.SaveChangesAsync();
                 await _dbContext.Database.CommitTransactionAsync();
                 response.message = MessageConstants.MESSAGE_UPDATE_SUCCESS;

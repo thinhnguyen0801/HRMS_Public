@@ -120,11 +120,16 @@
                             <DxToolbarItem Text="Lưu lương tháng" BeginGroup="true" IconCssClass="@($"{IconClassConstants.ICON_UPDATE}")" CssClass="w1FontSize"
                                            Alignment="@ToolbarItemAlignment.Right" Click="@SaveDataHandler" />
 
-                            <DxToolbarItem Text="Chốt lương" BeginGroup="true" IconCssClass="@($"{IconClassConstants.ICON_TABLE_LOCK}")" CssClass="w1FontSize"
-                                           Alignment="@ToolbarItemAlignment.Right" Click="@LockPayrollEmployeeHandler" />
+                            @* <DxToolbarItem Text="Chốt lương" BeginGroup="true" IconCssClass="@($"{IconClassConstants.ICON_TABLE_LOCK}")" CssClass="w1FontSize"
+                                           Alignment="@ToolbarItemAlignment.Right" Click="@SaveDataHandler" /> *@
 
-                            <DxToolbarItem Text="Chốt lương chi nhánh" BeginGroup="true" IconCssClass="@($"{IconClassConstants.ICON_TABLE_LOCK}")" CssClass="w1FontSize"
-                                           Alignment="@ToolbarItemAlignment.Right" Click="@LockPayrollBranchHandler" />
+                            <DxToolbarItem Text="Khóa kỳ" BeginGroup="true" IconCssClass="@($"{IconClassConstants.ICON_TABLE_LOCK}")" CssClass="w1FontSize"
+                                           Alignment="@ToolbarItemAlignment.Right" Click="@LockPayrollEmployeeHandler"  />
+
+                            <DxToolbarItem Text="Mở kỳ" BeginGroup="true" IconCssClass="@($"{IconClassConstants.ICON_TABLE_UNLOCK}")" CssClass="w1FontSize"
+                                           Alignment="@ToolbarItemAlignment.Right" Click="@UnlockPayrollEmployeeHandler"  />
+                            @* <DxToolbarItem Text="Chốt lương chi nhánh" BeginGroup="true" IconCssClass="@($"{IconClassConstants.ICON_TABLE_LOCK}")" CssClass="w1FontSize"
+                                           Alignment="@ToolbarItemAlignment.Right" Click="@LockPayrollBranchHandler" /> *@
 
                             <DxToolbarItem Text="Kết xuất" BeginGroup="true" IconCssClass="@($"{IconClassConstants.ICON_EXPORT_EXCEL}")" CssClass="w1FontSize"
                                            Alignment="@ToolbarItemAlignment.Right" Click="@(()=> ExportExcelHandler())" />
@@ -166,7 +171,7 @@
                                     <DxGridSelectionColumn Width="45px" FixedPosition="@GridColumnFixedPosition.Left" />
                                     <DxGridDataColumn FieldName="@nameof(PayrollModel.employeeCode)" Caption="Mã nhân viên" Width="110px" MinWidth="100" FixedPosition="@GridColumnFixedPosition.Left" />
                                     <DxGridDataColumn FieldName="@nameof(PayrollModel.employeeName)" Caption="Họ tên" Width="135px" MinWidth="100" FixedPosition="@GridColumnFixedPosition.Left" />
-                                    <DxGridDataColumn FieldName="@nameof(PayrollModel.isLocked)" Caption="Đã chốt?" Width="90px" MinWidth="70" />
+                                    <DxGridDataColumn FieldName="@nameof(PayrollModel.isLocked)" Caption="Khóa kỳ?" Width="90px" MinWidth="70" />
                                     <DxGridDataColumn FieldName="@nameof(PayrollModel.month)" Caption="Tháng" MinWidth="70" DisplayFormat="d" />
                                     <DxGridDataColumn FieldName="@nameof(PayrollModel.year)" Caption="Năm" MinWidth="70" DisplayFormat="d" />
                                     <DxGridDataColumn FieldName="@nameof(PayrollModel.contractCode)" Caption="Hợp đồng số" MinWidth="90" 
@@ -432,7 +437,7 @@
                                     <DxGridSelectionColumn Width="45px" FixedPosition="@GridColumnFixedPosition.Left" />
                                     <DxGridDataColumn FieldName="@nameof(PayrollModel.employeeCode)" Caption="Mã nhân viên" Width="110px" MinWidth="100" FixedPosition="@GridColumnFixedPosition.Left" />
                                     <DxGridDataColumn FieldName="@nameof(PayrollModel.employeeName)" Caption="Họ tên" Width="135px" MinWidth="100" FixedPosition="@GridColumnFixedPosition.Left" />
-                                    <DxGridDataColumn FieldName="@nameof(PayrollModel.isLocked)" Caption="Đã chốt?" Width="90px" MinWidth="70" />
+                                    <DxGridDataColumn FieldName="@nameof(PayrollModel.isLocked)" Caption="Khóa kỳ?" Width="90px" MinWidth="70" />
                                     <DxGridDataColumn FieldName="@nameof(PayrollModel.month)" Caption="Tháng" MinWidth="70" DisplayFormat="d" />
                                     <DxGridDataColumn FieldName="@nameof(PayrollModel.year)" Caption="Năm" MinWidth="70" DisplayFormat="d" />
                                     <DxGridDataColumn FieldName="@nameof(PayrollModel.isCompanyInsurance)" Caption="Công ty đóng thay?" Width="90px" MinWidth="80" CaptionAlignment="@GridTextAlignment.Center">
@@ -639,7 +644,7 @@
                                     <DxGridSelectionColumn Width="45px" FixedPosition="@GridColumnFixedPosition.Left" />
                                     <DxGridDataColumn FieldName="@nameof(PayrollModel.employeeCode)" Caption="Mã nhân viên" Width="110px" MinWidth="100" FixedPosition="@GridColumnFixedPosition.Left" />
                                     <DxGridDataColumn FieldName="@nameof(PayrollModel.employeeName)" Caption="Họ tên" Width="135px" MinWidth="100" FixedPosition="@GridColumnFixedPosition.Left" />
-                                    <DxGridDataColumn FieldName="@nameof(PayrollModel.isLocked)" Caption="Đã chốt?" Width="90px" MinWidth="70" />
+                                    <DxGridDataColumn FieldName="@nameof(PayrollModel.isLocked)" Caption="Khóa kỳ?" Width="90px" MinWidth="70" />
                                     <DxGridDataColumn FieldName="@nameof(PayrollModel.month)" Caption="Tháng" MinWidth="70" DisplayFormat="d" />
                                     <DxGridDataColumn FieldName="@nameof(PayrollModel.year)" Caption="Năm" MinWidth="70" DisplayFormat="d" />
                                     <DxGridDataColumn FieldName="@nameof(PayrollModel.taxTypeName)" Caption="Loại tính thuế" MinWidth="120" />

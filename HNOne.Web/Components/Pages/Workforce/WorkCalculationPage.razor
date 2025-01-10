@@ -113,14 +113,20 @@
                 <div class="card-header p-1">
                     <DxToolbar ItemRenderStyleMode="@ToolbarRenderStyleMode.Contained">
                         <Items>
-                            <DxToolbarItem Text="Làm mới" BeginGroup="true" IconCssClass="@($"{IconClassConstants.ICON_REFRESH}")" CssClass="w1FontSize"
+                            <DxToolbarItem Text="Tính công" BeginGroup="true" IconCssClass="@($"{IconClassConstants.ICON_CALCULATOR}")" CssClass="w1FontSize"
                                            Alignment="@ToolbarItemAlignment.Right" Click="@RefreshHandler" />
 
                             <DxToolbarItem Text="Lưu công tháng" BeginGroup="true" IconCssClass="@($"{IconClassConstants.ICON_UPDATE}")" CssClass="w1FontSize"
                                            Alignment="@ToolbarItemAlignment.Right" Click="@SaveDataHandler" />
 
-                            <DxToolbarItem Text="Chốt công" BeginGroup="true" IconCssClass="@($"{IconClassConstants.ICON_TABLE_LOCK}")" CssClass="w1FontSize"
-                                           Alignment="@ToolbarItemAlignment.Right" Click="@SummitWork" />
+                            <DxToolbarItem Text="Khóa kỳ" BeginGroup="true" IconCssClass="@($"{IconClassConstants.ICON_TABLE_LOCK}")" CssClass="w1FontSize"
+                                           Alignment="@ToolbarItemAlignment.Right" Click="@LockTimeSheetEmployeeHandler" />
+
+                            <DxToolbarItem Text="Mở kỳ" BeginGroup="true" IconCssClass="@($"{IconClassConstants.ICON_TABLE_UNLOCK}")" CssClass="w1FontSize"
+                                           Alignment="@ToolbarItemAlignment.Right" Click="@UnlockTimeSheetEmployeeHandler"  />
+
+                            <DxToolbarItem Text="Kết xuất" BeginGroup="true" IconCssClass="@($"{IconClassConstants.ICON_EXPORT_EXCEL}")" CssClass="w1FontSize"
+                                           Alignment="@ToolbarItemAlignment.Right" Click="@(()=> ExportExcelHandler())" />
 
                             @* <DxToolbarItem Text="Tính công" BeginGroup="true" IconCssClass="@($"{IconClassConstants.ICON_CALCULATOR}")" CssClass="w1FontSize"
                                            Alignment="@ToolbarItemAlignment.Right" /> *@
@@ -164,60 +170,60 @@
                                     <DxGridDataColumn FieldName="@nameof(ShiftAssignmentModel.titleName)" Caption="Chức danh" Width="125px" MinWidth="100" />
                                     <DxGridDataColumn FieldName="@nameof(ShiftAssignmentModel.shiftCode)" Caption="Ca làm việc" Width="90px" MinWidth="70" />
                                     <DxGridDataColumn FieldName="@nameof(ShiftAssignmentModel.isLocked)" Caption="Khóa kỳ?" Width="90px" MinWidth="70" />
-                                    <DxGridDataColumn FieldName="@nameof(ShiftAssignmentModel.tNC)" Caption="TNC" Width="50px" MinWidth="40" TextAlignment="@GridTextAlignment.Center" CaptionAlignment="@GridTextAlignment.Center">
+                                    <DxGridDataColumn FieldName="@nameof(ShiftAssignmentModel.tNC)" Caption="Tổng hệ số công" Width="50px" MinWidth="40" TextAlignment="@GridTextAlignment.Center" CaptionAlignment="@GridTextAlignment.Center">
                                         <HeaderCaptionTemplate>
                                             <span title="Tổng hệ số công">TNC</span>
                                         </HeaderCaptionTemplate>
                                     </DxGridDataColumn>
-                                    <DxGridDataColumn FieldName="@nameof(ShiftAssignmentModel.cDM)" Caption="CĐM" Width="50px" MinWidth="40" AllowSort="false" 
+                                    <DxGridDataColumn FieldName="@nameof(ShiftAssignmentModel.cDM)" Caption="Công định mức" Width="50px" MinWidth="40" AllowSort="false" 
                                         TextAlignment="@GridTextAlignment.Center" CaptionAlignment="@GridTextAlignment.Center" DisplayFormat="@GlobalContants.FORMAT_NUMBER">
                                         <HeaderCaptionTemplate>
                                             <span title="Công định mức">CĐM</span>
                                         </HeaderCaptionTemplate>
                                     </DxGridDataColumn>
-                                    <DxGridDataColumn FieldName="@nameof(ShiftAssignmentModel.cTT)" Caption="CTT" Width="50px" MinWidth="40" AllowSort="false" 
+                                    <DxGridDataColumn FieldName="@nameof(ShiftAssignmentModel.cTT)" Caption="Công thực tế" Width="50px" MinWidth="40" AllowSort="false" 
                                         TextAlignment="@GridTextAlignment.Center" CaptionAlignment="@GridTextAlignment.Center" DisplayFormat="@GlobalContants.FORMAT_NUMBER">
                                         <HeaderCaptionTemplate>
                                             <span title="Công thực tế">CTT</span>
                                         </HeaderCaptionTemplate>
                                     </DxGridDataColumn>
-                                    <DxGridDataColumn FieldName="@nameof(ShiftAssignmentModel.nL)" Caption="NL" Width="50px" MinWidth="40" AllowSort="false" 
+                                    <DxGridDataColumn FieldName="@nameof(ShiftAssignmentModel.nL)" Caption="Nghỉ lễ" Width="50px" MinWidth="40" AllowSort="false" 
                                         TextAlignment="@GridTextAlignment.Center" CaptionAlignment="@GridTextAlignment.Center" DisplayFormat="@GlobalContants.FORMAT_NUMBER">
                                         <HeaderCaptionTemplate>
                                             <span title="Nghỉ lễ">NL</span>
                                         </HeaderCaptionTemplate>
                                     </DxGridDataColumn>
-                                    <DxGridDataColumn FieldName="@nameof(ShiftAssignmentModel.nPN)" Caption="PN" Width="50px" MinWidth="40" AllowSort="false" 
+                                    <DxGridDataColumn FieldName="@nameof(ShiftAssignmentModel.nPN)" Caption="Nghỉ phép năm" Width="50px" MinWidth="40" AllowSort="false" 
                                         TextAlignment="@GridTextAlignment.Center" CaptionAlignment="@GridTextAlignment.Center" DisplayFormat="@GlobalContants.FORMAT_NUMBER">
                                         <HeaderCaptionTemplate>
                                             <span title="Nghỉ phép năm">PN</span>
                                         </HeaderCaptionTemplate>
                                     </DxGridDataColumn>
-                                    <DxGridDataColumn FieldName="@nameof(ShiftAssignmentModel.nCD)" Caption="CĐ" Width="50px" MinWidth="40" AllowSort="false" 
+                                    <DxGridDataColumn FieldName="@nameof(ShiftAssignmentModel.nCD)" Caption="Nghỉ chế độ" Width="50px" MinWidth="40" AllowSort="false" 
                                         TextAlignment="@GridTextAlignment.Center" CaptionAlignment="@GridTextAlignment.Center" DisplayFormat="@GlobalContants.FORMAT_NUMBER">
                                         <HeaderCaptionTemplate>
                                             <span title="Nghỉ chế độ">CĐ</span>
                                         </HeaderCaptionTemplate>
                                     </DxGridDataColumn>
-                                    <DxGridDataColumn FieldName="@nameof(ShiftAssignmentModel.nPKL)" Caption="PKL" Width="50px" MinWidth="40" AllowSort="false" 
+                                    <DxGridDataColumn FieldName="@nameof(ShiftAssignmentModel.nPKL)" Caption="Nghỉ phép không lương" Width="50px" MinWidth="40" AllowSort="false" 
                                         TextAlignment="@GridTextAlignment.Center" CaptionAlignment="@GridTextAlignment.Center" DisplayFormat="@GlobalContants.FORMAT_NUMBER">
                                         <HeaderCaptionTemplate>
                                             <span title="Nghỉ phép không lương">PKL</span>
                                         </HeaderCaptionTemplate>
                                     </DxGridDataColumn>
-                                    <DxGridDataColumn FieldName="@nameof(ShiftAssignmentModel.nB)" Caption="NB" Width="50px" MinWidth="40" AllowSort="false" 
+                                    <DxGridDataColumn FieldName="@nameof(ShiftAssignmentModel.nB)" Caption="Nghỉ bù" Width="50px" MinWidth="40" AllowSort="false" 
                                         TextAlignment="@GridTextAlignment.Center" CaptionAlignment="@GridTextAlignment.Center" DisplayFormat="@GlobalContants.FORMAT_NUMBER">
                                         <HeaderCaptionTemplate>
                                             <span title="Nghỉ bù">NB</span>
                                         </HeaderCaptionTemplate>
                                     </DxGridDataColumn>
-                                    <DxGridDataColumn FieldName="@nameof(ShiftAssignmentModel.nKP)" Caption="KP" Width="50px" MinWidth="40" AllowSort="false" 
+                                    <DxGridDataColumn FieldName="@nameof(ShiftAssignmentModel.nKP)" Caption="Nghỉ không phép" Width="50px" MinWidth="40" AllowSort="false" 
                                         TextAlignment="@GridTextAlignment.Center" CaptionAlignment="@GridTextAlignment.Center" DisplayFormat="@GlobalContants.FORMAT_NUMBER">
                                         <HeaderCaptionTemplate>
                                             <span title="Nghỉ không phép">KP</span>
                                         </HeaderCaptionTemplate>
                                     </DxGridDataColumn>
-                                    <DxGridDataColumn FieldName="@nameof(ShiftAssignmentModel.cTPC)" Caption="CTPC" Width="50px" MinWidth="40" AllowSort="false" 
+                                    <DxGridDataColumn FieldName="@nameof(ShiftAssignmentModel.cTPC)" Caption="Công tính phụ cấp" Width="50px" MinWidth="40" AllowSort="false" 
                                         TextAlignment="@GridTextAlignment.Center" CaptionAlignment="@GridTextAlignment.Center" DisplayFormat="@GlobalContants.FORMAT_NUMBER">
                                         <HeaderCaptionTemplate>
                                             <span title="Công tính phụ cấp">CTPC</span>
@@ -229,43 +235,43 @@
                                             <span title="Thời gian làm trễ về sớm (Phút)">+/-</span>
                                         </HeaderCaptionTemplate>
                                     </DxGridDataColumn>
-                                    <DxGridDataColumn FieldName="@nameof(ShiftAssignmentModel.sLDLTVS)" Caption="SLT/S" Width="50px" MinWidth="40" AllowSort="false" 
+                                    <DxGridDataColumn FieldName="@nameof(ShiftAssignmentModel.sLDLTVS)" Caption="Số lần đi trễ về sớm" Width="50px" MinWidth="40" AllowSort="false" 
                                         TextAlignment="@GridTextAlignment.Center" CaptionAlignment="@GridTextAlignment.Center" DisplayFormat="@GlobalContants.FORMAT_NUMBER">
                                         <HeaderCaptionTemplate>
                                             <span title="Số lần đi trễ về sớm">SLT/S</span>
                                         </HeaderCaptionTemplate>
                                     </DxGridDataColumn>
-                                    <DxGridDataColumn FieldName="@nameof(ShiftAssignmentModel.sGT)" Caption="TGT" Width="50px" MinWidth="40" AllowSort="false" 
+                                    <DxGridDataColumn FieldName="@nameof(ShiftAssignmentModel.sGT)" Caption="Tổng giờ thiếu" Width="50px" MinWidth="40" AllowSort="false" 
                                         TextAlignment="@GridTextAlignment.Center" CaptionAlignment="@GridTextAlignment.Center" DisplayFormat="@GlobalContants.FORMAT_NUMBER">
                                         <HeaderCaptionTemplate>
                                             <span title="Tổng giờ thiếu">TGT</span>
                                         </HeaderCaptionTemplate>
                                     </DxGridDataColumn>
-                                    <DxGridDataColumn FieldName="@nameof(ShiftAssignmentModel.gCTC)" Caption="Giờ công" Width="70px" MinWidth="65" AllowSort="false"
+                                    <DxGridDataColumn FieldName="@nameof(ShiftAssignmentModel.gCTC)" Caption="Giờ công tiêu chuẩn của 1 ngày" Width="70px" MinWidth="65" AllowSort="false"
                                                       TextAlignment="@GridTextAlignment.Center" CaptionAlignment="@GridTextAlignment.Center" DisplayFormat="@GlobalContants.FORMAT_NUMBER">
                                         <HeaderCaptionTemplate>
                                             <span title="Giờ công tiêu chuẩn của 1 ngày">Giờ công</span>
                                         </HeaderCaptionTemplate>
                                     </DxGridDataColumn>
-                                    <DxGridDataColumn FieldName="@nameof(ShiftAssignmentModel.tGTC)" Caption="TGTC" Width="50px" MinWidth="40" AllowSort="false" 
+                                    <DxGridDataColumn FieldName="@nameof(ShiftAssignmentModel.tGTC)" Caption="Tổng số giờ tăng ca tháng này" Width="50px" MinWidth="40" AllowSort="false" 
                                         TextAlignment="@GridTextAlignment.Center" CaptionAlignment="@GridTextAlignment.Center" DisplayFormat="@GlobalContants.FORMAT_NUMBER">
                                         <HeaderCaptionTemplate>
                                             <span title="Tổng số giờ tăng ca tháng này">TGTC</span>
                                         </HeaderCaptionTemplate>
                                     </DxGridDataColumn>
-                                    <DxGridDataColumn FieldName="@nameof(ShiftAssignmentModel.sGTCTC)" Caption="SGTCTC" Width="60px" MinWidth="50" AllowSort="false"
+                                    <DxGridDataColumn FieldName="@nameof(ShiftAssignmentModel.sGTCTC)" Caption="Số giờ tăng ca tiêu chuẩn trong tháng" Width="60px" MinWidth="50" AllowSort="false"
                                                       TextAlignment="@GridTextAlignment.Center" CaptionAlignment="@GridTextAlignment.Center" DisplayFormat="@GlobalContants.FORMAT_NUMBER">
                                         <HeaderCaptionTemplate>
                                             <span title="Số giờ tăng ca tiêu chuẩn trong tháng">SGTCTC</span>
                                         </HeaderCaptionTemplate>
                                     </DxGridDataColumn>
-                                    <DxGridDataColumn FieldName="@nameof(ShiftAssignmentModel.sGTCTT)" Caption="SGTCTT" Width="60px" MinWidth="50" AllowSort="false" 
+                                    <DxGridDataColumn FieldName="@nameof(ShiftAssignmentModel.sGTCTT)" Caption="Số giờ tăng ca dư của tháng trước" Width="60px" MinWidth="50" AllowSort="false" 
                                         TextAlignment="@GridTextAlignment.Center" CaptionAlignment="@GridTextAlignment.Center" DisplayFormat="@GlobalContants.FORMAT_NUMBER">
                                         <HeaderCaptionTemplate>
                                             <span title="Số giờ tăng ca dư của tháng trước">SGTCTT</span>
                                         </HeaderCaptionTemplate>
                                     </DxGridDataColumn>
-                                    <DxGridDataColumn FieldName="@nameof(ShiftAssignmentModel.sGTCKT)" Caption="SGTCKT" Width="60px" MinWidth="50" AllowSort="false" 
+                                    <DxGridDataColumn FieldName="@nameof(ShiftAssignmentModel.sGTCKT)" Caption="Số giờ tăng ca được chuyển sang tháng tiếp theo" Width="60px" MinWidth="50" AllowSort="false" 
                                         TextAlignment="@GridTextAlignment.Center" CaptionAlignment="@GridTextAlignment.Center" DisplayFormat="@GlobalContants.FORMAT_NUMBER">
                                         <HeaderCaptionTemplate>
                                             <span title="Số giờ tăng ca được chuyển sang tháng tiếp theo">SGTCKT</span>
