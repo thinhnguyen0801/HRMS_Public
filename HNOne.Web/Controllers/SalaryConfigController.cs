@@ -76,7 +76,7 @@ namespace HNOne.Web.Controllers
         private async Task getSalaryConfig()
         {
             ListSalaryConfig = new List<SalaryConfigurationModel>();
-            ListSalaryConfig = await _masterDataService.GetSalaryConfigAsync(UserId, Token, isShowToast: true);
+            ListSalaryConfig = await _masterDataService.GetSalaryConfigAsync(UserId, Token, BranchId, isShowToast: true);
         }
 
         private async Task buildComboboxAsync()

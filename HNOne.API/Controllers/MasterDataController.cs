@@ -119,7 +119,7 @@ namespace HNOne.API.Controllers
                         response.data = await _masterDataService.GetSalaryParameter(request);
                         break;
                     case ProcessConstants.GET_SALARY_CONFIG:
-                        response.data = await _masterDataService.GetSalaryConfig();
+                        response.data = await _masterDataService.GetSalaryConfig(request);
                         break;
                     case ProcessConstants.GET_DOCUMENT_NO:
                         response.data = await _masterDataService.GetDocumentNo(request.type, request.opt, request.opt1, request.opt2);

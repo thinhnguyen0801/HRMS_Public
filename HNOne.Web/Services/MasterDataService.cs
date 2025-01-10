@@ -725,7 +725,7 @@ namespace HNOne.Web.Services
         /// <param name="token"></param>
         /// <param name="isShowToast"></param>
         /// <returns></returns>
-        public async Task<List<SalaryConfigurationModel>?> GetSalaryConfigAsync(int userId, string token, bool isShowToast = false)
+        public async Task<List<SalaryConfigurationModel>?> GetSalaryConfigAsync(int userId, string token, int branchId, bool isShowToast = false)
         {
 
             try
@@ -735,6 +735,7 @@ namespace HNOne.Web.Services
                 request.process = ProcessConstants.GET_SALARY_CONFIG;
                 request.userId = userId;
                 request.token = token;
+                request.branchId = branchId;
                 HttpResponseMessage httpResponse = await PostAsync(EnpointConstants.MASTERDATA_GET_DATA, request);
                 var checkContent = ValidateJsonContent(httpResponse.Content);
                 if (!checkContent) _toastService.ShowInfo(MessageConstants.MESSAGE_JSON_INVALID);

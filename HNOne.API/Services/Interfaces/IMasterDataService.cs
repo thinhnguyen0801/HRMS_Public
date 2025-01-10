@@ -23,7 +23,7 @@ namespace HNOne.API.Services.Interfaces
         Task<ResponseModel> UpdateReasonCategorie(string actionType, ReasonCategories entity);
         Task<IEnumerable<SalaryCategories>> GetSalaryCatagory(RequestModel request);
         Task<ResponseModel> UpdateSalaryCategory(string actionType, SalaryCategories entity);
-        Task<IEnumerable<SalaryConfigurationModel>> GetSalaryConfig();
+        Task<IEnumerable<SalaryConfigurationModel>> GetSalaryConfig(RequestModel request);
         Task<ResponseModel> UpdateSalaryConfig(string actionType, SalaryConfigurations entity);
         Task<IEnumerable<SalaryParameterModel>> GetSalaryParameter(RequestModel request);
         Task<ResponseModel> UpdateSalaryParameter(string actionType, SalaryParameters entity);

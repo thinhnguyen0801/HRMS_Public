@@ -178,7 +178,7 @@ namespace HNOne.Web.Controllers
         {
             try
             {
-                var lstSalaryConfig = await _masterDataService.GetSalaryConfigAsync(UserId, Token, isShowToast: false);
+                var lstSalaryConfig = await _masterDataService.GetSalaryConfigAsync(UserId, Token, BranchId, isShowToast: false);
                 ListSalaryInfoConfig = lstSalaryConfig?.Update(m => m.amount = m.salaryDefault)?.ToList();
                 calcTotalSalary();
             }

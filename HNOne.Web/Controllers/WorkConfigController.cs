@@ -18,8 +18,9 @@ namespace HNOne.Web.Controllers
         [Inject] IWorkforceService _workforceService { get; init; }
         [Inject] IJSRuntime _jsRuntime { get; set; }
         public W1Confirm confirm { get; set; }
-        const string STRING_KEY_EVENT_POST = "CONTRACT_TYPE_CONTROLLER_POST";
-        const string STRING_KEY_EVENT_PUT = "CONTRACT_TYPE_CONTROLLER_PUT";
+        const string STRING_KEY_EVENT_POST = "WORK_CONFIG_CONTROLLER_POST";
+        const string STRING_KEY_EVENT_PUT = "WORK_CONFIG_CONTROLLER_PUT";
+        const string STRING_KEY_EVENT_DELETE = "WORK_CONFIG_CONTROLLER_DELETE";
         #region Properties
 
         public WorkConfigModel WorkConfigUpdate { get; set; } = new WorkConfigModel();

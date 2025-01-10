@@ -233,7 +233,7 @@ namespace HNOne.API.Repositories
         /// lấy danh sách cấu hình lương
         /// </summary>
         /// <returns></returns>
-        public async Task<IEnumerable<SalaryConfigurationModel>> GetSalarySalaryConfig()
+        public async Task<IEnumerable<SalaryConfigurationModel>> GetSalaryConfig(RequestModel request)
         {
             using (var connection = _dapperDbContext.CreateConnection())
             {
@@ -243,10 +243,11 @@ namespace HNOne.API.Repositories
                     " from SalaryConfigurations as T0 with(nolock) " +
                     " inner join SalaryCategories as T1 with(nolock) on T0.SalaryCategoryId = T1.Id " +
                     " inner join Branchs as T2 with(nolock) on T0.BranchId = T2.BranchId" +
-                    " left join EnumCatagories as T3 with(nolock) on T0.SalaryCalculateMethod = T3.Code and T3.EnumType = 'CachTinhLuongPhuCap'";
-                //var parameters = new DynamicParameters();
-                //parameters.Add("@EmployeeId", request.employeeId, DbType.Int32);
-                var results = await connection.QueryAsync<SalaryConfigurationModel>(query, commandTimeout: GlobalConstants.COMMAND_TIMEOUT, commandType: CommandType.Text);
+                    " left join EnumCatagories as T3 with(nolock) on T0.SalaryCalculateMethod = T3.Code and T3.EnumType = 'CachTinhLuongPhuCap'" +
+                    " where T0.IsDelete = '0' and T0.BranchId = @BranchId";
+                var parameters = new DynamicParameters();
+                parameters.Add("@BranchId", request.branchId, DbType.Int32);
+                var results = await connection.QueryAsync<SalaryConfigurationModel>(query, param: parameters, commandTimeout: GlobalConstants.COMMAND_TIMEOUT, commandType: CommandType.Text);
                 return results;
             };
         }

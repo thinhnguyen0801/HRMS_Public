@@ -66,8 +66,8 @@ namespace HNOne.API.Services
         public async Task<IEnumerable<SalaryParameterModel>> GetSalaryParameter(RequestModel request)
             => await _masterRepository.GetSalaryParameter(request);
 
-        public async Task<IEnumerable<SalaryConfigurationModel>> GetSalaryConfig()
-           => await _masterRepository.GetSalarySalaryConfig();
+        public async Task<IEnumerable<SalaryConfigurationModel>> GetSalaryConfig(RequestModel request)
+           => await _masterRepository.GetSalaryConfig(request);
         
         /// <summary>
         /// lấy mã số chứng từ
