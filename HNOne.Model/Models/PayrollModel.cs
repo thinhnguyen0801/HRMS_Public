@@ -111,6 +111,8 @@ namespace HNOne.Model.Models
         public decimal annualLeaveSalary { get; set; } // lương nghỉ phép năm
         public decimal regulatedSalary { get; set; } // lương nghỉ chế độ
         public decimal holidaySalary { get; set; } // lương nghỉ lễ
+        public decimal missingWorkingHourSalary { get; set; } // lương số giờ thiếu
+        public decimal lateSalary { get; set; } // lương đi trễ về sớm
         #endregion
 
     }

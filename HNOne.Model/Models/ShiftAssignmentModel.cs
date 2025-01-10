@@ -3,6 +3,10 @@
     public class ShiftAssignmentModel : AuditableModel
     {
         public int rowOrder { get; set; } // số thứ tự
+        public string? link { get; set; }
+        public string? objType { get; set; } // loại chứng từ
+        public int docEntry { get; set; } // chứng từ liên quan
+        public string? voucherNo { get; set; } // chứng từ liên quan
         public int employeeId { get; set; }
         public string? employeeCode { get; set; } 
         public string? employeeName { get; set; } 
@@ -60,6 +64,8 @@
         public double totalWorkingDayOfMonth { get; set; } // tổng số giờ làm việc
         public DateTime? startDateActual { get; set; } // thời gian bắt đầu
         public DateTime? endDateActual { get; set; } // thời gian kết thúc
+        public DateTime? startDateConfirmActual { get; set; } // thời gian bắt đầu xác nhận công
+        public DateTime? endDateConfirmActual { get; set; } // thời gian kết thúc xác nhận công
         public DateTime? startBreakTimeActual { get; set; } // thời gian nghỉ bắt đầu
         public DateTime? endBreakTimeActual { get; set; } // thời gian nghỉ kết thúc
         public double totalWorkingHoursActual { get; set; } // tổng số giờ làm việc

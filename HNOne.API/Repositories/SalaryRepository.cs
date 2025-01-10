@@ -138,6 +138,8 @@ namespace HNOne.API.Repositories
                     data.AnnualLeaveSalary = entity.AnnualLeaveSalary;
                     data.RegulatedSalary = entity.RegulatedSalary;
                     data.HolidaySalary = entity.HolidaySalary;
+                    data.MissingWorkingHourSalary = entity.MissingWorkingHourSalary;
+                    data.LateSalary = entity.LateSalary;
                     #endregion
 
                     #region Thông tin về trích nộp

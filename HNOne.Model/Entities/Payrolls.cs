@@ -85,6 +85,10 @@ namespace HNOne.Model.Entities
         public decimal RegulatedSalary { get; set; } // lương nghỉ chế độ
         [Column(TypeName = "decimal(19, 6)")]
         public decimal HolidaySalary { get; set; } // lương nghỉ lễ
+        [Column(TypeName = "decimal(19, 6)")]
+        public decimal MissingWorkingHourSalary { get; set; } // lương số giờ thiếu
+        [Column(TypeName = "decimal(19, 6)")]
+        public decimal LateSalary { get; set; } // lương đi trễ về sớm
         #endregion
 
         #region Thông tin về trích nộp
