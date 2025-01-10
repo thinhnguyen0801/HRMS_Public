@@ -391,6 +391,7 @@ namespace HNOne.API.Controllers
                     // Lấy nội dung văn bản & thay thế nội dung placeholder
                     var body = wordDoc.MainDocumentPart!.Document.Body;
                     if (processKey == ProcessConstants.GET_CONTRACT) fillContractToFile(body!, dataList);
+                    if (processKey == ProcessConstants.GET_CONTRACT_APPENDIX) fillContractAppendixToFile(body!, dataList);
                     wordDoc.MainDocumentPart.Document.Save();
                 }
                 var fileBytes = await System.IO.File.ReadAllBytesAsync(outputPath);
@@ -405,16 +406,21 @@ namespace HNOne.API.Controllers
             }
             finally
             {
-                //if (!string.IsNullOrEmpty(outputPath)
-                //    && System.IO.File.Exists(outputPath))
-                //{
-                //    // loại bỏ file đính kèm
-                //    System.IO.File.Delete(outputPath);
-                //}
+                if (!string.IsNullOrEmpty(outputPath)
+                    && System.IO.File.Exists(outputPath))
+                {
+                    // loại bỏ file đính kèm
+                    System.IO.File.Delete(outputPath);
+                }
             }
             
         }
         #region Private Function
+        /// <summary>
+        /// fill dữ liệu Hợp đồng
+        /// </summary>
+        /// <param name="body"></param>
+        /// <param name="dataList"></param>
         private void fillContractToFile(Body body, IEnumerable<object> dataList)
         {
             ContractModel contract = dataList.Cast<ContractModel>().First();
@@ -426,8 +432,11 @@ namespace HNOne.API.Controllers
                 var sampleRow = table.Descendants<TableRow>().Skip(1).FirstOrDefault(); // Bỏ qua dòng tiêu đề
                 var sampleRunProperties = sampleRow!.Descendants<RunProperties>().FirstOrDefault();
                 sampleRow.Remove();
+                decimal totalSalary = 0;
                 foreach (var item in lstSalaryConfig)
                 {
+                    if (!item.isPrintContract) continue;
+                    totalSalary += item.amount;
                     TableRow dataRow = new TableRow();
                     // Tạo ô cho "Nội dung"
                     if (!string.IsNullOrEmpty(item.SalaryCalculateMethodName)) item.salaryCategoryName = $"{item.salaryCategoryName} ({item.SalaryCalculateMethodName})";
@@ -439,7 +448,7 @@ namespace HNOne.API.Controllers
                 TableRow dataRowLast = new TableRow();
                 dataRowLast.Append(
                     new TableCell(new Paragraph(createFormattedRun($"Tổng cộng", sampleRunProperties, true))),
-                    new TableCell(new Paragraph(createFormattedRun($"{contract.totalSalary.ToString(GlobalConstants.FORMAT_CURRENCY)}", sampleRunProperties, true)))
+                    new TableCell(new Paragraph(createFormattedRun($"{totalSalary.ToString(GlobalConstants.FORMAT_CURRENCY)}", sampleRunProperties, true)))
                 );
                 table.Append(dataRowLast);
             }    
@@ -460,6 +469,62 @@ namespace HNOne.API.Controllers
                 if (text.Text.Contains("##JobPositionName##")) text.Text = text.Text.Replace("##JobPositionName##", contract.titleName);
                 if (text.Text.Contains("##OrganizationUnitName##")) text.Text = text.Text.Replace("##OrganizationUnitName##", contract.branchName);
                 if (text.Text.Contains("##SALARY_DECIDES##")) text.Text = text.Text.Replace("##SALARY_DECIDES##", lstSalaryConfig.First(m=>m.salaryCategoryCode == "LQD").amount.ToString(GlobalConstants.FORMAT_CURRENCY));
+            }
+        }
+
+        /// <summary>
+        /// fill dữ liệu phụ lục hợp đồng
+        /// </summary>
+        /// <param name="body"></param>
+        /// <param name="dataList"></param>
+        private void fillContractAppendixToFile(Body body, IEnumerable<object> dataList)
+        {
+            ContractModel contract = dataList.Cast<ContractModel>().First();
+            List<SalaryConfigurationModel> lstSalaryConfig = JsonConvert.DeserializeObject<List<SalaryConfigurationModel>>(contract.jsonDetail!)!; // nếu không có cho rớt catch
+            Table? table = body.Elements<Table>().FirstOrDefault();
+            if (table != null)
+            {
+                // Tìm một dòng mẫu từ bảng để lấy định dạng
+                var sampleRow = table.Descendants<TableRow>().Skip(1).FirstOrDefault(); // Bỏ qua dòng tiêu đề
+                var sampleRunProperties = sampleRow!.Descendants<RunProperties>().FirstOrDefault();
+                sampleRow.Remove();
+                decimal totalSalary = 0;
+                foreach (var item in lstSalaryConfig)
+                {
+                    if (!item.isPrintContract) continue;
+                    totalSalary += item.amount;
+                    TableRow dataRow = new TableRow();
+                    // Tạo ô cho "Nội dung"
+                    if (!string.IsNullOrEmpty(item.SalaryCalculateMethodName)) item.salaryCategoryName = $"{item.salaryCategoryName} ({item.SalaryCalculateMethodName})";
+                    var cell1 = new TableCell(new Paragraph(createFormattedRun($"{item.salaryCategoryName}", sampleRunProperties)));
+                    var cell2 = new TableCell(new Paragraph(createFormattedRun($"{item.amount.ToString(GlobalConstants.FORMAT_CURRENCY)}", sampleRunProperties)));
+                    dataRow.Append(cell1, cell2);
+                    table.Append(dataRow);
+                }
+                TableRow dataRowLast = new TableRow();
+                dataRowLast.Append(
+                    new TableCell(new Paragraph(createFormattedRun($"Tổng cộng", sampleRunProperties, true))),
+                    new TableCell(new Paragraph(createFormattedRun($"{totalSalary.ToString(GlobalConstants.FORMAT_CURRENCY)}", sampleRunProperties, true)))
+                );
+                table.Append(dataRowLast);
+            }
+            foreach (var text in body.Descendants<Text>())
+            {
+                if (text.Text.Contains("ContractCode")) text.Text = text.Text.Replace("ContractCode", contract.contractCode);
+                if (text.Text.Contains("##FullName##")) text.Text = text.Text.Replace("##FullName##", contract.employeeName);
+                if (text.Text.Contains("##BirthDate##")) text.Text = text.Text.Replace("##BirthDate##", contract.dateOfBirth?.ToString(GlobalConstants.FORMAT_DATE));
+                if (text.Text.Contains("##IdentifyNumber##")) text.Text = text.Text.Replace("##IdentifyNumber##", contract.cIC);
+                if (text.Text.Contains("##IdentifyNumberIssuedDate##")) text.Text = text.Text.Replace("##IdentifyNumberIssuedDate##", contract.issuanceDateCIC?.ToString(GlobalConstants.FORMAT_DATE));
+                if (text.Text.Contains("##IdentifyNumberIssuedPlace##")) text.Text = text.Text.Replace("##IdentifyNumberIssuedPlace##", contract.placeOfIssuanceCIC);
+                if (text.Text.Contains("##PermanentAddress##")) text.Text = text.Text.Replace("##PermanentAddress##", contract.placeOfResidence);
+                if (text.Text.Contains("##PermanentAddress##")) text.Text = text.Text.Replace("##PermanentAddress##", contract.placeOfResidence);
+                if (text.Text.Contains("##ContractType##")) text.Text = text.Text.Replace("##ContractType##", contract.contractTypeName);
+                if (text.Text.Contains("##ContractPeriod##")) text.Text = text.Text.Replace("##ContractPeriod##", $"{contract.numberOfMonths} tháng");
+                if (text.Text.Contains("##StartDate##")) text.Text = text.Text.Replace("##StartDate##", contract.startDate?.ToString(GlobalConstants.FORMAT_DATE));
+                if (text.Text.Contains("##EndDate##")) text.Text = text.Text.Replace("##EndDate##", contract.endDate?.ToString(GlobalConstants.FORMAT_DATE));
+                if (text.Text.Contains("##JobPositionName##")) text.Text = text.Text.Replace("##JobPositionName##", contract.titleName);
+                if (text.Text.Contains("##OrganizationUnitName##")) text.Text = text.Text.Replace("##OrganizationUnitName##", contract.branchName);
+                if (text.Text.Contains("##SALARY_DECIDES##")) text.Text = text.Text.Replace("##SALARY_DECIDES##", lstSalaryConfig.First(m => m.salaryCategoryCode == "LQD").amount.ToString(GlobalConstants.FORMAT_CURRENCY));
             }
         }
 

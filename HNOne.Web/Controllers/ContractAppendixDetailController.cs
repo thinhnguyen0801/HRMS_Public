@@ -24,6 +24,9 @@ namespace HNOne.Web.Controllers
         [Inject] IApprovalService _approvalService { get; init; }
         public W1Confirm confirm { get; set; }
 
+        const string STRING_KEY_EVENT_POST = "CONTRACT_APPENDIX_CONTROLLER_POST";
+        const string STRING_KEY_EVENT_PUT = "CONTRACT_APPENDIX_CONTROLLER_PUT";
+        const string STRING_KEY_EVENT_DELETE = "CONTRACT_APPENDIX_CONTROLLER_DELETE";
         #region Properties
         public string? pActionType { get; set; } = nameof(EnumType.Add);
         private int pDocEntry { get; set; } = 0;
@@ -48,6 +51,11 @@ namespace HNOne.Web.Controllers
         public string? StatusIds { get; set; } // Tình trạng nào
         public object? EmployeeSelected { get; set; } // Nhân viên được chọn
         public string? VoucherHistory { get; set; } = string.Empty; // lịch sử chứng từ
+
+        // nút quyền
+        public bool IsAllowPost { get; set; }
+        public bool IsAllowDelete { get; set; }
+        public bool IsAllowPut { get; set; }
         #endregion
 
         protected override async Task OnAfterRenderAsync(bool firstRender)
@@ -60,6 +68,8 @@ namespace HNOne.Web.Controllers
                     string errMessage = await CheckMenuPermissionAsync("danh-sach-phu-luc-hop-dong");
                     if (errMessage == "401") return; // kiểm quyền menu page danh sách
                     this.firstRender = firstRender;
+                    await ShowLoading();
+                    await checkPermission(errMessage);
                     ListBreadcrumbs = new List<BreadcrumbModel>()
                     {
                         new BreadcrumbModel("Nhân sự"),
@@ -68,7 +78,6 @@ namespace HNOne.Web.Controllers
                     };
                     await NotifyBreadcrumb.InvokeAsync(ListBreadcrumbs);
                     //
-                    await ShowLoading();
                     await initDataAsync();
                     await buildComboAsync();
                     if(pDocEntry > 0)
@@ -91,6 +100,18 @@ namespace HNOne.Web.Controllers
         }
 
         #region Private Functions
+        /// <summary>
+        /// kiểm tra quyền nút
+        /// </summary>
+        /// <returns></returns>
+        private async Task checkPermission(string menuId)
+        {
+            List<string> lstKey = await CheckEventPermission(menuId);
+            IsAllowPost = lstKey.FirstOrDefault(m => m == STRING_KEY_EVENT_POST) != null;
+            IsAllowDelete = lstKey.FirstOrDefault(m => m == STRING_KEY_EVENT_DELETE) != null;
+            IsAllowPut = lstKey.FirstOrDefault(m => m == STRING_KEY_EVENT_PUT) != null;
+        }
+
         private async Task initDataAsync(bool isRefresh = false)
         {
             
@@ -98,12 +119,12 @@ namespace HNOne.Web.Controllers
             ContractDocument.salaryCoefficient = 1.0;
             ContractDocument.effectiveDate = DateTime.Now;
             ContractDocument.statusCode = CommonConstants.STATUS_CODE_ADD; // mặc định là chờ xử lý
-            ContractDocument.employeeId = EmployeeId;
-            ContractDocument.employeeCode = EmployeeCode;
-            ContractDocument.employeeName = EmployeeName;
-            ContractDocument.departmentId = DepartmentId;
+            //ContractDocument.employeeId = EmployeeId;
+            //ContractDocument.employeeCode = EmployeeCode;
+            //ContractDocument.employeeName = EmployeeName;
+            //ContractDocument.departmentId = DepartmentId;
             var uri = _navigationManager?.ToAbsoluteUri(_navigationManager.Uri);
-            if (uri != null && QueryHelpers.ParseQuery(uri.Query).Count > 0)
+            if (!isRefresh && uri != null && QueryHelpers.ParseQuery(uri.Query).Count > 0)
             {
                 string key = uri.Query.Substring(5); // bỏ ?key=
                 Dictionary<string, string> pParams = JsonConvert.DeserializeObject<Dictionary<string, string>>(_encryptHelper.Decrypt(key))!;
@@ -449,6 +470,12 @@ namespace HNOne.Web.Controllers
         {
             try
             {
+                await checkPermission(MenuId);
+                if ((pActionType == nameof(EnumType.Add) && !IsAllowPost) || (pActionType != nameof(EnumType.Add) && !IsAllowPut))
+                {
+                    ShowInfo(MessageConstants.MESSAGE_NO_PERMISSION);
+                    return;
+                }
                 string errorMessage = string.Empty;
                 string fieldName = string.Empty; // trả ra trường nào cần validate
                 validateForSave(ref errorMessage, ref fieldName);
@@ -603,6 +630,12 @@ namespace HNOne.Web.Controllers
         {
             try
             {
+                await checkPermission(MenuId);
+                if (!IsAllowDelete)
+                {
+                    ShowInfo(MessageConstants.MESSAGE_NO_PERMISSION);
+                    return;
+                }
                 string errorMessage = string.Empty;
                 string fieldName = string.Empty; // trả ra trường nào cần validate
                 bool isConfirm = true;
@@ -661,6 +694,67 @@ namespace HNOne.Web.Controllers
             finally
             {
                 await Task.Delay(100);
+                await ShowLoading(false);
+                await InvokeAsync(StateHasChanged);
+            }
+        }
+
+        /// <summary>
+        /// In hợp đồng
+        /// </summary>
+        /// <returns></returns>
+        protected async Task PrintDocHandler()
+        {
+            try
+            {
+                await ShowLoading();
+                var stream = await _masterDataService.PrintDocumentAsync(UserId, Token, BranchId, ContractDocument.id, ProcessConstants.GET_CONTRACT, "PLHD.docx");
+                if (stream == null) return;
+                await _jsRuntime.InvokeAsync<string>("downloadFileFromStream", "PLHD.docx", GlobalContants.MIME_TYPE_WORD, stream);
+            }
+            catch (Exception ex)
+            {
+                ShowError(ex.Message);
+                _logger.LogError(ex, "SaveDataHandler");
+            }
+            finally
+            {
+                await ShowLoading(false);
+                await InvokeAsync(StateHasChanged);
+            }
+        }
+
+        /// <summary>
+        /// làm mới dữ liệu
+        /// </summary>
+        /// <returns></returns>
+        protected async Task RefreshDataHandler()
+        {
+            try
+            {
+                await ShowLoading();
+                Dictionary<string, string> pParams = new Dictionary<string, string>
+                {
+                    { "pActionType", nameof(EnumType.Add) },
+                    { "pDocEntry", "-1" },
+                };
+                string key = _encryptHelper.Encrypt(JsonConvert.SerializeObject(pParams)); // mã hóa key
+                _navigationManager.NavigateTo($"/chi-tiet-phu-luc-hop-dong?key={key}");
+                ContractDocument = new ContractAppendixModel();
+                ListSalaryInfoConfig = new List<SalaryConfigurationModel>();
+                pActionType = nameof(EnumType.Add);
+                pDocEntry = -1;
+                VoucherHistory = string.Empty;
+                await initDataAsync(isRefresh: true);
+                await buildComboAsync();
+            }
+            catch (Exception ex)
+            {
+                ShowError(ex.Message);
+                _logger.LogError(ex, "RefreshDataHandler");
+            }
+            finally
+            {
                 await ShowLoading(false);
                 await InvokeAsync(StateHasChanged);
             }
