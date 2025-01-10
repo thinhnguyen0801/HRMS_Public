@@ -151,9 +151,9 @@ namespace HNOne.Web.Controllers
         {
             try
             {
-                var getTask1 = _masterDataService.GetDepartmentAsync(UserId, Token); // ds chức danh
-                var getTask2 = _masterDataService.GetTitleAsync(UserId, Token); // ds chức danh
-                var getTask3 = _masterDataService.GetPositionAsync(UserId, Token); // ds chức vụ
+                var getTask1 = _masterDataService.GetDepartmentAsync(UserId, Token, BranchId, opt: CommonConstants.ENUM_ACTIVE); // ds chức danh
+                var getTask2 = _masterDataService.GetTitleAsync(UserId, Token, BranchId); // ds chức danh
+                var getTask3 = _masterDataService.GetPositionAsync(UserId, Token, BranchId); // ds chức vụ
                 var getTask4 = _masterDataService.GetEnumAsync(UserId, Token, nameof(EnumCatagory.DanhMucThueTNCN)); // ds loại tính thuế
                 var getTask5 = _masterDataService.GetFunEnumAsync(UserId, Token, nameof(EnumCatagory.TrangThaiHopDong)); // ds trạng thái
                 await Task.WhenAll(

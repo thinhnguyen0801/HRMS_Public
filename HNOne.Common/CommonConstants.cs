@@ -15,6 +15,7 @@ namespace HNOne.Common
         public const string WORK_TYPE_DEFAULT = "DEFAULT";
         public const string MAX_OVERTIME_REQUEST = "QuyDinhSoGioTangCa";
         public const string ALLOW_UPDATE_EMPLOYEE_INFO = "CapNhatThongTinNhanVien";
+        public const string ENUM_ACTIVE = "ACTIVE";
         #endregion
     }
 }

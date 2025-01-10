@@ -132,9 +132,9 @@ namespace HNOne.Web.Controllers
         {
             try
             {
-                var getTask1 = _masterDataService.GetDepartmentAsync(UserId, Token); // ds phòng ban
-                var getTask2 = _masterDataService.GetPositionAsync(UserId, Token); // ds chức vụ
-                var getTask3 = _masterDataService.GetTitleAsync(UserId, Token); // ds chức danh
+                var getTask1 = _masterDataService.GetDepartmentAsync(UserId, Token, BranchId, opt: CommonConstants.ENUM_ACTIVE); // ds phòng ban
+                var getTask2 = _masterDataService.GetPositionAsync(UserId, Token, BranchId); // ds chức vụ
+                var getTask3 = _masterDataService.GetTitleAsync(UserId, Token, BranchId); // ds chức danh
                 var getTask4 = _masterDataService.GetEnumAsync(UserId, Token, nameof(EnumCatagory.TrangThaiNhanVien)); // ds trạng thái
                 var getTask5 = _masterDataService.GetEnumAsync(UserId, Token, nameof(EnumCatagory.TinhTrangHonNhan)); // ds tình trạng hôn nhân
                 var getTask6 = _masterDataService.GetLocationAsync(UserId, Token, nameof(EnumCatagory.County)); // ds trạng thái

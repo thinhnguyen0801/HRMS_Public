@@ -76,11 +76,16 @@ namespace HNOne.API.Repositories
             };
         }
 
+        /// <summary>
+        /// lấy danh sách phòng ban
+        /// </summary>
+        /// <param name="request"></param>
+        /// <returns></returns>
         public async Task<IEnumerable<DepartmentModel>> GetDepartment(RequestModel request)
         {
             using (var connection = _dapperDbContext.CreateConnection())
             {
-                DynamicParameters parameters = new DynamicParameters();
+                
                 string strQuery = "select T0.*" +
                     " ,T1.BranchCode as BranchCode, T1.BranchName as BranchName" +
                     " ,T2.[Code] as HeadCode, T2.[Name] as HeadName" +
@@ -89,14 +94,11 @@ namespace HNOne.API.Repositories
                     " inner join Branchs as T1 with(nolock) on T0.BranchId = T1.BranchId" +
                     " left join Employees as T2 with(nolock) on T0.HeadId = T2.Id" +
                     " left join Employees as T3 with(nolock) on T0.AssistantManagerIds = T3.Id" +
-                    " where T0.IsDelete = 0";
+                    " where T0.IsDelete = 0 and T0.BranchId = @BranchId";
                 // thêm điều kiện
-                if (request.opt == "ACTIVE") strQuery += " and T0.IsActive = '1'";
-                if (!string.IsNullOrEmpty(request.opt1))
-                {
-                    strQuery += " and T0.BranchId = @BranchId"; // where theo chi nhanh
-                    parameters.Add("@BranchId", int.Parse(request.opt1), DbType.Int32);
-                }
+                if (request.opt == CommonConstants.ENUM_ACTIVE) strQuery += " and T0.IsActive = '1'";
+                DynamicParameters parameters = new DynamicParameters();
+                parameters.Add("@BranchId", request.branchId, DbType.Int32);
                 var result = await connection.QueryAsync<DepartmentModel>(strQuery, parameters, commandTimeout: 500, commandType: CommandType.Text);
                 return result;
             } 
@@ -106,16 +108,17 @@ namespace HNOne.API.Repositories
         {
             using (var connection = _dapperDbContext.CreateConnection())
             {
-                DynamicParameters parameters = new DynamicParameters();
                 string strQuery = "select T0.*" +
                     " ,T1.BranchCode as BranchCode, T1.BranchName as BranchName" +
                     " ,T2.Code as DepartmentCode,T2.[Name] as DepartmentName" +
                     " from Titles as T0 with(nolock)" +
                     " inner join Branchs as T1 with(nolock) on T0.BranchId = T1.BranchId" +
                     " inner join Departments as T2 with(nolock) on T0.DepartmentId = T2.Id" +
-                    " where T0.IsDelete = 0";
+                    " where T0.IsDelete = 0 and T0.BranchId = @BranchId";
                 // thêm điều kiện
-                if (request.opt == "ACTIVE") strQuery += " and T0.IsActive = '1'";
+                if (request.opt == CommonConstants.ENUM_ACTIVE) strQuery += " and T0.IsActive = '1'";
+                DynamicParameters parameters = new DynamicParameters();
+                parameters.Add("@BranchId", request.branchId, DbType.Int32);
                 var result = await connection.QueryAsync<TitleModel>(strQuery, parameters, commandTimeout: 500, commandType: CommandType.Text);
                 return result;
             }
@@ -124,15 +127,16 @@ namespace HNOne.API.Repositories
         {
             using (var connection = _dapperDbContext.CreateConnection())
             {
-                DynamicParameters parameters = new DynamicParameters();
                 string strQuery = "select T0.*" +
                     " ,T1.BranchCode as BranchCode, T1.BranchName as BranchName, T2.[Name] as LevelName" +
                     " from Positions as T0 with(nolock)" +
                     " inner join Branchs as T1 with(nolock) on T0.BranchId = T1.BranchId" +
                     " inner join EnumCatagories as T2 with(nolock) on T0.LevelCode = T2.Code and EnumType = 'CapDoNhanVien'" +
-                    " where T0.IsDelete = 0";
+                    " where T0.IsDelete = 0 and T0.BranchId = @BranchId";
                 // thêm điều kiện
-                if (request.opt == "ACTIVE") strQuery += " and T0.IsActive = '1'";
+                if (request.opt == CommonConstants.ENUM_ACTIVE) strQuery += " and T0.IsActive = '1'";
+                DynamicParameters parameters = new DynamicParameters();
+                parameters.Add("@BranchId", request.branchId, DbType.Int32);
                 var result = await connection.QueryAsync<PositionModel>(strQuery, parameters, commandTimeout: 500, commandType: CommandType.Text);
                 return result;
             }

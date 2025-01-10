@@ -77,7 +77,7 @@ namespace HNOne.Web.Controllers
                 request.token = Token;
                 request.type = ProcessConstants.GET_COMBO_LIST_SHIFT_PREIOD;
                 
-                var getTask1 = _masterDataService.GetDepartmentAsync(UserId, Token); // ds phòng ban
+                var getTask1 = _masterDataService.GetDepartmentAsync(UserId, Token, BranchId, opt: CommonConstants.ENUM_ACTIVE); // ds phòng ban
                 var getTask2 = _masterDataService.GetEnumAsync(UserId, Token, nameof(EnumCatagory.CaLamViec)); // ds trạng thái
                 var getTask3 = _workforceService.GetMasterDataAsync<ComboboxModel>(request, isShowToast: true);
                 await Task.WhenAll(

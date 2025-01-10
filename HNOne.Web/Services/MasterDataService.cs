@@ -146,7 +146,7 @@ namespace HNOne.Web.Services
         /// </summary>
         /// <param name="request"></param>
         /// <returns></returns>
-        public async Task<List<DepartmentModel>?> GetDepartmentAsync(int userId, string token = "", string opt = "", string opt1 = "", string opt2 = "")
+        public async Task<List<DepartmentModel>?> GetDepartmentAsync(int userId, string token, int branchId, string opt = "", string opt1 = "", bool isShowToast = false)
         {
 
             try
@@ -156,9 +156,9 @@ namespace HNOne.Web.Services
                 request.process = ProcessConstants.GET_DEPARTMENT;
                 request.userId = userId;
                 request.token = token;
+                request.branchId = branchId;
                 request.opt = opt;
                 request.opt1 = opt1;
-                request.opt2 = opt2;
                 HttpResponseMessage httpResponse = await PostAsync(EnpointConstants.MASTERDATA_GET_DATA, request);
                 var checkContent = ValidateJsonContent(httpResponse.Content);
                 if (!checkContent) _toastService.ShowInfo(MessageConstants.MESSAGE_JSON_INVALID);
@@ -167,7 +167,7 @@ namespace HNOne.Web.Services
                     var response = await httpResponse.Content.ReadFromJsonAsync<ResCliModel<DepartmentModel>>();
                     if (response == null || response.status != StatusCodes.Status200OK)
                     {
-                        _toastService.ShowWarning(response?.message ?? MessageConstants.MESSAGE_IT_SUPPORT);
+                        if (isShowToast) _toastService.ShowWarning(response?.message ?? MessageConstants.MESSAGE_IT_SUPPORT);
                         return data;
                     }
                     data = response.data?.ToList();
@@ -233,7 +233,7 @@ namespace HNOne.Web.Services
         /// </summary>
         /// <param name="request"></param>
         /// <returns></returns>
-        public async Task<List<TitleModel>?> GetTitleAsync(int userId, string token = "")
+        public async Task<List<TitleModel>?> GetTitleAsync(int userId, string token, int branchId, bool isShowToast = false)
         {
 
             try
@@ -243,6 +243,7 @@ namespace HNOne.Web.Services
                 request.process = ProcessConstants.GET_TITLE;
                 request.userId = userId;
                 request.token = token;
+                request.branchId = branchId;
                 HttpResponseMessage httpResponse = await PostAsync(EnpointConstants.MASTERDATA_GET_DATA, request);
                 var checkContent = ValidateJsonContent(httpResponse.Content);
                 if (!checkContent) _toastService.ShowInfo(MessageConstants.MESSAGE_JSON_INVALID);
@@ -251,7 +252,7 @@ namespace HNOne.Web.Services
                     var response = await httpResponse.Content.ReadFromJsonAsync<ResCliModel<TitleModel>>();
                     if (response == null || response.status != StatusCodes.Status200OK)
                     {
-                        _toastService.ShowWarning(response?.message ?? MessageConstants.MESSAGE_IT_SUPPORT);
+                        if (isShowToast) _toastService.ShowWarning(response?.message ?? MessageConstants.MESSAGE_IT_SUPPORT);
                         return data;
                     }
                     data = response.data?.ToList();
@@ -312,7 +313,7 @@ namespace HNOne.Web.Services
         /// </summary>
         /// <param name="request"></param>
         /// <returns></returns>
-        public async Task<List<PositionModel>?> GetPositionAsync(int userId, string token = "")
+        public async Task<List<PositionModel>?> GetPositionAsync(int userId, string token, int branchId, bool isShowToast = false)
         {
 
             try
@@ -322,6 +323,7 @@ namespace HNOne.Web.Services
                 request.process = ProcessConstants.GET_POSITION;
                 request.userId = userId;
                 request.token = token;
+                request.branchId = branchId;
                 HttpResponseMessage httpResponse = await PostAsync(EnpointConstants.MASTERDATA_GET_DATA, request);
                 var checkContent = ValidateJsonContent(httpResponse.Content);
                 if (!checkContent) _toastService.ShowInfo(MessageConstants.MESSAGE_JSON_INVALID);
@@ -330,7 +332,7 @@ namespace HNOne.Web.Services
                     var response = await httpResponse.Content.ReadFromJsonAsync<ResCliModel<PositionModel>>();
                     if (response == null || response.status != StatusCodes.Status200OK)
                     {
-                        _toastService.ShowWarning(response?.message ?? MessageConstants.MESSAGE_IT_SUPPORT);
+                        if (isShowToast) _toastService.ShowWarning(response?.message ?? MessageConstants.MESSAGE_IT_SUPPORT);
                         return data;
                     }
                     data = response.data?.ToList();

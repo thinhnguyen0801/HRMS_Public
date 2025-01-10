@@ -9,9 +9,9 @@ namespace HNOne.Web.Services.Interfaces
     {
         Task<List<MenuModel>?> GetMenuAsync(RequestModel request);
         Task<List<BranchModel>?> GetBranchAsync(int userId, string token = "");
-        Task<List<DepartmentModel>?> GetDepartmentAsync(int userId, string token = "", string opt = "", string opt1 = "", string opt2 = "");
-        Task<List<TitleModel>?> GetTitleAsync(int userId, string token = "");
-        Task<List<PositionModel>?> GetPositionAsync(int userId, string token = "");
+        Task<List<DepartmentModel>?> GetDepartmentAsync(int userId, string token, int branchId, string opt = "", string opt2 = "", bool isShowToast = false);
+        Task<List<TitleModel>?> GetTitleAsync(int userId, string token, int branchId, bool isShowToast = false);
+        Task<List<PositionModel>?> GetPositionAsync(int userId, string token, int branchId, bool isShowToast = false);
         Task<List<ContractTypeModel>?> GetContractTypeAsync(int userId, string token = "");
         Task<List<ReasonCategorieModel>?> GetReasonCategorieAsync(int userId, string token = "", string reasonType = "");
         Task<bool> UpdateBranchAsync(string processKey, int userId, string token, string json);
