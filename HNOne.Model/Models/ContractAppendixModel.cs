@@ -43,5 +43,15 @@ namespace HNOne.Model.Models
         public string? departmentName { get; set; } // tên phòng ban
         public string? link { get; set; }
         public string? jsonDetail { get; set; } // danh sách cấu hình tính lương
+
+        #region
+        public DateTime? dateOfBirth { get; set; } // ngày sinh
+        public string? cIC { get; set; } // số căn cước
+        public DateTime? issuanceDateCIC { get; set; } // Ngày cấp CCCD
+        public string? placeOfIssuanceCIC { get; set; } // nơi cấp CCCD
+        public string? placeOfResidence { get; set; } // địa chỉ thường trú
+        public string? titleName { get; set; }
+        public string? branchName { get; set; }
+        #endregion
     }
 }

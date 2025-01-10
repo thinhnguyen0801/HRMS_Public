@@ -708,7 +708,8 @@ namespace HNOne.Web.Controllers
             try
             {
                 await ShowLoading();
-                var stream = await _masterDataService.PrintDocumentAsync(UserId, Token, BranchId, ContractDocument.id, ProcessConstants.GET_CONTRACT, "PLHD.docx");
+                var stream = await _masterDataService.PrintDocumentAsync(UserId, Token, BranchId, ContractDocument.id
+                    , ProcessConstants.GET_CONTRACT_APPENDIX, "PLHD.docx", documentId2: ContractDocument.contractId);
                 if (stream == null) return;
                 await _jsRuntime.InvokeAsync<string>("downloadFileFromStream", "PLHD.docx", GlobalContants.MIME_TYPE_WORD, stream);
             }

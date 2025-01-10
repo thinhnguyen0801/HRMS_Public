@@ -479,7 +479,7 @@ namespace HNOne.API.Controllers
         /// <param name="dataList"></param>
         private void fillContractAppendixToFile(Body body, IEnumerable<object> dataList)
         {
-            ContractModel contract = dataList.Cast<ContractModel>().First();
+            ContractAppendixModel contract = dataList.Cast<ContractAppendixModel>().First();
             List<SalaryConfigurationModel> lstSalaryConfig = JsonConvert.DeserializeObject<List<SalaryConfigurationModel>>(contract.jsonDetail!)!; // nếu không có cho rớt catch
             Table? table = body.Elements<Table>().FirstOrDefault();
             if (table != null)
@@ -510,7 +510,7 @@ namespace HNOne.API.Controllers
             }
             foreach (var text in body.Descendants<Text>())
             {
-                if (text.Text.Contains("ContractCode")) text.Text = text.Text.Replace("ContractCode", contract.contractCode);
+                if (text.Text.Contains("ContractApendixCode")) text.Text = text.Text.Replace("ContractApendixCode", contract.contractAppendixCode);
                 if (text.Text.Contains("##FullName##")) text.Text = text.Text.Replace("##FullName##", contract.employeeName);
                 if (text.Text.Contains("##BirthDate##")) text.Text = text.Text.Replace("##BirthDate##", contract.dateOfBirth?.ToString(GlobalConstants.FORMAT_DATE));
                 if (text.Text.Contains("##IdentifyNumber##")) text.Text = text.Text.Replace("##IdentifyNumber##", contract.cIC);
@@ -518,12 +518,8 @@ namespace HNOne.API.Controllers
                 if (text.Text.Contains("##IdentifyNumberIssuedPlace##")) text.Text = text.Text.Replace("##IdentifyNumberIssuedPlace##", contract.placeOfIssuanceCIC);
                 if (text.Text.Contains("##PermanentAddress##")) text.Text = text.Text.Replace("##PermanentAddress##", contract.placeOfResidence);
                 if (text.Text.Contains("##PermanentAddress##")) text.Text = text.Text.Replace("##PermanentAddress##", contract.placeOfResidence);
-                if (text.Text.Contains("##ContractType##")) text.Text = text.Text.Replace("##ContractType##", contract.contractTypeName);
-                if (text.Text.Contains("##ContractPeriod##")) text.Text = text.Text.Replace("##ContractPeriod##", $"{contract.numberOfMonths} tháng");
-                if (text.Text.Contains("##StartDate##")) text.Text = text.Text.Replace("##StartDate##", contract.startDate?.ToString(GlobalConstants.FORMAT_DATE));
-                if (text.Text.Contains("##EndDate##")) text.Text = text.Text.Replace("##EndDate##", contract.endDate?.ToString(GlobalConstants.FORMAT_DATE));
-                if (text.Text.Contains("##JobPositionName##")) text.Text = text.Text.Replace("##JobPositionName##", contract.titleName);
-                if (text.Text.Contains("##OrganizationUnitName##")) text.Text = text.Text.Replace("##OrganizationUnitName##", contract.branchName);
+                if (text.Text.Contains("##ContractCode##")) text.Text = text.Text.Replace("##ContractCode##", $"{contract.contractCode}");
+                if (text.Text.Contains("##StartDate##")) text.Text = text.Text.Replace("##StartDate##", contract.dateOfSigning?.ToString(GlobalConstants.FORMAT_DATE));
                 if (text.Text.Contains("##SALARY_DECIDES##")) text.Text = text.Text.Replace("##SALARY_DECIDES##", lstSalaryConfig.First(m => m.salaryCategoryCode == "LQD").amount.ToString(GlobalConstants.FORMAT_CURRENCY));
             }
         }

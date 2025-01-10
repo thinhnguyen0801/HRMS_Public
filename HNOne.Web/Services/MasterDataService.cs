@@ -1110,7 +1110,7 @@ namespace HNOne.Web.Services
         /// <param name="processKey"></param>
         /// <param name="fileName"></param>
         /// <returns></returns>
-        public async Task<DotNetStreamReference?> PrintDocumentAsync(int userId, string token, int branchId, int documentId, string processKey, string fileName)
+        public async Task<DotNetStreamReference?> PrintDocumentAsync(int userId, string token, int branchId, int documentId, string processKey, string fileName, int documentId2 = -1)
         {
             try
             {
@@ -1121,6 +1121,7 @@ namespace HNOne.Web.Services
                 request.branchId = branchId;
                 request.opt = fileName;
                 request.documentId = documentId;
+                request.opt1 = $"{documentId2}"; // id 2
                 DotNetStreamReference? streamRef = null;
                 HttpResponseMessage httpResponse = await PostAsync(EnpointConstants.MASTERDATA_EXPORT_DATA, request);
                 if (httpResponse.StatusCode == System.Net.HttpStatusCode.Unauthorized)
