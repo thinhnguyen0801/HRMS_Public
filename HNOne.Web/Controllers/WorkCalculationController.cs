@@ -9,6 +9,7 @@ using Microsoft.AspNetCore.Components;
 using System.Data;
 using HNOne.Web.Components.Controls;
 using Newtonsoft.Json;
+using HNOne.Web.Services;
 
 namespace HNOne.Web.Controllers
 {
@@ -16,6 +17,7 @@ namespace HNOne.Web.Controllers
     {
         [Inject] IMasterDataService _masterDataService { get; init; }
         [Inject] IWorkforceService _workforceService { get; init; }
+        [Inject] DataHelperService _dataHelperService { get; set; }
         public W1Confirm confirm { get; set; }
 
         const string STRING_KEY_EVENT_POST = "WORK_CALCULATION_CONTROLLER_POST";
@@ -179,6 +181,18 @@ namespace HNOne.Web.Controllers
                 if(!response.IsNullOrEmpty())
                 {
                     HeaderTextDetail = $"Thông tin công chi tiết của nhân viên {itemSelected.employeeCode}";
+                    foreach(var item in response!)
+                    {
+                        if(item.docEntry > 0)
+                        {
+                            Dictionary<string, string> pParams = new Dictionary<string, string>
+                            {
+                                { "pActionType", nameof(EnumType.Update) },
+                                { "pDocEntry", $"{item.docEntry}" }
+                            };
+                            item.link = _dataHelperService.ListUris[$"{item.objType}"] + _encryptHelper.Encrypt(JsonConvert.SerializeObject(pParams));
+                        }
+                    }    
                     ListTimesheetDetail = response;
                     IsShowDetail = true;
                 }    

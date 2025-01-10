@@ -163,7 +163,7 @@
                                     <DxGridDataColumn FieldName="@nameof(ShiftAssignmentModel.employeeName)" Caption="Họ tên" Width="135px" MinWidth="100" FixedPosition="@GridColumnFixedPosition.Left" />
                                     <DxGridDataColumn FieldName="@nameof(ShiftAssignmentModel.titleName)" Caption="Chức danh" Width="125px" MinWidth="100" />
                                     <DxGridDataColumn FieldName="@nameof(ShiftAssignmentModel.shiftCode)" Caption="Ca làm việc" Width="90px" MinWidth="70" />
-                                    <DxGridDataColumn FieldName="@nameof(ShiftAssignmentModel.isLocked)" Caption="Đã chốt?" Width="90px" MinWidth="70" />
+                                    <DxGridDataColumn FieldName="@nameof(ShiftAssignmentModel.isLocked)" Caption="Khóa kỳ?" Width="90px" MinWidth="70" />
                                     <DxGridDataColumn FieldName="@nameof(ShiftAssignmentModel.tNC)" Caption="TNC" Width="50px" MinWidth="40" TextAlignment="@GridTextAlignment.Center" CaptionAlignment="@GridTextAlignment.Center">
                                         <HeaderCaptionTemplate>
                                             <span title="Tổng hệ số công">TNC</span>
@@ -253,19 +253,19 @@
                                             <span title="Tổng số giờ tăng ca tháng này">TGTC</span>
                                         </HeaderCaptionTemplate>
                                     </DxGridDataColumn>
-                                    <DxGridDataColumn FieldName="@nameof(ShiftAssignmentModel.sGTCTC)" Caption="SGTCTC" Width="50px" MinWidth="40" AllowSort="false"
+                                    <DxGridDataColumn FieldName="@nameof(ShiftAssignmentModel.sGTCTC)" Caption="SGTCTC" Width="60px" MinWidth="50" AllowSort="false"
                                                       TextAlignment="@GridTextAlignment.Center" CaptionAlignment="@GridTextAlignment.Center" DisplayFormat="@GlobalContants.FORMAT_NUMBER">
                                         <HeaderCaptionTemplate>
                                             <span title="Số giờ tăng ca tiêu chuẩn trong tháng">SGTCTC</span>
                                         </HeaderCaptionTemplate>
                                     </DxGridDataColumn>
-                                    <DxGridDataColumn FieldName="@nameof(ShiftAssignmentModel.sGTCTT)" Caption="SGTCTT" Width="50px" MinWidth="40" AllowSort="false" 
+                                    <DxGridDataColumn FieldName="@nameof(ShiftAssignmentModel.sGTCTT)" Caption="SGTCTT" Width="60px" MinWidth="50" AllowSort="false" 
                                         TextAlignment="@GridTextAlignment.Center" CaptionAlignment="@GridTextAlignment.Center" DisplayFormat="@GlobalContants.FORMAT_NUMBER">
                                         <HeaderCaptionTemplate>
                                             <span title="Số giờ tăng ca dư của tháng trước">SGTCTT</span>
                                         </HeaderCaptionTemplate>
                                     </DxGridDataColumn>
-                                    <DxGridDataColumn FieldName="@nameof(ShiftAssignmentModel.sGTCKT)" Caption="SGTCKT" Width="50px" MinWidth="40" AllowSort="false" 
+                                    <DxGridDataColumn FieldName="@nameof(ShiftAssignmentModel.sGTCKT)" Caption="SGTCKT" Width="60px" MinWidth="50" AllowSort="false" 
                                         TextAlignment="@GridTextAlignment.Center" CaptionAlignment="@GridTextAlignment.Center" DisplayFormat="@GlobalContants.FORMAT_NUMBER">
                                         <HeaderCaptionTemplate>
                                             <span title="Số giờ tăng ca được chuyển sang tháng tiếp theo">SGTCKT</span>
@@ -561,21 +561,129 @@
                 <DxGridDataColumn FieldName="@nameof(ShiftAssignmentModel.employeeCode)" Caption="Mã nhân viên" Width="110px" MinWidth="100" FixedPosition="@GridColumnFixedPosition.Left" />
                 <DxGridDataColumn FieldName="@nameof(ShiftAssignmentModel.employeeName)" Caption="Họ tên" Width="135px" MinWidth="100" FixedPosition="@GridColumnFixedPosition.Left" />
                 <DxGridDataColumn FieldName="@nameof(ShiftAssignmentModel.titleName)" Caption="Chức danh" Width="125px" MinWidth="100" TextAlignment="@GridTextAlignment.Center" CaptionAlignment="@GridTextAlignment.Center" />
-                <DxGridDataColumn FieldName="@nameof(ShiftAssignmentModel.shiftCode)" Caption="Ca làm việc" Width="90px" MinWidth="70" TextAlignment="@GridTextAlignment.Center" CaptionAlignment="@GridTextAlignment.Center" />
+                <DxGridDataColumn FieldName="@nameof(ShiftAssignmentModel.shiftCode)" Caption="Ca làm việc" Width="80px" MinWidth="70" TextAlignment="@GridTextAlignment.Center" CaptionAlignment="@GridTextAlignment.Center" />
                 <DxGridDataColumn FieldName="@nameof(ShiftAssignmentModel.symbol)" Caption="Ký hiệu" Width="90px" MinWidth="70" TextAlignment="@GridTextAlignment.Center" CaptionAlignment="@GridTextAlignment.Center" />
+                <DxGridDataColumn FieldName="@nameof(ShiftAssignmentModel.voucherNo)" Caption="Chứng từ liên quan" Width="130px" MinWidth="120"
+                                  TextAlignment="@GridTextAlignment.Center" CaptionAlignment="@GridTextAlignment.Center" DataRowEditorVisible="false">
+                    <CellDisplayTemplate>
+                        @{
+                            <a href="@($"{(context.DataItem as ShiftAssignmentModel)!.link}")">@context.Value</a>
+                        }
+                    </CellDisplayTemplate>
+                </DxGridDataColumn>
                 <DxGridDataColumn FieldName="@nameof(ShiftAssignmentModel.workingDate)" Caption="Ngày làm việc" Width="100px" MinWidth="90" DisplayFormat="@GlobalContants.FORMAT_DATE" TextAlignment="@GridTextAlignment.Center" CaptionAlignment="@GridTextAlignment.Center"  />
-                <DxGridDataColumn FieldName="@nameof(ShiftAssignmentModel.startDate)" Caption="Giờ bắt đầu" Width="100px" MinWidth="90" DisplayFormat="@GlobalContants.FORMAT_TIME" TextAlignment="@GridTextAlignment.Center" CaptionAlignment="@GridTextAlignment.Center" />
-                <DxGridDataColumn FieldName="@nameof(ShiftAssignmentModel.endDate)" Caption="Giờ kết thúc" Width="100px" MinWidth="90" DisplayFormat="@GlobalContants.FORMAT_TIME" TextAlignment="@GridTextAlignment.Center" CaptionAlignment="@GridTextAlignment.Center" />
-                <DxGridDataColumn FieldName="@nameof(ShiftAssignmentModel.startBreakTime)" Caption="Giờ nghỉ b/đ" Width="100px" MinWidth="90" DisplayFormat="@GlobalContants.FORMAT_TIME" TextAlignment="@GridTextAlignment.Center" CaptionAlignment="@GridTextAlignment.Center" />
-                <DxGridDataColumn FieldName="@nameof(ShiftAssignmentModel.endBreakTime)" Caption="Giờ nghỉ k/t" Width="100px" MinWidth="90" DisplayFormat="@GlobalContants.FORMAT_TIME" TextAlignment="@GridTextAlignment.Center" CaptionAlignment="@GridTextAlignment.Center" />
+                @* <DxGridDataColumn FieldName="@nameof(ShiftAssignmentModel.startDate)" Caption="Giờ bắt đầu" Width="100px" MinWidth="90" DisplayFormat="@GlobalContants.FORMAT_TIME" TextAlignment="@GridTextAlignment.Center" CaptionAlignment="@GridTextAlignment.Center" />
+                <DxGridDataColumn FieldName="@nameof(ShiftAssignmentModel.endDate)" Caption="Giờ kết thúc" Width="100px" MinWidth="90" DisplayFormat="@GlobalContants.FORMAT_TIME" TextAlignment="@GridTextAlignment.Center" CaptionAlignment="@GridTextAlignment.Center" /> *@
+                <DxGridDataColumn FieldName="@nameof(ShiftAssignmentModel.startDate)" Caption="Giờ bắt đầu" Width="90px" MinWidth="80" DisplayFormat="@GlobalContants.FORMAT_TIME"
+                                  TextAlignment="@GridTextAlignment.Center" CaptionAlignment="@GridTextAlignment.Center" DataRowEditorVisible="false">
+                    <HeaderCaptionTemplate>
+                        <div>Giờ</div>
+                        <div>Bắt đầu</div>
+                    </HeaderCaptionTemplate>
+                </DxGridDataColumn>
+                <DxGridDataColumn FieldName="@nameof(ShiftAssignmentModel.endDate)" Caption="Giờ kết thúc" Width="90px" MinWidth="80" DisplayFormat="@GlobalContants.FORMAT_TIME"
+                                  TextAlignment="@GridTextAlignment.Center" CaptionAlignment="@GridTextAlignment.Center" DataRowEditorVisible="false">
+                    <HeaderCaptionTemplate>
+                        <div>Giờ</div>
+                        <div>Kết thúc</div>
+                    </HeaderCaptionTemplate>
+                </DxGridDataColumn>
+                
+                @* <DxGridDataColumn FieldName="@nameof(ShiftAssignmentModel.startBreakTime)" Caption="Giờ nghỉ b/đ" Width="100px" MinWidth="90" DisplayFormat="@GlobalContants.FORMAT_TIME" TextAlignment="@GridTextAlignment.Center" CaptionAlignment="@GridTextAlignment.Center" />
+                <DxGridDataColumn FieldName="@nameof(ShiftAssignmentModel.endBreakTime)" Caption="Giờ nghỉ k/t" Width="100px" MinWidth="90" DisplayFormat="@GlobalContants.FORMAT_TIME" TextAlignment="@GridTextAlignment.Center" CaptionAlignment="@GridTextAlignment.Center" /> *@
+
+                <DxGridDataColumn FieldName="@nameof(ShiftAssignmentModel.startBreakTime)" Caption="Giờ nghỉ b/đ" Width="90px" MinWidth="80" DisplayFormat="@GlobalContants.FORMAT_TIME"
+                                  TextAlignment="@GridTextAlignment.Center" CaptionAlignment="@GridTextAlignment.Center" DataRowEditorVisible="false">
+                    <HeaderCaptionTemplate>
+                        <div>Giờ nghỉ</div>
+                        <div>Bắt đầu</div>
+                    </HeaderCaptionTemplate>
+                </DxGridDataColumn>
+                <DxGridDataColumn FieldName="@nameof(ShiftAssignmentModel.endBreakTime)" Caption="Giờ nghỉ k/t" Width="90px" MinWidth="80" DisplayFormat="@GlobalContants.FORMAT_TIME"
+                                  TextAlignment="@GridTextAlignment.Center" CaptionAlignment="@GridTextAlignment.Center" DataRowEditorVisible="false">
+                    <HeaderCaptionTemplate>
+                        <div>Giờ nghỉ</div>
+                        <div>Kết thúc</div>
+                    </HeaderCaptionTemplate>
+                </DxGridDataColumn>
+
                 <DxGridDataColumn FieldName="@nameof(ShiftAssignmentModel.isDayOff)" Caption="Ngày nghỉ?" Width="80px" MinWidth="90" />
-                <DxGridDataColumn FieldName="@nameof(ShiftAssignmentModel.totalWorkingHours)" Caption="Số giờ làm" Width="80px" MinWidth="90" />
-                <DxGridDataColumn FieldName="@nameof(ShiftAssignmentModel.startDateActual)" Caption="Giờ b/đ thực tế" Width="130px" MinWidth="110" DisplayFormat="@GlobalContants.FORMAT_TIME" TextAlignment="@GridTextAlignment.Center" CaptionAlignment="@GridTextAlignment.Center" />
+                @* <DxGridDataColumn FieldName="@nameof(ShiftAssignmentModel.totalWorkingHours)" Caption="Số giờ làm" Width="80px" MinWidth="90" /> *@
+                <DxGridDataColumn FieldName="@nameof(ShiftAssignmentModel.totalWorkingHours)" Caption="Số giờ làm" Width="70px" MinWidth="70"
+                                  TextAlignment="@GridTextAlignment.Center" CaptionAlignment="@GridTextAlignment.Center" DataRowEditorVisible="false">
+                    <HeaderCaptionTemplate>
+                        <div>Số giờ</div>
+                        <div>Làm</div>
+                    </HeaderCaptionTemplate>
+                </DxGridDataColumn>
+                
+                @* <DxGridDataColumn FieldName="@nameof(ShiftAssignmentModel.startDateActual)" Caption="Giờ b/đ thực tế" Width="130px" MinWidth="110" DisplayFormat="@GlobalContants.FORMAT_TIME" TextAlignment="@GridTextAlignment.Center" CaptionAlignment="@GridTextAlignment.Center" />
                 <DxGridDataColumn FieldName="@nameof(ShiftAssignmentModel.endDateActual)" Caption="Giờ k/t thực tế" Width="130px" MinWidth="110" DisplayFormat="@GlobalContants.FORMAT_TIME" TextAlignment="@GridTextAlignment.Center" CaptionAlignment="@GridTextAlignment.Center" />
-                <DxGridDataColumn FieldName="@nameof(ShiftAssignmentModel.startBreakTimeActual)" Caption="Giờ nghỉ b/đ thực tế" Width="130px" MinWidth="110" DisplayFormat="@GlobalContants.FORMAT_TIME" TextAlignment="@GridTextAlignment.Center" CaptionAlignment="@GridTextAlignment.Center" />
-                <DxGridDataColumn FieldName="@nameof(ShiftAssignmentModel.endBreakTimeActual)" Caption="Giờ nghỉ k/t thực tế" Width="130px" MinWidth="110" DisplayFormat="@GlobalContants.FORMAT_TIME" TextAlignment="@GridTextAlignment.Center" CaptionAlignment="@GridTextAlignment.Center" />
-                <DxGridDataColumn FieldName="@nameof(ShiftAssignmentModel.totalWorkingHoursActual)" Caption="Số giờ làm thực tế" Width="130px" MinWidth="110" TextAlignment="@GridTextAlignment.Center" CaptionAlignment="@GridTextAlignment.Center" />
-                <DxGridDataColumn FieldName="@nameof(ShiftAssignmentModel.sGT)" Caption="Số giờ thiếu" Width="130px" MinWidth="110" TextAlignment="@GridTextAlignment.Center" CaptionAlignment="@GridTextAlignment.Center" />
+                 *@
+                <DxGridDataColumn FieldName="@nameof(ShiftAssignmentModel.startDateActual)" Caption="Giờ b/đ thực tế" Width="90px" MinWidth="80" DisplayFormat="@GlobalContants.FORMAT_TIME"
+                                  TextAlignment="@GridTextAlignment.Center" CaptionAlignment="@GridTextAlignment.Center" DataRowEditorVisible="false">
+                    <HeaderCaptionTemplate>
+                        <div>Giờ b/đ</div>
+                        <div>Thực tế</div>
+                    </HeaderCaptionTemplate>
+                </DxGridDataColumn>
+                <DxGridDataColumn FieldName="@nameof(ShiftAssignmentModel.endDateActual)" Caption="Giờ k/t thực tế" Width="90px" MinWidth="80" DisplayFormat="@GlobalContants.FORMAT_TIME"
+                                  TextAlignment="@GridTextAlignment.Center" CaptionAlignment="@GridTextAlignment.Center" DataRowEditorVisible="false">
+                    <HeaderCaptionTemplate>
+                        <div>Giờ k/t</div>
+                        <div>Thực tế</div>
+                    </HeaderCaptionTemplate>
+                </DxGridDataColumn>
+                
+                <DxGridDataColumn FieldName="@nameof(ShiftAssignmentModel.startDateConfirmActual)" Caption="Giờ b/đ xác nhận" Width="90px" MinWidth="80" DisplayFormat="@GlobalContants.FORMAT_TIME"
+                                  TextAlignment="@GridTextAlignment.Center" CaptionAlignment="@GridTextAlignment.Center" DataRowEditorVisible="false">
+                    <HeaderCaptionTemplate>
+                        <div>Giờ b/đ</div>
+                        <div>Xác nhận</div>
+                    </HeaderCaptionTemplate>
+                </DxGridDataColumn>
+                <DxGridDataColumn FieldName="@nameof(ShiftAssignmentModel.endDateConfirmActual)" Caption="Giờ k/t xác nhận" Width="90px" MinWidth="80" DisplayFormat="@GlobalContants.FORMAT_TIME"
+                                  TextAlignment="@GridTextAlignment.Center" CaptionAlignment="@GridTextAlignment.Center" DataRowEditorVisible="false">
+                    <HeaderCaptionTemplate>
+                        <div>Giờ k/t</div>
+                        <div>Xác nhận</div>
+                    </HeaderCaptionTemplate>
+                </DxGridDataColumn>
+
+                @* <DxGridDataColumn FieldName="@nameof(ShiftAssignmentModel.startBreakTimeActual)" Caption="Giờ nghỉ b/đ thực tế" Width="130px" MinWidth="110" DisplayFormat="@GlobalContants.FORMAT_TIME" TextAlignment="@GridTextAlignment.Center" CaptionAlignment="@GridTextAlignment.Center" />
+                <DxGridDataColumn FieldName="@nameof(ShiftAssignmentModel.endBreakTimeActual)" Caption="Giờ nghỉ k/t thực tế" Width="130px" MinWidth="110" DisplayFormat="@GlobalContants.FORMAT_TIME" TextAlignment="@GridTextAlignment.Center" CaptionAlignment="@GridTextAlignment.Center" /> *@
+                <DxGridDataColumn FieldName="@nameof(ShiftAssignmentModel.startBreakTimeActual)" Caption="Giờ nghỉ b/đ thực tế" Width="100px" MinWidth="90" DisplayFormat="@GlobalContants.FORMAT_TIME"
+                                  TextAlignment="@GridTextAlignment.Center" CaptionAlignment="@GridTextAlignment.Center" DataRowEditorVisible="false">
+                    <HeaderCaptionTemplate>
+                        <div>Giờ nghỉ b/đ</div>
+                        <div>Thực tế</div>
+                    </HeaderCaptionTemplate>
+                </DxGridDataColumn>
+                <DxGridDataColumn FieldName="@nameof(ShiftAssignmentModel.endBreakTimeActual)" Caption="Giờ nghỉ k/t thực tế" Width="100px" MinWidth="90" DisplayFormat="@GlobalContants.FORMAT_TIME"
+                                  TextAlignment="@GridTextAlignment.Center" CaptionAlignment="@GridTextAlignment.Center" DataRowEditorVisible="false">
+                    <HeaderCaptionTemplate>
+                        <div>Giờ nghỉ k/t</div>
+                        <div>Thực tế</div>
+                    </HeaderCaptionTemplate>
+                </DxGridDataColumn>
+
+                @* <DxGridDataColumn FieldName="@nameof(ShiftAssignmentModel.totalWorkingHoursActual)" Caption="Số giờ làm thực tế" Width="130px" MinWidth="110" TextAlignment="@GridTextAlignment.Center" CaptionAlignment="@GridTextAlignment.Center" /> *@
+                <DxGridDataColumn FieldName="@nameof(ConfirmWorkingDay1Model.totalWorkingHoursActual)" Caption="Số giờ làm thực tế" Width="100px" MinWidth="90"
+                                  TextAlignment="@GridTextAlignment.Center" CaptionAlignment="@GridTextAlignment.Center" DataRowEditorVisible="false">
+                    <HeaderCaptionTemplate>
+                        <div>Số giờ làm</div>
+                        <div>Thực tế</div>
+                    </HeaderCaptionTemplate>
+                </DxGridDataColumn>
+                
+                @* <DxGridDataColumn FieldName="@nameof(ShiftAssignmentModel.sGT)" Caption="Số giờ thiếu" Width="130px" MinWidth="110" TextAlignment="@GridTextAlignment.Center" CaptionAlignment="@GridTextAlignment.Center" /> *@
+                <DxGridDataColumn FieldName="@nameof(ShiftAssignmentModel.sGT)" Caption="Số giờ thiếu" Width="100px" MinWidth="90"
+                                  TextAlignment="@GridTextAlignment.Center" CaptionAlignment="@GridTextAlignment.Center" DataRowEditorVisible="false">
+                    <HeaderCaptionTemplate>
+                        <div>Số giờ</div>
+                        <div>Thiếu</div>
+                    </HeaderCaptionTemplate>
+                </DxGridDataColumn>
             </Columns>
         </DxGrid>
     </div>

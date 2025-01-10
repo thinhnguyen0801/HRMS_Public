@@ -576,8 +576,8 @@ namespace HNOne.Web.Controllers
                     if (ListOfVacationDays.Any(m => m.workingDate.Date == item.workingDate!.Value.Date)) continue;
                     ConfirmWorkingDay1Model confirmDay = new ConfirmWorkingDay1Model();
                     confirmDay.workingDate = item.workingDate!.Value;
-                    confirmDay.fromTime = confirmDay.workingDate;
-                    confirmDay.toTime = confirmDay.workingDate;
+                    confirmDay.fromTime = item.startDateActual;
+                    confirmDay.toTime = item.endDateActual;
                     confirmDay.shiftCode = item.shiftCode;
                     confirmDay.startTime = item.startDate;
                     confirmDay.endTime = item.endDate;

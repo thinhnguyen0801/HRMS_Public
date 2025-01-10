@@ -113,8 +113,6 @@
                 <div class="card-header p-1">
                     <DxToolbar ItemRenderStyleMode="@ToolbarRenderStyleMode.Contained">
                         <Items>
-                            <DxToolbarItem Text="Xem bảng lương" BeginGroup="true" IconCssClass="@($"{IconClassConstants.ICON_REFRESH}")" CssClass="w1FontSize"
-                                           Alignment="@ToolbarItemAlignment.Right" />
 
                             <DxToolbarItem Text="Tính lương" BeginGroup="true" IconCssClass="@($"{IconClassConstants.ICON_CALCULATOR}")" CssClass="w1FontSize"
                                            Alignment="@ToolbarItemAlignment.Right" Click="@RefreshHandler" />
@@ -309,6 +307,20 @@
                                             <div>Tăng ca</div>
                                         </HeaderCaptionTemplate>
                                     </DxGridDataColumn>
+                                    <DxGridDataColumn FieldName="@nameof(PayrollModel.sGT)" Caption="Giờ công thiếu" MinWidth="80" 
+                                        CaptionAlignment="@GridTextAlignment.Center" DisplayFormat="@GlobalContants.FORMAT_CURRENCY">
+                                        <HeaderCaptionTemplate>
+                                            <div>Giờ công</div>
+                                            <div>Thiếu</div>
+                                        </HeaderCaptionTemplate>
+                                    </DxGridDataColumn>
+                                    <DxGridDataColumn FieldName="@nameof(PayrollModel.tGDLTVS)" Caption="Số phút đi trễ về sớm" MinWidth="80" 
+                                        CaptionAlignment="@GridTextAlignment.Center" DisplayFormat="@GlobalContants.FORMAT_CURRENCY">
+                                        <HeaderCaptionTemplate>
+                                            <div title="Số phút đi trễ về sớm">Số phút</div>
+                                            <div>+/-</div>
+                                        </HeaderCaptionTemplate>
+                                    </DxGridDataColumn>
                                     <DxGridDataColumn FieldName="@nameof(PayrollModel.actualSalary)" Caption="Lương công thực tế" MinWidth="100" 
                                         CaptionAlignment="@GridTextAlignment.Center" DisplayFormat="@GlobalContants.FORMAT_CURRENCY">
                                         <HeaderCaptionTemplate>
@@ -342,6 +354,20 @@
                                         <HeaderCaptionTemplate>
                                             <div>Lương công</div>
                                             <div>Tăng ca</div>
+                                        </HeaderCaptionTemplate>
+                                    </DxGridDataColumn>
+                                    <DxGridDataColumn FieldName="@nameof(PayrollModel.missingWorkingHourSalary)" Caption="Lương giờ thiếu" MinWidth="100" 
+                                        CaptionAlignment="@GridTextAlignment.Center" DisplayFormat="@GlobalContants.FORMAT_CURRENCY">
+                                        <HeaderCaptionTemplate>
+                                            <div>Lương</div>
+                                            <div>Giờ thiếu</div>
+                                        </HeaderCaptionTemplate>
+                                    </DxGridDataColumn>
+                                    <DxGridDataColumn FieldName="@nameof(PayrollModel.lateSalary)" Caption="Lương đi trễ về sớm" MinWidth="100" 
+                                        CaptionAlignment="@GridTextAlignment.Center" DisplayFormat="@GlobalContants.FORMAT_CURRENCY">
+                                        <HeaderCaptionTemplate>
+                                            <div title="Lương đi trễ về sớm">Lương</div>
+                                            <div>+/-</div>
                                         </HeaderCaptionTemplate>
                                     </DxGridDataColumn>
 
