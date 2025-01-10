@@ -169,6 +169,20 @@
                                     <DxGridDataColumn FieldName="@nameof(PayrollModel.isLocked)" Caption="Đã chốt?" Width="90px" MinWidth="70" />
                                     <DxGridDataColumn FieldName="@nameof(PayrollModel.month)" Caption="Tháng" MinWidth="70" DisplayFormat="d" />
                                     <DxGridDataColumn FieldName="@nameof(PayrollModel.year)" Caption="Năm" MinWidth="70" DisplayFormat="d" />
+                                    <DxGridDataColumn FieldName="@nameof(PayrollModel.contractCode)" Caption="Hợp đồng số" MinWidth="90" 
+                                        CaptionAlignment="@GridTextAlignment.Center" DisplayFormat="@GlobalContants.FORMAT_CURRENCY">
+                                        <HeaderCaptionTemplate>
+                                            <div>Hợp đồng</div>
+                                            <div>Số</div>
+                                        </HeaderCaptionTemplate>
+                                    </DxGridDataColumn>
+                                    <DxGridDataColumn FieldName="@nameof(PayrollModel.contractAppendixCode)" Caption="Phụ lục hợp đồng" MinWidth="90" 
+                                        CaptionAlignment="@GridTextAlignment.Center" DisplayFormat="@GlobalContants.FORMAT_CURRENCY">
+                                        <HeaderCaptionTemplate>
+                                            <div>Phụ lục</div>
+                                            <div>Hợp đồng</div>
+                                        </HeaderCaptionTemplate>
+                                    </DxGridDataColumn>
                                     <DxGridDataColumn FieldName="@nameof(PayrollModel.basicSalary)" Caption="Lương cơ bản" MinWidth="90" 
                                         CaptionAlignment="@GridTextAlignment.Center" DisplayFormat="@GlobalContants.FORMAT_CURRENCY">
                                         <HeaderCaptionTemplate>

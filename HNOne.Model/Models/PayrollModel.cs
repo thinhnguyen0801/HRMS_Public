@@ -25,6 +25,8 @@ namespace HNOne.Model.Models
         public int contractId { get; set; } // Id hợp đồng
         public string? contractCode { get; set; }
         public int contractTypeId { get; set; } // Loại hợp đồng
+        public int contractAppendixId { get; set; } // Id phụ lục hợp đồng
+        public string? contractAppendixCode { get; set; } // Mã phụ lục hợp đồng
         public string? contractTypeName { get; set; } // Loại hợp đồng
         public bool isCompanyDeduction { get; set; } // cty đóng trích nộp thay
         public bool isCompanyInsurance { get; set; } // cty đóng trích nộp thay

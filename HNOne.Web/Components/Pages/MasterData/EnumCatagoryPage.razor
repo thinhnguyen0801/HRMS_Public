@@ -120,6 +120,16 @@
                                 <DxGridDataColumn FieldName="@nameof(EnumCatagoryModel.userSignName)" Caption="Người tạo" MinWidth="120" />
                                 <DxGridDataColumn FieldName="@nameof(EnumCatagoryModel.userSign2Name)" Caption="Người cập nhật" MinWidth="120" />
                             }
+                            else if (pEnumTypeId == nameof(EnumCatagory.QuyCachDanhMa))
+                            {
+                                <DxGridDataColumn FieldName="@nameof(EnumCatagoryModel.value)" Caption="Quy cách đánh mã" MinWidth="120" Width="130px" />
+                                <DxGridDataColumn FieldName="@nameof(EnumCatagoryModel.value1)" Caption="Tiền tố" MinWidth="120" Width="130px" />
+                                <DxGridDataColumn FieldName="@nameof(EnumCatagoryModel.value2)" Caption="Hậu tố" MinWidth="120" Width="130px" />
+                                <DxGridDataColumn FieldName="@nameof(EnumCatagoryModel.enumTypeName)" Caption="Loại danh mục" MinWidth="120" Width="180px" />
+                                <DxGridDataColumn FieldName="@nameof(EnumCatagoryModel.dateTracking)" Caption="Ngày cập nhật" MinWidth="120" DisplayFormat="@GlobalContants.FORMAT_DATE_TIME" />
+                                <DxGridDataColumn FieldName="@nameof(EnumCatagoryModel.userSignName)" Caption="Người tạo" MinWidth="120" />
+                                <DxGridDataColumn FieldName="@nameof(EnumCatagoryModel.userSign2Name)" Caption="Người cập nhật" MinWidth="120" />
+                            }
                             else
                             {
                                 <DxGridDataColumn FieldName="@nameof(EnumCatagoryModel.enumTypeName)" Caption="Loại danh mục" MinWidth="120" Width="180px" />
@@ -304,6 +314,33 @@
                                     LabelPosition="@LabelPosition.Right">
                             Cho phép cập nhật?
                         </DxCheckBox>
+                    </div>
+                </div>
+            </div>
+        }
+        else if (EnumUpdate.enumType == nameof(EnumCatagory.QuyCachDanhMa))
+        {
+            <div class="col-sm-12">
+                <div class="d-flex ">
+                    <W1Label Value="Quy cách đánh mã" Styles="width: 110px" IsRequired="true" />
+                    <div style="width: calc(100% - 110px)">
+                        <DxTextBox @bind-Text="@EnumUpdate.value" CssClass="w1FontSize" Id="txtvalue" ReadOnly="true"></DxTextBox>
+                    </div>
+                </div>
+            </div>
+            <div class="col-sm-12">
+                <div class="d-flex ">
+                    <W1Label Value="Tiền tố" Styles="width: 110px" IsRequired="true" />
+                    <div style="width: calc(100% - 110px)">
+                        <DxTextBox @bind-Text="@EnumUpdate.value1" CssClass="w1FontSize" Id="txtvalue1"></DxTextBox>
+                    </div>
+                </div>
+            </div>
+            <div class="col-sm-12">
+                <div class="d-flex ">
+                    <W1Label Value="Hậu tố" Styles="width: 110px" />
+                    <div style="width: calc(100% - 110px)">
+                        <DxTextBox @bind-Text="@EnumUpdate.value2" CssClass="w1FontSize" Id="txtvalue2" ReadOnly="true"></DxTextBox>
                     </div>
                 </div>
             </div>

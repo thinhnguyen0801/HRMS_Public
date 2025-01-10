@@ -227,6 +227,12 @@ namespace HNOne.Web.Controllers
                         TotalHours = oValue;
                         FromTime = oFromDate;
                     }    
+                    else if (EnumUpdate.enumType == nameof(EnumCatagory.QuyCachDanhMa))
+                    {
+                        EnumUpdate.value = pItemDetails!.value;
+                        EnumUpdate.value1 = pItemDetails!.value1;
+                        EnumUpdate.value2 = pItemDetails!.value2;
+                    }
                     IsCreate = false;
                 }
                 IsShowDialog = true;
@@ -300,6 +306,10 @@ namespace HNOne.Web.Controllers
                 {
                     EnumUpdate.value = TotalHours.ToString();
                     EnumUpdate.value1 = FromTime.FormatDateTimeSql();
+                }
+                else if (EnumUpdate.enumType == nameof(EnumCatagory.QuyCachDanhMa))
+                {
+                    EnumUpdate.value = $"{EnumUpdate.value1?.Trim()}{EnumUpdate.value2?.Trim()}";
                 }
                 string content = JsonConvert.SerializeObject(EnumUpdate);
                 isConfirm = await _masterDataService.UpdateContractTypeAsync(processKey, UserId, Token, content);

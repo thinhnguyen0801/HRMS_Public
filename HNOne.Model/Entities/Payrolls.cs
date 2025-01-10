@@ -59,6 +59,9 @@ namespace HNOne.Model.Entities
         public int ContractTypeId { get; set; } // Loại hợp đồng
         [MaxLength(250)]
         public string? ContractTypeName { get; set; } // Loại hợp đồng
+        public int ContractAppendixId { get; set; } // Id phụ lục hợp đồng
+        [MaxLength(250)]
+        public string? ContractAppendixCode { get; set; } // Mã phụ lục hợp đồng
         public bool IsCompanyDeduction { get; set; } // cty đóng trích nộp thay
         public bool IsCompanyInsurance { get; set; } // cty đóng trích nộp thay
         [Column(TypeName = "decimal(19, 6)")]

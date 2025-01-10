@@ -79,7 +79,7 @@
     <div class="row row-gap-2">
         <div class="col-sm-12">
             <div class="d-flex ">
-                <W1Label Value="Mã chi nhánh" Id="branchCode" Styles="width: 120px" />
+                <W1Label Value="Mã chi nhánh" Id="branchCode" Styles="width: 120px" IsRequired="true" />
                 <div style="width: calc(100% - 120px)">
                     <DxTextBox @bind-Text="@BranchUpdate.branchCode" ReadOnly="@(!IsCreate)" CssClass="w1FontSize" Id="branchCode"></DxTextBox>
                 </div>

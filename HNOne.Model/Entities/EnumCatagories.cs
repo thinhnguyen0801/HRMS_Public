@@ -31,6 +31,7 @@ namespace HNOne.Model.Entities
         public string? Value4 { get; set; } // config nếu có 4
         public int RowOrder { get; set; } // sắp xếp
         public bool IsAllowEditing { get; set; } // cho phép chỉnh sửa
+        public bool IsAllowInsert { get; set; } // cho phép thêm mới không
 
     }
 }

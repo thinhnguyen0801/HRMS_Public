@@ -123,7 +123,10 @@ namespace HNOne.API.Repositories
                     #region Thông tin hợp đồng & lương
                     data.ContractId = entity.ContractId;
                     data.ContractCode = entity.ContractCode;
+                    data.ContractTypeId = entity.ContractTypeId;
                     data.ContractTypeName = entity.ContractTypeName;
+                    data.ContractAppendixId = entity.ContractAppendixId;
+                    data.ContractAppendixCode = entity.ContractAppendixCode;
                     data.IsCompanyDeduction = entity.IsCompanyDeduction;
                     data.IsCompanyInsurance = entity.IsCompanyInsurance;
                     data.BasicSalary = entity.BasicSalary;

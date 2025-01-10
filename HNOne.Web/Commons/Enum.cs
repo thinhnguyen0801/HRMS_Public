@@ -32,6 +32,7 @@
         CapNhatThongTinNhanVien,
         HinhThucDaoTao,
         TrichNop,
+        QuyCachDanhMa,
     }
 
     public enum EnumObjType
