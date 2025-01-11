@@ -72,7 +72,7 @@ namespace HNOne.Web.Controllers
         private async Task getContractTypes()
         {
             ListContractType = new List<ContractTypeModel>();
-            ListContractType = await _masterDataService.GetContractTypeAsync(UserId, Token);
+            ListContractType = await _masterDataService.GetContractTypeAsync(UserId, Token, BranchId, $"{BranchIds}", isShowToast: true);
         }
         
         private async Task buildComboboxAsync()
@@ -165,6 +165,7 @@ namespace HNOne.Web.Controllers
                 {
                     IsCreate = true;
                     ContractTypeUpdate = new ContractTypeModel();
+                    ContractTypeUpdate.isActive = true;
                     if (!ListCboBranch.IsNullOrEmpty()) ContractTypeUpdate.branchId = BranchId;
                 }
                 else

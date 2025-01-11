@@ -45,6 +45,7 @@ namespace HNOne.Web.Services
                         resUser.userId = response.data!.userId;
                         resUser.branchId = response.data.branchId;
                         resUser.branchCode = response.data.branchCode;
+                        resUser.branchIds = response.data.branchIds;
                         resUser.employeeId = response.data.employeeId;
                         resUser.employeeCode = response.data.employeeCode;
                         resUser.employeeName = response.data.employeeName;
@@ -52,6 +53,7 @@ namespace HNOne.Web.Services
                         resUser.refreshToken = response.data.refreshToken;
                         resUser.isAdmin = response.data.isAdmin;
                         resUser.departmentId = response.data.departmentId;
+                        resUser.departmentIds = response.data.departmentIds;
                         string encryptUser = _encryptHelper.Encrypt(JsonConvert.SerializeObject(resUser));
                         await _localStorage.SetItemAsync("authToken", encryptUser);
                         return "";

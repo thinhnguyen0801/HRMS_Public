@@ -79,40 +79,40 @@
     <div class="row row-gap-2">
         <div class="col-sm-12">
             <div class="d-flex ">
-                <W1Label Value="Mã chi nhánh" Id="branchCode" Styles="width: 120px" IsRequired="true" />
-                <div style="width: calc(100% - 120px)">
+                <W1Label Value="Mã chi nhánh" Id="branchCode" Styles="width: 140px" IsRequired="true" />
+                <div style="width: calc(100% - 140px)">
                     <DxTextBox @bind-Text="@BranchUpdate.branchCode" ReadOnly="@(!IsCreate)" CssClass="w1FontSize" Id="branchCode"></DxTextBox>
                 </div>
             </div>
         </div>
         <div class="col-sm-12">
             <div class="d-flex ">
-                <W1Label Value="Tên chi nhánh" Id="bacLuong" Styles="width: 120px" IsRequired="true" />
-                <div style="width: calc(100% - 120px)">
+                <W1Label Value="Tên chi nhánh" Styles="width: 140px" IsRequired="true" />
+                <div style="width: calc(100% - 140px)">
                     <DxTextBox @bind-Text="@BranchUpdate.branchName" CssClass="w1FontSize" Id="branchName"></DxTextBox>
                 </div>
             </div>
         </div>
         <div class="col-sm-12">
             <div class="d-flex ">
-                <W1Label Value="Số điện thoại" Id="bacLuong" Styles="width: 120px" />
-                <div style="width: calc(100% - 120px)">
-                    <DxTextBox @bind-Text="@BranchUpdate.phoneNumber" CssClass="w1FontSize"></DxTextBox>
+                <W1Label Value="Số điện thoại" Styles="width: 140px" />
+                <div style="width: calc(100% - 140px)">
+                    <DxTextBox @bind-Text="@BranchUpdate.phoneNumber" CssClass="w1FontSize" Id="txtphoneNumber"></DxTextBox>
                 </div>
             </div>
         </div>
         <div class="col-sm-12">
             <div class="d-flex ">
-                <W1Label Value="Địa chỉ" Id="bacLuong" Styles="width: 120px" />
-                <div style="width: calc(100% - 120px)">
-                    <DxTextBox @bind-Text="@BranchUpdate.address" CssClass="w1FontSize"></DxTextBox>
+                <W1Label Value="Địa chỉ" Styles="width: 140px" />
+                <div style="width: calc(100% - 140px)">
+                    <DxTextBox @bind-Text="@BranchUpdate.address" CssClass="w1FontSize" Id="txtAddress"></DxTextBox>
                 </div>
             </div>
         </div>
         <div class="col-sm-12">
             <div class="d-flex">
-                <W1Label Value="Mật khẩu mặc định" Styles="width: 120px" IsRequired="true" />
-                <div style="width: calc(100% - 120px); position: relative;">
+                <W1Label Value="Mật khẩu mặc định" Styles="width: 140px" IsRequired="true" />
+                <div style="width: calc(100% - 140px); position: relative;">
                     <DxTextBox @bind-Text="@BranchUpdate.defaultPassword" Id="txtPasswordDefault" autocomplete="off"
                                SizeMode="SizeMode.Medium" Password="@(!IsShowPassword)">
                         <Buttons>
@@ -120,6 +120,26 @@
                                             Tooltip="Hiển thị mật khẩu" Click="@ShowPasswordHandler" />
                         </Buttons>
                     </DxTextBox>
+                </div>
+            </div>
+        </div>
+        <div class="col-sm-12">
+            <div class="d-flex ">
+                <W1Label Value="Nhóm quyền mặc định" Styles="width: 140px" />
+                <div style="width: calc(100% - 140px)">
+                    <DxComboBox Data="@ListCboPerGroup"
+                                @bind-Value="@BranchUpdate.defaultPerGroupId"
+                                FilteringMode="DataGridFilteringMode.Contains"
+                                TextFieldName="@nameof(ComboboxModel.name)"
+                                ValueFieldName="@nameof(ComboboxModel.id)"
+                                CssClass="w1FontSize"
+                                DropDownCssClass="w1FontSize"
+                                DropDownBodyCssClass="w1FontSize">
+                        <Columns>
+                            <DxListEditorColumn FieldName="@nameof(ComboboxModel.code)" Width="120px" Caption="Mã" />
+                            <DxListEditorColumn FieldName="@nameof(ComboboxModel.name)" Caption="Tên" />
+                        </Columns>
+                    </DxComboBox>
                 </div>
             </div>
         </div>

@@ -142,12 +142,42 @@ namespace HNOne.API.Repositories
                 return result;
             }
         }
+
+        /// <summary>
+        /// lấy danh sách trạng thái hợp đồng
+        /// lấy theo chi nhánh
+        /// </summary>
+        /// <param name="request"></param>
+        /// <returns></returns>
         public async Task<IEnumerable<ContractTypeModel>> GetContractType(RequestModel request)
         {
             using (var connection = _dapperDbContext.CreateConnection())
             {
-                string strQuery = "select T0.* from ContractTypes as T0 with(nolock) where T0.IsDelete = 0";
-                var result = await connection.QueryAsync<ContractTypeModel>(strQuery, commandTimeout: 500, commandType: CommandType.Text);
+                DynamicParameters parameters = new DynamicParameters();
+                string strQuery = "select T0.*" +
+                    " ,T1.BranchCode as BranchCode, T1.BranchName as BranchName, T2.[Name] as StatusName" +
+                    " from ContractTypes as T0 with(nolock) " +
+                    " inner join Branchs as T1 with(nolock) on T0.BranchId = T1.BranchId" +
+                    " inner join EnumCatagories as T2 with(nolock) on T0.StatusCode = T2.Code and EnumType = 'TrangThaiNhanVien'" +
+                    " where T0.IsDelete = 0";
+                // thêm điều kiện
+                if (request.opt == CommonConstants.ENUM_ACTIVE)
+                {
+                    // ở các chứng từ
+                    strQuery += " and T0.IsActive = '1'";
+                    strQuery += " and T0.BranchId = @BranchId";
+                    parameters.Add("@BranchId", request.branchId, DbType.Int32);
+                }    
+                else
+                {
+                    // Ở page danh mục. Kiểm tra có quyền xem chi nhánh nào thì where thêm
+                    request.branchIds += $",{request.branchId}";
+                    request.branchIds = request.branchIds.Trim(',');
+                    strQuery += " and T0.BranchId in ((select [Value] from string_split(@BranchIds, ',')))";
+                    parameters.Add("@BranchIds", request.branchIds, DbType.String);
+                }
+                strQuery += " order by T0.BranchId";
+                var result = await connection.QueryAsync<ContractTypeModel>(strQuery, parameters, commandTimeout: 500, commandType: CommandType.Text);
                 return result;
             }
         }
@@ -461,6 +491,7 @@ namespace HNOne.API.Repositories
                 branch.ImgUrl = entity.ImgUrl;
                 branch.PhoneNumber = entity.PhoneNumber;
                 branch.DefaultPassword = _encryptHelper.Encrypt(entity.DefaultPassword?.Trim());
+                branch.DefaultPerGroupId = entity.DefaultPerGroupId;
                 branch.DateTracking = _dateTimeHelper.GetCurrentVietnamTime();
                 branch.UpdateDate = _dateTimeHelper.GetCurrentVietnamTime();
                 branch.UserSign2 = entity.UserSign2;
@@ -690,6 +721,13 @@ namespace HNOne.API.Repositories
             ResponseModel response = new ResponseModel();
             try
             {
+                var checkExists = await _dbContext.ContractTypes.AnyAsync(m => m.Code == $"{entity.Code}".Trim() && m.BranchId == entity.BranchId);
+                if (checkExists)
+                {
+                    response.status = StatusCodes.Status409Conflict;
+                    response.message = "Mã loại hợp đồng đã tồn tại!";
+                    return response;
+                }
                 entity.Id = await _dbContext.ContractTypes.Select(m => m.Id).DefaultIfEmpty().MaxAsync() + 1;
                 entity.DateTracking = _dateTimeHelper.GetCurrentVietnamTime();
                 entity.CreateDate = _dateTimeHelper.GetCurrentVietnamTime();
@@ -718,6 +756,14 @@ namespace HNOne.API.Repositories
                 {
                     response.status = StatusCodes.Status404NotFound;
                     response.message = MessageConstants.MESSAGE_NOT_FOUNT;
+                    return response;
+                }
+                var checkExists = await _dbContext.ContractTypes.AnyAsync(m => m.Code == $"{entity.Code}".Trim() 
+                    && m.BranchId == entity.BranchId && m.Id != entity.Id);
+                if (checkExists)
+                {
+                    response.status = StatusCodes.Status409Conflict;
+                    response.message = "Mã loại hợp đồng đã tồn tại ở chi nhánh khác!";
                     return response;
                 }
                 data.Name = entity.Name;

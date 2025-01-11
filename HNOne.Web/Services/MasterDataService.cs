@@ -393,7 +393,7 @@ namespace HNOne.Web.Services
         /// </summary>
         /// <param name="request"></param>
         /// <returns></returns>
-        public async Task<List<ContractTypeModel>?> GetContractTypeAsync(int userId, string token = "")
+        public async Task<List<ContractTypeModel>?> GetContractTypeAsync(int userId, string token, int branchId, string branchIds = "", string opt = "", bool isShowToast = false)
         {
 
             try
@@ -403,6 +403,9 @@ namespace HNOne.Web.Services
                 request.process = ProcessConstants.GET_CONTRACTTYPE;
                 request.userId = userId;
                 request.token = token;
+                request.branchId = branchId;
+                request.branchIds = branchIds;
+                request.opt = opt;
                 HttpResponseMessage httpResponse = await PostAsync(EnpointConstants.MASTERDATA_GET_DATA, request);
                 var checkContent = ValidateJsonContent(httpResponse.Content);
                 if (!checkContent) _toastService.ShowInfo(MessageConstants.MESSAGE_JSON_INVALID);

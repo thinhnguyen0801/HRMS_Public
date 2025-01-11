@@ -18,6 +18,7 @@ namespace HNOne.Web.Controllers
     public class BranchController : DocumentControllerBase
     {
         [Inject] IMasterDataService _masterDataService { get; init; }
+        [Inject] IUserService _userDataService { get; init; }
         [Inject] IJSRuntime _jsRuntime { get; set; }
         public W1Confirm confirm { get; set; }
 
@@ -33,6 +34,7 @@ namespace HNOne.Web.Controllers
         public bool IsCreate { get; set; } = true;
         public bool IsShowPassword { get; set; } = false;
 
+        public List<ComboboxModel>? ListCboPerGroup { get; set; } // cbo ds quyền nhóm
         // nút quyền
         public bool IsAllowPost { get; set; }
         public bool IsAllowDelete { get; set; }
@@ -56,6 +58,7 @@ namespace HNOne.Web.Controllers
                         new BreadcrumbModel("Chi nhánh", isActive: true)
                     };
                     await NotifyBreadcrumb.InvokeAsync(ListBreadcrumbs);
+                    await buildComboAsync();
                     await getBranchs();
 
                 }
@@ -74,6 +77,26 @@ namespace HNOne.Web.Controllers
         }
 
         #region Private Functions
+        private async Task buildComboAsync()
+        {
+            try
+            {
+                RequestModel request = new RequestModel();
+                request.userId = UserId;
+                request.branchId = BranchId;
+                request.opt = "ACTIVE";
+                var getTask3 = _userDataService.GetPermissionGroup(request);
+                await Task.WhenAll(
+                    getTask3
+                );
+                ListCboPerGroup = (await getTask3)?.Select(m => new ComboboxModel() { id = m.id, code = m.code, name = m.name })?.ToList();
+            }
+            catch (Exception ex)
+            {
+                ShowError(ex.Message);
+                _logger.LogError(ex, "buildComboAsync");
+            }
+        }
         private async Task getBranchs()
         {
             ListBranch = new List<BranchModel>();
@@ -91,6 +114,12 @@ namespace HNOne.Web.Controllers
             {
                 errorMessage = String.Format(MessageConstants.MESSAGE_STRING_REQUIRE, "Tên chi nhánh");
                 fieldName = nameof(BranchUpdate.branchName);
+                return;
+            }
+            if (string.IsNullOrEmpty(BranchUpdate.defaultPassword))
+            {
+                errorMessage = String.Format(MessageConstants.MESSAGE_STRING_REQUIRE, "Mật khẩu mặc định");
+                fieldName = "txtPasswordDefault";
                 return;
             }
         }
@@ -147,6 +176,7 @@ namespace HNOne.Web.Controllers
                     BranchUpdate.imgUrl = pItemDetails!.imgUrl;
                     BranchUpdate.address = pItemDetails!.address;
                     BranchUpdate.defaultPassword = _encryptHelper.Decrypt(pItemDetails!.defaultPassword);
+                    BranchUpdate.defaultPerGroupId = pItemDetails!.defaultPerGroupId;
                     IsCreate = false;
                 }
                 IsShowDialog = true;

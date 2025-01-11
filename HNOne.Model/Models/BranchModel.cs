@@ -9,6 +9,7 @@
         public string? address { get; set; }
         public string? phoneNumber { get; set; }
         public string? defaultPassword { get; set; }
+        public int defaultPerGroupId { get; set; }
         public DateTime? createDate { get; set; }
         public int? userSign { get; set; }
         public DateTime? updateDate { get; set; }

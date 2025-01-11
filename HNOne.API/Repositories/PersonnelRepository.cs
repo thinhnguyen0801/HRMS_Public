@@ -238,6 +238,7 @@ namespace HNOne.API.Repositories
                         account.BranchId = entity.BranchId;
                         account.Password = branch.DefaultPassword;
                         account.DefaultPassword = branch.DefaultPassword;
+                        account.PerGroupId = branch.DefaultPerGroupId;
                         account.IsActive = true;
                         account.DepartmentIds = entity.DepartmentId > 0 ? entity.DepartmentId.ToString() : "";
                         account.BranchIds = entity.BranchId.ToString();

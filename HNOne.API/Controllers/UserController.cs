@@ -52,6 +52,7 @@ namespace HNOne.API.Controllers
                     user.branchId = response.data!.branchId;
                     user.branchCode = response.data!.branchCode;
                     user.branchName = response.data!.branchName;
+                    user.branchIds = response.data!.branchIds;
                     user.userId = response.data!.userId;
                     user.userName = response.data!.userName;
                     user.employeeName = response.data!.employeeName;
@@ -59,6 +60,7 @@ namespace HNOne.API.Controllers
                     user.employeeId = response.data!.employeeId;
                     user.isAdmin = response.data!.isAdmin;
                     user.departmentId = response.data!.departmentId;
+                    user.departmentIds = response.data!.departmentIds;
                     // generate token
                     string accessToken = generateAccessToken(user);
                     user.token = accessToken;

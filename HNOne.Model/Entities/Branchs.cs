@@ -21,5 +21,6 @@ namespace HNOne.Model.Entities
         public string? PhoneNumber { get; set; }
         [MaxLength(500)]
         public string? DefaultPassword { get; set; } // mật khẩu mặt định
+        public int DefaultPerGroupId { get; set; } = -1; // mặc định nhóm quyền
     }
 }
