@@ -207,7 +207,7 @@ namespace HNOne.API.Repositories
                 string query = "select T0.* from SalaryCategories as T0 with(nolock)" +
                     " where T0.IsDelete = '0'";
                 // thêm điều kiện
-                if (request.opt == "ACTIVE") query += " and T0.IsActive = '1'";
+                if (request.opt == CommonConstants.ENUM_ACTIVE) query += " and T0.IsActive = '1'";
                 query += " order by T0.RowOrder";
                 var results = await connection.QueryAsync<SalaryCategories>(query, commandTimeout: GlobalConstants.COMMAND_TIMEOUT, commandType: CommandType.Text);
                 return results;
@@ -224,10 +224,12 @@ namespace HNOne.API.Repositories
             using (var connection = _dapperDbContext.CreateConnection())
             {
                 string query = "select T0.* from SalaryParameters as T0 with(nolock)" +
-                    " where T0.IsDelete = '0'";
+                    " where T0.IsDelete = '0' and T0.BranchId = @BranchId";
                 // thêm điều kiện
-                if (request.opt == "ACTIVE") query += " and T0.IsActive = '1'";
-                var results = await connection.QueryAsync<SalaryParameterModel>(query, commandTimeout: GlobalConstants.COMMAND_TIMEOUT, commandType: CommandType.Text);
+                if (request.opt == CommonConstants.ENUM_ACTIVE) query += " and T0.IsActive = '1'";
+                var parameters = new DynamicParameters();
+                parameters.Add("@BranchId", request.branchId, DbType.Int32);
+                var results = await connection.QueryAsync<SalaryParameterModel>(query, parameters, commandTimeout: GlobalConstants.COMMAND_TIMEOUT, commandType: CommandType.Text);
                 return results;
             }
         }
@@ -360,8 +362,10 @@ namespace HNOne.API.Repositories
                 string query = "select T0.*, T2.BranchCode, T2.BranchName" +
                     " from TaxRates as T0 with(nolock)" +
                     " inner join Branchs as T2 with(nolock) on T0.BranchId = T2.BranchId" +
-                    " where T0.IsDelete = '0'";
-                var results = await connection.QueryAsync<TaxRateModel>(query, commandTimeout: GlobalConstants.COMMAND_TIMEOUT, commandType: CommandType.Text);
+                    " where T0.IsDelete = '0' and T0.BranchId = @BranchId";
+                var parameters = new DynamicParameters();
+                parameters.Add("@BranchId", request.branchId, DbType.Int32);
+                var results = await connection.QueryAsync<TaxRateModel>(query, parameters, commandTimeout: GlobalConstants.COMMAND_TIMEOUT, commandType: CommandType.Text);
                 return results;
             }
         }
@@ -379,8 +383,12 @@ namespace HNOne.API.Repositories
                     " from DeductionConfigs as T0 with(nolock)" +
                     " inner join [dbo].[HRM_FN_GET_ENUM] ('TrichNop', '', '') as T1 on T0.Type = T1.Code" +
                     " inner join Branchs as T2 with(nolock) on T0.BranchId = T2.BranchId" +
-                    " where T0.IsDelete = '0'";
-                var results = await connection.QueryAsync<DeductionConfigModel>(query, commandTimeout: GlobalConstants.COMMAND_TIMEOUT, commandType: CommandType.Text);
+                    " where T0.IsDelete = '0' and T0.BranchId = @BranchId";
+                // thêm điều kiện
+                if (request.opt == CommonConstants.ENUM_ACTIVE) query += " and T0.IsActive = '1'";
+                var parameters = new DynamicParameters();
+                parameters.Add("@BranchId", request.branchId, DbType.Int32);
+                var results = await connection.QueryAsync<DeductionConfigModel>(query, parameters, commandTimeout: GlobalConstants.COMMAND_TIMEOUT, commandType: CommandType.Text);
                 return results;
             }
         }

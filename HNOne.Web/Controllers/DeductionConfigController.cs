@@ -18,9 +18,9 @@ namespace HNOne.Web.Controllers
         [Inject] IMasterDataService _masterDataService { get; init; }
         [Inject] IJSRuntime _jsRuntime { get; set; }
         public W1Confirm confirm { get; set; }
-        const string STRING_KEY_EVENT_POST = "TAXT_RATE_CONTROLLER_POST";
-        const string STRING_KEY_EVENT_PUT = "TAXT_RATE_CONTROLLER_PUT";
-        const string STRING_KEY_EVENT_DELETE = "TAXT_RATE_CONTROLLER_DELETE";
+        const string STRING_KEY_EVENT_POST = "DEDUCTION_CONFIG_CONTROLLER_POST";
+        const string STRING_KEY_EVENT_PUT = "DEDUCTION_CONFIG_CONTROLLER_PUT";
+        const string STRING_KEY_EVENT_DELETE = "DEDUCTION_CONFIG_CONTROLLER_DELETE";
 
         #region Properties
         public List<DeductionConfigModel>? ListDeduction { get; set; }
@@ -45,7 +45,7 @@ namespace HNOne.Web.Controllers
             {
                 try
                 {
-                    string errMessage = await CheckMenuPermissionAsync("danh-muc-muc-thue");
+                    string errMessage = await CheckMenuPermissionAsync("cau-hinh-trich-nop");
                     if (errMessage == "401") return; // kiểm quyền menu page danh sách
                     await ShowLoading();
                     await checkPermission(errMessage);
@@ -53,7 +53,7 @@ namespace HNOne.Web.Controllers
                     {
                         new BreadcrumbModel("Danh mục"),
                         new BreadcrumbModel("Lương"),
-                        new BreadcrumbModel("Danh mục mức thuế", isActive: true)
+                        new BreadcrumbModel("Cấu hình trích nộp", isActive: true)
                     };
                     await NotifyBreadcrumb.InvokeAsync(ListBreadcrumbs);
                     await buildComboboxAsync();

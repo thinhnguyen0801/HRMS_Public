@@ -10,6 +10,7 @@ using HNOne.Web.Services.Interfaces;
 using Microsoft.AspNetCore.Components;
 using Microsoft.JSInterop;
 using Newtonsoft.Json;
+using static DevExpress.Data.Helpers.FindSearchRichParser;
 
 namespace HNOne.Web.Controllers
 {
@@ -103,6 +104,7 @@ namespace HNOne.Web.Controllers
         {
             RequestModel request = new RequestModel();
             request.userId = UserId;
+            request.token = Token;
             request.branchId = BranchId;
             request.process = ProcessConstants.GET_TAXT_RATE;
             ListTaxRate = new List<TaxRateModel>();

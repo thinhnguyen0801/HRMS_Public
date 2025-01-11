@@ -73,12 +73,7 @@ namespace HNOne.Web.Controllers
         private async Task getSalaryConfig()
         {
             ListSalaryConfig = new List<SalaryParameterModel>();
-            RequestModel request = new RequestModel();
-            request.userId = UserId;
-            request.branchId = BranchId;
-            request.token = Token;
-            request.process = ProcessConstants.GET_SALARY_PARAMETER;
-            ListSalaryConfig = await _masterDataService.GetSalaryParameterAsync(UserId, Token, isShowToast: true);
+            ListSalaryConfig = await _masterDataService.GetSalaryParameterAsync(UserId, Token, BranchId, isShowToast: true);
         }
 
         private void validateForSave(ref string errorMessage, ref string fieldName)

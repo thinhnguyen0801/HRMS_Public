@@ -1,4 +1,5 @@
 ﻿using Azure;
+using Azure.Core;
 using Dapper;
 using HNOne.API.Constants;
 using HNOne.API.Repositories.Interfaces;
@@ -170,7 +171,7 @@ namespace HNOne.API.Repositories
                     " from PermissionGroups as T0 with(nolock)" +
                     " where IsDelete = 0";
                 // thêm điều kiện
-                if (request.opt == "ACTIVE") strQuery += " and T0.IsActive = '1'";
+                if (request.opt == CommonConstants.ENUM_ACTIVE) strQuery += " and T0.IsActive = '1'";
                 var result = await connection.QueryAsync<PermissionGroupModel>(strQuery, commandTimeout: 500, commandType: CommandType.Text);
                 return result;
             }    
@@ -178,8 +179,16 @@ namespace HNOne.API.Repositories
 
         public async Task<IEnumerable<GroupAccessControls>> GetPermissionByGroupId(int groupId)
         {
-            var result = await _dbContext.GroupAccessControls.Where(m => m.GroupId == groupId && m.IsDelete == false).ToListAsync();
-            return result;
+            using (var connection = _dapperDbContext.CreateConnection())
+            {
+                string strQuery = "select T0.*" +
+                    " from GroupAccessControls as T0 with(nolock)" +
+                    " where IsDelete = 0 and T0.GroupId = @GroupId";
+                DynamicParameters parameters = new DynamicParameters();
+                parameters.Add("@GroupId", groupId, DbType.Int32);
+                var result = await connection.QueryAsync<GroupAccessControls>(strQuery, parameters, commandTimeout: 500, commandType: CommandType.Text);
+                return result;
+            }
         }
         #region Command
         /// <summary>
