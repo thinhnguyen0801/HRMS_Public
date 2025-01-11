@@ -106,6 +106,7 @@ namespace HNOne.Web.Controllers
             request.userId = UserId;
             request.token = Token;
             request.branchId = BranchId;
+            request.branchIds = $"{BranchIds}";
             request.process = ProcessConstants.GET_TAXT_RATE;
             ListTaxRate = new List<TaxRateModel>();
             ListTaxRate = await _masterDataService.GetMasterAsync<TaxRateModel>(request, isShowToast: true);

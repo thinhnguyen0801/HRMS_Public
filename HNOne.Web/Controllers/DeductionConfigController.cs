@@ -111,6 +111,7 @@ namespace HNOne.Web.Controllers
             RequestModel request = new RequestModel();
             request.userId = UserId;
             request.branchId = BranchId;
+            request.branchIds = $"{BranchIds}";
             request.process = ProcessConstants.GET_DEDUCTION_CONFIG;
             ListDeduction = new List<DeductionConfigModel>();
             ListDeduction = await _masterDataService.GetMasterAsync<DeductionConfigModel>(request, isShowToast: true);

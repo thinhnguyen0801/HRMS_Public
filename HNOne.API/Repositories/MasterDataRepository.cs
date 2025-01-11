@@ -324,17 +324,32 @@ namespace HNOne.API.Repositories
         {
             using (var connection = _dapperDbContext.CreateConnection())
             {
-                string query = "select T0.*, T1.Code as SalaryCategoryCode" +
+                var parameters = new DynamicParameters();
+                string strQuery = "select T0.*, T1.Code as SalaryCategoryCode" +
                     ",T1.Name as SalaryCategoryName" +
                     ",T2.BranchCode, T2.BranchName, T3.Name as SalaryCalculateMethodName" +
                     " from SalaryConfigurations as T0 with(nolock) " +
                     " inner join SalaryCategories as T1 with(nolock) on T0.SalaryCategoryId = T1.Id " +
                     " inner join Branchs as T2 with(nolock) on T0.BranchId = T2.BranchId" +
                     " left join EnumCatagories as T3 with(nolock) on T0.SalaryCalculateMethod = T3.Code and T3.EnumType = 'CachTinhLuongPhuCap'" +
-                    " where T0.IsDelete = '0' and T0.BranchId = @BranchId";
-                var parameters = new DynamicParameters();
-                parameters.Add("@BranchId", request.branchId, DbType.Int32);
-                var results = await connection.QueryAsync<SalaryConfigurationModel>(query, param: parameters, commandTimeout: GlobalConstants.COMMAND_TIMEOUT, commandType: CommandType.Text);
+                    " where T0.IsDelete = '0'";
+                // thêm điều kiện
+                if (request.opt == CommonConstants.ENUM_ACTIVE)
+                {
+                    // ở các chứng từ
+                    strQuery += " and T0.IsActive = '1'";
+                    strQuery += " and T0.BranchId = @BranchId";
+                    parameters.Add("@BranchId", request.branchId, DbType.Int32);
+                }
+                else
+                {
+                    // Ở page danh mục. Kiểm tra có quyền xem chi nhánh nào thì where thêm
+                    request.branchIds += $",{request.branchId}";
+                    request.branchIds = request.branchIds.Trim(',');
+                    strQuery += " and T0.BranchId in ((select [Value] from string_split(@BranchIds, ',')))";
+                    parameters.Add("@BranchIds", request.branchIds, DbType.String);
+                }
+                var results = await connection.QueryAsync<SalaryConfigurationModel>(strQuery, param: parameters, commandTimeout: GlobalConstants.COMMAND_TIMEOUT, commandType: CommandType.Text);
                 return results;
             };
         }
@@ -441,13 +456,27 @@ namespace HNOne.API.Repositories
         {
             using (var connection = _dapperDbContext.CreateConnection())
             {
-                string query = "select T0.*, T2.BranchCode, T2.BranchName" +
+                var parameters = new DynamicParameters();
+                string strQuery = "select T0.*, T2.BranchCode, T2.BranchName" +
                     " from TaxRates as T0 with(nolock)" +
                     " inner join Branchs as T2 with(nolock) on T0.BranchId = T2.BranchId" +
-                    " where T0.IsDelete = '0' and T0.BranchId = @BranchId";
-                var parameters = new DynamicParameters();
-                parameters.Add("@BranchId", request.branchId, DbType.Int32);
-                var results = await connection.QueryAsync<TaxRateModel>(query, parameters, commandTimeout: GlobalConstants.COMMAND_TIMEOUT, commandType: CommandType.Text);
+                    " where T0.IsDelete = '0'";
+                // thêm điều kiện
+                if (request.opt == CommonConstants.ENUM_ACTIVE)
+                {
+                    // ở các chứng từ
+                    strQuery += " and T0.BranchId = @BranchId";
+                    parameters.Add("@BranchId", request.branchId, DbType.Int32);
+                }
+                else
+                {
+                    // Ở page danh mục. Kiểm tra có quyền xem chi nhánh nào thì where thêm
+                    request.branchIds += $",{request.branchId}";
+                    request.branchIds = request.branchIds.Trim(',');
+                    strQuery += " and T0.BranchId in ((select [Value] from string_split(@BranchIds, ',')))";
+                    parameters.Add("@BranchIds", request.branchIds, DbType.String);
+                }
+                var results = await connection.QueryAsync<TaxRateModel>(strQuery, parameters, commandTimeout: GlobalConstants.COMMAND_TIMEOUT, commandType: CommandType.Text);
                 return results;
             }
         }
@@ -461,16 +490,29 @@ namespace HNOne.API.Repositories
         {
             using (var connection = _dapperDbContext.CreateConnection())
             {
-                string query = "select T0.*, T1.Name as TypeName, T2.BranchCode, T2.BranchName" +
+                var parameters = new DynamicParameters();
+                string strQuery = "select T0.*, T1.Name as TypeName, T2.BranchCode, T2.BranchName" +
                     " from DeductionConfigs as T0 with(nolock)" +
                     " inner join [dbo].[HRM_FN_GET_ENUM] ('TrichNop', '', '') as T1 on T0.Type = T1.Code" +
                     " inner join Branchs as T2 with(nolock) on T0.BranchId = T2.BranchId" +
-                    " where T0.IsDelete = '0' and T0.BranchId = @BranchId";
+                    " where T0.IsDelete = '0'";
                 // thêm điều kiện
-                if (request.opt == CommonConstants.ENUM_ACTIVE) query += " and T0.IsActive = '1'";
-                var parameters = new DynamicParameters();
-                parameters.Add("@BranchId", request.branchId, DbType.Int32);
-                var results = await connection.QueryAsync<DeductionConfigModel>(query, parameters, commandTimeout: GlobalConstants.COMMAND_TIMEOUT, commandType: CommandType.Text);
+                if (request.opt == CommonConstants.ENUM_ACTIVE)
+                {
+                    // ở các chứng từ
+                    strQuery += " and T0.IsActive = '1'";
+                    strQuery += " and T0.BranchId = @BranchId";
+                    parameters.Add("@BranchId", request.branchId, DbType.Int32);
+                }
+                else
+                {
+                    // Ở page danh mục. Kiểm tra có quyền xem chi nhánh nào thì where thêm
+                    request.branchIds += $",{request.branchId}";
+                    request.branchIds = request.branchIds.Trim(',');
+                    strQuery += " and T0.BranchId in ((select [Value] from string_split(@BranchIds, ',')))";
+                    parameters.Add("@BranchIds", request.branchIds, DbType.String);
+                }
+                var results = await connection.QueryAsync<DeductionConfigModel>(strQuery, parameters, commandTimeout: GlobalConstants.COMMAND_TIMEOUT, commandType: CommandType.Text);
                 return results;
             }
         }
