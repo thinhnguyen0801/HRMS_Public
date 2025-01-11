@@ -477,7 +477,7 @@ namespace HNOne.Web.Services
         /// </summary>
         /// <param name="request"></param>
         /// <returns></returns>
-        public async Task<List<ReasonCategorieModel>?> GetReasonCategorieAsync(int userId, string token = "", string reasonType = "")
+        public async Task<List<ReasonCategorieModel>?> GetReasonCategoryAsync(int userId, string token, string reasonType = "", string opt = "", bool isShowToast = false)
         {
 
             try
@@ -487,7 +487,8 @@ namespace HNOne.Web.Services
                 request.process = ProcessConstants.GET_REASONCATEGORIE;
                 request.userId = userId;
                 request.token = token;
-                request.opt = reasonType;
+                request.type = reasonType;
+                request.opt = opt;
                 HttpResponseMessage httpResponse = await PostAsync(EnpointConstants.MASTERDATA_GET_DATA, request);
                 var checkContent = ValidateJsonContent(httpResponse.Content);
                 if (!checkContent) _toastService.ShowInfo(MessageConstants.MESSAGE_JSON_INVALID);
@@ -496,7 +497,7 @@ namespace HNOne.Web.Services
                     var response = await httpResponse.Content.ReadFromJsonAsync<ResCliModel<ReasonCategorieModel>>();
                     if (response == null || response.status != StatusCodes.Status200OK)
                     {
-                        _toastService.ShowWarning(response?.message ?? MessageConstants.MESSAGE_IT_SUPPORT);
+                        if (isShowToast) _toastService.ShowWarning(response?.message ?? MessageConstants.MESSAGE_IT_SUPPORT);
                         return data;
                     }
                     data = response.data?.ToList();
@@ -505,7 +506,7 @@ namespace HNOne.Web.Services
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "GetReasonCategorieAsync");
+                _logger.LogError(ex, "GetReasonCategoryAsync");
                 throw ex;
             }
         }

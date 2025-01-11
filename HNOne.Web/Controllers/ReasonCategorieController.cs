@@ -23,8 +23,8 @@ namespace HNOne.Web.Controllers
         const string STRING_KEY_EVENT_PUT = "REASON_CATAGORY_CONTROLLER_PUT";
         const string STRING_KEY_EVENT_DELETE = "REASON_CATAGORY_CONTROLLER_DELETE";
         #region Properties
-        public List<ReasonCategorieModel>? ListReasonCategorie { get; set; }
-        public IGrid? GridReasonCategorie { get; set; }
+        public List<ReasonCategorieModel>? ListReasonCategory { get; set; }
+        public IGrid? GridReasonCategory { get; set; }
         public IReadOnlyList<object>? SelectedReasonCategories { get; set; } = null;
         public ReasonCategorieModel ReasonCategorieUpdate { get; set; } = new ReasonCategorieModel();
         public bool IsShowDialog { get; set; }
@@ -74,8 +74,8 @@ namespace HNOne.Web.Controllers
         #region Private Functions
         private async Task getReasonCategories()
         {
-            ListReasonCategorie = new List<ReasonCategorieModel>();
-            ListReasonCategorie = await _masterDataService.GetReasonCategorieAsync(UserId, Token);
+            ListReasonCategory = new List<ReasonCategorieModel>();
+            ListReasonCategory = await _masterDataService.GetReasonCategoryAsync(UserId, Token);
         }
         
         private void validateForSave(ref string errorMessage, ref string fieldName)
@@ -274,13 +274,13 @@ namespace HNOne.Web.Controllers
         {
             try
             {
-                if (GridReasonCategorie == null || ListReasonCategorie.IsNullOrEmpty())
+                if (GridReasonCategory == null || ListReasonCategory.IsNullOrEmpty())
                 {
                     ShowWarning(MessageConstants.MESSAGE_NOT_FOUNT);
                     return;
                 }
                 await ShowLoading();
-                await GridReasonCategorie!.ExportToXlsxAsync("Danh-muc-ly-do", new GridXlExportOptions()
+                await GridReasonCategory!.ExportToXlsxAsync("Danh-muc-ly-do", new GridXlExportOptions()
                 {
                     ExportTotalSummaries = false,
                     ExportGroupSummaries = false

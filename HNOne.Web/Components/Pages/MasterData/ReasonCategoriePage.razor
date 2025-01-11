@@ -24,7 +24,7 @@
                     </DxToolbar>
                 </div>
                 <div class="card-body p-1" style="height: calc(100vh - 155px); min-height: 350px">
-                    <DxGrid Data="ListReasonCategorie" @ref="GridReasonCategorie"
+                    <DxGrid Data="ListReasonCategory" @ref="GridReasonCategory"
                             ShowFilterRow="true"
                             ColumnResizeMode="GridColumnResizeMode.ColumnsContainer"
                             PagerPosition="GridPagerPosition.Bottom"
@@ -125,22 +125,6 @@
                 </div>
             </div>
         </div>
-        @* <div class="col-sm-12">
-            <div class="d-flex ">
-                <W1Label Value="Giá trị 2" Styles="width: 110px" />
-                <div style="width: calc(100% - 110px)">
-                    <DxTextBox @bind-Text="@ReasonCategorieUpdate.value1" CssClass="w1FontSize" Id="txtName"></DxTextBox>
-                </div>
-            </div>
-        </div>
-        <div class="col-sm-12">
-            <div class="d-flex ">
-                <W1Label Value="Giá trị 3" Styles="width: 110px" />
-                <div style="width: calc(100% - 110px)">
-                    <DxTextBox @bind-Text="@ReasonCategorieUpdate.value2" CssClass="w1FontSize" Id="txtName"></DxTextBox>
-                </div>
-            </div>
-        </div> *@
     </div>
 </W1Popup>
 

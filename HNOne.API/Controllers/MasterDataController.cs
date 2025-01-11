@@ -107,7 +107,7 @@ namespace HNOne.API.Controllers
                         response.data = await _masterDataService.GetContractType(request);
                         break;
                     case ProcessConstants.GET_REASONCATEGORIE:
-                        response.data = await _masterDataService.GetReasonCategorie(request);
+                        response.data = await _masterDataService.GetReasonCategory(request);
                         break;
                     case ProcessConstants.GET_ENUM:
                         response.data = await _masterDataService.GetEnum(request);

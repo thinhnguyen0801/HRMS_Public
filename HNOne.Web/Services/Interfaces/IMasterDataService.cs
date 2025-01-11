@@ -12,8 +12,8 @@ namespace HNOne.Web.Services.Interfaces
         Task<List<DepartmentModel>?> GetDepartmentAsync(int userId, string token, int branchId, string opt = "", string opt2 = "", bool isShowToast = false);
         Task<List<TitleModel>?> GetTitleAsync(int userId, string token, int branchId, bool isShowToast = false);
         Task<List<PositionModel>?> GetPositionAsync(int userId, string token, int branchId, bool isShowToast = false);
-        Task<List<ContractTypeModel>?> GetContractTypeAsync(int userId, string token = "");
-        Task<List<ReasonCategorieModel>?> GetReasonCategorieAsync(int userId, string token = "", string reasonType = "");
+        Task<List<ContractTypeModel>?> GetContractTypeAsync(int userId, string token);
+        Task<List<ReasonCategorieModel>?> GetReasonCategoryAsync(int userId, string token, string reasonType = "", string opt = "", bool isShowToast = false);
         Task<bool> UpdateBranchAsync(string processKey, int userId, string token, string json);
         Task<bool> UpdateDepartmentAsync(string processKey, int userId, string token, string json);
         Task<bool> UpdateTitleAsync(string processKey, int userId, string token, string json);

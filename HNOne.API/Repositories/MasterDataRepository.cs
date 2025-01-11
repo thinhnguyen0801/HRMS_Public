@@ -1,5 +1,6 @@
 ﻿using Azure.Core;
 using Dapper;
+using DocumentFormat.OpenXml.Spreadsheet;
 using HNOne.API.Constants;
 using HNOne.API.Repositories.Interfaces;
 using HNOne.Common;
@@ -141,12 +142,16 @@ namespace HNOne.API.Repositories
                 return result;
             }
         }
-        public async Task<IEnumerable<ContractTypes>> GetContractType(RequestModel request)
+        public async Task<IEnumerable<ContractTypeModel>> GetContractType(RequestModel request)
         {
-            var lstData = await _dbContext.ContractTypes.Where(m => !m.IsDelete).ToListAsync();
-            return lstData;
+            using (var connection = _dapperDbContext.CreateConnection())
+            {
+                string strQuery = "select T0.* from ContractTypes as T0 with(nolock) where T0.IsDelete = 0";
+                var result = await connection.QueryAsync<ContractTypeModel>(strQuery, commandTimeout: 500, commandType: CommandType.Text);
+                return result;
+            }
         }
-        public async Task<IEnumerable<ReasonCategorieModel>> GetReasonCategorie(RequestModel request)
+        public async Task<IEnumerable<ReasonCategorieModel>> GetReasonCategory(RequestModel request)
         {
             using (var connection = _dapperDbContext.CreateConnection())
             {
@@ -155,10 +160,12 @@ namespace HNOne.API.Repositories
                     " from ReasonCategories as T0 with(nolock)" +
                     " inner join [dbo].[HRM_FN_GET_ENUM] ('LoaiLyDo', '', '') as T1 on T0.Type = T1.Code" +
                     " where T0.IsDelete = 0";
-                if(!string.IsNullOrEmpty(request.opt))
+                // thêm điều kiện
+                if (request.opt == CommonConstants.ENUM_ACTIVE) strQuery += " and T0.IsActive = '1'";
+                if (!string.IsNullOrEmpty(request.type))
                 {
                     strQuery += " and T0.Type = @EnumType";
-                    parameters.Add("@EnumType", request.opt, DbType.String);
+                    parameters.Add("@EnumType", request.type, DbType.String);
                 }    
                 var result = await connection.QueryAsync<ReasonCategorieModel>(strQuery, parameters, commandTimeout: 500, commandType: CommandType.Text);
                 return result;

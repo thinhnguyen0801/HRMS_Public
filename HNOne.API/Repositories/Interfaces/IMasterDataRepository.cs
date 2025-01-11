@@ -20,10 +20,10 @@ namespace HNOne.API.Repositories.Interfaces
         Task<ResponseModel> AddTitle(Titles entity);
         Task<ResponseModel> UpdateTitle(Titles entity);
         Task<IEnumerable<EnumCatagories>> GetEnum(RequestModel request);
-        Task<IEnumerable<ContractTypes>> GetContractType(RequestModel request);
+        Task<IEnumerable<ContractTypeModel>> GetContractType(RequestModel request);
         Task<ResponseModel> AddContractType(ContractTypes entity);
         Task<ResponseModel> UpdateContractType(ContractTypes entity);
-        Task<IEnumerable<ReasonCategorieModel>> GetReasonCategorie(RequestModel request);
+        Task<IEnumerable<ReasonCategorieModel>> GetReasonCategory(RequestModel request);
         Task<ResponseModel> AddReasonCategorie(ReasonCategories entity);
         Task<ResponseModel> UpdateReasonCategorie(ReasonCategories entity);
         Task<IEnumerable<SalaryCategories>> GetSalaryCatagory(RequestModel request);
