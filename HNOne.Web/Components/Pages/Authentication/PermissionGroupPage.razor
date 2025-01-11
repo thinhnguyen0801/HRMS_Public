@@ -107,9 +107,21 @@
                             AllowSelectRowByClick="true"
                             CssClass="h-full">
                         <Columns>
-                            <DxGridDataColumn FieldName="@nameof(MenuModel.parentName)" Caption="Nhóm menu" MinWidth="110" GroupIndex="0" DataRowEditorVisible="false" />
-                            <DxGridDataColumn FieldName="@nameof(MenuModel.menuName)" Caption="Chức năng" Width="170px" MinWidth="150" DataRowEditorVisible="false" />
-                            <DxGridDataColumn Caption="Quyền chức năng" MinWidth="470" Width="100%">
+                            <DxGridDataColumn FieldName="@nameof(MenuModel.parentName)" Caption="Nhóm menu" MinWidth="110" GroupIndex="0" />
+                            <DxGridDataColumn FieldName="@nameof(MenuModel.menuName)" Caption="Chức năng" Width="170px" MinWidth="150" />
+                            <DxGridCommandColumn Caption="Quyền chức năng" MinWidth="470" Width="100%" ClearFilterButtonVisible="false" 
+                                CaptionAlignment="@GridTextAlignment.Left" TextAlignment="@GridTextAlignment.Left" >
+                                <HeaderTemplate>
+                                    <div>
+                                        <DxCheckBox CssClass="w-full w1FontSize" LabelWrapMode="@LabelWrapMode.Ellipsis"
+                                                    SizeMode="@SizeMode.Small"
+                                                    Checked="@IsCheckAllEvent"
+                                                    CheckedChanged="@((bool value) => CheckedChangedHandler(value))"
+                                                    LabelPosition="@LabelPosition.Right">
+                                            Quyền chức năng
+                                        </DxCheckBox>
+                                    </div>
+                                </HeaderTemplate>
                                 <CellDisplayTemplate>
                                     @{
                                         var lstEvent = (context.DataItem as MenuModel)!.listEvent;
@@ -131,7 +143,7 @@
                                         }
                                     }
                                 </CellDisplayTemplate>
-                            </DxGridDataColumn>
+                            </DxGridCommandColumn>
                         </Columns>
                     </DxGrid>
                 </div>

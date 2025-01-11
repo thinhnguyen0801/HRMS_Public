@@ -35,7 +35,7 @@ namespace HNOne.Web.Controllers
 
         public bool IsCreate { get; set; } = true;
         public bool IsShowDialog { get; set; }
-
+        public bool IsCheckAllEvent { get; set; }
         // nút quyền
         public bool IsAllowPost { get; set; }
         public bool IsAllowDelete { get; set; }
@@ -354,6 +354,7 @@ namespace HNOne.Web.Controllers
                     return;
                 }
                 await ShowLoading();
+                IsCheckAllEvent = false;
                 ListMenuAuth!.Update(m => m.listEvent?.Update(m => m.isAllow = false));
                 PermissionGroupModel permissionSelected = (PermissionGroupModel)selected;
                 RequestModel request = new RequestModel();
@@ -391,6 +392,33 @@ namespace HNOne.Web.Controllers
             finally
             {
                 await Task.Delay(50);
+                await ShowLoading(false);
+                await InvokeAsync(StateHasChanged);
+            }
+        }
+        
+        /// <summary>
+        /// chọn tất cả
+        /// </summary>
+        /// <param name="value"></param>
+        /// <returns></returns>
+        protected async Task CheckedChangedHandler(bool value)
+        {
+            try
+            {
+                IsCheckAllEvent = value;
+                if (ListMenuAuth.IsNullOrEmpty()) return;
+                await ShowLoading();
+                await Task.Delay(75);
+                ListMenuAuth!.Update(m => m.listEvent?.Update(m => m.isAllow = IsCheckAllEvent));
+            }
+            catch (Exception ex)
+            {
+                ShowError(ex.Message);
+                _logger.LogError(ex, "CheckedChangedHandler");
+            }
+            finally
+            {
                 await ShowLoading(false);
                 await InvokeAsync(StateHasChanged);
             }
