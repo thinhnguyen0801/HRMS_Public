@@ -182,23 +182,15 @@ namespace HNOne.API.Repositories
             using (var connection = _dapperDbContext.CreateConnection())
             {
                 var parameters = new DynamicParameters();
-                parameters.Add("@EnumType", request.opt, DbType.String);
-                string query = "select T0.[Id],T0.[EnumType],T0.[Code],T0.[Name] " +
-                    " ,case T0.EnumType when 'CaLamViec' then FORMAT(cast(T0.[Value] as datetime), 'HH:mm') else T0.[Value] end as [Value]" +
-                    " ,case T0.EnumType when 'CaLamViec' then FORMAT(cast(T0.[Value1] as datetime), 'HH:mm') else T0.[Value1] end as [Value1]" +
-                    " ,case T0.EnumType when 'CaLamViec' then FORMAT(cast(T0.[Value2] as datetime), 'HH:mm') else T0.[Value2] end as [Value2]" +
-                    " ,case T0.EnumType when 'CaLamViec' then FORMAT(cast(T0.[Value3] as datetime), 'HH:mm') else T0.[Value3] end as [Value3]" +
-                    " ,T0.[Value4],T0.[UserSign],T0.[DateTracking],T0.[RowOrder],T0.[IsAllowEditing],T0.[EnumTypeName]" +
-                    " ,T0.[DeleteReason],T0.[IsDelete],T0.[UpdateDate],T0.[UserSign2]" +
-                    " from EnumCatagories as T0 with(nolock)" +
-                    " where T0.IsDelete = '0'";
-                if(request.opt != "AllowEdit") query += " and T0.EnumType = @EnumType"; // nếu cho phép chỉnh sửa thì lấy hết
-                else
-                {
-                    query += " and IsAllowEditing = 1";
-                }
-                query += " order by T0.EnumType, T0.RowOrder";
-                var results = await connection.QueryAsync<EnumCatagories>(query, parameters, commandTimeout: GlobalConstants.COMMAND_TIMEOUT, commandType: CommandType.Text);
+                parameters.Add("@UserId", request.userId, DbType.Int32);
+                parameters.Add("@BranchId", request.branchId, DbType.Int32);
+                parameters.Add("@Type", CommonConstants.ENUM_CATAGORY, DbType.String);
+                parameters.Add("@Opt", $"{request.opt}", DbType.String);
+                parameters.Add("@Opt1", $"{request.opt1}", DbType.String);
+                parameters.Add("@Opt2", $"{request.opt2}", DbType.String);
+                parameters.Add("@Opt3", $"{request.opt3}", DbType.String);
+                var results = await connection.QueryAsync<EnumCatagories>(StoreConstants.STORE_H1_MASTER_DATA_SELECT, parameters
+                    , commandTimeout: GlobalConstants.COMMAND_TIMEOUT, commandType: CommandType.StoredProcedure);
                 return results;
             }    
         }
