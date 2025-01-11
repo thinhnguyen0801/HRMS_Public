@@ -1,7 +1,10 @@
-﻿namespace HNOne.Model.Models
+﻿
+namespace HNOne.Model.Models
 {
     public class WorkConfigModel : AuditableModel
     {
+        public int status { get; set; }
+        public string? message { get; set; }
         public int id { get; set; }
         public int startDate { get; set; } // ngày bắt đầu chấm công
         public int closingDate { get; set; } // ngày chốt kì công công
@@ -17,6 +20,12 @@
         public string? workConfigType { get; set; } // loại chứa thông tin mặc định hay không
         public string? symbolWorkingDay { get; set; } // ký hiệu ngày làm việc
 
+        public string? symbolOfUnpaidLeave { get; set; } // ký hiệu ngày nghỉ phép không lương
+        public string? bgColorOfUnpaidLeave { get; set; } // màu ngày nghỉ nghỉ phép không lương
+        public string? symbolOfOvertime { get; set; } // ký hiệu ngày tăng ca
+        public string? bgColorOfOvertime { get; set; } // màu ngày tăng ca
+        public string? symbolOfLeaveOfAbsence { get; set; } // ký hiệu ngày đăng ký nghỉ
+        public string? bgColorOfLeaveOfAbsence { get; set; } // màu ngày ngày đăng ký nghỉ
         #region Thông số dành cho chi tiết
         public int year { get; set; }
         public int month { get; set; } // tháng

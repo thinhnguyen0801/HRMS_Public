@@ -32,6 +32,24 @@ namespace HNOne.Model.Entities
 
         [MaxLength(50)]
         [Required]
+        public string? SymbolOfUnpaidLeave { get; set; } // ký hiệu ngày nghỉ phép không lương
+        [MaxLength(250)]
+        public string? BgColorOfUnpaidLeave { get; set; } // màu ngày nghỉ nghỉ phép không lương
+
+        [MaxLength(50)]
+        [Required]
+        public string? SymbolOfOvertime { get; set; } // ký hiệu ngày tăng ca
+        [MaxLength(250)]
+        public string? BgColorOfOvertime { get; set; } // màu ngày tăng ca
+
+        [MaxLength(50)]
+        [Required]
+        public string? SymbolOfLeaveOfAbsence { get; set; } // ký hiệu ngày đăng ký nghỉ
+        [MaxLength(250)]
+        public string? BgColorOfLeaveOfAbsence { get; set; } // màu ngày ngày đăng ký nghỉ
+
+        [MaxLength(50)]
+        [Required]
         public string? WorkConfigType { get; set; } // // chia cho header hay là chi tiết
         #region Thông số dành cho chi tiết
         public int Year { get; set; }

@@ -11,5 +11,6 @@ namespace HNOne.Web.Services.Interfaces
         Task<List<LeaveRequestModel>?> GetLeaveRequestAsync(RequestModel request, bool isShowToast = false);
         Task<List<ShiftChangeModel>?> GetShiftChangeRequestAsync(RequestModel request, bool isShowToast = false);
         Task<List<OvertimeRequestModel>?> GetOvertimeRequestAsync(RequestModel request, bool isShowToast = false);
+        Task<List<WorkConfigModel>?> GenerateWorkConfigAsync(RequestModel request);
     }
 }

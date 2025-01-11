@@ -217,5 +217,49 @@ namespace HNOne.Web.Services
             }
             catch (Exception) { throw; }
         }
+
+        /// <summary>
+        /// Preview hoặc phát sinh công chi tiết
+        /// </summary>
+        /// <param name="request"></param>
+        /// <returns></returns>
+        public async Task<List<WorkConfigModel>?> GenerateWorkConfigAsync(RequestModel request)
+        {
+            try
+            {
+                List<WorkConfigModel>? data = null;
+                HttpResponseMessage httpResponse = await PostAsync(EnpointConstants.WORKFORCE_POST_DATA, request);
+                if (httpResponse.StatusCode == System.Net.HttpStatusCode.Unauthorized)
+                {
+                    _toastService.ShowInfo(MessageConstants.MESSAGE_LOGIN_EXPIRED);
+                    return default;
+                }
+                var checkContent = ValidateJsonContent(httpResponse.Content);
+                if (!checkContent) _toastService.ShowError(MessageConstants.MESSAGE_JSON_INVALID);
+                else
+                {
+                    var content = await httpResponse.Content.ReadAsStringAsync();
+                    ResponseModel response = JsonConvert.DeserializeObject<ResponseModel>(content)!;
+                    if (httpResponse.IsSuccessStatusCode
+                        && response?.status == StatusCodes.Status200OK)
+                    {
+                        if(request.type == "PREVIEW")
+                        {
+                            data = JsonConvert.DeserializeObject<List<WorkConfigModel>>($"{response.returnValue}");
+                            return data;
+                        }    
+                        _toastService.ShowSuccess(response.message);
+                    }
+                    if (response?.status == StatusCodes.Status409Conflict)
+                    {
+                        _toastService.ShowInfo(response?.message ?? MessageConstants.MESSAGE_IT_SUPPORT);
+                        return data;
+                    }
+                    _toastService.ShowError(response?.message ?? MessageConstants.MESSAGE_IT_SUPPORT);
+                }
+                return data;
+            }
+            catch (Exception) { throw; }
+        }
     }
 }

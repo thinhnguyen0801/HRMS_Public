@@ -28,6 +28,10 @@ namespace HNOne.Web.Controllers
         public IGrid? GridWorkConfig { get; set; }
 
         public List<ComboboxModel>? ListCboYear { get; set; }
+
+        public bool IsShowDialogPreview { get; set; }
+        public List<WorkConfigModel>? ListWorkConfigPreView { get; set; }
+        public IGrid? GridWorkConfigPreview { get; set; }
         // nút quyền
         public bool IsAllowPost { get; set; }
         public bool IsAllowPut { get; set; }
@@ -105,6 +109,12 @@ namespace HNOne.Web.Controllers
                     WorkConfigUpdate.symbolOfHoliday = header.symbolOfHoliday;
                     WorkConfigUpdate.bgColorOfHoliday = header.bgColorOfHoliday;
                     WorkConfigUpdate.symbolWorkingDay = header.symbolWorkingDay;
+                    WorkConfigUpdate.symbolOfUnpaidLeave = header.symbolOfUnpaidLeave;
+                    WorkConfigUpdate.bgColorOfUnpaidLeave = header.bgColorOfUnpaidLeave;
+                    WorkConfigUpdate.symbolOfOvertime = header.symbolOfOvertime;
+                    WorkConfigUpdate.bgColorOfOvertime = header.bgColorOfOvertime;
+                    WorkConfigUpdate.symbolOfLeaveOfAbsence = header.symbolOfLeaveOfAbsence;
+                    WorkConfigUpdate.bgColorOfLeaveOfAbsence = header.bgColorOfLeaveOfAbsence;
                     ListWorkConfig = lstResult!.Where(m => m.workConfigType != CommonConstants.WORK_TYPE_DEFAULT).ToList();
                 }    
             }
@@ -159,6 +169,24 @@ namespace HNOne.Web.Controllers
             {
                 errorMessage = string.Format(MessageConstants.MESSAGE_STRING_REQUIRE, "Ký hiệu ngày nghỉ lễ");
                 fieldName = "txtsymbolOfHoliday";
+                return;
+            }
+            if (string.IsNullOrWhiteSpace(WorkConfigUpdate.symbolOfLeaveOfAbsence))
+            {
+                errorMessage = string.Format(MessageConstants.MESSAGE_STRING_REQUIRE, "Ký hiệu ngày nghỉ phép");
+                fieldName = "symbolOfLeaveOfAbsence";
+                return;
+            }
+            if (string.IsNullOrWhiteSpace(WorkConfigUpdate.symbolOfUnpaidLeave))
+            {
+                errorMessage = string.Format(MessageConstants.MESSAGE_STRING_REQUIRE, "Ký hiệu ngày nghỉ phép không lương");
+                fieldName = "symbolOfUnpaidLeave";
+                return;
+            }
+            if (string.IsNullOrWhiteSpace(WorkConfigUpdate.symbolOfOvertime))
+            {
+                errorMessage = string.Format(MessageConstants.MESSAGE_STRING_REQUIRE, "Ký hiệu ngày tăng ca");
+                fieldName = "symbolOfUnpaidLeave";
                 return;
             }
         }
@@ -268,7 +296,7 @@ namespace HNOne.Web.Controllers
                 }
                 bool isConfirm = true;
                 string errorMessage = string.Empty;
-                errorMessage = $"Bạn có chắc muốn phát sinh thông tin kỳ công chi tiết năm {WorkConfigUpdate.year} không?";
+                errorMessage = $"Bạn có chắc muốn lưu thông tin kỳ công chi tiết năm {WorkConfigUpdate.year} không?";
                 await Task.Yield();
                 isConfirm = await confirm.SetConfirm(MessageConstants.MESSAGE_TITLE, errorMessage);
                 if (!isConfirm) return;
@@ -279,8 +307,13 @@ namespace HNOne.Web.Controllers
                 request.branchId = BranchId;
                 request.token = Token;
                 request.opt = WorkConfigUpdate.year.ToString();
+                request.type = "INSERT";
                 isConfirm = await _workforceService.UpdateMasterDataAsync(request);
-                if (isConfirm) await getConfigAsync();
+                if (isConfirm)
+                {
+                    await getConfigAsync();
+                    IsShowDialogPreview = false;
+                }
             }
             catch (Exception ex)
             {
@@ -295,6 +328,39 @@ namespace HNOne.Web.Controllers
             }
         }
 
+        /// <summary>
+        /// Xem trước qua dữ liệu chấm công
+        /// </summary>
+        /// <returns></returns>
+        protected async Task PreviewWorkConfigHandler()
+        {
+            try
+            {
+                await ShowLoading();
+                RequestModel request = new RequestModel();
+                request.process = ProcessConstants.POST_WORK_CONFIG;
+                request.userId = UserId;
+                request.branchId = BranchId;
+                request.token = Token;
+                request.opt = WorkConfigUpdate.year.ToString();
+                request.type = "PREVIEW";
+                var result = await _workforceService.GenerateWorkConfigAsync(request);
+                if (result.IsNullOrEmpty()) return;
+                ListWorkConfigPreView = result;
+                IsShowDialogPreview = true;
+            }
+            catch (Exception ex)
+            {
+                _logger!.LogError(ex, "PreviewWorkConfigHandler");
+                ShowError(ex.Message);
+            }
+            finally
+            {
+                await Task.Delay(75);
+                await ShowLoading(false);
+                await InvokeAsync(StateHasChanged);
+            }
+        }
         #endregion
     }
 }

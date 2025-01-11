@@ -1170,13 +1170,21 @@ namespace HNOne.API.Repositories
         {
             using (var connection = _dapperDbContext.CreateConnection())
             {
+                ResponseModel response = new ResponseModel();
                 int.TryParse(request.opt, out int year);
                 if (year == 0) year = DateTime.Now.Year;
                 var parameters = new DynamicParameters();
                 parameters.Add("@UserId", request.userId);
                 parameters.Add("@Year", year);
-                var lstResult = await connection.QueryFirstAsync<ResponseModel>(StoreConstants.STORE_H1_GENERATE_WORK_CONFIG_UPDATE, param: parameters, commandTimeout: GlobalConstants.COMMAND_TIMEOUT, commandType: CommandType.StoredProcedure);
-                return lstResult;
+                parameters.Add("@Type", request.type);
+                var lstResult = await connection.QueryAsync<WorkConfigModel>(StoreConstants.STORE_H1_GENERATE_WORK_CONFIG_UPDATE, param: parameters, commandTimeout: GlobalConstants.COMMAND_TIMEOUT, commandType: CommandType.StoredProcedure);
+                if (!lstResult.IsNullOrEmpty())
+                {
+                    response.status = lstResult!.First().status;
+                    response.message = lstResult!.First().message ?? MessageConstants.MESSAGE_IT_SUPPORT;
+                    response.returnValue = JsonConvert.SerializeObject(lstResult!);
+                }
+                return response;
             }
             
         }

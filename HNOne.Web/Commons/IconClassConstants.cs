@@ -19,5 +19,6 @@
         public const string ICON_EXPORT_EXCEL = "fa-regular fa-file-excel text-teal h1-text-icon-primary"; // icon xuất excel
         public const string ICON_EDIT = "fa-solid fa-pen h1-text-icon-primary"; // icon trả về
         public const string ICON_FIND = "fa-solid fa-magnifying-glass h1-text-icon-primary";
+        public const string ICON_PREVIEW = "fa-solid fa-eye h1-text-icon-primary";
     }
 }
