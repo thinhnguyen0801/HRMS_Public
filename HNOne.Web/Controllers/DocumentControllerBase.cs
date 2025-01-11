@@ -37,7 +37,6 @@ namespace HNOne.Web.Controllers
         public string? BranchIds { get; set; }
         public int EmployeeId { get; set; }
         public int DepartmentId { get; set; }
-        public string? DepartmentIds { get; set; }
         public string? EmployeeCode { get; set; }
         public string? EmployeeName { get; set; }
         public string MenuId { get; set; } = string.Empty; // menu được chọn
@@ -68,7 +67,6 @@ namespace HNOne.Web.Controllers
                         EmployeeCode = result.employeeCode;
                         EmployeeName = result.employeeName;
                         DepartmentId = result.departmentId;
-                        DepartmentIds = result.departmentIds;
                         BranchIds = result.branchIds;
                     }
                 }

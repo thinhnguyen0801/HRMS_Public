@@ -78,7 +78,7 @@ namespace HNOne.Web.Controllers
         private async Task getTitles()
         {
             ListTitle = new List<TitleModel>();
-            ListTitle = await _masterDataService.GetTitleAsync(UserId, Token, BranchId, isShowToast: true);
+            ListTitle = await _masterDataService.GetTitleAsync(UserId, Token, BranchId, $"{BranchIds}", isShowToast: true);
         }
         private async Task buildComboboxAsync()
         {
@@ -125,7 +125,7 @@ namespace HNOne.Web.Controllers
         private async Task getDepartmentByBranchId(int branchId)
         {
             ListCboDepartment = new List<ComboboxModel>();
-            var lstResult = await _masterDataService.GetDepartmentAsync(UserId, Token, BranchId, opt: CommonConstants.ENUM_ACTIVE);
+            var lstResult = await _masterDataService.GetDepartmentAsync(UserId, Token, branchId, opt: CommonConstants.ENUM_ACTIVE);
             ListCboDepartment = lstResult?.Select(m => new ComboboxModel() { id = m.id, name = m.name })?.ToList();
         }
 

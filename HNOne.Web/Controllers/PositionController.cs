@@ -78,7 +78,7 @@ namespace HNOne.Web.Controllers
         private async Task getPositions()
         {
             ListPosition = new List<PositionModel>();
-            ListPosition = await _masterDataService.GetPositionAsync(UserId, Token, BranchId, isShowToast: true);
+            ListPosition = await _masterDataService.GetPositionAsync(UserId, Token, BranchId, $"{BranchIds}", isShowToast: true);
         }
 
         private async Task buildComboboxAsync()

@@ -74,8 +74,8 @@ namespace HNOne.API.Repositories
                         " , T1.BranchId, T1.BranchCode, T1.BranchName" +
                         " , isnull(T2.[Code], T0.UserName) EmployeeCode, isnull(T2.[Name], T0.UserName) EmployeeName, T2.DepartmentId " +
                         " from [Users] as T0 with(nolock)" +
-                        " inner join Branchs as T1 with(nolock) on T0.BranchId = T1.BranchId" +
                         " left join Employees as T2 with(nolock) on T0.EmployeeId = T2.Id" +
+                        " cross apply (select T00.BranchId, T00.BranchCode, T00.BranchName from Branchs as T00 with(nolock) where T00.BranchId = @BranchId ) as T1" +
                         " where UserName = @UserName and (T0.Password = @Password or T0.DefaultPassword = @Password)";
                     parameters = new DynamicParameters();
                     parameters.Add("@UserName", userName, DbType.String);

@@ -100,7 +100,7 @@ namespace HNOne.Web.Controllers
         private async Task getDepartments()
         {
             ListDepartment = new List<DepartmentModel>();
-            ListDepartment = await _masterDataService.GetDepartmentAsync(UserId, Token, BranchId, isShowToast: true);
+            ListDepartment = await _masterDataService.GetDepartmentAsync(UserId, Token, BranchId, $"{BranchIds}", isShowToast: true);
         }
 
         private void validateForSave(ref string errorMessage, ref string fieldName)
