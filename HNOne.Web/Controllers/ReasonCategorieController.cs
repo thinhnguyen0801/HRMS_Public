@@ -30,6 +30,7 @@ namespace HNOne.Web.Controllers
         public bool IsShowDialog { get; set; }
         public bool IsCreate { get; set; } = true;
         public List<EnumCatagoryModel>? ListCboType { get; set; } // cbo ds loại lý do
+        public List<EnumCatagoryModel>? ListCboLeaveRequest { get; set; } // cbo ds loại nghỉ phép
 
         // nút quyền
         public bool IsAllowPost { get; set; }
@@ -54,7 +55,7 @@ namespace HNOne.Web.Controllers
                         new BreadcrumbModel("Lý do", isActive: true)
                     };
                     await NotifyBreadcrumb.InvokeAsync(ListBreadcrumbs);
-                    ListCboType = await _masterDataService.GetFunEnumAsync(UserId, Token, nameof(EnumCatagory.LoaiLyDo));
+                    await buildComboAsync();
                     await getReasonCategories();
 
                 }
@@ -72,6 +73,17 @@ namespace HNOne.Web.Controllers
         }
 
         #region Private Functions
+        private async Task buildComboAsync()
+        {
+            var getTask1 = _masterDataService.GetFunEnumAsync(UserId, Token, nameof(EnumCatagory.LoaiLyDo));
+            var getTask2 = _masterDataService.GetFunEnumAsync(UserId, Token, nameof(EnumCatagory.LoaiNghiPhep));
+            await Task.WhenAll(
+                    getTask1,
+                    getTask2
+                );
+            ListCboType = await getTask1;
+            ListCboLeaveRequest = await getTask2;
+        }
         private async Task getReasonCategories()
         {
             ListReasonCategory = new List<ReasonCategorieModel>();
@@ -90,6 +102,13 @@ namespace HNOne.Web.Controllers
             {
                 errorMessage = String.Format(MessageConstants.MESSAGE_COMBOBOX_REQUIRE, "Loại lý do");
                 fieldName = "txtType";
+                return;
+            }
+            if (ReasonCategorieUpdate.type == GlobalContants.ENUM_REASON_DNNP 
+                && string.IsNullOrEmpty(ReasonCategorieUpdate.value2))
+            {
+                errorMessage = String.Format(MessageConstants.MESSAGE_COMBOBOX_REQUIRE, "Loại nghỉ phép");
+                fieldName = "txtvalue2";
                 return;
             }
         }
@@ -128,7 +147,7 @@ namespace HNOne.Web.Controllers
             }
         }
 
-        protected async Task OnOpenDialogHandler(EnumType pAction = EnumType.Add, ReasonCategorieModel? pItemDetails = null)
+        protected void OnOpenDialogHandler(EnumType pAction = EnumType.Add, ReasonCategorieModel? pItemDetails = null)
         {
             try
             {
@@ -144,11 +163,9 @@ namespace HNOne.Web.Controllers
                     ReasonCategorieUpdate.type = pItemDetails!.type;
                     decimal.TryParse(pItemDetails!.value, out decimal oConfig);
                     decimal.TryParse(pItemDetails!.value1, out decimal oConfig1);
-                    decimal.TryParse(pItemDetails!.value2, out decimal oConfig2);
                     ReasonCategorieUpdate.isActive = pItemDetails!.isActive;
                     ReasonCategorieUpdate.config = oConfig;
                     ReasonCategorieUpdate.config1 = oConfig1;
-                    ReasonCategorieUpdate.config2 = oConfig2;
                     IsCreate = false;
                 }
                 IsShowDialog = true;
@@ -188,7 +205,8 @@ namespace HNOne.Web.Controllers
                 ReasonCategorieUpdate.userSign2 = UserId;
                 ReasonCategorieUpdate.value = ReasonCategorieUpdate.config.ToString();
                 ReasonCategorieUpdate.value1 = ReasonCategorieUpdate.config1.ToString();
-                ReasonCategorieUpdate.value2 = ReasonCategorieUpdate.config2.ToString();
+                ReasonCategorieUpdate.value2 = ReasonCategorieUpdate.type == GlobalContants.ENUM_REASON_DNNP 
+                    ? ReasonCategorieUpdate.value2 : ReasonCategorieUpdate.config2.ToString();
                 string content = JsonConvert.SerializeObject(ReasonCategorieUpdate);
                 isConfirm = await _masterDataService.UpdateReasonCategorieAsync(processKey, UserId, Token, content);
                 if (isConfirm)

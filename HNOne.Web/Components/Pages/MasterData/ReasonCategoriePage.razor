@@ -114,6 +114,23 @@
                 </div>
             </div>
         </div>
+        @if(ReasonCategorieUpdate.type == GlobalContants.ENUM_REASON_DNNP)
+        {
+            <div class="col-sm-12">
+                <div class="d-flex ">
+                    <W1Label Value="Loại nghỉ phép" Styles="width: 110px" IsRequired="true" />
+                    <div style="width: calc(100% - 110px)">
+                        <DxComboBox Data="@ListCboLeaveRequest"
+                                    @bind-Value="@ReasonCategorieUpdate.value2"
+                                    FilteringMode="DataGridFilteringMode.Contains"
+                                    TextFieldName="@nameof(ComboboxModel.name)"
+                                    ValueFieldName="@nameof(ComboboxModel.code)"
+                                    CssClass="w1FontSize" Id="txtvalue2">
+                        </DxComboBox>
+                    </div>
+                </div>
+            </div>
+        }
         <div class="col-sm-12">
             <div class="d-flex ">
                 <W1Label Value="Tính lương (%)" Styles="width: 110px" />
