@@ -36,7 +36,7 @@ builder.Services.AddScoped<AuthenticationStateProvider, ApiAuthenticationStatePr
 builder.Services.AddHttpClient("api", m =>
 {
     m.BaseAddress = new Uri(apiUrl);
-    m.Timeout = TimeSpan.FromSeconds(60);
+    m.Timeout = TimeSpan.FromSeconds(120);
     m.DefaultRequestHeaders.Add(tokenKey, tokenValue);
 });
 var app = builder.Build();
