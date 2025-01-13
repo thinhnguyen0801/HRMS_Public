@@ -121,8 +121,8 @@
             RequestModel request = new RequestModel();
             request.userId = UserId;
             request.branchId = BranchId;
-            request.opt = DepartmentIds;
-            request.opt1 = StatusIds;
+            request.departmentIds = DepartmentIds;
+            request.opt = StatusIds;
             ListEmpSearch = new List<EmployeeModel>();
             ListEmpSearch = await _personnelService.GetEmployeeAsync(request);
         }

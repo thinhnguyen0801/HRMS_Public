@@ -15,6 +15,7 @@ namespace HNOne.Web.Controllers
 {
     public class WorkCalculationController : DocumentControllerBase
     {
+        [Inject] IPersonnelService _personnelService { get; init; }
         [Inject] IMasterDataService _masterDataService { get; init; }
         [Inject] IWorkforceService _workforceService { get; init; }
         [Inject] DataHelperService _dataHelperService { get; set; }
@@ -33,16 +34,17 @@ namespace HNOne.Web.Controllers
         public IGrid? GridTimesheetDetail { get; set; }
         public List<ComboboxModel>? ListCboYear { get; set; }
         public List<ComboboxModel>? ListCboMonth { get; set; }
-        public List<ComboboxModel>? ListCboStatus { get; set; } // cbo ds tình trạng
-        public IEnumerable<ComboboxModel>? ListCboStatusSelected { get; set; }
         public List<ComboboxModel>? ListCboDepartment { get; set; } // cbo ds phòng ban
         public IEnumerable<ComboboxModel>? ListDepartmentSelected { get; set; }
+        public List<ComboboxModel>? ListCboStatus { get; set; } // cbo ds tình trạng
+        public IEnumerable<ComboboxModel>? ListCboStatusSelected { get; set; }
+        public List<EmployeeModel>? ListEmpSearch { get; set; } // danh sách nhân viên
+        public IGrid? GridEmpSearch { get; set; }
+        public IReadOnlyList<object>? SelectedDataEmployees { get; set; }
 
         private string? pPopupType { get; set; } = string.Empty; // mở popup nào
-        public bool IsShowDialogEmpSearch { get; set; }
         public string? StatusIds { get; set; } // Tình trạng nào
-        public string? DepartmentIds { get; set; }
-        public object? EmployeeSelected { get; set; } // Nhân viên được chọn
+
         public int MaxDaysInMonth { get; set; } = 30; // max số ngày trong tháng
         public bool IsShowDetail { get; set; } // show popup chi tiết ngày công
         public string HeaderTextDetail = "";
@@ -83,7 +85,6 @@ namespace HNOne.Web.Controllers
                 finally
                 {
                     await ShowLoading(false);
-                    //await _progressService!.Done();
                     await InvokeAsync(StateHasChanged);
                 }
             }
@@ -125,15 +126,26 @@ namespace HNOne.Web.Controllers
         {
             try
             {
+
                 var getTask1 = _masterDataService.GetDepartmentAsync(UserId, Token, BranchId, opt: CommonConstants.ENUM_ACTIVE); // ds phòng ban
-                var getTask4 = _masterDataService.GetEnumAsync(UserId, Token, nameof(EnumCatagory.TrangThaiNhanVien)); // ds trạng thái
+                var getTask2 = _masterDataService.GetEnumAsync(UserId, Token, nameof(EnumCatagory.TrangThaiPhatSinhCong)); // ds trạng thái cho phép phát sinh công
+                var getTask3 = _masterDataService.GetEnumAsync(UserId, Token, nameof(EnumCatagory.TrangThaiNhanVien)); // ds trạng thái
                 await Task.WhenAll(
                     getTask1,
-                    getTask4
+                    getTask2,
+                    getTask3
                 );
 
                 ListCboDepartment = (await getTask1)?.Select(m => new ComboboxModel() { id = m.id, code = m.code, name = m.name })?.ToList();
-                ListCboStatus = (await getTask4)?.Where(m => m.rowOrder != 0).Select(m => new ComboboxModel() { code = m.code, name = m.name })?.ToList();
+                ListCboStatus = (await getTask3)?.Where(m => m.rowOrder != 0).Select(m => new ComboboxModel() { code = m.code, name = m.name })?.ToList();
+
+                // gán dữ liệu mặc định
+                string[]? statusIds = $"{(await getTask2)?.FirstOrDefault()?.value}".Split(",");
+                if (!statusIds.IsNullOrEmpty() 
+                    && !ListCboStatus.IsNullOrEmpty())
+                {
+                    ListCboStatusSelected = ListCboStatus!.Where(m => statusIds.Contains(m.code));
+                }    
             }
             catch (Exception) { throw; }
         }
@@ -141,6 +153,7 @@ namespace HNOne.Web.Controllers
         private async Task getDataAttendanceList()
         {
             SelectedItems = null;
+            ListTimesheet = new List<ShiftAssignmentModel>();
             MaxDaysInMonth = DateTime.DaysInMonth(SearchUpdate.year, SearchUpdate.month);
             RequestModel request = new RequestModel();
             request.process = ProcessConstants.GET_WORK_CALCULATE;
@@ -149,23 +162,28 @@ namespace HNOne.Web.Controllers
             request.token = Token;
             request.opt = SearchUpdate.year.ToString(); // năm
             request.opt1 = SearchUpdate.month.ToString(); // tháng
-            request.opt2 = ListDepartmentSelected.IsNullOrEmpty() ? "" : string.Join(",", ListDepartmentSelected!.Select(m => m.id));
-            request.opt3 = "";
-            request.opt4 = ListCboStatusSelected.IsNullOrEmpty() ? "" : string.Join(",", ListCboStatusSelected!.Select(m => m.code));
-            var response = await _workforceService.GetMasterDataAsync<ShiftAssignmentModel>(request, isShowToast: true);
+            request.departmentIds = ListDepartmentSelected.IsNullOrEmpty() ? "" : string.Join(",", ListDepartmentSelected!.Select(m => m.id));
+            request.opt2 = ListCboStatusSelected.IsNullOrEmpty() ? "" : string.Join(",", ListCboStatusSelected!.Select(m => m.code));
+            request.opt3 = SelectedDataEmployees.IsNullOrEmpty() ? "" : string.Join(",", SelectedDataEmployees!.Cast<EmployeeModel>().Select(m => m.id));
+            request.opt4 = "";
+            var response = await _workforceService.WorkCalculateAsync(request);
             ListTimesheet = response;
         }
         #endregion
 
         #region Protected Functions
 
-        protected async Task RowDoubleClickHandler(GridRowClickEventArgs args)
+        /// <summary>
+        /// xem chi tiết công của nhân viên
+        /// </summary>
+        /// <param name="itemSelected"></param>
+        /// <returns></returns>
+        protected async Task OpenPopupDetailHandler(ShiftAssignmentModel? itemSelected)
         {
             try
             {
-                if (args == null || args.Grid.SelectedDataItem == null) return;
+                if (itemSelected == null) return;
                 await ShowLoading();
-                ShiftAssignmentModel itemSelected = (ShiftAssignmentModel)args.Grid.SelectedDataItem;
                 RequestModel request = new RequestModel();
                 request.process = ProcessConstants.GET_WORK_CALCULATE;
                 request.type = ProcessConstants.GET_ITEM_DETAIL;
@@ -176,7 +194,7 @@ namespace HNOne.Web.Controllers
                 request.opt1 = itemSelected.month.ToString(); // tháng
                 request.opt2 = "";
                 request.opt3 = $"{itemSelected.employeeId}";
-                request.opt4 = ListCboStatusSelected.IsNullOrEmpty() ? "" : string.Join(",", ListCboStatusSelected!.Select(m => m.code));
+                request.opt4 = "";
                 var response = await _workforceService.GetMasterDataAsync<ShiftAssignmentModel>(request, isShowToast: true);
                 if(!response.IsNullOrEmpty())
                 {
@@ -209,76 +227,6 @@ namespace HNOne.Web.Controllers
             }
         }
 
-        protected async Task OpenPopupHandler(string type = nameof(EmployeeSelected),
-            string popupType = nameof(SearchUpdate.employeeCode))
-        {
-            try
-            {
-                pPopupType = popupType;
-                switch (type)
-                {
-                    case nameof(EmployeeSelected):
-                        //ListCboDepartment ??= new();
-                        //DepartmentIds = string.Join(",", ListCboDepartment.Select(m => m.id));
-                        IsShowDialogEmpSearch = true;
-                        break;
-                }
-            }
-            catch (Exception ex)
-            {
-                ShowError(ex.Message);
-                _logger.LogError(ex, "OpenPopupHandler");
-            }
-            finally
-            {
-                await ShowLoading(false);
-                await InvokeAsync(StateHasChanged);
-            }
-        }
-
-        /// <summary>
-        /// chọn nhân viên
-        /// </summary>
-        /// <param name="type"></param>
-        /// <returns></returns>
-        protected async Task SelectEmployeeHandler()
-        {
-            try
-            {
-                if (EmployeeSelected == null)
-                {
-                    ShowWarning(string.Format(MessageConstants.MESSAGE_COMBOBOX_REQUIRE, "Nhân viên"));
-                    return;
-                }
-                EmployeeModel employee = (EmployeeModel)EmployeeSelected;
-                switch (pPopupType)
-                {
-                    case nameof(SearchUpdate.employeeCode):
-                        SearchUpdate.employeeId = employee.id;
-                        SearchUpdate.employeeCode = employee.code;
-                        SearchUpdate.employeeName = employee.name;
-                        IsShowDialogEmpSearch = false;
-                        break;
-                }
-            }
-            catch (Exception ex)
-            {
-                ShowError(ex.Message);
-                _logger.LogError(ex, "SelectEmployeeHandler");
-            }
-            finally
-            {
-                await ShowLoading(false);
-                await InvokeAsync(StateHasChanged);
-            }
-        }
-
-        /// <summary>
-        /// callback nhân viên
-        /// </summary>
-        /// <param name="lstEmp"></param>
-        protected void EventCallbackEmpChangedHandler(object? lstEmp) => EmployeeSelected = lstEmp;
-
         /// <summary>
         /// lấy danh sách thông tin quản lý phép năm
         /// </summary>
@@ -287,6 +235,11 @@ namespace HNOne.Web.Controllers
         {
             try
             {
+                if(SelectedDataEmployees.IsNullOrEmpty())
+                {
+                    ShowWarning(string.Format(MessageConstants.MESSAGE_COMBOBOX_REQUIRE, "Nhân viên tính công"));
+                    return;
+                }    
                 await ShowLoading();
                 await getDataAttendanceList();
             }
@@ -497,6 +450,38 @@ namespace HNOne.Web.Controllers
             {
                 _logger!.LogError(ex, "ExportExcelHandler");
                 ShowError(ex.Message);
+            }
+            finally
+            {
+                await ShowLoading(false);
+                await InvokeAsync(StateHasChanged);
+            }
+        }
+
+        /// <summary>
+        /// làm mới danh sách nhân viên
+        /// </summary>
+        /// <returns></returns>
+        protected async Task ReloadEmployeeHandler()
+        {
+            try
+            {
+                await ShowLoading(true);
+                await Task.Yield();
+                RequestModel request = new RequestModel();
+                request.userId = UserId;
+                request.branchId = BranchId;
+                request.employeeId = -1;
+                request.departmentIds = ListDepartmentSelected.IsNullOrEmpty() ? "" : string.Join(",", ListDepartmentSelected!.Select(m => m.id));
+                request.opt = ListCboStatusSelected.IsNullOrEmpty() ? "" : string.Join(",", ListCboStatusSelected!.Select(m => m.code));
+                SelectedDataEmployees = null;
+                ListEmpSearch = new List<EmployeeModel>();
+                ListEmpSearch = await _personnelService.GetEmployeeAsync(request);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "ReloadEmployeeHandler");
+                _toastService.ShowError(ex.Message);
             }
             finally
             {

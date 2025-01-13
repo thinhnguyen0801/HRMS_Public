@@ -56,6 +56,7 @@ namespace HNOne.API.Repositories
         public DbSet<Payrolls> Payrolls { get; set; }
         public DbSet<ConfirmWorkingDays> ConfirmWorkingDays { get; set; }
         public DbSet<ConfirmWorkingDay1s> ConfirmWorkingDay1s { get; set; }
+        public DbSet<PIncomeTaxPeriods> PIncomeTaxPeriods { get; set; }
 
         public MasterDbContext(DbContextOptions<MasterDbContext> options)
             : base(options)
@@ -85,6 +86,7 @@ namespace HNOne.API.Repositories
             modelBuilder.Entity<AttendanceSummarys>().HasIndex(m => new { m.EmployeeId, m.BranchId, m.Month, m.Year }).IsUnique();
             modelBuilder.Entity<Payrolls>().HasIndex(m => new { m.EmployeeId, m.BranchId, m.Month, m.Year }).IsUnique();
             modelBuilder.Entity<ConfirmWorkingDays>().HasIndex(m => m.VoucherNo).IsUnique();
+            modelBuilder.Entity<PIncomeTaxPeriods>().HasIndex(m => new { m.EmployeeId, m.BranchId, m.Month, m.Year }).IsUnique();
         }
 
 

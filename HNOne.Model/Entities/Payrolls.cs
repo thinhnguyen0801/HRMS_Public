@@ -139,9 +139,7 @@ namespace HNOne.Model.Entities
         public string? TaxTypeCode { get; set; } // loại tính thuế
         [MaxLength(250)]
         public string? TaxTypeName { get; set; } // tên loại tính thuế TNCN
-        [Column(TypeName = "decimal(19, 6)")]
         public int TaxtRateId { get; set; } // Id mức thuế
-        [Column(TypeName = "decimal(19, 6)")]
         public int TaxBracket { get; set; } // bậc thuế
         [Column(TypeName = "decimal(19, 6)")]
         public decimal MinTaxSalary { get; set; } // giời hạn tính thuế
@@ -155,14 +153,18 @@ namespace HNOne.Model.Entities
         public decimal StandardTax { get; set; } // Thuế giảm trừ bản thân
         [Column(TypeName = "decimal(19, 6)")]
         public decimal FamilyCircumstanceTaxDeduction { get; set; } // Giảm trừ gia cảnh
-        [Column(TypeName = "decimal(19, 6)")]
+
         public int NumOfPeopleTaxFCTaxDeduction { get; set; } // số người giảm trừ
+
         [Column(TypeName = "decimal(19, 6)")]
         public decimal TotalFCTaxDeduction { get; set; } // tổng tiền giảm trừ gia cảnh
+
         [Column(TypeName = "decimal(19, 6)")]
         public decimal TaxableIncome { get; set; } // Thu nhập tính thuế
+
         [Column(TypeName = "decimal(19, 6)")]
         public decimal TaxAllowance { get; set; } // phụ cấp tính thuế
+
         [Column(TypeName = "decimal(19, 6)")]
         public decimal TaxPayment { get; set; } // Số tiền đóng thuế
         #endregion

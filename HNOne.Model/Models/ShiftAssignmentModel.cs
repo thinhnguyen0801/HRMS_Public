@@ -2,6 +2,8 @@
 {
     public class ShiftAssignmentModel : AuditableModel
     {
+        public int status { get; set; }
+        public string? message { get; set; }
         public int rowOrder { get; set; } // số thứ tự
         public string? link { get; set; }
         public string? objType { get; set; } // loại chứng từ

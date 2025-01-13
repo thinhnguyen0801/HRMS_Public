@@ -33,7 +33,8 @@
         HinhThucDaoTao,
         TrichNop,
         QuyCachDanhMa,
-        LoaiNghiPhep
+        LoaiNghiPhep,
+        TrangThaiPhatSinhCong
     }
 
     public enum EnumObjType

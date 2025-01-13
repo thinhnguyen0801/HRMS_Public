@@ -261,5 +261,41 @@ namespace HNOne.Web.Services
             }
             catch (Exception) { throw; }
         }
+    
+        /// <summary>
+        /// lấy dữ liệu tính công nhân viên
+        /// </summary>
+        /// <param name="request"></param>
+        /// <returns></returns>
+        public async Task<List<ShiftAssignmentModel>?> WorkCalculateAsync(RequestModel request)
+        {
+            try
+            {
+                List<ShiftAssignmentModel>? data = null;
+                HttpResponseMessage httpResponse = await PostAsync(EnpointConstants.WORKFORCE_GET_DATA, request);
+                var checkContent = ValidateJsonContent(httpResponse.Content);
+                if (!checkContent) _toastService.ShowInfo(MessageConstants.MESSAGE_JSON_INVALID);
+                else
+                {
+                    var response = await httpResponse.Content.ReadFromJsonAsync<ResCliModel<ShiftAssignmentModel>>();
+                    if (httpResponse.IsSuccessStatusCode
+                        && response?.status == StatusCodes.Status200OK
+                        && !response.data.IsNullOrEmpty())
+                    {
+                        var header = response.data!.First();
+                        if(header.status == StatusCodes.Status409Conflict)
+                        {
+                            _toastService.ShowInfo(header.message ?? MessageConstants.MESSAGE_IT_SUPPORT);
+                            return data;
+                        }    
+                        data = response.data?.ToList();
+                        return data;
+                    }
+                    _toastService.ShowWarning(response?.message ?? MessageConstants.MESSAGE_IT_SUPPORT);
+                }
+                return data;
+            }
+            catch (Exception) { throw; }
+        }
     }
 }

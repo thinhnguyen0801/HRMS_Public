@@ -47,7 +47,8 @@ namespace HNOne.API.Repositories
                 parameters.Add("@EmployeeId", request.employeeId, DbType.Int32);
                 parameters.Add("@UserId", request.userId, DbType.Int32);
                 parameters.Add("@BranchId", request.branchId, DbType.Int32);
-                parameters.Add("@StatusId", request.opt, DbType.String);
+                parameters.Add("@DepartmentIds", $"{request.departmentIds}", DbType.String);
+                parameters.Add("@StatusIds", $"{request.opt}", DbType.String);
                 var lstResult = await connection.QueryAsync<EmployeeModel>(StoreConstants.STORE_H1_EMPLOYEE_SELECT, param: parameters, commandTimeout: GlobalConstants.COMMAND_TIMEOUT, commandType: CommandType.StoredProcedure);
                 return lstResult;
             }; 

@@ -8,6 +8,7 @@ namespace HNOne.Model
         public int userId { get; set; }
         public int branchId { get; set; }
         public string? branchIds { get; set; }
+        public string? departmentIds { get; set; }
         public string? token { get; set; }
         public string? process { get; set; }
         public string? json { get; set; }

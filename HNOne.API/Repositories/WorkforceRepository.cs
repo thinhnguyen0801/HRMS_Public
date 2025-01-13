@@ -357,9 +357,9 @@ namespace HNOne.API.Repositories
                 parameters.Add("@BranchId", request.branchId);
                 parameters.Add("@Year", year);
                 parameters.Add("@Month", month);
-                parameters.Add("@DepartmentIds", request.opt2);
-                parameters.Add("@EmployeeIds", request.opt3);
-                parameters.Add("@StatusIds", request.opt4);
+                parameters.Add("@DepartmentIds", $"{request.departmentIds}");
+                parameters.Add("@StatusIds", $"{request.opt2}");
+                parameters.Add("@EmployeeIds", $"{request.opt3}");
                 parameters.Add("@Type", $"{request.type}");
                 var lstResult = await connection.QueryAsync<ShiftAssignmentModel>(StoreConstants.STORE_H1_WORK_CALCULATION_SELECT, param: parameters, commandTimeout: GlobalConstants.COMMAND_TIMEOUT, commandType: CommandType.StoredProcedure);
                 return lstResult;
