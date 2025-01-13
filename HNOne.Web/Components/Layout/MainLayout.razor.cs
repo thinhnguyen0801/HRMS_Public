@@ -72,7 +72,7 @@ namespace HNOne.Web.Components.Layout
                     BranchId = result.branchId;
                     EmployeeId = result.employeeId;
                     await getMenus();
-                    _ = getNotifications();
+                    _= getNotifications();
                     // kiểm tra cái key bgcolor default -> thì set lại color theo user
                     if (await _localStorage.ContainKeyAsync("bgcolor"))
                     {
@@ -81,14 +81,14 @@ namespace HNOne.Web.Components.Layout
                     }
 
                     // kết nối tới hub
-                    string apiUrl = _configuration.GetSection("appSettings:ApiUrl").Value + "";
-                    _hubConnection = new HubConnectionBuilder().WithUrl($"{apiUrl}notificationHub?userId={result.employeeId}").Build();
-                    _hubConnection.On<string>("ReceiveMessage", (incomingMessage) =>
-                    {
-                        if(IsReceiveNotification) toastService.ShowInfo(incomingMessage);
-                        _ = getNotifications();
-                    });
-                    await _hubConnection.StartAsync();
+                    //string apiUrl = _configuration.GetSection("appSettings:ApiUrl").Value + "";
+                    //_hubConnection = new HubConnectionBuilder().WithUrl($"{apiUrl}notificationHub?userId={result.employeeId}").Build();
+                    //_hubConnection.On<string>("ReceiveMessage", async (incomingMessage) =>
+                    //{
+                    //    if(IsReceiveNotification) toastService.ShowInfo(incomingMessage);
+                    //    await getNotifications();
+                    //});
+                    //await _hubConnection.StartAsync();
                 }    
                     
             }

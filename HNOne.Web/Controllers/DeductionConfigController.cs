@@ -163,6 +163,8 @@ namespace HNOne.Web.Controllers
                 {
                     IsCreate = true;
                     DeductionUpdate = new DeductionConfigModel();
+                    DeductionUpdate.branchId = BranchId;
+                    DeductionUpdate.isActive = true;
                 }
                 else
                 {

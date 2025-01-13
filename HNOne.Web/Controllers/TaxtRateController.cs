@@ -165,6 +165,7 @@ namespace HNOne.Web.Controllers
                 {
                     IsCreate = true;
                     TaxRateUpdate = new TaxRateModel();
+                    TaxRateUpdate.branchId = BranchId;
                 }
                 else
                 {
