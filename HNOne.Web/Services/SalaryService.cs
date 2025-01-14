@@ -1,6 +1,7 @@
 ﻿using Blazored.Toast.Services;
 using HNOne.Common;
 using HNOne.Model;
+using HNOne.Model.Models;
 using HNOne.Web.Commons;
 using HNOne.Web.Services.Interfaces;
 using Newtonsoft.Json;
@@ -84,6 +85,42 @@ namespace HNOne.Web.Services
                     _toastService.ShowError(response?.message ?? MessageConstants.MESSAGE_IT_SUPPORT);
                 }
                 return false;
+            }
+            catch (Exception) { throw; }
+        }
+    
+        /// <summary>
+        /// Tính lương nhân viên
+        /// </summary>
+        /// <param name="request"></param>
+        /// <returns></returns>
+        public async Task<List<PayrollModel>?> SalaryCalculateAsync(RequestModel request)
+        {
+            try
+            {
+                List<PayrollModel>? data = null;
+                HttpResponseMessage httpResponse = await PostAsync(EnpointConstants.SALARY_GET_DATA, request);
+                var checkContent = ValidateJsonContent(httpResponse.Content);
+                if (!checkContent) _toastService.ShowInfo(MessageConstants.MESSAGE_JSON_INVALID);
+                else
+                {
+                    var response = await httpResponse.Content.ReadFromJsonAsync<ResCliModel<PayrollModel>>();
+                    if (httpResponse.IsSuccessStatusCode
+                        && response?.status == StatusCodes.Status200OK
+                        && !response.data.IsNullOrEmpty())
+                    {
+                        var header = response.data!.First();
+                        if (header.status == StatusCodes.Status409Conflict)
+                        {
+                            _toastService.ShowInfo(header.message ?? MessageConstants.MESSAGE_IT_SUPPORT);
+                            return data;
+                        }
+                        data = response.data?.ToList();
+                        return data;
+                    }
+                    _toastService.ShowWarning(response?.message ?? MessageConstants.MESSAGE_IT_SUPPORT);
+                }
+                return data;
             }
             catch (Exception) { throw; }
         }

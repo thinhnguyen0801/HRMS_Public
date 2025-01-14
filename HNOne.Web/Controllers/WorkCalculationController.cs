@@ -29,6 +29,7 @@ namespace HNOne.Web.Controllers
         public SearchModel SearchUpdate { get; set; } = new SearchModel();
         public List<ShiftAssignmentModel>? ListTimesheet { get; set; }
         public IGrid? GridTimesheet { get; set; }
+        public List<ComboboxModel>? ListCboBranch { get; set; } // cbo ds chi nhánh
         public IReadOnlyList<object>? SelectedItems { get; set; } = null;
         public List<ShiftAssignmentModel>? ListTimesheetDetail { get; set; }
         public IGrid? GridTimesheetDetail { get; set; }
@@ -108,6 +109,7 @@ namespace HNOne.Web.Controllers
             SearchUpdate.year = DateTime.Now.Year;
             SearchUpdate.month = DateTime.Now.Month;
             MaxDaysInMonth = DateTime.DaysInMonth(SearchUpdate.year, SearchUpdate.month);
+            SearchUpdate.branchId = BranchId;
             int defaultYear = 2024;
             ListCboYear = new List<ComboboxModel>();
             for (int i = defaultYear; i < DateTime.Now.AddYears(2).Year; i++)
@@ -130,15 +132,17 @@ namespace HNOne.Web.Controllers
                 var getTask1 = _masterDataService.GetDepartmentAsync(UserId, Token, BranchId, opt: CommonConstants.ENUM_ACTIVE); // ds phòng ban
                 var getTask2 = _masterDataService.GetEnumAsync(UserId, Token, nameof(EnumCatagory.TrangThaiPhatSinhCong)); // ds trạng thái cho phép phát sinh công
                 var getTask3 = _masterDataService.GetEnumAsync(UserId, Token, nameof(EnumCatagory.TrangThaiNhanVien)); // ds trạng thái
+                var getTask4 = _masterDataService.GetBranchAsync(UserId, Token);
                 await Task.WhenAll(
                     getTask1,
                     getTask2,
-                    getTask3
+                    getTask3,
+                    getTask4
                 );
 
                 ListCboDepartment = (await getTask1)?.Select(m => new ComboboxModel() { id = m.id, code = m.code, name = m.name })?.ToList();
                 ListCboStatus = (await getTask3)?.Where(m => m.rowOrder != 0).Select(m => new ComboboxModel() { code = m.code, name = m.name })?.ToList();
-
+                ListCboBranch = (await getTask4)?.Select(m => new ComboboxModel() { id = m.branchId, name = m.branchName })?.ToList();
                 // gán dữ liệu mặc định
                 string[]? statusIds = $"{(await getTask2)?.FirstOrDefault()?.value}".Split(",");
                 if (!statusIds.IsNullOrEmpty() 
@@ -150,7 +154,6 @@ namespace HNOne.Web.Controllers
             catch (Exception) { throw; }
         }
         
-
         private async Task getAttendanceSummary()
         {
             SelectedItems = null;

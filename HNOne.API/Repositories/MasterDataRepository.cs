@@ -305,13 +305,29 @@ namespace HNOne.API.Repositories
         {
             using (var connection = _dapperDbContext.CreateConnection())
             {
-                string query = "select T0.* from SalaryParameters as T0 with(nolock)" +
-                    " where T0.IsDelete = '0' and T0.BranchId = @BranchId";
-                // thêm điều kiện
-                if (request.opt == CommonConstants.ENUM_ACTIVE) query += " and T0.IsActive = '1'";
                 var parameters = new DynamicParameters();
-                parameters.Add("@BranchId", request.branchId, DbType.Int32);
-                var results = await connection.QueryAsync<SalaryParameterModel>(query, parameters, commandTimeout: GlobalConstants.COMMAND_TIMEOUT, commandType: CommandType.Text);
+                string strQuery = "select T0.*" +
+                    " ,T1.BranchCode as BranchCode, T1.BranchName as BranchName" +
+                    " from SalaryParameters as T0 with(nolock)" +
+                    " inner join Branchs as T1 with(nolock) on T0.BranchId = T1.BranchId" +
+                    " where T0.IsDelete = '0'";
+                // thêm điều kiện
+                if (request.opt == CommonConstants.ENUM_ACTIVE)
+                {
+                    // ở các chứng từ
+                    strQuery += " and T0.IsActive = '1'";
+                    strQuery += " and T0.BranchId = @BranchId";
+                    parameters.Add("@BranchId", request.branchId, DbType.Int32);
+                }
+                else
+                {
+                    // Ở page danh mục. Kiểm tra có quyền xem chi nhánh nào thì where thêm
+                    request.branchIds += $",{request.branchId}";
+                    request.branchIds = request.branchIds.Trim(',');
+                    strQuery += " and T0.BranchId in ((select [Value] from string_split(@BranchIds, ',')))";
+                    parameters.Add("@BranchIds", request.branchIds, DbType.String);
+                }
+                var results = await connection.QueryAsync<SalaryParameterModel>(strQuery, parameters, commandTimeout: GlobalConstants.COMMAND_TIMEOUT, commandType: CommandType.Text);
                 return results;
             }
         }

@@ -13,6 +13,21 @@
                     <div class="row row-gap-2">
                         <div class="col-sm-12">
                             <div class="d-flex px-1">
+                                <W1Label Value="Chi nhánh" Styles="width: 90px" IsRequired="true" />
+                                <div style="width: calc(100% - 90px)">
+                                    <DxComboBox Data="@ListCboBranch"
+                                                @bind-Value="@SearchUpdate.branchId"
+                                                FilteringMode="DataGridFilteringMode.Contains"
+                                                TextFieldName="@nameof(ComboboxModel.name)"
+                                                Id="txtBranchId"
+                                                ReadOnly="true"
+                                                ValueFieldName="@nameof(ComboboxModel.id)" CssClass="w1FontSize">
+                                    </DxComboBox>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-sm-12">
+                            <div class="d-flex px-1">
                                 <W1Label Value="Tháng/năm" Styles="width: 90px" IsRequired="true" />
                                 <div style="width: calc(100% - 90px)">
                                     <div class="grid gap-1 row-gap-2">

@@ -15,6 +15,7 @@ namespace HNOne.Model
         public int month { get; set; }
         public int departmentId { get; set; }
         public int employeeId { get; set; }
+        public int branchId { get; set; }
         public string? employeeCode { get; set; }
         public string? employeeName { get; set; }
         public string? statusCode { get; set; }

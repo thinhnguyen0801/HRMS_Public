@@ -50,9 +50,11 @@ namespace HNOne.Web.Controllers
                     ListBreadcrumbs = new List<BreadcrumbModel>()
                     {
                         new BreadcrumbModel("Danh mục"),
+                        new BreadcrumbModel("Lương"),
                         new BreadcrumbModel("Thông số lương", isActive: true)
                     };
                     await NotifyBreadcrumb.InvokeAsync(ListBreadcrumbs);
+                    await buildComboboxAsync();
                     await getSalaryConfig();
 
                 }
@@ -70,21 +72,38 @@ namespace HNOne.Web.Controllers
         }
 
         #region Private Functions
+        private async Task buildComboboxAsync()
+        {
+            try
+            {
+                var getTask1 = _masterDataService.GetBranchAsync(UserId, Token);
+                await Task.WhenAll(
+                    getTask1
+                    );
+                ListCboBranch = (await getTask1)?.Select(m => new ComboboxModel() { id = m.branchId, name = m.branchName })?.ToList();
+            }
+            catch (Exception ex)
+            {
+                ShowError(ex.Message);
+                _logger.LogError(ex, "BuildComboAsync");
+            }
+        }
+
         private async Task getSalaryConfig()
         {
             ListSalaryConfig = new List<SalaryParameterModel>();
-            ListSalaryConfig = await _masterDataService.GetSalaryParameterAsync(UserId, Token, BranchId, isShowToast: true);
+            ListSalaryConfig = await _masterDataService.GetSalaryParameterAsync(UserId, Token, BranchId, $"{BranchIds}", isShowToast: true);
         }
 
         private void validateForSave(ref string errorMessage, ref string fieldName)
         {
-            //if (EntityUpdate.branchId < 1)
-            //{
-            //    errorMessage = String.Format(MessageConstants.MESSAGE_COMBOBOX_REQUIRE, "Chi nhánh");
-            //    fieldName = "txtBranchId";
-            //    return;
-            //}
-            if(!EntityUpdate.fromDate.HasValue)
+            if (EntityUpdate.branchId < 1)
+            {
+                errorMessage = String.Format(MessageConstants.MESSAGE_COMBOBOX_REQUIRE, "Chi nhánh");
+                fieldName = "txtBranchId";
+                return;
+            }
+            if (!EntityUpdate.fromDate.HasValue)
             {
                 errorMessage = String.Format(MessageConstants.MESSAGE_COMBOBOX_REQUIRE, "Từ ngày");
                 fieldName = "toDate";
@@ -146,6 +165,7 @@ namespace HNOne.Web.Controllers
                 {
                     IsCreate = true;
                     EntityUpdate = new SalaryParameterModel();
+                    EntityUpdate.isActive = true;
                     if (!ListCboBranch.IsNullOrEmpty()) EntityUpdate.branchId = BranchId;
                 }
                 else
@@ -194,7 +214,6 @@ namespace HNOne.Web.Controllers
                 if (!isConfirm) return;
                 await ShowLoading();
                 string processKey = IsCreate ? ProcessConstants.POST_SALARY_PARAMETER : ProcessConstants.PUT_SALARY_PARAMETER;
-                EntityUpdate.branchId = BranchId;
                 EntityUpdate.userSign = UserId;
                 EntityUpdate.userSign2 = UserId;
                 string content = JsonConvert.SerializeObject(EntityUpdate);

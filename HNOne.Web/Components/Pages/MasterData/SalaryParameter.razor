@@ -42,7 +42,7 @@
                             CssClass="h-full">
                         <Columns>
                             <DxGridSelectionColumn Width="45px" />
-                            <DxGridDataColumn FieldName="@nameof(SalaryParameterModel.id)" Caption="STT" MinWidth="70" Width="80px">
+                            <DxGridDataColumn FieldName="@nameof(SalaryParameterModel.id)" Caption="STT" MinWidth="60" Width="70px">
                                 <CellDisplayTemplate>
                                     @{
                                         if (IsAllowPut)
@@ -57,13 +57,13 @@
                                 </CellDisplayTemplate>
                             </DxGridDataColumn>
                             <DxGridDataColumn FieldName="@nameof(SalaryParameterModel.createDate)" Caption="Ngày lập" MinWidth="130" DisplayFormat="@GlobalContants.FORMAT_DATE" />
-                            @* <DxGridDataColumn FieldName="@nameof(SalaryParameterModel.branchName)" Caption="Chi nhánh" MinWidth="160" /> *@
+                            <DxGridDataColumn FieldName="@nameof(SalaryParameterModel.branchName)" Caption="Chi nhánh" MinWidth="160" />
                             <DxGridDataColumn FieldName="@nameof(SalaryParameterModel.isActive)" Caption="Đã áp dụng?" MinWidth="100" />
                             <DxGridDataColumn FieldName="@nameof(SalaryParameterModel.fromDate)" Caption="Từ ngày" MinWidth="120" DisplayFormat="@GlobalContants.FORMAT_DATE" />
                             <DxGridDataColumn FieldName="@nameof(SalaryParameterModel.toDate)" Caption="Đến ngày" MinWidth="120" DisplayFormat="@GlobalContants.FORMAT_DATE" />
-                            <DxGridDataColumn FieldName="@nameof(SalaryParameterModel.taxSalary)" Caption="Mức lương chịu thuế" MinWidth="150" DisplayFormat="@GlobalContants.FORMAT_CURRENCY" />
-                            <DxGridDataColumn FieldName="@nameof(SalaryParameterModel.taxSalaryProbationary)" Caption="Mức lương chịu thuế thử việc" MinWidth="170" DisplayFormat="@GlobalContants.FORMAT_CURRENCY" />
-                            <DxGridDataColumn FieldName="@nameof(SalaryParameterModel.salaryFamilyCircumstanceDeduction)" Caption="Mức tiền giảm trừ gia cảnh" MinWidth="170" DisplayFormat="@GlobalContants.FORMAT_CURRENCY" />
+                            <DxGridDataColumn FieldName="@nameof(SalaryParameterModel.taxSalary)" Caption="Lương chịu thuế" MinWidth="150" DisplayFormat="@GlobalContants.FORMAT_CURRENCY" />
+                            <DxGridDataColumn FieldName="@nameof(SalaryParameterModel.taxSalaryProbationary)" Caption="Lương chịu thuế thử việc" MinWidth="170" DisplayFormat="@GlobalContants.FORMAT_CURRENCY" />
+                            <DxGridDataColumn FieldName="@nameof(SalaryParameterModel.salaryFamilyCircumstanceDeduction)" Caption="Tiền giảm trừ gia cảnh" MinWidth="170" DisplayFormat="@GlobalContants.FORMAT_CURRENCY" />
                             <DxGridDataColumn FieldName="@nameof(SalaryParameterModel.dateTracking)" Caption="Ngày cập nhật" MinWidth="120" DisplayFormat="@GlobalContants.FORMAT_DATE_TIME" />
                             <DxGridDataColumn FieldName="@nameof(SalaryParameterModel.userSignName)" Caption="Người tạo" MinWidth="120" />
                             <DxGridDataColumn FieldName="@nameof(SalaryParameterModel.userSign2Name)" Caption="Người cập nhật" MinWidth="120" />
@@ -87,7 +87,7 @@
     <div class="row row-gap-2">
         <div class="col-sm-12">
             <div class="d-flex ">
-                <W1Label Value="Mã loại lương" Id="bacLuong" Styles="width: 130px" IsRequired="true" />
+                <W1Label Value="Mã loại lương" Styles="width: 130px" IsRequired="true" />
                 <div style="width: calc(100% - 130px)">
                     <div class="row row-gap-2">
                         <div class="col-md-8 col-sm-12">
@@ -103,6 +103,20 @@
                         </div>
                     </div>
 
+                </div>
+            </div>
+        </div>
+        <div class="col-sm-12">
+            <div class="d-flex ">
+                <W1Label Value="Chi nhánh" Styles="width: 130px" IsRequired="true" />
+                <div style="width: calc(100% - 130px)">
+                    <DxComboBox Data="@ListCboBranch"
+                                @bind-Value="@EntityUpdate.branchId"
+                                FilteringMode="DataGridFilteringMode.Contains"
+                                TextFieldName="@nameof(ComboboxModel.name)"
+                                Id="txtBranchId"
+                                ValueFieldName="@nameof(ComboboxModel.id)" CssClass="w1FontSize">
+                    </DxComboBox>
                 </div>
             </div>
         </div>
