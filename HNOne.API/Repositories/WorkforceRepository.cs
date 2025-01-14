@@ -423,6 +423,33 @@ namespace HNOne.API.Repositories
                 return lstResult ?? new List<ConfirmWorkingDayModel>();
             }
         }
+        
+        /// <summary>
+        /// lấy danh sách dữ liệu công đã lưu
+        /// </summary>
+        /// <param name="request"></param>
+        /// <returns></returns>
+        public async Task<IEnumerable<ShiftAssignmentModel>> GetAttendanceSummary(RequestModel request)
+        {
+            using (var connection = _dapperDbContext.CreateConnection())
+            {
+                int.TryParse(request.opt, out int year);
+                int.TryParse(request.opt1, out int month);
+                if (year == 0) year = DateTime.Now.Year;
+                if (month == 0) month = DateTime.Now.Month;
+                var parameters = new DynamicParameters();
+                parameters.Add("@UserId", request.userId);
+                parameters.Add("@BranchId", request.branchId);
+                parameters.Add("@Year", year);
+                parameters.Add("@Month", month);
+                parameters.Add("@DepartmentIds", $"{request.departmentIds}");
+                parameters.Add("@StatusIds", $"{request.opt2}");
+                parameters.Add("@EmployeeIds", $"{request.opt3}");
+                parameters.Add("@Type", $"{request.type}");
+                var lstResult = await connection.QueryAsync<ShiftAssignmentModel>(StoreConstants.STORE_H1_ATTENDANCE_SUMMARY_SELECT, param: parameters, commandTimeout: GlobalConstants.COMMAND_TIMEOUT, commandType: CommandType.StoredProcedure);
+                return lstResult;
+            }
+        }
         #endregion
 
         #region Command
@@ -1366,37 +1393,70 @@ namespace HNOne.API.Repositories
                         entity.ShiftCode = entity.ShiftCode ?? "-";
                         entity.UserSign = userId;
                         entity.IsLocked = isLocked;
-                        entity.N01 = Regex.Replace(entity.N01 + "", pattern, "$1");
-                        entity.N02 = Regex.Replace(entity.N02 + "", pattern, "$1");
-                        entity.N03 = Regex.Replace(entity.N03 + "", pattern, "$1");
-                        entity.N04 = Regex.Replace(entity.N04 + "", pattern, "$1");
-                        entity.N05 = Regex.Replace(entity.N05 + "", pattern, "$1");
-                        entity.N06 = Regex.Replace(entity.N06 + "", pattern, "$1");
-                        entity.N07 = Regex.Replace(entity.N07 + "", pattern, "$1");
-                        entity.N08 = Regex.Replace(entity.N08 + "", pattern, "$1");
-                        entity.N09 = Regex.Replace(entity.N09 + "", pattern, "$1");
-                        entity.N10 = Regex.Replace(entity.N10 + "", pattern, "$1");
-                        entity.N11 = Regex.Replace(entity.N11 + "", pattern, "$1");
-                        entity.N12 = Regex.Replace(entity.N12 + "", pattern, "$1");
-                        entity.N13 = Regex.Replace(entity.N13 + "", pattern, "$1");
-                        entity.N14 = Regex.Replace(entity.N14 + "", pattern, "$1");
-                        entity.N15 = Regex.Replace(entity.N15 + "", pattern, "$1");
-                        entity.N16 = Regex.Replace(entity.N16 + "", pattern, "$1");
-                        entity.N17 = Regex.Replace(entity.N17 + "", pattern, "$1");
-                        entity.N18 = Regex.Replace(entity.N18 + "", pattern, "$1");
-                        entity.N19 = Regex.Replace(entity.N19 + "", pattern, "$1");
-                        entity.N20 = Regex.Replace(entity.N20 + "", pattern, "$1");
-                        entity.N21 = Regex.Replace(entity.N21 + "", pattern, "$1");
-                        entity.N22 = Regex.Replace(entity.N22 + "", pattern, "$1");
-                        entity.N23 = Regex.Replace(entity.N23 + "", pattern, "$1");
-                        entity.N24 = Regex.Replace(entity.N24 + "", pattern, "$1");
-                        entity.N25 = Regex.Replace(entity.N25 + "", pattern, "$1");
-                        entity.N26 = Regex.Replace(entity.N26 + "", pattern, "$1");
-                        entity.N27 = Regex.Replace(entity.N27 + "", pattern, "$1");
-                        entity.N28 = Regex.Replace(entity.N28 + "", pattern, "$1");
-                        entity.N29 = Regex.Replace(entity.N29 + "", pattern, "$1");
-                        entity.N30 = Regex.Replace(entity.N30 + "", pattern, "$1");
-                        entity.N31 = Regex.Replace(entity.N31 + "", pattern, "$1");
+                        entity.N01 = entity.N01;
+                        entity.N02 = entity.N02;
+                        entity.N03 = entity.N03;
+                        entity.N04 = entity.N04;
+                        entity.N05 = entity.N05;
+                        entity.N06 = entity.N06;
+                        entity.N07 = entity.N07;
+                        entity.N08 = entity.N08;
+                        entity.N09 = entity.N09;
+                        entity.N10 = entity.N10;
+                        entity.N11 = entity.N11;
+                        entity.N12 = entity.N12;
+                        entity.N13 = entity.N13;
+                        entity.N14 = entity.N14;
+                        entity.N15 = entity.N15;
+                        entity.N16 = entity.N16;
+                        entity.N17 = entity.N17;
+                        entity.N18 = entity.N18;
+                        entity.N19 = entity.N19;
+                        entity.N20 = entity.N20;
+                        entity.N21 = entity.N21;
+                        entity.N22 = entity.N22;
+                        entity.N23 = entity.N23;
+                        entity.N24 = entity.N24;
+                        entity.N25 = entity.N25;
+                        entity.N26 = entity.N26;
+                        entity.N27 = entity.N27;
+                        entity.N28 = entity.N28;
+                        entity.N29 = entity.N29;
+                        entity.N30 = entity.N30;
+                        entity.N31 = entity.N31;
+
+
+                        //entity.N01 = Regex.Replace(entity.N01 + "", pattern, "$1");
+                        //entity.N02 = Regex.Replace(entity.N02 + "", pattern, "$1");
+                        //entity.N03 = Regex.Replace(entity.N03 + "", pattern, "$1");
+                        //entity.N04 = Regex.Replace(entity.N04 + "", pattern, "$1");
+                        //entity.N05 = Regex.Replace(entity.N05 + "", pattern, "$1");
+                        //entity.N06 = Regex.Replace(entity.N06 + "", pattern, "$1");
+                        //entity.N07 = Regex.Replace(entity.N07 + "", pattern, "$1");
+                        //entity.N08 = Regex.Replace(entity.N08 + "", pattern, "$1");
+                        //entity.N09 = Regex.Replace(entity.N09 + "", pattern, "$1");
+                        //entity.N10 = Regex.Replace(entity.N10 + "", pattern, "$1");
+                        //entity.N11 = Regex.Replace(entity.N11 + "", pattern, "$1");
+                        //entity.N12 = Regex.Replace(entity.N12 + "", pattern, "$1");
+                        //entity.N13 = Regex.Replace(entity.N13 + "", pattern, "$1");
+                        //entity.N14 = Regex.Replace(entity.N14 + "", pattern, "$1");
+                        //entity.N15 = Regex.Replace(entity.N15 + "", pattern, "$1");
+                        //entity.N16 = Regex.Replace(entity.N16 + "", pattern, "$1");
+                        //entity.N17 = Regex.Replace(entity.N17 + "", pattern, "$1");
+                        //entity.N18 = Regex.Replace(entity.N18 + "", pattern, "$1");
+                        //entity.N19 = Regex.Replace(entity.N19 + "", pattern, "$1");
+                        //entity.N20 = Regex.Replace(entity.N20 + "", pattern, "$1");
+                        //entity.N21 = Regex.Replace(entity.N21 + "", pattern, "$1");
+                        //entity.N22 = Regex.Replace(entity.N22 + "", pattern, "$1");
+                        //entity.N23 = Regex.Replace(entity.N23 + "", pattern, "$1");
+                        //entity.N24 = Regex.Replace(entity.N24 + "", pattern, "$1");
+                        //entity.N25 = Regex.Replace(entity.N25 + "", pattern, "$1");
+                        //entity.N26 = Regex.Replace(entity.N26 + "", pattern, "$1");
+                        //entity.N27 = Regex.Replace(entity.N27 + "", pattern, "$1");
+                        //entity.N28 = Regex.Replace(entity.N28 + "", pattern, "$1");
+                        //entity.N29 = Regex.Replace(entity.N29 + "", pattern, "$1");
+                        //entity.N30 = Regex.Replace(entity.N30 + "", pattern, "$1");
+                        //entity.N31 = Regex.Replace(entity.N31 + "", pattern, "$1");
                         await _dbContext.AttendanceSummarys.AddAsync(entity);
                         continue;
                     }
@@ -1408,10 +1468,17 @@ namespace HNOne.API.Repositories
                         return response;
                     }
                     // cập nhật dữ liệu
+                    data.EmployeeName = entity.EmployeeName;
                     data.BranchId = entity.BranchId;
                     data.DepartmentId = entity.DepartmentId;
+                    data.DepartmentCode = entity.DepartmentCode;
+                    data.DepartmentName = entity.DepartmentName;
                     data.PositionId = entity.PositionId;
+                    data.PositionCode = entity.PositionCode;
+                    data.PositionName = entity.PositionName;
                     data.TitleId = entity.TitleId;
+                    data.TitleCode = entity.TitleCode;
+                    data.TitleName = entity.TitleName;
                     data.ShiftCode = entity.ShiftCode ?? "-";
                     data.TNC = entity.TNC;
                     data.CDM = entity.CDM;
@@ -1434,38 +1501,68 @@ namespace HNOne.API.Repositories
                     data.SGTCKT = entity.SGTCKT;
                     data.IsLocked = entity.IsLocked;
 
-
-                    data.N01 = Regex.Replace(entity.N01 + "", pattern, "$1");
-                    data.N02 = Regex.Replace(entity.N02 + "", pattern, "$1");
-                    data.N03 = Regex.Replace(entity.N03 + "", pattern, "$1");
-                    data.N04 = Regex.Replace(entity.N04 + "", pattern, "$1");
-                    data.N05 = Regex.Replace(entity.N05 + "", pattern, "$1");
-                    data.N06 = Regex.Replace(entity.N06 + "", pattern, "$1");
-                    data.N07 = Regex.Replace(entity.N07 + "", pattern, "$1");
-                    data.N08 = Regex.Replace(entity.N08 + "", pattern, "$1");
-                    data.N09 = Regex.Replace(entity.N09 + "", pattern, "$1");
-                    data.N10 = Regex.Replace(entity.N10 + "", pattern, "$1");
-                    data.N11 = Regex.Replace(entity.N11 + "", pattern, "$1");
-                    data.N12 = Regex.Replace(entity.N12 + "", pattern, "$1");
-                    data.N13 = Regex.Replace(entity.N13 + "", pattern, "$1");
-                    data.N14 = Regex.Replace(entity.N14 + "", pattern, "$1");
-                    data.N15 = Regex.Replace(entity.N15 + "", pattern, "$1");
-                    data.N16 = Regex.Replace(entity.N16 + "", pattern, "$1");
-                    data.N17 = Regex.Replace(entity.N17 + "", pattern, "$1");
-                    data.N18 = Regex.Replace(entity.N18 + "", pattern, "$1");
-                    data.N19 = Regex.Replace(entity.N19 + "", pattern, "$1");
-                    data.N20 = Regex.Replace(entity.N20 + "", pattern, "$1");
-                    data.N21 = Regex.Replace(entity.N21 + "", pattern, "$1");
-                    data.N22 = Regex.Replace(entity.N22 + "", pattern, "$1");
-                    data.N23 = Regex.Replace(entity.N23 + "", pattern, "$1");
-                    data.N24 = Regex.Replace(entity.N24 + "", pattern, "$1");
-                    data.N25 = Regex.Replace(entity.N25 + "", pattern, "$1");
-                    data.N26 = Regex.Replace(entity.N26 + "", pattern, "$1");
-                    data.N27 = Regex.Replace(entity.N27 + "", pattern, "$1");
-                    data.N28 = Regex.Replace(entity.N28 + "", pattern, "$1");
-                    data.N29 = Regex.Replace(entity.N29 + "", pattern, "$1");
-                    data.N30 = Regex.Replace(entity.N30 + "", pattern, "$1");
-                    data.N31 = Regex.Replace(entity.N31 + "", pattern, "$1");
+                    data.N01 = entity.N01;
+                    data.N02 = entity.N02;
+                    data.N03 = entity.N03;
+                    data.N04 = entity.N04;
+                    data.N05 = entity.N05;
+                    data.N06 = entity.N06;
+                    data.N07 = entity.N07;
+                    data.N08 = entity.N08;
+                    data.N09 = entity.N09;
+                    data.N10 = entity.N10;
+                    data.N11 = entity.N11;
+                    data.N12 = entity.N12;
+                    data.N13 = entity.N13;
+                    data.N14 = entity.N14;
+                    data.N15 = entity.N15;
+                    data.N16 = entity.N16;
+                    data.N17 = entity.N17;
+                    data.N18 = entity.N18;
+                    data.N19 = entity.N19;
+                    data.N20 = entity.N20;
+                    data.N21 = entity.N21;
+                    data.N22 = entity.N22;
+                    data.N23 = entity.N23;
+                    data.N24 = entity.N24;
+                    data.N25 = entity.N25;
+                    data.N26 = entity.N26;
+                    data.N27 = entity.N27;
+                    data.N28 = entity.N28;
+                    data.N29 = entity.N29;
+                    data.N30 = entity.N30;
+                    data.N31 = entity.N31;
+                    //data.N01 = Regex.Replace(entity.N01 + "", pattern, "$1");
+                    //data.N02 = Regex.Replace(entity.N02 + "", pattern, "$1");
+                    //data.N03 = Regex.Replace(entity.N03 + "", pattern, "$1");
+                    //data.N04 = Regex.Replace(entity.N04 + "", pattern, "$1");
+                    //data.N05 = Regex.Replace(entity.N05 + "", pattern, "$1");
+                    //data.N06 = Regex.Replace(entity.N06 + "", pattern, "$1");
+                    //data.N07 = Regex.Replace(entity.N07 + "", pattern, "$1");
+                    //data.N08 = Regex.Replace(entity.N08 + "", pattern, "$1");
+                    //data.N09 = Regex.Replace(entity.N09 + "", pattern, "$1");
+                    //data.N10 = Regex.Replace(entity.N10 + "", pattern, "$1");
+                    //data.N11 = Regex.Replace(entity.N11 + "", pattern, "$1");
+                    //data.N12 = Regex.Replace(entity.N12 + "", pattern, "$1");
+                    //data.N13 = Regex.Replace(entity.N13 + "", pattern, "$1");
+                    //data.N14 = Regex.Replace(entity.N14 + "", pattern, "$1");
+                    //data.N15 = Regex.Replace(entity.N15 + "", pattern, "$1");
+                    //data.N16 = Regex.Replace(entity.N16 + "", pattern, "$1");
+                    //data.N17 = Regex.Replace(entity.N17 + "", pattern, "$1");
+                    //data.N18 = Regex.Replace(entity.N18 + "", pattern, "$1");
+                    //data.N19 = Regex.Replace(entity.N19 + "", pattern, "$1");
+                    //data.N20 = Regex.Replace(entity.N20 + "", pattern, "$1");
+                    //data.N21 = Regex.Replace(entity.N21 + "", pattern, "$1");
+                    //data.N22 = Regex.Replace(entity.N22 + "", pattern, "$1");
+                    //data.N23 = Regex.Replace(entity.N23 + "", pattern, "$1");
+                    //data.N24 = Regex.Replace(entity.N24 + "", pattern, "$1");
+                    //data.N25 = Regex.Replace(entity.N25 + "", pattern, "$1");
+                    //data.N26 = Regex.Replace(entity.N26 + "", pattern, "$1");
+                    //data.N27 = Regex.Replace(entity.N27 + "", pattern, "$1");
+                    //data.N28 = Regex.Replace(entity.N28 + "", pattern, "$1");
+                    //data.N29 = Regex.Replace(entity.N29 + "", pattern, "$1");
+                    //data.N30 = Regex.Replace(entity.N30 + "", pattern, "$1");
+                    //data.N31 = Regex.Replace(entity.N31 + "", pattern, "$1");
                     data.IsLocked = isLocked;
                     data.DateTracking = dateTimeNow;
                     data.UpdateDate = dateTimeNow;

@@ -150,23 +150,25 @@ namespace HNOne.Web.Controllers
             catch (Exception) { throw; }
         }
         
-        private async Task getDataAttendanceList()
+
+        private async Task getAttendanceSummary()
         {
             SelectedItems = null;
             ListTimesheet = new List<ShiftAssignmentModel>();
             MaxDaysInMonth = DateTime.DaysInMonth(SearchUpdate.year, SearchUpdate.month);
             RequestModel request = new RequestModel();
-            request.process = ProcessConstants.GET_WORK_CALCULATE;
+            request.process = ProcessConstants.GET_ATTENDANCE_SUMMARY;
             request.userId = UserId;
             request.branchId = BranchId;
             request.token = Token;
+            request.type = ProcessConstants.GET_ITEM_HEADER;
             request.opt = SearchUpdate.year.ToString(); // năm
             request.opt1 = SearchUpdate.month.ToString(); // tháng
             request.departmentIds = ListDepartmentSelected.IsNullOrEmpty() ? "" : string.Join(",", ListDepartmentSelected!.Select(m => m.id));
-            request.opt2 = ListCboStatusSelected.IsNullOrEmpty() ? "" : string.Join(",", ListCboStatusSelected!.Select(m => m.code));
+            request.opt2 = "";
             request.opt3 = SelectedDataEmployees.IsNullOrEmpty() ? "" : string.Join(",", SelectedDataEmployees!.Cast<EmployeeModel>().Select(m => m.id));
             request.opt4 = "";
-            var response = await _workforceService.WorkCalculateAsync(request);
+            var response = await _workforceService.GetMasterDataAsync<ShiftAssignmentModel>(request);
             ListTimesheet = response;
         }
         #endregion
@@ -185,7 +187,7 @@ namespace HNOne.Web.Controllers
                 if (itemSelected == null) return;
                 await ShowLoading();
                 RequestModel request = new RequestModel();
-                request.process = ProcessConstants.GET_WORK_CALCULATE;
+                request.process = ProcessConstants.GET_ATTENDANCE_SUMMARY;
                 request.type = ProcessConstants.GET_ITEM_DETAIL;
                 request.userId = UserId;
                 request.branchId = BranchId;
@@ -228,20 +230,54 @@ namespace HNOne.Web.Controllers
         }
 
         /// <summary>
-        /// lấy danh sách thông tin quản lý phép năm
+        /// lấy danh sách thông tin tính công của nhân viên
+        /// Danh sách đã tính công trước đó rồi
         /// </summary>
         /// <returns></returns>
         protected async Task RefreshHandler()
         {
             try
-            {
-                if(SelectedDataEmployees.IsNullOrEmpty())
-                {
-                    ShowWarning(string.Format(MessageConstants.MESSAGE_COMBOBOX_REQUIRE, "Nhân viên tính công"));
-                    return;
-                }    
+            {  
                 await ShowLoading();
-                await getDataAttendanceList();
+                await getAttendanceSummary();
+            }
+            catch (Exception ex)
+            {
+                _logger!.LogError(ex, "ReLoadDataHandler");
+                ShowError(ex.Message);
+            }
+            finally
+            {
+                await ShowLoading(false);
+                await InvokeAsync(StateHasChanged);
+            }
+        }
+
+        /// <summary>
+        /// Tính công nhân viên
+        /// </summary>
+        /// <returns></returns>
+        protected async Task WorkCalculateHandler()
+        {
+            try
+            {
+                await ShowLoading();
+                SelectedItems = null;
+                ListTimesheet = new List<ShiftAssignmentModel>();
+                MaxDaysInMonth = DateTime.DaysInMonth(SearchUpdate.year, SearchUpdate.month);
+                RequestModel request = new RequestModel();
+                request.process = ProcessConstants.GET_WORK_CALCULATE;
+                request.userId = UserId;
+                request.branchId = BranchId;
+                request.token = Token;
+                request.opt = SearchUpdate.year.ToString(); // năm
+                request.opt1 = SearchUpdate.month.ToString(); // tháng
+                request.departmentIds = ListDepartmentSelected.IsNullOrEmpty() ? "" : string.Join(",", ListDepartmentSelected!.Select(m => m.id));
+                request.opt2 = ListCboStatusSelected.IsNullOrEmpty() ? "" : string.Join(",", ListCboStatusSelected!.Select(m => m.code));
+                request.opt3 = SelectedDataEmployees.IsNullOrEmpty() ? "" : string.Join(",", SelectedDataEmployees!.Cast<EmployeeModel>().Select(m => m.id));
+                request.opt4 = "";
+                var response = await _workforceService.WorkCalculateAsync(request);
+                ListTimesheet = response;
             }
             catch (Exception ex)
             {
@@ -292,7 +328,7 @@ namespace HNOne.Web.Controllers
                 isConfirm = await _workforceService.UpdateMasterDataAsync(request);
                 if (isConfirm)
                 {
-                    await getDataAttendanceList();
+                    await getAttendanceSummary();
                 }
             }
             catch (Exception ex)
@@ -316,12 +352,6 @@ namespace HNOne.Web.Controllers
         {
             try
             {
-                //await checkPermission(MenuId);
-                //if (!IsAllowPut)
-                //{
-                //    ShowInfo(MessageConstants.MESSAGE_NO_PERMISSION);
-                //    return;
-                //}
                 if (SelectedItems.IsNullOrEmpty())
                 {
                     ShowWarning(MessageConstants.MESSAGE_NO_CHOSE_DATA);
@@ -345,7 +375,7 @@ namespace HNOne.Web.Controllers
                 isConfirm = await _workforceService.UpdateMasterDataAsync(request);
                 if (isConfirm)
                 {
-                    await getDataAttendanceList();
+                    await getAttendanceSummary();
                 }
             }
             catch (Exception ex)
@@ -393,7 +423,7 @@ namespace HNOne.Web.Controllers
                 isConfirm = await _workforceService.UpdateMasterDataAsync(request);
                 if (isConfirm)
                 {
-                    await getDataAttendanceList();
+                    await getAttendanceSummary();
                 }
             }
             catch (Exception ex)

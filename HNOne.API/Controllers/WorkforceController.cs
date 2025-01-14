@@ -82,6 +82,9 @@ namespace HNOne.API.Controllers
                     case ProcessConstants.GET_CONFIRM_WORKING_HOUR_REQUEST:
                         response.data = await _workforceRepository.GetConfirmWorkingDay(request);
                         break;
+                    case ProcessConstants.GET_ATTENDANCE_SUMMARY:
+                        response.data = await _workforceRepository.GetAttendanceSummary(request);
+                        break;
                     default:
                         response.status = StatusCodes.Status404NotFound;
                         response.message = $"Process Key {processKey} was not provider!!!";

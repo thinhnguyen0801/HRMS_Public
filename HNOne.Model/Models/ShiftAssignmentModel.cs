@@ -16,7 +16,11 @@
         public string? branchCode { get; set; }
         public string? branchName { get; set; }
         public int departmentId { get; set; } // phòng ban
+        public string? departmentCode { get; set; }
         public string? departmentName { get; set; }
+        public int positionId { get; set; } // chức vụ/vị trí
+        public string? positionCode { get; set; } // chức vụ/vị trí
+        public string? positionName { get; set; } // chức vụ/vị trí
         public int titleId { get; set; } // chức danh
         public string? titleCode { get; set; } // chức danh
         public string? titleName { get; set; } //

@@ -154,6 +154,8 @@
         public const string GET_CONFIRM_WORKING_HOUR_REQUEST = "get-confirm-working-hour-request";
         public const string POST_CONFIRM_WORKING_HOUR_REQUEST = "post-confirm-working-hour-request";
         public const string PUT_CONFIRM_WORKING_HOUR_REQUEST = "put-confirm-working-hour-request";
+
+        public const string GET_ATTENDANCE_SUMMARY = "get-attendance-summary";
         #region Loại dưới store
         public const string GET_COMBO_TYPE_CONTRACT_BY_EMPLOYEEID = "CONTRACT_BY_EMPLOYEEID";
         public const string GET_COMBO_TYPE_SALARY_ADJUSTMENT_BY_CONTRACT = "SALARY_ADJUSTMENT_BY_CONTRACT";
@@ -167,6 +169,7 @@
         public const string GET_COMBO_LIST_OVERTIME_REQUEST_DAY = "OTR_LIST_OVERTIME_REQUEST_DAY";
         public const string GET_COMBO_LIST_SHIFT_PREIOD = "SA_LIST_SHIFT_PREIOD"; // danh sách kỳ công năm
         public const string GET_ITEM_DETAIL = "ITEM_DETAIL"; //
+        public const string GET_ITEM_HEADER = "ITEM_HEADER"; //
         #endregion
     }
 }

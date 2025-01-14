@@ -92,7 +92,7 @@
                                         <DxToolbar ItemRenderStyleMode="@ToolbarRenderStyleMode.Plain">
                                             <Items>
                                                 <DxToolbarItem BeginGroup="true" Alignment="ToolbarItemAlignment.Right" Tooltip="Làm mới"
-                                                               IconCssClass="@($"{IconClassConstants.ICON_REFRESH} {IconClassConstants.FONT_SIZE_ICON}")"
+                                                               IconCssClass="@($"{IconClassConstants.ICON_REFRESH}")" CssClass="w1FontSize"
                                                                Click="@ReloadEmployeeHandler" />
                                             </Items>
                                         </DxToolbar>
@@ -119,8 +119,11 @@
                         <div class="card-header p-1">
                             <DxToolbar ItemRenderStyleMode="@ToolbarRenderStyleMode.Contained">
                                 <Items>
-                                    <DxToolbarItem Text="Tính công" BeginGroup="true" IconCssClass="@($"{IconClassConstants.ICON_CALCULATOR}")" CssClass="w1FontSize"
+                                    <DxToolbarItem Text="Làm mới" BeginGroup="true" IconCssClass="@($"{IconClassConstants.ICON_REFRESH}")" CssClass="w1FontSize"
                                                    Alignment="@ToolbarItemAlignment.Right" Click="@RefreshHandler" />
+
+                                    <DxToolbarItem Text="Tính công" BeginGroup="true" IconCssClass="@($"{IconClassConstants.ICON_CALCULATOR}")" CssClass="w1FontSize"
+                                                   Alignment="@ToolbarItemAlignment.Right" Click="@WorkCalculateHandler" />
 
                                     <DxToolbarItem Text="Lưu công tháng" BeginGroup="true" IconCssClass="@($"{IconClassConstants.ICON_UPDATE}")" CssClass="w1FontSize"
                                                    Alignment="@ToolbarItemAlignment.Right" Click="@SaveDataHandler" />
@@ -174,8 +177,8 @@
                                             </DxGridDataColumn>
                                             <DxGridDataColumn FieldName="@nameof(ShiftAssignmentModel.employeeName)" Caption="Họ tên" Width="135px" MinWidth="100" FixedPosition="@GridColumnFixedPosition.Left" />
                                             <DxGridDataColumn FieldName="@nameof(ShiftAssignmentModel.titleName)" Caption="Chức danh" Width="125px" MinWidth="100" />
-                                            <DxGridDataColumn FieldName="@nameof(ShiftAssignmentModel.shiftCode)" Caption="Ca làm việc" Width="90px" MinWidth="70" />
-                                            <DxGridDataColumn FieldName="@nameof(ShiftAssignmentModel.isLocked)" Caption="Khóa kỳ?" Width="90px" MinWidth="70" />
+                                            <DxGridDataColumn FieldName="@nameof(ShiftAssignmentModel.shiftCode)" Caption="Ca" Width="70px" MinWidth="60" />
+                                            <DxGridDataColumn FieldName="@nameof(ShiftAssignmentModel.isLocked)" Caption="Khóa kỳ?" Width="70px" MinWidth="70" />
                                             <DxGridDataColumn FieldName="@nameof(ShiftAssignmentModel.tNC)" Caption="Tổng hệ số công" Width="50px" MinWidth="40" TextAlignment="@GridTextAlignment.Center" CaptionAlignment="@GridTextAlignment.Center">
                                                 <HeaderCaptionTemplate>
                                                     <span title="Tổng hệ số công">TNC</span>
@@ -575,7 +578,7 @@
                 <DxGridDataColumn FieldName="@nameof(ShiftAssignmentModel.employeeCode)" Caption="Mã nhân viên" Width="110px" MinWidth="100" FixedPosition="@GridColumnFixedPosition.Left" />
                 <DxGridDataColumn FieldName="@nameof(ShiftAssignmentModel.employeeName)" Caption="Họ tên" Width="135px" MinWidth="100" FixedPosition="@GridColumnFixedPosition.Left" />
                 <DxGridDataColumn FieldName="@nameof(ShiftAssignmentModel.titleName)" Caption="Chức danh" Width="125px" MinWidth="100" TextAlignment="@GridTextAlignment.Center" CaptionAlignment="@GridTextAlignment.Center" />
-                <DxGridDataColumn FieldName="@nameof(ShiftAssignmentModel.shiftCode)" Caption="Ca làm việc" Width="80px" MinWidth="70" TextAlignment="@GridTextAlignment.Center" CaptionAlignment="@GridTextAlignment.Center" />
+                <DxGridDataColumn FieldName="@nameof(ShiftAssignmentModel.shiftCode)" Caption="Ca" Width="70px" MinWidth="70" TextAlignment="@GridTextAlignment.Center" CaptionAlignment="@GridTextAlignment.Center" />
                 <DxGridDataColumn FieldName="@nameof(ShiftAssignmentModel.symbol)" Caption="Ký hiệu" Width="90px" MinWidth="70" TextAlignment="@GridTextAlignment.Center" CaptionAlignment="@GridTextAlignment.Center" />
                 <DxGridDataColumn FieldName="@nameof(ShiftAssignmentModel.voucherNo)" Caption="Chứng từ liên quan" Width="130px" MinWidth="120"
                                   TextAlignment="@GridTextAlignment.Center" CaptionAlignment="@GridTextAlignment.Center">

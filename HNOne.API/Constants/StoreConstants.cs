@@ -31,5 +31,6 @@
         public const string STORE_H1_PAYROLL_CALCULATION_SELECT = "[dbo].[H1_PAYROLL_CALCULATION_SELECT]"; // lấy dữ liệu tính lương của nhân viên
         public const string STORE_H1_TRAINING_SELECT = "[dbo].[H1_TRAINING_SELECT]";
         public const string STORE_H1_CONFIRM_WORKING_HOUR_SELECT = "[dbo].[H1_CONFIRM_WORKING_HOUR_SELECT]";
+        public const string STORE_H1_ATTENDANCE_SUMMARY_SELECT = "[dbo].[H1_ATTENDANCE_SUMMARY_SELECT]";
     }
 }

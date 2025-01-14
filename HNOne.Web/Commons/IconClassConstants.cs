@@ -20,5 +20,7 @@
         public const string ICON_EDIT = "fa-solid fa-pen h1-text-icon-primary"; // icon trả về
         public const string ICON_FIND = "fa-solid fa-magnifying-glass h1-text-icon-primary";
         public const string ICON_PREVIEW = "fa-solid fa-eye h1-text-icon-primary";
+        public const string ICON_RIGHT = "fa-solid fa-angles-right h1-text-icon-primary";
+        public const string ICON_LEFT = "fa-solid fa-angles-left h1-text-icon-primary";
     }
 }
