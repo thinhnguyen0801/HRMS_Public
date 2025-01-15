@@ -4,7 +4,7 @@
 
 <div class="h-content-filter">
     <div class="grid gap-1 row-gap-2">
-        <div class="g-col-md-4 g-col-sm-12 g-col-12">
+        <div class="@(IsShowFilter ? "g-col-md-4 g-col-sm-12 g-col-12" : "d-none")">
             <div class="card w1FontSize">
                 <div class="card-header py-1 px-2">
                     <h4 class="mb-0 w1FontSize">Thông tin tìm kiếm</h4>
@@ -85,7 +85,7 @@
                             </div>
                         </div>
                         <div class="col-sm-12">
-                            <div style="height: calc(100vh - 275px); min-height: 250px">
+                            <div style="height: calc(100vh - 305px); min-height: 250px">
                                 <DxGrid Data="ListEmpSearch" @ref="GridEmpSearch"
                                         ShowFilterRow="true"
                                         ColumnResizeMode="GridColumnResizeMode.ColumnsContainer"
@@ -127,13 +127,20 @@
                 </div>
             </div>
         </div>
-        <div class="g-col-md-8 g-col-sm-12 g-col-12">
+        <div class="@(IsShowFilter ? "g-col-md-8 g-col-sm-12 g-col-12" : "g-col-md-12 g-col-sm-12 g-col-12")">
             <div class="row row-gap-2">
                 <div class="col-12">
                     <div class="card w1FontSize">
-                        <div class="card-header p-1">
+                        <div class="card-header p-1 position-relative">
+                            <div class="position-absolute" style="z-index: 10">
+                                <i class="@(IsShowFilter ? $"{IconClassConstants.ICON_FILTER_CLEAR}" : $"{IconClassConstants.ICON_FILTER}") @IconClassConstants.FONT_SIZE_ICON"
+                                    title="@(IsShowFilter ? "Thu gọn vùng tìm kiếm" : "Mở rộng vùng tìm kiếm")" @onclick="@ShowFilterHandler"/>
+                            </div>
                             <DxToolbar ItemRenderStyleMode="@ToolbarRenderStyleMode.Contained">
                                 <Items>
+
+                                    <DxToolbarItem Text="Làm mới" BeginGroup="true" IconCssClass="@($"{IconClassConstants.ICON_REFRESH}")" CssClass="w1FontSize"
+                                                   Alignment="@ToolbarItemAlignment.Right" Click="@RefreshHandler" />
 
                                     <DxToolbarItem Text="Tính lương" BeginGroup="true" IconCssClass="@($"{IconClassConstants.ICON_CALCULATOR}")" CssClass="w1FontSize"
                                                    Alignment="@ToolbarItemAlignment.Right" Click="@SalaryCalculateHandler" />
@@ -141,16 +148,11 @@
                                     <DxToolbarItem Text="Lưu lương tháng" BeginGroup="true" IconCssClass="@($"{IconClassConstants.ICON_UPDATE}")" CssClass="w1FontSize"
                                                    Alignment="@ToolbarItemAlignment.Right" Click="@SaveDataHandler" />
 
-                                    @* <DxToolbarItem Text="Chốt lương" BeginGroup="true" IconCssClass="@($"{IconClassConstants.ICON_TABLE_LOCK}")" CssClass="w1FontSize"
-                                    Alignment="@ToolbarItemAlignment.Right" Click="@SaveDataHandler" /> *@
-
                                     <DxToolbarItem Text="Khóa kỳ" BeginGroup="true" IconCssClass="@($"{IconClassConstants.ICON_TABLE_LOCK}")" CssClass="w1FontSize"
                                                    Alignment="@ToolbarItemAlignment.Right" Click="@LockPayrollEmployeeHandler" />
 
                                     <DxToolbarItem Text="Mở kỳ" BeginGroup="true" IconCssClass="@($"{IconClassConstants.ICON_TABLE_UNLOCK}")" CssClass="w1FontSize"
                                                    Alignment="@ToolbarItemAlignment.Right" Click="@UnlockPayrollEmployeeHandler" />
-                                    @* <DxToolbarItem Text="Chốt lương chi nhánh" BeginGroup="true" IconCssClass="@($"{IconClassConstants.ICON_TABLE_LOCK}")" CssClass="w1FontSize"
-                                    Alignment="@ToolbarItemAlignment.Right" Click="@LockPayrollBranchHandler" /> *@
 
                                     <DxToolbarItem Text="Kết xuất" BeginGroup="true" IconCssClass="@($"{IconClassConstants.ICON_EXPORT_EXCEL}")" CssClass="w1FontSize"
                                                    Alignment="@ToolbarItemAlignment.Right" Click="@(()=> ExportExcelHandler())" />
@@ -195,20 +197,10 @@
                                             <DxGridDataColumn FieldName="@nameof(PayrollModel.isLocked)" Caption="Khóa kỳ?" Width="90px" MinWidth="70" />
                                             <DxGridDataColumn FieldName="@nameof(PayrollModel.month)" Caption="Tháng" MinWidth="70" DisplayFormat="d" />
                                             <DxGridDataColumn FieldName="@nameof(PayrollModel.year)" Caption="Năm" MinWidth="70" DisplayFormat="d" />
-                                            <DxGridDataColumn FieldName="@nameof(PayrollModel.contractCode)" Caption="Hợp đồng số" MinWidth="90"
-                                                              CaptionAlignment="@GridTextAlignment.Center" DisplayFormat="@GlobalContants.FORMAT_CURRENCY">
-                                                <HeaderCaptionTemplate>
-                                                    <div>Hợp đồng</div>
-                                                    <div>Số</div>
-                                                </HeaderCaptionTemplate>
-                                            </DxGridDataColumn>
-                                            <DxGridDataColumn FieldName="@nameof(PayrollModel.contractAppendixCode)" Caption="Phụ lục hợp đồng" MinWidth="90"
-                                                              CaptionAlignment="@GridTextAlignment.Center" DisplayFormat="@GlobalContants.FORMAT_CURRENCY">
-                                                <HeaderCaptionTemplate>
-                                                    <div>Phụ lục</div>
-                                                    <div>Hợp đồng</div>
-                                                </HeaderCaptionTemplate>
-                                            </DxGridDataColumn>
+                                            <DxGridDataColumn FieldName="@nameof(PayrollModel.contractCode)" Caption="Hợp đồng" MinWidth="90"
+                                                              CaptionAlignment="@GridTextAlignment.Center" DisplayFormat="@GlobalContants.FORMAT_CURRENCY"></DxGridDataColumn>
+                                            <DxGridDataColumn FieldName="@nameof(PayrollModel.contractAppendixCode)" Caption="Phụ lục" MinWidth="90"
+                                                              CaptionAlignment="@GridTextAlignment.Center" DisplayFormat="@GlobalContants.FORMAT_CURRENCY"></DxGridDataColumn>
                                             <DxGridDataColumn FieldName="@nameof(PayrollModel.basicSalary)" Caption="Lương cơ bản" MinWidth="90"
                                                               CaptionAlignment="@GridTextAlignment.Center" DisplayFormat="@GlobalContants.FORMAT_CURRENCY">
                                                 <HeaderCaptionTemplate>
@@ -270,14 +262,14 @@
                                                 </HeaderCaptionTemplate>
                                             </DxGridDataColumn>
 
-                                            <DxGridDataColumn FieldName="@nameof(PayrollModel.isCompanyInsurance)" Caption="Công ty đóng trích nộp thay?" Width="90px" MinWidth="80" CaptionAlignment="@GridTextAlignment.Center">
+                                            <DxGridDataColumn FieldName="@nameof(PayrollModel.isCompanyDeduction)" Caption="Công ty đóng trích nộp thay?" Width="90px" MinWidth="80" CaptionAlignment="@GridTextAlignment.Center">
                                                 <HeaderCaptionTemplate>
                                                     <div>Công ty</div>
                                                     <div>Đóng TN?</div>
                                                 </HeaderCaptionTemplate>
                                             </DxGridDataColumn>
 
-                                            <DxGridDataColumn FieldName="@nameof(PayrollModel.isCompanyDeduction)" Caption="Công ty đóng thuế thay?" Width="90px" MinWidth="80" CaptionAlignment="@GridTextAlignment.Center">
+                                            <DxGridDataColumn FieldName="@nameof(PayrollModel.isCompanyInsurance)" Caption="Công ty đóng thuế thay?" Width="90px" MinWidth="80" CaptionAlignment="@GridTextAlignment.Center">
                                                 <HeaderCaptionTemplate>
                                                     <div>Công ty</div>
                                                     <div>Đóng thuế?</div>
@@ -461,7 +453,7 @@
                                             <DxGridDataColumn FieldName="@nameof(PayrollModel.isLocked)" Caption="Khóa kỳ?" Width="90px" MinWidth="70" />
                                             <DxGridDataColumn FieldName="@nameof(PayrollModel.month)" Caption="Tháng" MinWidth="70" DisplayFormat="d" />
                                             <DxGridDataColumn FieldName="@nameof(PayrollModel.year)" Caption="Năm" MinWidth="70" DisplayFormat="d" />
-                                            <DxGridDataColumn FieldName="@nameof(PayrollModel.isCompanyInsurance)" Caption="Công ty đóng thay?" Width="90px" MinWidth="80" CaptionAlignment="@GridTextAlignment.Center">
+                                            <DxGridDataColumn FieldName="@nameof(PayrollModel.isCompanyDeduction)" Caption="Công ty đóng thay?" Width="90px" MinWidth="80" CaptionAlignment="@GridTextAlignment.Center">
                                                 <HeaderCaptionTemplate>
                                                     <div>Công ty</div>
                                                     <div>Đóng thay?</div>
@@ -669,7 +661,7 @@
                                             <DxGridDataColumn FieldName="@nameof(PayrollModel.month)" Caption="Tháng" MinWidth="70" DisplayFormat="d" />
                                             <DxGridDataColumn FieldName="@nameof(PayrollModel.year)" Caption="Năm" MinWidth="70" DisplayFormat="d" />
                                             <DxGridDataColumn FieldName="@nameof(PayrollModel.taxTypeName)" Caption="Loại tính thuế" MinWidth="120" />
-                                            <DxGridDataColumn FieldName="@nameof(PayrollModel.isCompanyDeduction)" Caption="Công ty đóng thay?" Width="90px" MinWidth="80" CaptionAlignment="@GridTextAlignment.Center">
+                                            <DxGridDataColumn FieldName="@nameof(PayrollModel.isCompanyInsurance)" Caption="Công ty đóng thay?" Width="90px" MinWidth="80" CaptionAlignment="@GridTextAlignment.Center">
                                                 <HeaderCaptionTemplate>
                                                     <div>Công ty</div>
                                                     <div>Đóng thay?</div>

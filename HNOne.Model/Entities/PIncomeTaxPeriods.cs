@@ -12,7 +12,7 @@ namespace HNOne.Model.Entities
     {
         [Key]
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)] // Không tự tăng
-        public int Id { get; set; }
+        public long Id { get; set; }
         public int EmployeeId { get; set; } // id nhân viên
         [MaxLength(50)]
         [Required]
@@ -22,9 +22,10 @@ namespace HNOne.Model.Entities
         public int Year { get; set; } // năm công
         public bool IsLocked { get; set; } // chốt chưa, chốt những ai
         public int AttendanceSummaryId { get; set; } // Id bảng công
+        public bool IsCompanyIncomeTax { get; set; } // công ty đóng thuế thay (đặt nhầm tên cột)
         public int TaxtRateId { get; set; } // Id mức thuế
         public int TaxBracket { get; set; } // bậc thuế
-
+        
         [Column(TypeName = "decimal(19, 6)")]
         public decimal MinTaxSalary { get; set; } // giời hạn tính thuế
 

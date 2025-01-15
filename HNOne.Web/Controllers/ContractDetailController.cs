@@ -383,8 +383,24 @@ namespace HNOne.Web.Controllers
                 switch (type)
                 {
                     case nameof(EmployeeSelected):
+                        
                         ListCboDepartment ??= new();
                         DepartmentIds = string.Join(",", ListCboDepartment.Select(m => m.id));
+                        StatusIds = "";
+                        if(pPopupType == nameof(ContractDocument.employeeCode))
+                        {
+                            if (ContractDocument.contractTypeId < 1)
+                            {
+                                ShowWarning(string.Format(MessageConstants.MESSAGE_COMBOBOX_REQUIRE, "Loại hợp đồng"));
+                                await _jsRuntime.InvokeVoidAsync("focusInput", nameof(ContractDocument.contractTypeId));
+                                return;
+                            }
+                            var contractType = ListCboContractType?.FirstOrDefault(m => m.id == ContractDocument.contractTypeId);
+                            if(contractType != null)
+                            {
+                                StatusIds = contractType.statusCode; // gán cho tình trạng
+                            }    
+                        }    
                         IsShowDialogEmpSearch = true;
                         break;
                 }

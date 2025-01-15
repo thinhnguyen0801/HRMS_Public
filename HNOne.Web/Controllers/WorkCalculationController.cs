@@ -49,6 +49,7 @@ namespace HNOne.Web.Controllers
         public int MaxDaysInMonth { get; set; } = 30; // max số ngày trong tháng
         public bool IsShowDetail { get; set; } // show popup chi tiết ngày công
         public string HeaderTextDetail = "";
+        public bool IsShowFilter { get; set; } = true; // mở rộng vùng tìm kiếm
 
         // nút quyền
         public bool IsAllowPost { get; set; }
@@ -522,6 +523,11 @@ namespace HNOne.Web.Controllers
                 await InvokeAsync(StateHasChanged);
             }
         }
+
+        /// <summary>
+        /// Mở rộng & thu gọn vùng tìm kiếm
+        /// </summary>
+        protected void ShowFilterHandler() => IsShowFilter = !IsShowFilter;
         #endregion
     }
 }
