@@ -14,6 +14,7 @@ namespace HNOne.Model.Models
         public string? branchCode { get; set; }
         public string? branchName { get; set; }
         public int departmentId { get; set; } // phòng ban
+        public string? departmentCode { get; set; }
         public string? departmentName { get; set; }
         public int titleId { get; set; } // chức danh
         public string? titleCode { get; set; } // chức danh
@@ -31,7 +32,7 @@ namespace HNOne.Model.Models
         public string? contractAppendixCode { get; set; } // Mã phụ lục hợp đồng
         public string? contractTypeName { get; set; } // Loại hợp đồng
         public bool isCompanyDeduction { get; set; } // cty đóng trích nộp thay
-        public bool isCompanyInsurance { get; set; } // cty đóng trích nộp thay
+        public bool isCompanyIncomeTax { get; set; } // cty đóng trích nộp thay
         public decimal basicSalary { get; set; } // Lương cơ bản
         public decimal negotiatedSalary { get; set; } // Lương thỏa thuận
         public double salaryCoefficient { get; set; } // Hệ số lương
@@ -63,18 +64,30 @@ namespace HNOne.Model.Models
         #endregion
 
         #region Thông tin về trích nộp
+        public int deductionConfigSIId { get; set; } // id bảng cấu hình
+        public double coefficientEnterpriseSI { get; set; } // hệ số doanh nghiệp
+        public double coefficientEmployeeSI { get; set; } // hệ số nhân viên
         public decimal contributionSalarySI { get; set; } // mức đóng BHXH
         public decimal deductionEnterpriseSI { get; set; } // trích nộp bảo hiểm xã hội công ty (SI social insurance)
         public decimal deductionEmployeeSI { get; set; } // trích nộp bảo hiểm xã hội nhân viên (SI social insurance)
 
+        public int deductionConfigHIId { get; set; } // id bảng cấu hình
+        public double coefficientEnterpriseHI { get; set; } // hệ số doanh nghiệp
+        public double coefficientEmployeeHI { get; set; } // hệ số nhân viên
         public decimal contributionSalaryHI { get; set; } // mức đóng bảo hiểm y tế
         public decimal deductionEnterpriseHI { get; set; } // trích nộp bảo hiểm y tế công ty (HI health insurance)
         public decimal deductionEmployeeHI { get; set; } // trích nộp bảo hiểm y tế nhân viên (HI health insurance) 
 
+        public int deductionConfigUIId { get; set; } // id bảng cấu hình
+        public double coefficientEnterpriseUI { get; set; } // hệ số doanh nghiệp
+        public double coefficientEmployeeUI { get; set; } // hệ số nhân viên
         public decimal contributionSalaryUI { get; set; } // mức đóng bảo hiểm thất nghiệp
         public decimal deductionEnterpriseUI { get; set; } // trích nộp bảo hiểm thất nghiệp công ty (UI unemployment insurance)
         public decimal deductionEmployeeUI { get; set; } // trích nộp bảo hiểm thất nghiệp nhân viên (UI unemployment insurance) 
 
+        public int deductionConfigAIId { get; set; } // id bảng cấu hình
+        public double coefficientEnterpriseAI { get; set; } // hệ số doanh nghiệp
+        public double coefficientEmployeeAI { get; set; } // hệ số nhân viên
         public decimal contributionSalaryAI { get; set; } // mức đóng bảo hiểm tai nạn
         public decimal deductionEnterpriseAI { get; set; } // trích nộp bảo hiểm tai nạn công ty (AI accident insurance)
         public decimal deductionEmployeeAI { get; set; } // trích nộp bảo hiểm tai nạn nhân viên (AI accident insurance) 
@@ -83,6 +96,9 @@ namespace HNOne.Model.Models
         public decimal totalDeductionEmployee { get; set; } // tổng trích nộp công ty
         public decimal totalDeduction { get; set; } // tổng trích nộp
 
+        public int deductionConfigUFId { get; set; } // id bảng cấu hình
+        public double coefficientEnterpriseUF { get; set; } // hệ số doanh nghiệp
+        public double coefficientEmployeeUF { get; set; } // hệ số nhân viên
         public decimal unionFeeSalary { get; set; } // lương đóng phí công đoàn
         public decimal deductionEnterpriseUF { get; set; } // trích nộp công ty Phí công đoàn (UF Union fees)
         public decimal deductionEmployeeUF { get; set; } // trích nộp nhân viên Phí công đoàn (UF Union fees) 
@@ -110,7 +126,8 @@ namespace HNOne.Model.Models
         public double sGTCTC { get; set; } // số giờ tăng ca tiêu chuẩn
         public double sGTCTT { get; set; } // số giờ tăng ca của tháng trước
         public double sGTCKT { get; set; } // số giờ tăng ca được chuyển sang tháng tiếp theo
-        public decimal overtimeSalary { get; set; } // lương số giờ tăng ca
+        public decimal contributionSalaryOT { get; set; } // Lương tính tăng ca
+        public decimal overtimeSalary { get; set; } // lương tăng ca
         public decimal actualSalary { get; set; } // lương công thực tế
         public decimal annualLeaveSalary { get; set; } // lương nghỉ phép năm
         public decimal regulatedSalary { get; set; } // lương nghỉ chế độ

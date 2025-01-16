@@ -26,7 +26,12 @@ builder.Services.AddSwaggerGen();
 builder.Services.AddCors(options => options.AddPolicy("AllowAll", p => p.AllowAnyOrigin().AllowAnyMethod().AllowAnyHeader()));
 // Add services
 builder.Services.InstallerExtensionsInAssembly(builder.Configuration);
-builder.Services.AddSignalR();
+builder.Services.AddSignalR(options =>
+{
+    options.MaximumReceiveMessageSize = 1024 * 1024; // Giới hạn kích thước tin nhắn
+    options.KeepAliveInterval = TimeSpan.FromSeconds(15); // Khoảng thời gian gửi keep-alive
+    options.ClientTimeoutInterval = TimeSpan.FromSeconds(30); // Thời gian chờ client trước khi timeout
+});
 builder.Services.AddResponseCompression(opts =>
 {
     opts.MimeTypes = ResponseCompressionDefaults.MimeTypes.Concat(

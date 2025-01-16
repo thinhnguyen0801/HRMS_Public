@@ -54,6 +54,33 @@ namespace HNOne.API.Repositories
                 return lstResult;
             }
         }
+
+        /// <summary>
+        /// lấy danh sách dữ liệu bảng lương đã lưu
+        /// </summary>
+        /// <param name="request"></param>
+        /// <returns></returns>
+        public async Task<IEnumerable<PayrollModel>> GetPayrollSummary(RequestModel request)
+        {
+            using (var connection = _dapperDbContext.CreateConnection())
+            {
+                int.TryParse(request.opt, out int year);
+                int.TryParse(request.opt1, out int month);
+                if (year == 0) year = DateTime.Now.Year;
+                if (month == 0) month = DateTime.Now.Month;
+                var parameters = new DynamicParameters();
+                parameters.Add("@UserId", request.userId);
+                parameters.Add("@BranchId", request.branchId);
+                parameters.Add("@Year", year);
+                parameters.Add("@Month", month);
+                parameters.Add("@DepartmentIds", $"{request.departmentIds}");
+                parameters.Add("@StatusIds", $"{request.opt2}");
+                parameters.Add("@EmployeeIds", $"{request.opt3}");
+                parameters.Add("@Type", $"{request.type}");
+                var lstResult = await connection.QueryAsync<PayrollModel>(StoreConstants.STORE_H1_PAYROLL_SUMMARY_SELECT, param: parameters, commandTimeout: GlobalConstants.COMMAND_TIMEOUT, commandType: CommandType.StoredProcedure);
+                return lstResult;
+            }
+        }
         #endregion Query
 
         #region Command
@@ -95,8 +122,13 @@ namespace HNOne.API.Repositories
                         return response;
                     }
                     // cập nhật dữ liệu
-                    data.BranchId = entity.BranchId;
                     #region Dữ liệu công của nhân viên
+                    data.BranchId = entity.BranchId;
+                    data.EmployeeCode = entity.EmployeeCode;
+                    data.EmployeeName = entity.EmployeeName;
+                    data.DepartmentId = entity.DepartmentId;
+                    data.DepartmentCode = entity.DepartmentCode;
+                    data.DepartmentName = entity.DepartmentName;
                     data.AttendanceSummaryId = entity.AttendanceSummaryId;
                     data.TNC = entity.TNC;
                     data.CDM = entity.CDM;
@@ -128,7 +160,7 @@ namespace HNOne.API.Repositories
                     data.ContractAppendixId = entity.ContractAppendixId;
                     data.ContractAppendixCode = entity.ContractAppendixCode;
                     data.IsCompanyDeduction = entity.IsCompanyDeduction;
-                    data.IsCompanyInsurance = entity.IsCompanyInsurance;
+                    data.IsCompanyIncomeTax = entity.IsCompanyIncomeTax;
                     data.BasicSalary = entity.BasicSalary;
                     data.NegotiatedSalary = entity.NegotiatedSalary;
                     data.SalaryCoefficient = entity.SalaryCoefficient;
@@ -146,21 +178,40 @@ namespace HNOne.API.Repositories
                     #endregion
 
                     #region Thông tin về trích nộp
+                    data.DeductionConfigSIId = entity.DeductionConfigSIId;
+                    data.CoefficientEnterpriseSI = entity.CoefficientEnterpriseSI;
+                    data.CoefficientEmployeeSI = entity.CoefficientEmployeeSI;
                     data.ContributionSalarySI = entity.ContributionSalarySI;
                     data.DeductionEnterpriseSI = entity.DeductionEnterpriseSI;
                     data.DeductionEmployeeSI = entity.DeductionEmployeeSI;
+
+                    data.DeductionConfigHIId = entity.DeductionConfigHIId;
+                    data.CoefficientEnterpriseHI = entity.CoefficientEnterpriseHI;
+                    data.CoefficientEmployeeHI = entity.CoefficientEmployeeHI;
                     data.ContributionSalaryHI = entity.ContributionSalaryHI;
                     data.DeductionEnterpriseHI = entity.DeductionEnterpriseHI;
                     data.DeductionEmployeeHI = entity.DeductionEmployeeHI;
+
+                    data.DeductionConfigUIId = entity.DeductionConfigUIId;
+                    data.CoefficientEnterpriseUI = entity.CoefficientEnterpriseUI;
+                    data.CoefficientEmployeeUI = entity.CoefficientEmployeeUI;
                     data.ContributionSalaryUI = entity.ContributionSalaryUI;
                     data.DeductionEnterpriseUI = entity.DeductionEnterpriseUI;
                     data.DeductionEmployeeUI = entity.DeductionEmployeeUI;
+
+                    data.DeductionConfigAIId = entity.DeductionConfigAIId;
+                    data.CoefficientEnterpriseAI = entity.CoefficientEnterpriseAI;
+                    data.CoefficientEmployeeAI = entity.CoefficientEmployeeAI;
                     data.ContributionSalaryAI = entity.ContributionSalaryAI;
                     data.DeductionEnterpriseAI = entity.DeductionEnterpriseAI;
                     data.DeductionEmployeeAI = entity.DeductionEmployeeAI;
                     data.TotalDeductionEnterprise = entity.TotalDeductionEnterprise;
                     data.TotalDeductionEmployee = entity.TotalDeductionEmployee;
                     data.TotalDeduction = entity.TotalDeduction;
+
+                    data.DeductionConfigUFId = entity.DeductionConfigUFId;
+                    data.CoefficientEnterpriseUF = entity.CoefficientEnterpriseUF;
+                    data.CoefficientEmployeeUF = entity.CoefficientEmployeeUF;
                     data.UnionFeeSalary = entity.UnionFeeSalary;
                     data.DeductionEnterpriseUF = entity.DeductionEnterpriseUF;
                     data.DeductionEmployeeUF = entity.DeductionEmployeeUF;

@@ -22,6 +22,13 @@ namespace HNOne.Model.Entities
         [MaxLength(50)]
         [Required]
         public string? EmployeeCode { get; set; } // Mã nhân viên
+        [MaxLength(250)]
+        public string? EmployeeName { get; set; } // Tên nhân viên
+        public int DepartmentId { get; set; }
+        [MaxLength(50)]
+        public string? DepartmentCode { get; set; } // Mã phòng ban
+        [MaxLength(250)]
+        public string? DepartmentName { get; set; } // Tên phòng ban
         public int BranchId { get; set; } // id chi nhánh
         public int Month { get; set; } // tháng công
         public int Year { get; set; } // năm công
@@ -63,7 +70,7 @@ namespace HNOne.Model.Entities
         [MaxLength(250)]
         public string? ContractAppendixCode { get; set; } // Mã phụ lục hợp đồng
         public bool IsCompanyDeduction { get; set; } // cty đóng trích nộp thay
-        public bool IsCompanyInsurance { get; set; } // cty đóng trích nộp thay
+        public bool IsCompanyIncomeTax { get; set; } // cty đóng thuế thay đặt nhầm tên
         [Column(TypeName = "decimal(19, 6)")]
         public decimal BasicSalary { get; set; } // Lương cơ bản
         [Column(TypeName = "decimal(19, 6)")]
@@ -79,7 +86,9 @@ namespace HNOne.Model.Entities
         public decimal TotalSalaryNet { get; set; } // Tổng lương net
 
         [Column(TypeName = "decimal(19, 6)")]
-        public decimal OvertimeSalary { get; set; } // lương số giờ tăng ca
+        public decimal ContributionSalaryOT { get; set; } // Lương tính tăng ca
+        [Column(TypeName = "decimal(19, 6)")]
+        public decimal OvertimeSalary { get; set; } // lương tăng ca
         [Column(TypeName = "decimal(19, 6)")]
         public decimal ActualSalary { get; set; } // lương công thực tế
         [Column(TypeName = "decimal(19, 6)")]
@@ -95,36 +104,56 @@ namespace HNOne.Model.Entities
         #endregion
 
         #region Thông tin về trích nộp
+        public int DeductionConfigSIId { get; set; } // id bảng cấu hình
+        public double CoefficientEnterpriseSI { get; set; } // hệ số doanh nghiệp
+        public double CoefficientEmployeeSI { get; set; } // hệ số nhân viên
         [Column(TypeName = "decimal(19, 6)")]
         public decimal ContributionSalarySI { get; set; } // mức đóng BHXH
         [Column(TypeName = "decimal(19, 6)")]
         public decimal DeductionEnterpriseSI { get; set; } // trích nộp bảo hiểm xã hội công ty (SI social insurance)
         [Column(TypeName = "decimal(19, 6)")]
         public decimal DeductionEmployeeSI { get; set; } // trích nộp bảo hiểm xã hội nhân viên (SI social insurance)
+
+        public int DeductionConfigHIId { get; set; } // id bảng cấu hình
+        public double CoefficientEnterpriseHI { get; set; } // hệ số doanh nghiệp
+        public double CoefficientEmployeeHI { get; set; } // hệ số nhân viên
         [Column(TypeName = "decimal(19, 6)")]
         public decimal ContributionSalaryHI { get; set; } // mức đóng bảo hiểm y tế
         [Column(TypeName = "decimal(19, 6)")]
         public decimal DeductionEnterpriseHI { get; set; } // trích nộp bảo hiểm y tế công ty (HI health insurance)
         [Column(TypeName = "decimal(19, 6)")]
         public decimal DeductionEmployeeHI { get; set; } // trích nộp bảo hiểm y tế nhân viên (HI health insurance) 
+
+        public int DeductionConfigUIId { get; set; } // id bảng cấu hình
+        public double CoefficientEnterpriseUI { get; set; } // hệ số doanh nghiệp
+        public double CoefficientEmployeeUI { get; set; } // hệ số nhân viên
         [Column(TypeName = "decimal(19, 6)")]
         public decimal ContributionSalaryUI { get; set; } // mức đóng bảo hiểm thất nghiệp
         [Column(TypeName = "decimal(19, 6)")]
         public decimal DeductionEnterpriseUI { get; set; } // trích nộp bảo hiểm thất nghiệp công ty (UI unemployment insurance)
         [Column(TypeName = "decimal(19, 6)")]
         public decimal DeductionEmployeeUI { get; set; } // trích nộp bảo hiểm thất nghiệp nhân viên (UI unemployment insurance) 
+
+        public int DeductionConfigAIId { get; set; } // id bảng cấu hình
+        public double CoefficientEnterpriseAI { get; set; } // hệ số doanh nghiệp
+        public double CoefficientEmployeeAI { get; set; } // hệ số nhân viên
         [Column(TypeName = "decimal(19, 6)")]
         public decimal ContributionSalaryAI { get; set; } // mức đóng bảo hiểm tai nạn
         [Column(TypeName = "decimal(19, 6)")]
         public decimal DeductionEnterpriseAI { get; set; } // trích nộp bảo hiểm tai nạn công ty (AI accident insurance)
         [Column(TypeName = "decimal(19, 6)")]
         public decimal DeductionEmployeeAI { get; set; } // trích nộp bảo hiểm tai nạn nhân viên (AI accident insurance) 
+
         [Column(TypeName = "decimal(19, 6)")]
         public decimal TotalDeductionEnterprise { get; set; } // tổng trích nộp công ty
         [Column(TypeName = "decimal(19, 6)")]
         public decimal TotalDeductionEmployee { get; set; } // tổng trích nộp công ty
         [Column(TypeName = "decimal(19, 6)")]
         public decimal TotalDeduction { get; set; } // tổng trích nộp
+
+        public int DeductionConfigUFId { get; set; } // id bảng cấu hình
+        public double CoefficientEnterpriseUF { get; set; } // hệ số doanh nghiệp
+        public double CoefficientEmployeeUF { get; set; } // hệ số nhân viên
         [Column(TypeName = "decimal(19, 6)")]
         public decimal UnionFeeSalary { get; set; } // lương đóng phí công đoàn
         [Column(TypeName = "decimal(19, 6)")]
@@ -168,5 +197,5 @@ namespace HNOne.Model.Entities
         [Column(TypeName = "decimal(19, 6)")]
         public decimal TaxPayment { get; set; } // Số tiền đóng thuế
         #endregion
-    }
+    } 
 }

@@ -11,5 +11,6 @@ namespace HNOne.API.Repositories.Interfaces
         Task<ResponseModel> UpdatePayroll(bool isLocked, int userId, IEnumerable<Payrolls> lstEntity);
         Task<IEnumerable<PayrollModel>> GetMonthlySalary(RequestModel request);
         Task<ResponseModel> UnLockPayroll(int userId, IEnumerable<Payrolls> lstEntity);
+        Task<IEnumerable<PayrollModel>> GetPayrollSummary(RequestModel request);
     }
 }

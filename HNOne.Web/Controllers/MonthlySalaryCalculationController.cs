@@ -93,6 +93,18 @@ namespace HNOne.Web.Controllers
         }
 
         #region Private Functions
+        /// <summary>
+        /// kiểm tra quyền nút
+        /// </summary>
+        /// <returns></returns>
+        private async Task checkPermission(string menuId)
+        {
+            List<string> lstKey = await CheckEventPermission(menuId);
+            IsAllowPost = lstKey.FirstOrDefault(m => m == STRING_KEY_EVENT_POST) != null;
+            IsAllowPut = lstKey.FirstOrDefault(m => m == STRING_KEY_EVENT_PUT) != null;
+            IsAllowPutAccept = lstKey.FirstOrDefault(m => m == STRING_KEY_EVENT_PUT_ACCEPT) != null;
+        }
+
         private void initDataAsync()
         {
             SearchUpdate.year = DateTime.Now.Year;
@@ -143,34 +155,24 @@ namespace HNOne.Web.Controllers
             catch (Exception) { throw; }
         }
 
-        private async Task getMonthlySalaryList()
+        private async Task getPayrollSummary()
         {
             SelectedItems = null;
-            MaxDaysInMonth = DateTime.DaysInMonth(SearchUpdate.year, SearchUpdate.month);
+            ListSalary = new List<PayrollModel>();
             RequestModel request = new RequestModel();
-            request.process = ProcessConstants.GET_MONTHLY_SALARY;
+            request.process = ProcessConstants.GET_PAYROLL_SUMMARY;
             request.userId = UserId;
             request.branchId = BranchId;
             request.token = Token;
+            request.type = ProcessConstants.GET_ITEM_HEADER;
             request.opt = SearchUpdate.year.ToString(); // năm
             request.opt1 = SearchUpdate.month.ToString(); // tháng
-            request.opt2 = ListDepartmentSelected.IsNullOrEmpty() ? "" : string.Join(",", ListDepartmentSelected!.Select(m => m.id));
-            request.opt3 = "";
-            request.opt4 = ListCboStatusSelected.IsNullOrEmpty() ? "" : string.Join(",", ListCboStatusSelected!.Select(m => m.code));
-            var response = await _salaryService.GetMasterDataAsync<PayrollModel>(request, isShowToast: true);
+            request.departmentIds = ListDepartmentSelected.IsNullOrEmpty() ? "" : string.Join(",", ListDepartmentSelected!.Select(m => m.id));
+            request.opt2 = "";
+            request.opt3 = SelectedDataEmployees.IsNullOrEmpty() ? "" : string.Join(",", SelectedDataEmployees!.Cast<EmployeeModel>().Select(m => m.id));
+            request.opt4 = "";
+            var response = await _salaryService.GetMasterDataAsync<PayrollModel>(request);
             ListSalary = response;
-        }
-
-        /// <summary>
-        /// kiểm tra quyền nút
-        /// </summary>
-        /// <returns></returns>
-        private async Task checkPermission(string menuId)
-        {
-            List<string> lstKey = await CheckEventPermission(menuId);
-            IsAllowPost = lstKey.FirstOrDefault(m => m == STRING_KEY_EVENT_POST) != null;
-            IsAllowPut = lstKey.FirstOrDefault(m => m == STRING_KEY_EVENT_PUT) != null;
-            IsAllowPutAccept = lstKey.FirstOrDefault(m => m == STRING_KEY_EVENT_PUT_ACCEPT) != null;
         }
         #endregion
 
@@ -185,7 +187,7 @@ namespace HNOne.Web.Controllers
             try
             {
                 await ShowLoading();
-                await getMonthlySalaryList();
+                await getPayrollSummary();
             }
             catch (Exception ex)
             {
@@ -273,7 +275,7 @@ namespace HNOne.Web.Controllers
                 isConfirm = await _salaryService.UpdateMasterDataAsync(request);
                 if (isConfirm)
                 {
-                    await getMonthlySalaryList();
+                    await getPayrollSummary();
                 }
             }
             catch (Exception ex)
@@ -325,7 +327,7 @@ namespace HNOne.Web.Controllers
                 isConfirm = await _salaryService.UpdateMasterDataAsync(request);
                 if (isConfirm)
                 {
-                    await getMonthlySalaryList();
+                    await getPayrollSummary();
                 }
             }
             catch (Exception ex)
@@ -371,64 +373,12 @@ namespace HNOne.Web.Controllers
                 isConfirm = await _salaryService.UpdateMasterDataAsync(request);
                 if (isConfirm)
                 {
-                    await getMonthlySalaryList();
+                    await getPayrollSummary();
                 }
             }
             catch (Exception ex)
             {
-                _logger!.LogError(ex, "LockPayrollEmployeeHandler");
-                ShowError(ex.Message);
-            }
-            finally
-            {
-                await ShowLoading(false);
-                await InvokeAsync(StateHasChanged);
-            }
-        }
-
-        /// <summary>
-        /// Chốt lương nhân viên
-        /// </summary>
-        /// <returns></returns>
-        protected async Task LockPayrollBranchHandler()
-        {
-            try
-            {
-                //await checkPermission(MenuId);
-                //if (!IsAllowPut)
-                //{
-                //    ShowInfo(MessageConstants.MESSAGE_NO_PERMISSION);
-                //    return;
-                //}
-                if (SelectedItems.IsNullOrEmpty())
-                {
-                    ShowWarning(MessageConstants.MESSAGE_NO_CHOSE_DATA);
-                    return;
-                }
-                string errorMessage = string.Empty;
-                string fieldName = string.Empty; // trả ra trường nào cần validate
-                bool isConfirm = true;
-                errorMessage = $"Bạn có chắc muốn chốt kỳ lương tháng {SearchUpdate.month} năm {SearchUpdate.year} của chi nhánh?";
-                await Task.Yield();
-                isConfirm = await confirm.SetConfirm(MessageConstants.MESSAGE_TITLE, errorMessage);
-                if (!isConfirm) return;
-                await ShowLoading();
-                RequestModel request = new RequestModel();
-                request.process = ProcessConstants.POST_PAYROLL_SALARY;
-                request.userId = UserId;
-                request.branchId = BranchId;
-                request.token = Token;
-                request.json = JsonConvert.SerializeObject(SelectedItems);
-                //request.type = "L";
-                //isConfirm = await _salaryService.UpdateMasterDataAsync(request);
-                //if (isConfirm)
-                //{
-                //    await getMonthlySalaryList();
-                //}
-            }
-            catch (Exception ex)
-            {
-                _logger!.LogError(ex, "LockPayrollEmployeeHandler");
+                _logger!.LogError(ex, "UnlockPayrollEmployeeHandler");
                 ShowError(ex.Message);
             }
             finally
