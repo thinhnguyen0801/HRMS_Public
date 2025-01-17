@@ -58,6 +58,7 @@
         public string? n31 { get; set; }
         public int month { get; set; }
         public int year { get; set; }
+        public string? jsonDetail { get; set; }
 
         #region Thông tin dành cho tính công nhân viên
         public DateTime? workingDate { get; set; }

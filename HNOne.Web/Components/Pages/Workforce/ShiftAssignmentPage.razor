@@ -2,404 +2,470 @@
 @inherits Controllers.ShiftAssignmentController
 <PageTitle>Phân công ca làm việc</PageTitle>
 
+
 <div class="h-content-filter">
-    <div class="row row-gap-2">
-        <div class="col-md-3 col-sm-12">
-            <div class="d-flex ">
-                <W1Label Value="Kỳ công" Styles="width: 100px" IsRequired="true" />
-                <div style="width: calc(100% - 100px)">
-                    <DxComboBox Data="@ListCboShiftPreiod"
-                                @bind-Value="@pShiftPreiodId"
-                                FilteringMode="DataGridFilteringMode.Contains"
-                                TextFieldName="@nameof(ComboboxModel.name)"
-                                ValueFieldName="@nameof(ComboboxModel.code)"
-                                Id="pShiftPreiodId"
-                                CssClass="w1FontSize">
-                    </DxComboBox>
-                </div>
-            </div>
-        </div>
-        <div class="col-md-5 col-sm-12">
-            <div class="d-flex ">
-                <W1Label Value="Phòng ban" Styles="width: 100px" IsRequired="true" />
-                <div style="width: calc(100% - 100px)">
-                    <DxComboBox Data="@ListCboDepartment"
-                                @bind-Value="@pDepartmentId"
-                                FilteringMode="DataGridFilteringMode.Contains"
-                                TextFieldName="@nameof(ComboboxModel.name)"
-                                ValueFieldName="@nameof(ComboboxModel.id)"
-                                Id="pDepartmentId"
-                                CssClass="w1FontSize">
-                    </DxComboBox>
-                </div>
-            </div>
-        </div>
-    </div>
-    <div class="row row-gap-2 mt-2">
-        <div class="col-12">
+    <div class="grid gap-1 row-gap-2">
+        <div class="@(IsShowFilter ? "g-col-md-4 g-col-sm-12 g-col-12" : "d-none")">
             <div class="card w1FontSize">
-                <div class="card-header p-1">
-                    <DxToolbar ItemRenderStyleMode="@ToolbarRenderStyleMode.Contained">
-                        <Items>
-                            <DxToolbarItem Text="Làm mới" BeginGroup="true" IconCssClass="@($"{IconClassConstants.ICON_REFRESH}")" CssClass="w1FontSize"
-                                           Alignment="@ToolbarItemAlignment.Right" Click="@RefreshDataHandler" />
-                            <DxToolbarItem Text="Phát sinh công" BeginGroup="true" IconCssClass="@($"{IconClassConstants.ICON_CALENDAR_CHECK}")" CssClass="w1FontSize"
-                                           Alignment="@ToolbarItemAlignment.Right" Click="@GenerateWorkHandler" />
-                            <DxToolbarItem Text="Lưu" BeginGroup="true" IconCssClass="@($"{IconClassConstants.ICON_UPDATE}")" CssClass="w1FontSize"
-                                           Alignment="@ToolbarItemAlignment.Right" Click="@SaveDataHandler" />
-                            <DxToolbarItem Text="Kết xuất" BeginGroup="true" IconCssClass="@($"{IconClassConstants.ICON_EXPORT_EXCEL}")" CssClass="w1FontSize"
-                                           Alignment="@ToolbarItemAlignment.Right" Click="@(()=> ExportExcelHandler())" />
-                        </Items>
-                    </DxToolbar>
+                <div class="card-header py-1 px-2">
+                    <h4 class="mb-0 w1FontSize">Thông tin tìm kiếm</h4>
                 </div>
-                <div class="card-body p-1" style="height: calc(100vh - 190px); min-height: 350px">
-                    <DxGrid Data="ListShiftAssignment" @ref="GridShiftAssignment"
-                            ShowFilterRow="true"
-                            ColumnResizeMode="GridColumnResizeMode.ColumnsContainer"
-                            PagerPosition="GridPagerPosition.Bottom"
-                            PageSizeSelectorVisible="true"
-                            PageSize="@GlobalContants.PageSize"
-                            PageSizeSelectorItems="@(GlobalContants.PageSizeList)"
-                            PageSizeSelectorAllRowsItemVisible="true"
-                            PagerSwitchToInputBoxButtonCount="10"
-                            PagerVisibleNumericButtonCount="10"
-                            TextWrapEnabled="false"
-                            FocusedRowEnabled="true"
-                            SelectionMode="GridSelectionMode.Single"
-                            AllowSelectRowByClick="true"
-                            AutoExpandAllGroupRows="true"
-                            KeyboardNavigationEnabled="true"
-                            EditMode="GridEditMode.EditCell"
-                            EditModelSaving="@GridShiftAssignmentEditSavingHandler"
-                            CssClass="h-full">
-                        <Columns>
-                            @* <DxGridDataColumn FieldName="@nameof(ShiftAssignmentModel.rowOrder)" Caption="STT" Width="50px" MinWidth="45" DataRowEditorVisible="false" FixedPosition="@GridColumnFixedPosition.Left" /> *@
-                            <DxGridDataColumn FieldName="@nameof(ShiftAssignmentModel.employeeCode)" Caption="Mã nhân viên" Width="130px" MinWidth="130" DataRowEditorVisible="false" FixedPosition="@GridColumnFixedPosition.Left" />
-                            <DxGridDataColumn FieldName="@nameof(ShiftAssignmentModel.employeeName)" Caption="Họ tên" Width="145px" MinWidth="130" DataRowEditorVisible="false" FixedPosition="@GridColumnFixedPosition.Left" />
-                            <DxGridDataColumn FieldName="@nameof(ShiftAssignmentModel.departmentName)" Caption="Phòng ban" Width="145px" MinWidth="130" DataRowEditorVisible="false" />
-                            <DxGridDataColumn FieldName="@nameof(ShiftAssignmentModel.titleName)" Caption="Chức danh" Width="145px" MinWidth="130" DataRowEditorVisible="false" />
-                            <DxGridDataColumn FieldName="@nameof(ShiftAssignmentModel.shiftCode)" Caption="Ca mặc định" Width="100px" MinWidth="90" DataRowEditorVisible="false" />
-                            <DxGridDataColumn FieldName="@nameof(ShiftAssignmentModel.n01)" Name="@nameof(ShiftAssignmentModel.n01)" Caption="N01" MinWidth="90">
-                                <EditSettings>
-                                    <DxComboBoxSettings Data="@ListCboShift" ValueFieldName="@nameof(ComboboxModel.code)" TextFieldName="@nameof(ComboboxModel.code)">
-                                        <Columns>
-                                            <DxListEditorColumn FieldName="@nameof(ComboboxModel.code)" Width="90px" Caption="Mã" />
-                                            <DxListEditorColumn FieldName="@nameof(ComboboxModel.name)" Width="210px" Caption="Tên" />
-                                        </Columns>
-                                    </DxComboBoxSettings>
-                                </EditSettings>
-                            </DxGridDataColumn>
-                            <DxGridDataColumn FieldName="@nameof(ShiftAssignmentModel.n02)" Name="@nameof(ShiftAssignmentModel.n02)" Caption="N02" MinWidth="90">
-                                <EditSettings>
-                                    <DxComboBoxSettings Data="@ListCboShift" ValueFieldName="@nameof(ComboboxModel.code)" TextFieldName="@nameof(ComboboxModel.code)">
-                                        <Columns>
-                                            <DxListEditorColumn FieldName="@nameof(ComboboxModel.code)" Width="90px" Caption="Mã" />
-                                            <DxListEditorColumn FieldName="@nameof(ComboboxModel.name)" Width="210px" Caption="Tên" />
-                                        </Columns>
-                                    </DxComboBoxSettings>
-                                </EditSettings>
-                            </DxGridDataColumn>
-                            <DxGridDataColumn FieldName="@nameof(ShiftAssignmentModel.n03)" Name="@nameof(ShiftAssignmentModel.n03)" Caption="N03" MinWidth="90">
-                                <EditSettings>
-                                    <DxComboBoxSettings Data="@ListCboShift" ValueFieldName="@nameof(ComboboxModel.code)" TextFieldName="@nameof(ComboboxModel.code)">
-                                        <Columns>
-                                            <DxListEditorColumn FieldName="@nameof(ComboboxModel.code)" Width="90px" Caption="Mã" />
-                                            <DxListEditorColumn FieldName="@nameof(ComboboxModel.name)" Width="210px" Caption="Tên" />
-                                        </Columns>
-                                    </DxComboBoxSettings>
-                                </EditSettings>
-                            </DxGridDataColumn>
-                            <DxGridDataColumn FieldName="@nameof(ShiftAssignmentModel.n04)" Name="@nameof(ShiftAssignmentModel.n04)" Caption="N04" MinWidth="90">
-                                <EditSettings>
-                                    <DxComboBoxSettings Data="@ListCboShift" ValueFieldName="@nameof(ComboboxModel.code)" TextFieldName="@nameof(ComboboxModel.code)">
-                                        <Columns>
-                                            <DxListEditorColumn FieldName="@nameof(ComboboxModel.code)" Width="90px" Caption="Mã" />
-                                            <DxListEditorColumn FieldName="@nameof(ComboboxModel.name)" Width="210px" Caption="Tên" />
-                                        </Columns>
-                                    </DxComboBoxSettings>
-                                </EditSettings>
-                            </DxGridDataColumn>
-                            <DxGridDataColumn FieldName="@nameof(ShiftAssignmentModel.n05)" Name="@nameof(ShiftAssignmentModel.n05)" Caption="N05" MinWidth="90">
-                                <EditSettings>
-                                    <DxComboBoxSettings Data="@ListCboShift" ValueFieldName="@nameof(ComboboxModel.code)" TextFieldName="@nameof(ComboboxModel.code)">
-                                        <Columns>
-                                            <DxListEditorColumn FieldName="@nameof(ComboboxModel.code)" Width="90px" Caption="Mã" />
-                                            <DxListEditorColumn FieldName="@nameof(ComboboxModel.name)" Width="210px" Caption="Tên" />
-                                        </Columns>
-                                    </DxComboBoxSettings>
-                                </EditSettings>
-                            </DxGridDataColumn>
-                            <DxGridDataColumn FieldName="@nameof(ShiftAssignmentModel.n06)" Name="@nameof(ShiftAssignmentModel.n06)" Caption="N06" MinWidth="90">
-                                <EditSettings>
-                                    <DxComboBoxSettings Data="@ListCboShift" ValueFieldName="@nameof(ComboboxModel.code)" TextFieldName="@nameof(ComboboxModel.code)">
-                                        <Columns>
-                                            <DxListEditorColumn FieldName="@nameof(ComboboxModel.code)" Width="90px" Caption="Mã" />
-                                            <DxListEditorColumn FieldName="@nameof(ComboboxModel.name)" Width="210px" Caption="Tên" />
-                                        </Columns>
-                                    </DxComboBoxSettings>
-                                </EditSettings>
-                            </DxGridDataColumn>
-                            <DxGridDataColumn FieldName="@nameof(ShiftAssignmentModel.n07)" Name="@nameof(ShiftAssignmentModel.n07)" Caption="N07" MinWidth="90">
-                                <EditSettings>
-                                    <DxComboBoxSettings Data="@ListCboShift" ValueFieldName="@nameof(ComboboxModel.code)" TextFieldName="@nameof(ComboboxModel.code)">
-                                        <Columns>
-                                            <DxListEditorColumn FieldName="@nameof(ComboboxModel.code)" Width="90px" Caption="Mã" />
-                                            <DxListEditorColumn FieldName="@nameof(ComboboxModel.name)" Width="210px" Caption="Tên" />
-                                        </Columns>
-                                    </DxComboBoxSettings>
-                                </EditSettings>
-                            </DxGridDataColumn>
-                            <DxGridDataColumn FieldName="@nameof(ShiftAssignmentModel.n08)" Name="@nameof(ShiftAssignmentModel.n08)" Caption="N08" MinWidth="90">
-                                <EditSettings>
-                                    <DxComboBoxSettings Data="@ListCboShift" ValueFieldName="@nameof(ComboboxModel.code)" TextFieldName="@nameof(ComboboxModel.code)">
-                                        <Columns>
-                                            <DxListEditorColumn FieldName="@nameof(ComboboxModel.code)" Width="90px" Caption="Mã" />
-                                            <DxListEditorColumn FieldName="@nameof(ComboboxModel.name)" Width="210px" Caption="Tên" />
-                                        </Columns>
-                                    </DxComboBoxSettings>
-                                </EditSettings>
-                            </DxGridDataColumn>
-                            <DxGridDataColumn FieldName="@nameof(ShiftAssignmentModel.n09)" Name="@nameof(ShiftAssignmentModel.n09)" Caption="N09" MinWidth="90">
-                                <EditSettings>
-                                    <DxComboBoxSettings Data="@ListCboShift" ValueFieldName="@nameof(ComboboxModel.code)" TextFieldName="@nameof(ComboboxModel.code)">
-                                        <Columns>
-                                            <DxListEditorColumn FieldName="@nameof(ComboboxModel.code)" Width="90px" Caption="Mã" />
-                                            <DxListEditorColumn FieldName="@nameof(ComboboxModel.name)" Width="210px" Caption="Tên" />
-                                        </Columns>
-                                    </DxComboBoxSettings>
-                                </EditSettings>
-                            </DxGridDataColumn>
-                            <DxGridDataColumn FieldName="@nameof(ShiftAssignmentModel.n10)" Name="@nameof(ShiftAssignmentModel.n10)" Caption="N10" MinWidth="90">
-                                <EditSettings>
-                                    <DxComboBoxSettings Data="@ListCboShift" ValueFieldName="@nameof(ComboboxModel.code)" TextFieldName="@nameof(ComboboxModel.code)">
-                                        <Columns>
-                                            <DxListEditorColumn FieldName="@nameof(ComboboxModel.code)" Width="90px" Caption="Mã" />
-                                            <DxListEditorColumn FieldName="@nameof(ComboboxModel.name)" Width="210px" Caption="Tên" />
-                                        </Columns>
-                                    </DxComboBoxSettings>
-                                </EditSettings>
-                            </DxGridDataColumn>
-                            <DxGridDataColumn FieldName="@nameof(ShiftAssignmentModel.n11)" Name="@nameof(ShiftAssignmentModel.n11)" Caption="N11" MinWidth="90">
-                                <EditSettings>
-                                    <DxComboBoxSettings Data="@ListCboShift" ValueFieldName="@nameof(ComboboxModel.code)" TextFieldName="@nameof(ComboboxModel.code)">
-                                        <Columns>
-                                            <DxListEditorColumn FieldName="@nameof(ComboboxModel.code)" Width="90px" Caption="Mã" />
-                                            <DxListEditorColumn FieldName="@nameof(ComboboxModel.name)" Width="210px" Caption="Tên" />
-                                        </Columns>
-                                    </DxComboBoxSettings>
-                                </EditSettings>
-                            </DxGridDataColumn>
-                            <DxGridDataColumn FieldName="@nameof(ShiftAssignmentModel.n12)" Name="@nameof(ShiftAssignmentModel.n12)" Caption="N12" MinWidth="90">
-                                <EditSettings>
-                                    <DxComboBoxSettings Data="@ListCboShift" ValueFieldName="@nameof(ComboboxModel.code)" TextFieldName="@nameof(ComboboxModel.code)">
-                                        <Columns>
-                                            <DxListEditorColumn FieldName="@nameof(ComboboxModel.code)" Width="90px" Caption="Mã" />
-                                            <DxListEditorColumn FieldName="@nameof(ComboboxModel.name)" Width="210px" Caption="Tên" />
-                                        </Columns>
-                                    </DxComboBoxSettings>
-                                </EditSettings>
-                            </DxGridDataColumn>
-                            <DxGridDataColumn FieldName="@nameof(ShiftAssignmentModel.n13)" Name="@nameof(ShiftAssignmentModel.n13)" Caption="N13" MinWidth="90">
-                                <EditSettings>
-                                    <DxComboBoxSettings Data="@ListCboShift" ValueFieldName="@nameof(ComboboxModel.code)" TextFieldName="@nameof(ComboboxModel.code)">
-                                        <Columns>
-                                            <DxListEditorColumn FieldName="@nameof(ComboboxModel.code)" Width="90px" Caption="Mã" />
-                                            <DxListEditorColumn FieldName="@nameof(ComboboxModel.name)" Width="210px" Caption="Tên" />
-                                        </Columns>
-                                    </DxComboBoxSettings>
-                                </EditSettings>
-                            </DxGridDataColumn>
-                            <DxGridDataColumn FieldName="@nameof(ShiftAssignmentModel.n14)" Name="@nameof(ShiftAssignmentModel.n14)" Caption="N14" MinWidth="90">
-                                <EditSettings>
-                                    <DxComboBoxSettings Data="@ListCboShift" ValueFieldName="@nameof(ComboboxModel.code)" TextFieldName="@nameof(ComboboxModel.code)">
-                                        <Columns>
-                                            <DxListEditorColumn FieldName="@nameof(ComboboxModel.code)" Width="90px" Caption="Mã" />
-                                            <DxListEditorColumn FieldName="@nameof(ComboboxModel.name)" Width="210px" Caption="Tên" />
-                                        </Columns>
-                                    </DxComboBoxSettings>
-                                </EditSettings>
-                            </DxGridDataColumn>
-                            <DxGridDataColumn FieldName="@nameof(ShiftAssignmentModel.n15)" Name="@nameof(ShiftAssignmentModel.n15)" Caption="N15" MinWidth="90">
-                                <EditSettings>
-                                    <DxComboBoxSettings Data="@ListCboShift" ValueFieldName="@nameof(ComboboxModel.code)" TextFieldName="@nameof(ComboboxModel.code)">
-                                        <Columns>
-                                            <DxListEditorColumn FieldName="@nameof(ComboboxModel.code)" Width="90px" Caption="Mã" />
-                                            <DxListEditorColumn FieldName="@nameof(ComboboxModel.name)" Width="210px" Caption="Tên" />
-                                        </Columns>
-                                    </DxComboBoxSettings>
-                                </EditSettings>
-                            </DxGridDataColumn>
-                            <DxGridDataColumn FieldName="@nameof(ShiftAssignmentModel.n16)" Name="@nameof(ShiftAssignmentModel.n16)" Caption="N16" MinWidth="90">
-                                <EditSettings>
-                                    <DxComboBoxSettings Data="@ListCboShift" ValueFieldName="@nameof(ComboboxModel.code)" TextFieldName="@nameof(ComboboxModel.code)">
-                                        <Columns>
-                                            <DxListEditorColumn FieldName="@nameof(ComboboxModel.code)" Width="90px" Caption="Mã" />
-                                            <DxListEditorColumn FieldName="@nameof(ComboboxModel.name)" Width="210px" Caption="Tên" />
-                                        </Columns>
-                                    </DxComboBoxSettings>
-                                </EditSettings>
-                            </DxGridDataColumn>
-                            <DxGridDataColumn FieldName="@nameof(ShiftAssignmentModel.n17)" Name="@nameof(ShiftAssignmentModel.n17)" Caption="N17" MinWidth="90">
-                                <EditSettings>
-                                    <DxComboBoxSettings Data="@ListCboShift" ValueFieldName="@nameof(ComboboxModel.code)" TextFieldName="@nameof(ComboboxModel.code)">
-                                        <Columns>
-                                            <DxListEditorColumn FieldName="@nameof(ComboboxModel.code)" Width="90px" Caption="Mã" />
-                                            <DxListEditorColumn FieldName="@nameof(ComboboxModel.name)" Width="210px" Caption="Tên" />
-                                        </Columns>
-                                    </DxComboBoxSettings>
-                                </EditSettings>
-                            </DxGridDataColumn>
-                            <DxGridDataColumn FieldName="@nameof(ShiftAssignmentModel.n18)" Name="@nameof(ShiftAssignmentModel.n18)" Caption="N18" MinWidth="90">
-                                <EditSettings>
-                                    <DxComboBoxSettings Data="@ListCboShift" ValueFieldName="@nameof(ComboboxModel.code)" TextFieldName="@nameof(ComboboxModel.code)">
-                                        <Columns>
-                                            <DxListEditorColumn FieldName="@nameof(ComboboxModel.code)" Width="90px" Caption="Mã" />
-                                            <DxListEditorColumn FieldName="@nameof(ComboboxModel.name)" Width="210px" Caption="Tên" />
-                                        </Columns>
-                                    </DxComboBoxSettings>
-                                </EditSettings>
-                            </DxGridDataColumn>
-                            <DxGridDataColumn FieldName="@nameof(ShiftAssignmentModel.n19)" Name="@nameof(ShiftAssignmentModel.n19)" Caption="N19" MinWidth="90">
-                                <EditSettings>
-                                    <DxComboBoxSettings Data="@ListCboShift" ValueFieldName="@nameof(ComboboxModel.code)" TextFieldName="@nameof(ComboboxModel.code)">
-                                        <Columns>
-                                            <DxListEditorColumn FieldName="@nameof(ComboboxModel.code)" Width="120px" Caption="Mã" />
-                                            <DxListEditorColumn FieldName="@nameof(ComboboxModel.name)" Width="170px" Caption="Tên" />
-                                        </Columns>
-                                    </DxComboBoxSettings>
-                                </EditSettings>
-                            </DxGridDataColumn>
-                            <DxGridDataColumn FieldName="@nameof(ShiftAssignmentModel.n20)" Name="@nameof(ShiftAssignmentModel.n20)" Caption="N20" MinWidth="90">
-                                <EditSettings>
-                                    <DxComboBoxSettings Data="@ListCboShift" ValueFieldName="@nameof(ComboboxModel.code)" TextFieldName="@nameof(ComboboxModel.code)">
-                                        <Columns>
-                                            <DxListEditorColumn FieldName="@nameof(ComboboxModel.code)" Width="90px" Caption="Mã" />
-                                            <DxListEditorColumn FieldName="@nameof(ComboboxModel.name)" Width="210px" Caption="Tên" />
-                                        </Columns>
-                                    </DxComboBoxSettings>
-                                </EditSettings>
-                            </DxGridDataColumn>
-                            <DxGridDataColumn FieldName="@nameof(ShiftAssignmentModel.n21)" Name="@nameof(ShiftAssignmentModel.n21)" Caption="N21" MinWidth="90">
-                                <EditSettings>
-                                    <DxComboBoxSettings Data="@ListCboShift" ValueFieldName="@nameof(ComboboxModel.code)" TextFieldName="@nameof(ComboboxModel.code)">
-                                        <Columns>
-                                            <DxListEditorColumn FieldName="@nameof(ComboboxModel.code)" Width="90px" Caption="Mã" />
-                                            <DxListEditorColumn FieldName="@nameof(ComboboxModel.name)" Width="210px" Caption="Tên" />
-                                        </Columns>
-                                    </DxComboBoxSettings>
-                                </EditSettings>
-                            </DxGridDataColumn>
-                            <DxGridDataColumn FieldName="@nameof(ShiftAssignmentModel.n22)" Name="@nameof(ShiftAssignmentModel.n22)" Caption="N22" MinWidth="90">
-                                <EditSettings>
-                                    <DxComboBoxSettings Data="@ListCboShift" ValueFieldName="@nameof(ComboboxModel.code)" TextFieldName="@nameof(ComboboxModel.code)">
-                                        <Columns>
-                                            <DxListEditorColumn FieldName="@nameof(ComboboxModel.code)" Width="90px" Caption="Mã" />
-                                            <DxListEditorColumn FieldName="@nameof(ComboboxModel.name)" Width="210px" Caption="Tên" />
-                                        </Columns>
-                                    </DxComboBoxSettings>
-                                </EditSettings>
-                            </DxGridDataColumn>
-                            <DxGridDataColumn FieldName="@nameof(ShiftAssignmentModel.n23)" Name="@nameof(ShiftAssignmentModel.n23)" Caption="N23" MinWidth="90">
-                                <EditSettings>
-                                    <DxComboBoxSettings Data="@ListCboShift" ValueFieldName="@nameof(ComboboxModel.code)" TextFieldName="@nameof(ComboboxModel.code)">
-                                        <Columns>
-                                            <DxListEditorColumn FieldName="@nameof(ComboboxModel.code)" Width="90px" Caption="Mã" />
-                                            <DxListEditorColumn FieldName="@nameof(ComboboxModel.name)" Width="210px" Caption="Tên" />
-                                        </Columns>
-                                    </DxComboBoxSettings>
-                                </EditSettings>
-                            </DxGridDataColumn>
-                            <DxGridDataColumn FieldName="@nameof(ShiftAssignmentModel.n24)" Name="@nameof(ShiftAssignmentModel.n24)" Caption="N24" MinWidth="90">
-                                <EditSettings>
-                                    <DxComboBoxSettings Data="@ListCboShift" ValueFieldName="@nameof(ComboboxModel.code)" TextFieldName="@nameof(ComboboxModel.code)">
-                                        <Columns>
-                                            <DxListEditorColumn FieldName="@nameof(ComboboxModel.code)" Width="90px" Caption="Mã" />
-                                            <DxListEditorColumn FieldName="@nameof(ComboboxModel.name)" Width="210px" Caption="Tên" />
-                                        </Columns>
-                                    </DxComboBoxSettings>
-                                </EditSettings>
-                            </DxGridDataColumn>
-                            <DxGridDataColumn FieldName="@nameof(ShiftAssignmentModel.n25)" Name="@nameof(ShiftAssignmentModel.n25)" Caption="N25" MinWidth="90">
-                                <EditSettings>
-                                    <DxComboBoxSettings Data="@ListCboShift" ValueFieldName="@nameof(ComboboxModel.code)" TextFieldName="@nameof(ComboboxModel.code)">
-                                        <Columns>
-                                            <DxListEditorColumn FieldName="@nameof(ComboboxModel.code)" Width="90px" Caption="Mã" />
-                                            <DxListEditorColumn FieldName="@nameof(ComboboxModel.name)" Width="210px" Caption="Tên" />
-                                        </Columns>
-                                    </DxComboBoxSettings>
-                                </EditSettings>
-                            </DxGridDataColumn>
-                            <DxGridDataColumn FieldName="@nameof(ShiftAssignmentModel.n26)" Name="@nameof(ShiftAssignmentModel.n26)" Caption="N26" MinWidth="90">
-                                <EditSettings>
-                                    <DxComboBoxSettings Data="@ListCboShift" ValueFieldName="@nameof(ComboboxModel.code)" TextFieldName="@nameof(ComboboxModel.code)">
-                                        <Columns>
-                                            <DxListEditorColumn FieldName="@nameof(ComboboxModel.code)" Width="90px" Caption="Mã" />
-                                            <DxListEditorColumn FieldName="@nameof(ComboboxModel.name)" Width="210px" Caption="Tên" />
-                                        </Columns>
-                                    </DxComboBoxSettings>
-                                </EditSettings>
-                            </DxGridDataColumn>
-                            <DxGridDataColumn FieldName="@nameof(ShiftAssignmentModel.n27)" Name="@nameof(ShiftAssignmentModel.n27)" Caption="N27" MinWidth="90">
-                                <EditSettings>
-                                    <DxComboBoxSettings Data="@ListCboShift" ValueFieldName="@nameof(ComboboxModel.code)" TextFieldName="@nameof(ComboboxModel.code)">
-                                        <Columns>
-                                            <DxListEditorColumn FieldName="@nameof(ComboboxModel.code)" Width="90px" Caption="Mã" />
-                                            <DxListEditorColumn FieldName="@nameof(ComboboxModel.name)" Width="210px" Caption="Tên" />
-                                        </Columns>
-                                    </DxComboBoxSettings>
-                                </EditSettings>
-                            </DxGridDataColumn>
-                            <DxGridDataColumn FieldName="@nameof(ShiftAssignmentModel.n28)" Name="@nameof(ShiftAssignmentModel.n28)" Caption="N28" MinWidth="90">
-                                <EditSettings>
-                                    <DxComboBoxSettings Data="@ListCboShift" ValueFieldName="@nameof(ComboboxModel.code)" TextFieldName="@nameof(ComboboxModel.code)">
-                                        <Columns>
-                                            <DxListEditorColumn FieldName="@nameof(ComboboxModel.code)" Width="90px" Caption="Mã" />
-                                            <DxListEditorColumn FieldName="@nameof(ComboboxModel.name)" Width="210px" Caption="Tên" />
-                                        </Columns>
-                                    </DxComboBoxSettings>
-                                </EditSettings>
-                            </DxGridDataColumn>
-                            <DxGridDataColumn FieldName="@nameof(ShiftAssignmentModel.n29)" Name="@nameof(ShiftAssignmentModel.n29)" Caption="N29" MinWidth="90">
-                                <EditSettings>
-                                    <DxComboBoxSettings Data="@ListCboShift" ValueFieldName="@nameof(ComboboxModel.code)" TextFieldName="@nameof(ComboboxModel.code)">
-                                        <Columns>
-                                            <DxListEditorColumn FieldName="@nameof(ComboboxModel.code)" Width="90px" Caption="Mã" />
-                                            <DxListEditorColumn FieldName="@nameof(ComboboxModel.name)" Width="210px" Caption="Tên" />
-                                        </Columns>
-                                    </DxComboBoxSettings>
-                                </EditSettings>
-                            </DxGridDataColumn>
-                            <DxGridDataColumn FieldName="@nameof(ShiftAssignmentModel.n30)" Name="@nameof(ShiftAssignmentModel.n30)" Caption="N30" MinWidth="90">
-                                <EditSettings>
-                                    <DxComboBoxSettings Data="@ListCboShift" ValueFieldName="@nameof(ComboboxModel.code)" TextFieldName="@nameof(ComboboxModel.code)">
-                                        <Columns>
-                                            <DxListEditorColumn FieldName="@nameof(ComboboxModel.code)" Width="90px" Caption="Mã" />
-                                            <DxListEditorColumn FieldName="@nameof(ComboboxModel.name)" Width="210px" Caption="Tên" />
-                                        </Columns>
-                                    </DxComboBoxSettings>
-                                </EditSettings>
-                            </DxGridDataColumn>
-                            <DxGridDataColumn FieldName="@nameof(ShiftAssignmentModel.n31)" Name="@nameof(ShiftAssignmentModel.n31)" Caption="N31" MinWidth="90">
-                                <EditSettings>
-                                    <DxComboBoxSettings Data="@ListCboShift" ValueFieldName="@nameof(ComboboxModel.code)" TextFieldName="@nameof(ComboboxModel.code)">
-                                        <Columns>
-                                            <DxListEditorColumn FieldName="@nameof(ComboboxModel.code)" Width="90px" Caption="Mã" />
-                                            <DxListEditorColumn FieldName="@nameof(ComboboxModel.name)" Width="210px" Caption="Tên" />
-                                        </Columns>
-                                    </DxComboBoxSettings>
-                                </EditSettings>
-                            </DxGridDataColumn>
-                        </Columns>
-                        <TotalSummary>
-                            <DxGridSummaryItem DisplayText="@GlobalContants.FORMAT_GRID_DISPLAYTEXT_COUNT" SummaryType="GridSummaryItemType.Count"
-                                               FieldName="@nameof(ShiftAssignmentModel.employeeCode)" ValueDisplayFormat="@GlobalContants.FORMAT_CURRENCY"
-                                               FooterColumnName="@nameof(ShiftAssignmentModel.employeeCode)" />
-                        </TotalSummary>
-                    </DxGrid>
+                <div class="card-body p-1">
+                    <div class="row row-gap-2">
+                        <div class="col-sm-12">
+                            <div class="d-flex px-1">
+                                <W1Label Value="Chi nhánh" Styles="width: 90px" IsRequired="true" />
+                                <div style="width: calc(100% - 90px)">
+                                    <DxComboBox Data="@ListCboBranch"
+                                                @bind-Value="@SearchUpdate.branchId"
+                                                FilteringMode="DataGridFilteringMode.Contains"
+                                                TextFieldName="@nameof(ComboboxModel.name)"
+                                                Id="txtBranchId"
+                                                ReadOnly="true"
+                                                ValueFieldName="@nameof(ComboboxModel.id)" CssClass="w1FontSize">
+                                    </DxComboBox>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-sm-12">
+                            <div class="d-flex px-1">
+                                <W1Label Value="Kỳ công" Styles="width: 90px" IsRequired="true" />
+                                <div style="width: calc(100% - 90px)">
+                                    <DxComboBox Data="@ListCboShiftPreiod"
+                                                @bind-Value="@SearchUpdate.shiftPreiodId"
+                                                FilteringMode="DataGridFilteringMode.Contains"
+                                                TextFieldName="@nameof(ComboboxModel.name)"
+                                                ValueFieldName="@nameof(ComboboxModel.code)"
+                                                Id="pShiftPreiodId"
+                                                CssClass="w1FontSize">
+                                    </DxComboBox>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-sm-12">
+                            <div class="d-flex px-1">
+                                <W1Label Value="Trạng thái" Styles="width: 90px" IsRequired="true" />
+                                <div style="width: calc(100% - 90px)">
+                                    <DxTagBox Data="@ListCboStatus"
+                                              @bind-Values="@ListCboStatusSelected" CssClass="w1FontSize"
+                                              DropDownBodyCssClass="w1FontSize" DropDownCssClass="w1FontSize"
+                                              ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
+                                              ReadOnly="true"
+                                              TextFieldName="@nameof(ComboboxModel.name)">
+                                        <DxListEditorColumn FieldName="@nameof(ComboboxModel.code)" Caption="Mã" Width="120px" />
+                                        <DxListEditorColumn FieldName="@nameof(ComboboxModel.name)" Caption="Tên" />
+                                    </DxTagBox>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-sm-12">
+                            <div style="height: calc(100vh - 271px); min-height: 250px">
+                                <DxGrid Data="ListDepartmentSearch" @ref="GridDepartmentSearch"
+                                        ShowFilterRow="true"
+                                        ColumnResizeMode="GridColumnResizeMode.ColumnsContainer"
+                                        PagerPosition="GridPagerPosition.Bottom"
+                                        PageSizeSelectorVisible="true"
+                                        PageSize="@GlobalContants.PageSize"
+                                        PageSizeSelectorItems="@(GlobalContants.PageSizeList)"
+                                        PageSizeSelectorAllRowsItemVisible="true"
+                                        PagerSwitchToInputBoxButtonCount="10"
+                                        PagerVisibleNumericButtonCount="10"
+                                        TextWrapEnabled="false"
+                                        FocusedRowEnabled="true"
+                                        SelectionMode="@GridSelectionMode.Multiple"
+                                        AutoExpandAllGroupRows="true"
+                                        AllowSelectRowByClick="true"
+                                        @bind-SelectedDataItems="@SelectedDataDepartments"
+                                        CssClass="h-full">
+                                    <Columns>
+                                        <DxGridSelectionColumn Width="35px" />
+                                        <DxGridDataColumn FieldName="@nameof(DepartmentModel.code)" Caption="Mã phòng ban" MinWidth="100" />
+                                        <DxGridDataColumn FieldName="@nameof(EmployeeModel.name)" Caption="Tên phòng ban" MinWidth="150" />
+                                        <DxGridDataColumn FieldName="@nameof(DepartmentModel.isActive)" Caption="Hoạt động?" MinWidth="100" />
+                                        <DxGridDataColumn FieldName="@nameof(DepartmentModel.headName)" Caption="Trưởng phòng" MinWidth="170" />
+                                        <DxGridDataColumn FieldName="@nameof(DepartmentModel.branchName)" Caption="Chi nhánh" MinWidth="170" />
+                                    </Columns>
+                                </DxGrid>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="@(IsShowFilter ? "g-col-md-8 g-col-sm-12 g-col-12" : "g-col-md-12 g-col-sm-12 g-col-12")">
+            <div class="row row-gap-2">
+                <div class="col-12">
+                    <div class="card w1FontSize">
+                        <div class="card-header p-1 position-relative">
+                            <div class="position-absolute" style="z-index: 10">
+                                <i class="@(IsShowFilter ? $"{IconClassConstants.ICON_FILTER_CLEAR}" : $"{IconClassConstants.ICON_FILTER}") @IconClassConstants.FONT_SIZE_ICON"
+                                    title="@(IsShowFilter ? "Thu gọn vùng tìm kiếm" : "Mở rộng vùng tìm kiếm")" @onclick="@ShowFilterHandler"/>
+                            </div>
+                            <DxToolbar ItemRenderStyleMode="@ToolbarRenderStyleMode.Contained">
+                                <Items>
+                                    <DxToolbarItem Text="Làm mới" BeginGroup="true" IconCssClass="@($"{IconClassConstants.ICON_REFRESH}")" CssClass="w1FontSize"
+                                                   Alignment="@ToolbarItemAlignment.Right" Click="@RefreshDataHandler" />
+                                    <DxToolbarItem Text="Phát sinh công" BeginGroup="true" IconCssClass="@($"{IconClassConstants.ICON_CALENDAR_CHECK}")" CssClass="w1FontSize"
+                                                   Alignment="@ToolbarItemAlignment.Right" Click="@GenerateWorkHandler" />
+                                    <DxToolbarItem Text="Lưu" BeginGroup="true" IconCssClass="@($"{IconClassConstants.ICON_UPDATE}")" CssClass="w1FontSize"
+                                                   Alignment="@ToolbarItemAlignment.Right" Click="@SaveDataHandler" />
+                                    <DxToolbarItem Text="Kết xuất" BeginGroup="true" IconCssClass="@($"{IconClassConstants.ICON_EXPORT_EXCEL}")" CssClass="w1FontSize"
+                                                   Alignment="@ToolbarItemAlignment.Right" Click="@(()=> ExportExcelHandler())" />
+                                </Items>
+                            </DxToolbar>
+                        </div>
+                        <div class="card-body p-1" style="height: calc(100vh - 165px); min-height: 350px">
+                            <DxGrid Data="ListShiftAssignment" @ref="GridShiftAssignment"
+                                    ShowFilterRow="true"
+                                    ColumnResizeMode="GridColumnResizeMode.ColumnsContainer"
+                                    PagerPosition="GridPagerPosition.Bottom"
+                                    PageSizeSelectorVisible="true"
+                                    PageSize="@GlobalContants.PageSize"
+                                    PageSizeSelectorItems="@(GlobalContants.PageSizeList)"
+                                    PageSizeSelectorAllRowsItemVisible="true"
+                                    PagerSwitchToInputBoxButtonCount="10"
+                                    PagerVisibleNumericButtonCount="10"
+                                    TextWrapEnabled="false"
+                                    FocusedRowEnabled="true"
+                                    SelectionMode="GridSelectionMode.Single"
+                                    AllowSelectRowByClick="true"
+                                    AutoExpandAllGroupRows="true"
+                                    KeyboardNavigationEnabled="true"
+                                    EditMode="GridEditMode.EditCell"
+                                    EditModelSaving="@GridShiftAssignmentEditSavingHandler"
+                                    CustomizeElement="@GridCustomizeElement"
+                                    CssClass="h-full">
+                                <Columns>
+                                    @* <DxGridDataColumn FieldName="@nameof(ShiftAssignmentModel.rowOrder)" Caption="STT" Width="50px" MinWidth="45" DataRowEditorVisible="false" FixedPosition="@GridColumnFixedPosition.Left" /> *@
+                                    <DxGridDataColumn FieldName="@nameof(ShiftAssignmentModel.employeeCode)" Caption="Mã nhân viên" Width="130px" MinWidth="130" DataRowEditorVisible="false" FixedPosition="@GridColumnFixedPosition.Left" />
+                                    <DxGridDataColumn FieldName="@nameof(ShiftAssignmentModel.employeeName)" Caption="Họ tên" Width="145px" MinWidth="130" DataRowEditorVisible="false" FixedPosition="@GridColumnFixedPosition.Left" />
+                                    <DxGridDataColumn FieldName="@nameof(ShiftAssignmentModel.departmentName)" Caption="Phòng ban" Width="145px" MinWidth="130" DataRowEditorVisible="false" />
+                                    <DxGridDataColumn FieldName="@nameof(ShiftAssignmentModel.titleName)" Caption="Chức danh" Width="145px" MinWidth="130" DataRowEditorVisible="false" />
+                                    <DxGridDataColumn FieldName="@nameof(ShiftAssignmentModel.shiftCode)" Caption="Ca mặc định" Width="100px" MinWidth="90" DataRowEditorVisible="false" />
+                                    <DxGridDataColumn FieldName="@nameof(ShiftAssignmentModel.n01)" Name="@nameof(ShiftAssignmentModel.n01)" Caption="N01" MinWidth="90">
+                                        <EditSettings>
+                                            <DxComboBoxSettings Data="@ListCboShift" ValueFieldName="@nameof(ComboboxModel.code)" TextFieldName="@nameof(ComboboxModel.code)">
+                                                <Columns>
+                                                    <DxListEditorColumn FieldName="@nameof(ComboboxModel.code)" Width="90px" Caption="Mã" />
+                                                    <DxListEditorColumn FieldName="@nameof(ComboboxModel.name)" Width="210px" Caption="Tên" />
+                                                </Columns>
+                                            </DxComboBoxSettings>
+                                        </EditSettings>
+                                    </DxGridDataColumn>
+                                    <DxGridDataColumn FieldName="@nameof(ShiftAssignmentModel.n02)" Name="@nameof(ShiftAssignmentModel.n02)" Caption="N02" MinWidth="90">
+                                        <EditSettings>
+                                            <DxComboBoxSettings Data="@ListCboShift" ValueFieldName="@nameof(ComboboxModel.code)" TextFieldName="@nameof(ComboboxModel.code)">
+                                                <Columns>
+                                                    <DxListEditorColumn FieldName="@nameof(ComboboxModel.code)" Width="90px" Caption="Mã" />
+                                                    <DxListEditorColumn FieldName="@nameof(ComboboxModel.name)" Width="210px" Caption="Tên" />
+                                                </Columns>
+                                            </DxComboBoxSettings>
+                                        </EditSettings>
+                                    </DxGridDataColumn>
+                                    <DxGridDataColumn FieldName="@nameof(ShiftAssignmentModel.n03)" Name="@nameof(ShiftAssignmentModel.n03)" Caption="N03" MinWidth="90">
+                                        <EditSettings>
+                                            <DxComboBoxSettings Data="@ListCboShift" ValueFieldName="@nameof(ComboboxModel.code)" TextFieldName="@nameof(ComboboxModel.code)">
+                                                <Columns>
+                                                    <DxListEditorColumn FieldName="@nameof(ComboboxModel.code)" Width="90px" Caption="Mã" />
+                                                    <DxListEditorColumn FieldName="@nameof(ComboboxModel.name)" Width="210px" Caption="Tên" />
+                                                </Columns>
+                                            </DxComboBoxSettings>
+                                        </EditSettings>
+                                    </DxGridDataColumn>
+                                    <DxGridDataColumn FieldName="@nameof(ShiftAssignmentModel.n04)" Name="@nameof(ShiftAssignmentModel.n04)" Caption="N04" MinWidth="90">
+                                        <EditSettings>
+                                            <DxComboBoxSettings Data="@ListCboShift" ValueFieldName="@nameof(ComboboxModel.code)" TextFieldName="@nameof(ComboboxModel.code)">
+                                                <Columns>
+                                                    <DxListEditorColumn FieldName="@nameof(ComboboxModel.code)" Width="90px" Caption="Mã" />
+                                                    <DxListEditorColumn FieldName="@nameof(ComboboxModel.name)" Width="210px" Caption="Tên" />
+                                                </Columns>
+                                            </DxComboBoxSettings>
+                                        </EditSettings>
+                                    </DxGridDataColumn>
+                                    <DxGridDataColumn FieldName="@nameof(ShiftAssignmentModel.n05)" Name="@nameof(ShiftAssignmentModel.n05)" Caption="N05" MinWidth="90">
+                                        <EditSettings>
+                                            <DxComboBoxSettings Data="@ListCboShift" ValueFieldName="@nameof(ComboboxModel.code)" TextFieldName="@nameof(ComboboxModel.code)">
+                                                <Columns>
+                                                    <DxListEditorColumn FieldName="@nameof(ComboboxModel.code)" Width="90px" Caption="Mã" />
+                                                    <DxListEditorColumn FieldName="@nameof(ComboboxModel.name)" Width="210px" Caption="Tên" />
+                                                </Columns>
+                                            </DxComboBoxSettings>
+                                        </EditSettings>
+                                    </DxGridDataColumn>
+                                    <DxGridDataColumn FieldName="@nameof(ShiftAssignmentModel.n06)" Name="@nameof(ShiftAssignmentModel.n06)" Caption="N06" MinWidth="90">
+                                        <EditSettings>
+                                            <DxComboBoxSettings Data="@ListCboShift" ValueFieldName="@nameof(ComboboxModel.code)" TextFieldName="@nameof(ComboboxModel.code)">
+                                                <Columns>
+                                                    <DxListEditorColumn FieldName="@nameof(ComboboxModel.code)" Width="90px" Caption="Mã" />
+                                                    <DxListEditorColumn FieldName="@nameof(ComboboxModel.name)" Width="210px" Caption="Tên" />
+                                                </Columns>
+                                            </DxComboBoxSettings>
+                                        </EditSettings>
+                                    </DxGridDataColumn>
+                                    <DxGridDataColumn FieldName="@nameof(ShiftAssignmentModel.n07)" Name="@nameof(ShiftAssignmentModel.n07)" Caption="N07" MinWidth="90">
+                                        <EditSettings>
+                                            <DxComboBoxSettings Data="@ListCboShift" ValueFieldName="@nameof(ComboboxModel.code)" TextFieldName="@nameof(ComboboxModel.code)">
+                                                <Columns>
+                                                    <DxListEditorColumn FieldName="@nameof(ComboboxModel.code)" Width="90px" Caption="Mã" />
+                                                    <DxListEditorColumn FieldName="@nameof(ComboboxModel.name)" Width="210px" Caption="Tên" />
+                                                </Columns>
+                                            </DxComboBoxSettings>
+                                        </EditSettings>
+                                    </DxGridDataColumn>
+                                    <DxGridDataColumn FieldName="@nameof(ShiftAssignmentModel.n08)" Name="@nameof(ShiftAssignmentModel.n08)" Caption="N08" MinWidth="90">
+                                        <EditSettings>
+                                            <DxComboBoxSettings Data="@ListCboShift" ValueFieldName="@nameof(ComboboxModel.code)" TextFieldName="@nameof(ComboboxModel.code)">
+                                                <Columns>
+                                                    <DxListEditorColumn FieldName="@nameof(ComboboxModel.code)" Width="90px" Caption="Mã" />
+                                                    <DxListEditorColumn FieldName="@nameof(ComboboxModel.name)" Width="210px" Caption="Tên" />
+                                                </Columns>
+                                            </DxComboBoxSettings>
+                                        </EditSettings>
+                                    </DxGridDataColumn>
+                                    <DxGridDataColumn FieldName="@nameof(ShiftAssignmentModel.n09)" Name="@nameof(ShiftAssignmentModel.n09)" Caption="N09" MinWidth="90">
+                                        <EditSettings>
+                                            <DxComboBoxSettings Data="@ListCboShift" ValueFieldName="@nameof(ComboboxModel.code)" TextFieldName="@nameof(ComboboxModel.code)">
+                                                <Columns>
+                                                    <DxListEditorColumn FieldName="@nameof(ComboboxModel.code)" Width="90px" Caption="Mã" />
+                                                    <DxListEditorColumn FieldName="@nameof(ComboboxModel.name)" Width="210px" Caption="Tên" />
+                                                </Columns>
+                                            </DxComboBoxSettings>
+                                        </EditSettings>
+                                    </DxGridDataColumn>
+                                    <DxGridDataColumn FieldName="@nameof(ShiftAssignmentModel.n10)" Name="@nameof(ShiftAssignmentModel.n10)" Caption="N10" MinWidth="90">
+                                        <EditSettings>
+                                            <DxComboBoxSettings Data="@ListCboShift" ValueFieldName="@nameof(ComboboxModel.code)" TextFieldName="@nameof(ComboboxModel.code)">
+                                                <Columns>
+                                                    <DxListEditorColumn FieldName="@nameof(ComboboxModel.code)" Width="90px" Caption="Mã" />
+                                                    <DxListEditorColumn FieldName="@nameof(ComboboxModel.name)" Width="210px" Caption="Tên" />
+                                                </Columns>
+                                            </DxComboBoxSettings>
+                                        </EditSettings>
+                                    </DxGridDataColumn>
+                                    <DxGridDataColumn FieldName="@nameof(ShiftAssignmentModel.n11)" Name="@nameof(ShiftAssignmentModel.n11)" Caption="N11" MinWidth="90">
+                                        <EditSettings>
+                                            <DxComboBoxSettings Data="@ListCboShift" ValueFieldName="@nameof(ComboboxModel.code)" TextFieldName="@nameof(ComboboxModel.code)">
+                                                <Columns>
+                                                    <DxListEditorColumn FieldName="@nameof(ComboboxModel.code)" Width="90px" Caption="Mã" />
+                                                    <DxListEditorColumn FieldName="@nameof(ComboboxModel.name)" Width="210px" Caption="Tên" />
+                                                </Columns>
+                                            </DxComboBoxSettings>
+                                        </EditSettings>
+                                    </DxGridDataColumn>
+                                    <DxGridDataColumn FieldName="@nameof(ShiftAssignmentModel.n12)" Name="@nameof(ShiftAssignmentModel.n12)" Caption="N12" MinWidth="90">
+                                        <EditSettings>
+                                            <DxComboBoxSettings Data="@ListCboShift" ValueFieldName="@nameof(ComboboxModel.code)" TextFieldName="@nameof(ComboboxModel.code)">
+                                                <Columns>
+                                                    <DxListEditorColumn FieldName="@nameof(ComboboxModel.code)" Width="90px" Caption="Mã" />
+                                                    <DxListEditorColumn FieldName="@nameof(ComboboxModel.name)" Width="210px" Caption="Tên" />
+                                                </Columns>
+                                            </DxComboBoxSettings>
+                                        </EditSettings>
+                                    </DxGridDataColumn>
+                                    <DxGridDataColumn FieldName="@nameof(ShiftAssignmentModel.n13)" Name="@nameof(ShiftAssignmentModel.n13)" Caption="N13" MinWidth="90">
+                                        <EditSettings>
+                                            <DxComboBoxSettings Data="@ListCboShift" ValueFieldName="@nameof(ComboboxModel.code)" TextFieldName="@nameof(ComboboxModel.code)">
+                                                <Columns>
+                                                    <DxListEditorColumn FieldName="@nameof(ComboboxModel.code)" Width="90px" Caption="Mã" />
+                                                    <DxListEditorColumn FieldName="@nameof(ComboboxModel.name)" Width="210px" Caption="Tên" />
+                                                </Columns>
+                                            </DxComboBoxSettings>
+                                        </EditSettings>
+                                    </DxGridDataColumn>
+                                    <DxGridDataColumn FieldName="@nameof(ShiftAssignmentModel.n14)" Name="@nameof(ShiftAssignmentModel.n14)" Caption="N14" MinWidth="90">
+                                        <EditSettings>
+                                            <DxComboBoxSettings Data="@ListCboShift" ValueFieldName="@nameof(ComboboxModel.code)" TextFieldName="@nameof(ComboboxModel.code)">
+                                                <Columns>
+                                                    <DxListEditorColumn FieldName="@nameof(ComboboxModel.code)" Width="90px" Caption="Mã" />
+                                                    <DxListEditorColumn FieldName="@nameof(ComboboxModel.name)" Width="210px" Caption="Tên" />
+                                                </Columns>
+                                            </DxComboBoxSettings>
+                                        </EditSettings>
+                                    </DxGridDataColumn>
+                                    <DxGridDataColumn FieldName="@nameof(ShiftAssignmentModel.n15)" Name="@nameof(ShiftAssignmentModel.n15)" Caption="N15" MinWidth="90">
+                                        <EditSettings>
+                                            <DxComboBoxSettings Data="@ListCboShift" ValueFieldName="@nameof(ComboboxModel.code)" TextFieldName="@nameof(ComboboxModel.code)">
+                                                <Columns>
+                                                    <DxListEditorColumn FieldName="@nameof(ComboboxModel.code)" Width="90px" Caption="Mã" />
+                                                    <DxListEditorColumn FieldName="@nameof(ComboboxModel.name)" Width="210px" Caption="Tên" />
+                                                </Columns>
+                                            </DxComboBoxSettings>
+                                        </EditSettings>
+                                    </DxGridDataColumn>
+                                    <DxGridDataColumn FieldName="@nameof(ShiftAssignmentModel.n16)" Name="@nameof(ShiftAssignmentModel.n16)" Caption="N16" MinWidth="90">
+                                        <EditSettings>
+                                            <DxComboBoxSettings Data="@ListCboShift" ValueFieldName="@nameof(ComboboxModel.code)" TextFieldName="@nameof(ComboboxModel.code)">
+                                                <Columns>
+                                                    <DxListEditorColumn FieldName="@nameof(ComboboxModel.code)" Width="90px" Caption="Mã" />
+                                                    <DxListEditorColumn FieldName="@nameof(ComboboxModel.name)" Width="210px" Caption="Tên" />
+                                                </Columns>
+                                            </DxComboBoxSettings>
+                                        </EditSettings>
+                                    </DxGridDataColumn>
+                                    <DxGridDataColumn FieldName="@nameof(ShiftAssignmentModel.n17)" Name="@nameof(ShiftAssignmentModel.n17)" Caption="N17" MinWidth="90">
+                                        <EditSettings>
+                                            <DxComboBoxSettings Data="@ListCboShift" ValueFieldName="@nameof(ComboboxModel.code)" TextFieldName="@nameof(ComboboxModel.code)">
+                                                <Columns>
+                                                    <DxListEditorColumn FieldName="@nameof(ComboboxModel.code)" Width="90px" Caption="Mã" />
+                                                    <DxListEditorColumn FieldName="@nameof(ComboboxModel.name)" Width="210px" Caption="Tên" />
+                                                </Columns>
+                                            </DxComboBoxSettings>
+                                        </EditSettings>
+                                    </DxGridDataColumn>
+                                    <DxGridDataColumn FieldName="@nameof(ShiftAssignmentModel.n18)" Name="@nameof(ShiftAssignmentModel.n18)" Caption="N18" MinWidth="90">
+                                        <EditSettings>
+                                            <DxComboBoxSettings Data="@ListCboShift" ValueFieldName="@nameof(ComboboxModel.code)" TextFieldName="@nameof(ComboboxModel.code)">
+                                                <Columns>
+                                                    <DxListEditorColumn FieldName="@nameof(ComboboxModel.code)" Width="90px" Caption="Mã" />
+                                                    <DxListEditorColumn FieldName="@nameof(ComboboxModel.name)" Width="210px" Caption="Tên" />
+                                                </Columns>
+                                            </DxComboBoxSettings>
+                                        </EditSettings>
+                                    </DxGridDataColumn>
+                                    <DxGridDataColumn FieldName="@nameof(ShiftAssignmentModel.n19)" Name="@nameof(ShiftAssignmentModel.n19)" Caption="N19" MinWidth="90">
+                                        <EditSettings>
+                                            <DxComboBoxSettings Data="@ListCboShift" ValueFieldName="@nameof(ComboboxModel.code)" TextFieldName="@nameof(ComboboxModel.code)">
+                                                <Columns>
+                                                    <DxListEditorColumn FieldName="@nameof(ComboboxModel.code)" Width="120px" Caption="Mã" />
+                                                    <DxListEditorColumn FieldName="@nameof(ComboboxModel.name)" Width="170px" Caption="Tên" />
+                                                </Columns>
+                                            </DxComboBoxSettings>
+                                        </EditSettings>
+                                    </DxGridDataColumn>
+                                    <DxGridDataColumn FieldName="@nameof(ShiftAssignmentModel.n20)" Name="@nameof(ShiftAssignmentModel.n20)" Caption="N20" MinWidth="90">
+                                        <EditSettings>
+                                            <DxComboBoxSettings Data="@ListCboShift" ValueFieldName="@nameof(ComboboxModel.code)" TextFieldName="@nameof(ComboboxModel.code)">
+                                                <Columns>
+                                                    <DxListEditorColumn FieldName="@nameof(ComboboxModel.code)" Width="90px" Caption="Mã" />
+                                                    <DxListEditorColumn FieldName="@nameof(ComboboxModel.name)" Width="210px" Caption="Tên" />
+                                                </Columns>
+                                            </DxComboBoxSettings>
+                                        </EditSettings>
+                                    </DxGridDataColumn>
+                                    <DxGridDataColumn FieldName="@nameof(ShiftAssignmentModel.n21)" Name="@nameof(ShiftAssignmentModel.n21)" Caption="N21" MinWidth="90">
+                                        <EditSettings>
+                                            <DxComboBoxSettings Data="@ListCboShift" ValueFieldName="@nameof(ComboboxModel.code)" TextFieldName="@nameof(ComboboxModel.code)">
+                                                <Columns>
+                                                    <DxListEditorColumn FieldName="@nameof(ComboboxModel.code)" Width="90px" Caption="Mã" />
+                                                    <DxListEditorColumn FieldName="@nameof(ComboboxModel.name)" Width="210px" Caption="Tên" />
+                                                </Columns>
+                                            </DxComboBoxSettings>
+                                        </EditSettings>
+                                    </DxGridDataColumn>
+                                    <DxGridDataColumn FieldName="@nameof(ShiftAssignmentModel.n22)" Name="@nameof(ShiftAssignmentModel.n22)" Caption="N22" MinWidth="90">
+                                        <EditSettings>
+                                            <DxComboBoxSettings Data="@ListCboShift" ValueFieldName="@nameof(ComboboxModel.code)" TextFieldName="@nameof(ComboboxModel.code)">
+                                                <Columns>
+                                                    <DxListEditorColumn FieldName="@nameof(ComboboxModel.code)" Width="90px" Caption="Mã" />
+                                                    <DxListEditorColumn FieldName="@nameof(ComboboxModel.name)" Width="210px" Caption="Tên" />
+                                                </Columns>
+                                            </DxComboBoxSettings>
+                                        </EditSettings>
+                                    </DxGridDataColumn>
+                                    <DxGridDataColumn FieldName="@nameof(ShiftAssignmentModel.n23)" Name="@nameof(ShiftAssignmentModel.n23)" Caption="N23" MinWidth="90">
+                                        <EditSettings>
+                                            <DxComboBoxSettings Data="@ListCboShift" ValueFieldName="@nameof(ComboboxModel.code)" TextFieldName="@nameof(ComboboxModel.code)">
+                                                <Columns>
+                                                    <DxListEditorColumn FieldName="@nameof(ComboboxModel.code)" Width="90px" Caption="Mã" />
+                                                    <DxListEditorColumn FieldName="@nameof(ComboboxModel.name)" Width="210px" Caption="Tên" />
+                                                </Columns>
+                                            </DxComboBoxSettings>
+                                        </EditSettings>
+                                    </DxGridDataColumn>
+                                    <DxGridDataColumn FieldName="@nameof(ShiftAssignmentModel.n24)" Name="@nameof(ShiftAssignmentModel.n24)" Caption="N24" MinWidth="90">
+                                        <EditSettings>
+                                            <DxComboBoxSettings Data="@ListCboShift" ValueFieldName="@nameof(ComboboxModel.code)" TextFieldName="@nameof(ComboboxModel.code)">
+                                                <Columns>
+                                                    <DxListEditorColumn FieldName="@nameof(ComboboxModel.code)" Width="90px" Caption="Mã" />
+                                                    <DxListEditorColumn FieldName="@nameof(ComboboxModel.name)" Width="210px" Caption="Tên" />
+                                                </Columns>
+                                            </DxComboBoxSettings>
+                                        </EditSettings>
+                                    </DxGridDataColumn>
+                                    <DxGridDataColumn FieldName="@nameof(ShiftAssignmentModel.n25)" Name="@nameof(ShiftAssignmentModel.n25)" Caption="N25" MinWidth="90">
+                                        <EditSettings>
+                                            <DxComboBoxSettings Data="@ListCboShift" ValueFieldName="@nameof(ComboboxModel.code)" TextFieldName="@nameof(ComboboxModel.code)">
+                                                <Columns>
+                                                    <DxListEditorColumn FieldName="@nameof(ComboboxModel.code)" Width="90px" Caption="Mã" />
+                                                    <DxListEditorColumn FieldName="@nameof(ComboboxModel.name)" Width="210px" Caption="Tên" />
+                                                </Columns>
+                                            </DxComboBoxSettings>
+                                        </EditSettings>
+                                    </DxGridDataColumn>
+                                    <DxGridDataColumn FieldName="@nameof(ShiftAssignmentModel.n26)" Name="@nameof(ShiftAssignmentModel.n26)" Caption="N26" MinWidth="90">
+                                        <EditSettings>
+                                            <DxComboBoxSettings Data="@ListCboShift" ValueFieldName="@nameof(ComboboxModel.code)" TextFieldName="@nameof(ComboboxModel.code)">
+                                                <Columns>
+                                                    <DxListEditorColumn FieldName="@nameof(ComboboxModel.code)" Width="90px" Caption="Mã" />
+                                                    <DxListEditorColumn FieldName="@nameof(ComboboxModel.name)" Width="210px" Caption="Tên" />
+                                                </Columns>
+                                            </DxComboBoxSettings>
+                                        </EditSettings>
+                                    </DxGridDataColumn>
+                                    <DxGridDataColumn FieldName="@nameof(ShiftAssignmentModel.n27)" Name="@nameof(ShiftAssignmentModel.n27)" Caption="N27" MinWidth="90">
+                                        <EditSettings>
+                                            <DxComboBoxSettings Data="@ListCboShift" ValueFieldName="@nameof(ComboboxModel.code)" TextFieldName="@nameof(ComboboxModel.code)">
+                                                <Columns>
+                                                    <DxListEditorColumn FieldName="@nameof(ComboboxModel.code)" Width="90px" Caption="Mã" />
+                                                    <DxListEditorColumn FieldName="@nameof(ComboboxModel.name)" Width="210px" Caption="Tên" />
+                                                </Columns>
+                                            </DxComboBoxSettings>
+                                        </EditSettings>
+                                    </DxGridDataColumn>
+                                    <DxGridDataColumn FieldName="@nameof(ShiftAssignmentModel.n28)" Name="@nameof(ShiftAssignmentModel.n28)" Caption="N28" MinWidth="90">
+                                        <EditSettings>
+                                            <DxComboBoxSettings Data="@ListCboShift" ValueFieldName="@nameof(ComboboxModel.code)" TextFieldName="@nameof(ComboboxModel.code)">
+                                                <Columns>
+                                                    <DxListEditorColumn FieldName="@nameof(ComboboxModel.code)" Width="90px" Caption="Mã" />
+                                                    <DxListEditorColumn FieldName="@nameof(ComboboxModel.name)" Width="210px" Caption="Tên" />
+                                                </Columns>
+                                            </DxComboBoxSettings>
+                                        </EditSettings>
+                                    </DxGridDataColumn>
+                                    <DxGridDataColumn FieldName="@nameof(ShiftAssignmentModel.n29)" Name="@nameof(ShiftAssignmentModel.n29)" Caption="N29" MinWidth="90" Visible="@(MaxDaysInMonth > 28)">
+                                        <EditSettings>
+                                            <DxComboBoxSettings Data="@ListCboShift" ValueFieldName="@nameof(ComboboxModel.code)" TextFieldName="@nameof(ComboboxModel.code)">
+                                                <Columns>
+                                                    <DxListEditorColumn FieldName="@nameof(ComboboxModel.code)" Width="90px" Caption="Mã" />
+                                                    <DxListEditorColumn FieldName="@nameof(ComboboxModel.name)" Width="210px" Caption="Tên" />
+                                                </Columns>
+                                            </DxComboBoxSettings>
+                                        </EditSettings>
+                                    </DxGridDataColumn>
+                                    <DxGridDataColumn FieldName="@nameof(ShiftAssignmentModel.n30)" Name="@nameof(ShiftAssignmentModel.n30)" Caption="N30" MinWidth="90" Visible="@(MaxDaysInMonth > 29)">
+                                        <EditSettings>
+                                            <DxComboBoxSettings Data="@ListCboShift" ValueFieldName="@nameof(ComboboxModel.code)" TextFieldName="@nameof(ComboboxModel.code)">
+                                                <Columns>
+                                                    <DxListEditorColumn FieldName="@nameof(ComboboxModel.code)" Width="90px" Caption="Mã" />
+                                                    <DxListEditorColumn FieldName="@nameof(ComboboxModel.name)" Width="210px" Caption="Tên" />
+                                                </Columns>
+                                            </DxComboBoxSettings>
+                                        </EditSettings>
+                                    </DxGridDataColumn>
+                                    <DxGridDataColumn FieldName="@nameof(ShiftAssignmentModel.n31)" Name="@nameof(ShiftAssignmentModel.n31)" Caption="N31" MinWidth="90" Visible="@(MaxDaysInMonth > 30)">
+                                        <EditSettings>
+                                            <DxComboBoxSettings Data="@ListCboShift" ValueFieldName="@nameof(ComboboxModel.code)" TextFieldName="@nameof(ComboboxModel.code)">
+                                                <Columns>
+                                                    <DxListEditorColumn FieldName="@nameof(ComboboxModel.code)" Width="90px" Caption="Mã" />
+                                                    <DxListEditorColumn FieldName="@nameof(ComboboxModel.name)" Width="210px" Caption="Tên" />
+                                                </Columns>
+                                            </DxComboBoxSettings>
+                                        </EditSettings>
+                                    </DxGridDataColumn>
+                                </Columns>
+                                <TotalSummary>
+                                    <DxGridSummaryItem DisplayText="@GlobalContants.FORMAT_GRID_DISPLAYTEXT_COUNT" SummaryType="GridSummaryItemType.Count"
+                                                       FieldName="@nameof(ShiftAssignmentModel.employeeCode)" ValueDisplayFormat="@GlobalContants.FORMAT_CURRENCY"
+                                                       FooterColumnName="@nameof(ShiftAssignmentModel.employeeCode)" />
+                                </TotalSummary>
+                            </DxGrid>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
     </div>
 </div>
+<div class="mb-3"></div>
 
 <W1Confirm @ref="confirm" />

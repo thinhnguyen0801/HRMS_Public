@@ -19,5 +19,6 @@ namespace HNOne.Model
         public string? employeeCode { get; set; }
         public string? employeeName { get; set; }
         public string? statusCode { get; set; }
+        public string? shiftPreiodId { get; set; }
     }
 }

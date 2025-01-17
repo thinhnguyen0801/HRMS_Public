@@ -7,6 +7,8 @@ namespace HNOne.Model
         public int employeeId { get; set; } = -1;
         public int userId { get; set; }
         public int branchId { get; set; }
+        public int year { get; set; }
+        public int month { get; set; }
         public string? branchIds { get; set; }
         public string? departmentIds { get; set; }
         public string? token { get; set; }

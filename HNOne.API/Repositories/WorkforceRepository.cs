@@ -257,19 +257,26 @@ namespace HNOne.API.Repositories
         {
             using (var connection = _dapperDbContext.CreateConnection())
             {
-                int.TryParse(request.opt, out int year);
-                int.TryParse(request.opt1, out int month);
-                int.TryParse(request.opt2, out int departmentId);
-                if (year == 0) year = DateTime.Now.Year;
-                if (month == 0) month = DateTime.Now.Month;
                 var parameters = new DynamicParameters();
                 parameters.Add("@UserId", request.userId);
                 parameters.Add("@BranchId", request.branchId);
-                parameters.Add("@DepartmentId", departmentId);
-                parameters.Add("@Year", year);
-                parameters.Add("@Month", month);
-                var lstResult = await connection.QueryAsync<ShiftAssignmentModel>(StoreConstants.STORE_H1_ARRANGE_SHIFT_SELECT, param: parameters, commandTimeout: GlobalConstants.COMMAND_TIMEOUT, commandType: CommandType.StoredProcedure);
-                return lstResult;
+                parameters.Add("@DepartmentIds", request.departmentIds);
+                parameters.Add("@Year", request.year);
+                parameters.Add("@Month", request.month);
+                IEnumerable<ShiftAssignmentModel>? lstResult = null;
+                var dtResult = await connection.QueryMultipleAsync(StoreConstants.STORE_H1_ARRANGE_SHIFT_SELECT, param: parameters
+                    , commandTimeout: GlobalConstants.COMMAND_TIMEOUT, commandType: CommandType.StoredProcedure);
+                if (dtResult != null)
+                {
+                    lstResult = dtResult.Read<ShiftAssignmentModel>();
+                    if(!lstResult.IsNullOrEmpty())
+                    {
+                        var lstDetail = dtResult.Read<ComboboxModel>();
+                        string jsonDetail = JsonConvert.SerializeObject(lstDetail);
+                        lstResult.First().jsonDetail = jsonDetail;
+                    }    
+                }
+                return lstResult ?? new List<ShiftAssignmentModel>();
             }
         }
 
@@ -1232,7 +1239,7 @@ namespace HNOne.API.Repositories
                 parameters.Add("@BranchId", request.branchId);
                 parameters.Add("@StartDate", request.fromDate);
                 parameters.Add("@EmployeeId", request.employeeId);
-                parameters.Add("@DepartmentId", request.opt); // mã phòng ban
+                parameters.Add("@DepartmentIds", request.departmentIds); // mã phòng ban
                 var lstResult = await connection.QueryFirstAsync<ResponseModel>(StoreConstants.STORE_H1_GENERATE_TIMESHEET_DATA_UPDATE, param: parameters, commandTimeout: GlobalConstants.COMMAND_TIMEOUT, commandType: CommandType.StoredProcedure);
                 return lstResult;
             }

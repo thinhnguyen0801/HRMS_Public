@@ -783,7 +783,7 @@ namespace HNOne.Web.Controllers
                 request.branchId = BranchId;
                 request.token = Token;
                 request.fromDate = new DateTime(DateTime.Now.Year, DateTime.Now.Month, 01);
-                request.opt = EmployeeUpdate.departmentId.ToString();
+                request.departmentIds = EmployeeUpdate.departmentId.ToString();
                 request.employeeId = EmployeeUpdate.id;
                 isConfirm = await _workforceService.UpdateMasterDataAsync(request);
             }
