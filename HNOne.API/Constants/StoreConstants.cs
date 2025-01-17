@@ -33,5 +33,6 @@
         public const string STORE_H1_CONFIRM_WORKING_HOUR_SELECT = "[dbo].[H1_CONFIRM_WORKING_HOUR_SELECT]";
         public const string STORE_H1_ATTENDANCE_SUMMARY_SELECT = "[dbo].[H1_ATTENDANCE_SUMMARY_SELECT]";
         public const string STORE_H1_PAYROLL_SUMMARY_SELECT = "[dbo].[H1_PAYROLL_SUMMARY_SELECT]";
+        public const string STORE_H1_PAYROLL_SUMMARY_UPDATE = "[dbo].[H1_PAYROLL_SUMMARY_UPDATE]";
     }
 }

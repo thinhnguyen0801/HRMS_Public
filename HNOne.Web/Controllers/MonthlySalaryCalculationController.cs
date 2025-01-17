@@ -174,6 +174,32 @@ namespace HNOne.Web.Controllers
             var response = await _salaryService.GetMasterDataAsync<PayrollModel>(request);
             ListSalary = response;
         }
+        
+        private async Task updatePayrollSummary(string typeLocked = "N")
+        {
+            try
+            {
+                RequestModel request = new RequestModel();
+                request.process = ProcessConstants.POST_PAYROLL_SALARY;
+                request.userId = UserId;
+                request.branchId = BranchId;
+                request.token = Token;
+                request.json = JsonConvert.SerializeObject(SelectedItems);
+                request.type = typeLocked;
+                string strResult = await _salaryService.UpdatePayrollAsync(request);
+                if (strResult == "-1") return;
+                if (strResult == StatusCodes.Status200OK.ToString())
+                {
+                    await getPayrollSummary();
+                    return;
+                }
+                await Task.Delay(75);
+                await ShowLoading(false);
+                await Task.Yield();
+                await confirm.SetConfirm(MessageConstants.MESSAGE_NOTIFICATION, $"{strResult} ", isShowFooter: false);
+            }
+            catch (Exception) { throw; }
+        }
         #endregion
 
         #region Protected Functions
@@ -265,18 +291,7 @@ namespace HNOne.Web.Controllers
                 isConfirm = await confirm.SetConfirm(MessageConstants.MESSAGE_TITLE, errorMessage);
                 if (!isConfirm) return;
                 await ShowLoading();
-                RequestModel request = new RequestModel();
-                request.process = ProcessConstants.POST_PAYROLL_SALARY;
-                request.userId = UserId;
-                request.branchId = BranchId;
-                request.token = Token;
-                request.json = JsonConvert.SerializeObject(SelectedItems);
-                request.type = "N";
-                isConfirm = await _salaryService.UpdateMasterDataAsync(request);
-                if (isConfirm)
-                {
-                    await getPayrollSummary();
-                }
+                await updatePayrollSummary(typeLocked: "N");
             }
             catch (Exception ex)
             {
@@ -317,18 +332,7 @@ namespace HNOne.Web.Controllers
                 isConfirm = await confirm.SetConfirm(MessageConstants.MESSAGE_TITLE, errorMessage);
                 if (!isConfirm) return;
                 await ShowLoading();
-                RequestModel request = new RequestModel();
-                request.process = ProcessConstants.POST_PAYROLL_SALARY;
-                request.userId = UserId;
-                request.branchId = BranchId;
-                request.token = Token;
-                request.json = JsonConvert.SerializeObject(SelectedItems);
-                request.type = "L";
-                isConfirm = await _salaryService.UpdateMasterDataAsync(request);
-                if (isConfirm)
-                {
-                    await getPayrollSummary();
-                }
+                await updatePayrollSummary(typeLocked: "L");
             }
             catch (Exception ex)
             {
@@ -363,18 +367,7 @@ namespace HNOne.Web.Controllers
                 isConfirm = await confirm.SetConfirm(MessageConstants.MESSAGE_TITLE, errorMessage);
                 if (!isConfirm) return;
                 await ShowLoading();
-                RequestModel request = new RequestModel();
-                request.process = ProcessConstants.PUT_UNLOCK_PAYROLL_SALARY;
-                request.userId = UserId;
-                request.branchId = BranchId;
-                request.token = Token;
-                request.json = JsonConvert.SerializeObject(SelectedItems);
-                request.type = "UL";
-                isConfirm = await _salaryService.UpdateMasterDataAsync(request);
-                if (isConfirm)
-                {
-                    await getPayrollSummary();
-                }
+                await updatePayrollSummary(typeLocked: "UL"); // UnLocked
             }
             catch (Exception ex)
             {

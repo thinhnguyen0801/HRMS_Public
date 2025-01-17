@@ -255,6 +255,43 @@ namespace HNOne.API.Repositories
                 throw;
             }
         }
+
+        /// <summary>
+        /// cập nhật dữ liệu payroll
+        /// </summary>
+        /// <param name="branchId"></param>
+        /// <param name="userId"></param>
+        /// <param name="processKey"></param>
+        /// <param name="lstEntity"></param>
+        /// <returns></returns>
+        public async Task<ResponseModel> UpdatePayroll(int branchId, int userId, string processKey, string typeLocked, IEnumerable<Payrolls> lstEntity)
+        {
+            using (var connection = _dapperDbContext.CreateConnection())
+            {
+                ResponseModel response = new ResponseModel();
+                if (lstEntity.IsNullOrEmpty())
+                {
+                    response.status = StatusCodes.Status409Conflict;
+                    response.message = MessageConstants.MESSAGE_DATA_INVALID;
+                    return response;
+                }    
+                string jPayroll = JsonConvert.SerializeObject(lstEntity);
+                var parameters = new DynamicParameters();
+                parameters.Add($"@UserId", userId);
+                parameters.Add($"@BranchId", branchId);
+                parameters.Add($"@JPayroll", jPayroll);
+                parameters.Add($"@ProcessKey", processKey);
+                parameters.Add($"@TypeLocked", typeLocked);
+                var result = await connection.QueryFirstOrDefaultAsync<ResponseModel>(StoreConstants.STORE_H1_PAYROLL_SUMMARY_UPDATE
+                    , param: parameters, commandTimeout: GlobalConstants.COMMAND_TIMEOUT, commandType: CommandType.StoredProcedure);
+                if(result != null)
+                {
+                    response.status = result.status;
+                    response.message = result.message;
+                }    
+                return response;
+            }
+        }
         
         /// <summary>
         /// mở khóa kỳ lương cho nhân viên
@@ -301,6 +338,7 @@ namespace HNOne.API.Repositories
                 throw;
             }
         }
+        
         #endregion Command
     }
 }

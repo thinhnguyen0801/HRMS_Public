@@ -70,7 +70,10 @@ namespace HNOne.API.Controllers
                 {
                     case ProcessConstants.POST_PAYROLL_SALARY:
                         var lstPayroll = DeserializeJson<List<Payrolls>>($"{request.json}");
-                        response = await _salaryRepository.UpdatePayroll(request.type == "L", request.userId, lstPayroll!);
+                        string typeLocked = "N";
+                        if(!string.IsNullOrEmpty(request.type)) typeLocked = request.type;
+                        response = await _salaryRepository.UpdatePayroll(request.branchId, request.userId, processKey, typeLocked, lstPayroll);
+                        //response = await _salaryRepository.UpdatePayroll(request.type == "L", request.userId, lstPayroll!);
                         break;
                     case ProcessConstants.PUT_UNLOCK_PAYROLL_SALARY:
                         var lstPayrollUnlock = DeserializeJson<List<Payrolls>>($"{request.json}");

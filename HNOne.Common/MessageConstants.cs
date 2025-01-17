@@ -37,5 +37,6 @@ namespace HNOne.Common
         public const string MESSAGE_FILE_NOT_FOUNT = "Không tìm thấy file";
         public const string MESSAGE_CREATE_URL_ERRROR = "Không hiển thị được file!. Vui lòng thử lại";
         public const string MESSAGE_CONFLICT_FORMAT = "{0} đã tồn tại!";
+        public const string MESSAGE_DATA_INVALID = "Dữ liệu đầu vào không hợp lệ!";
     }
 }

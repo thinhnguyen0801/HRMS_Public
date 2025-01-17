@@ -124,5 +124,54 @@ namespace HNOne.Web.Services
             }
             catch (Exception) { throw; }
         }
+    
+        /// <summary>
+        /// lưu thông tin bảng lương của nhân viên
+        /// </summary>
+        /// <param name="request"></param>
+        /// <returns></returns>
+        public async Task<string> UpdatePayrollAsync(RequestModel request)
+        {
+            string statusId = "-1";
+            try
+            {
+                request.process = ProcessConstants.POST_PAYROLL_SALARY;
+                HttpResponseMessage httpResponse = await PostAsync(EnpointConstants.SALARY_POST_DATA, request);
+                if (httpResponse.StatusCode == System.Net.HttpStatusCode.Unauthorized)
+                {
+                    _toastService.ShowInfo(MessageConstants.MESSAGE_LOGIN_EXPIRED);
+                    return statusId;
+                }
+                var checkContent = ValidateJsonContent(httpResponse.Content);
+                if (!checkContent)
+                {
+                    _toastService.ShowError(MessageConstants.MESSAGE_JSON_INVALID);
+                    return statusId;
+                }
+                var content = await httpResponse.Content.ReadAsStringAsync();
+                ResponseModel response = JsonConvert.DeserializeObject<ResponseModel>(content)!;
+                if (httpResponse.IsSuccessStatusCode
+                    && response.status == StatusCodes.Status200OK)
+                {
+                    _toastService.ShowSuccess(response.message);
+                    return "200"; // -- thành công
+                }
+                // Xử lý mã trạng thái cụ thể
+                switch (response?.status)
+                {
+                    case StatusCodes.Status409Conflict:
+                        _toastService.ShowInfo(response.message ?? MessageConstants.MESSAGE_IT_SUPPORT);
+                        break;
+                    case -StatusCodes.Status409Conflict:
+                        return response.message ; // để hiện thị cái popup confirm
+                    default:
+                        _toastService.ShowError(response?.message ?? MessageConstants.MESSAGE_IT_SUPPORT);
+                        break;
+                }
+
+                return statusId;
+            }
+            catch (Exception) { throw; }
+        }
     }
 }

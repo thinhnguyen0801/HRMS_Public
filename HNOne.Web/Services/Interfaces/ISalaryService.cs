@@ -8,5 +8,6 @@ namespace HNOne.Web.Services.Interfaces
         Task<List<T>?> GetMasterDataAsync<T>(RequestModel request, bool isShowToast = false) where T : class;
         Task<bool> UpdateMasterDataAsync(RequestModel request);
         Task<List<PayrollModel>?> SalaryCalculateAsync(RequestModel request);
+        Task<string> UpdatePayrollAsync(RequestModel request);
     }
 }
