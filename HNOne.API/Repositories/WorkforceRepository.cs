@@ -553,6 +553,16 @@ namespace HNOne.API.Repositories
             {
                 using (var connection = _dapperDbContext.CreateConnection())
                 {
+                    // kiểm tra dữ liệu công ông đây chốt chưa -> nếu chốt công không cho tạo
+                    var checkLocked = await _dbContext.AttendanceSummarys.FirstOrDefaultAsync(m => m.EmployeeId == entity.EmployeeId && m.IsDelete == false
+                                            && m.IsLocked == true && m.Month == entity.FromDate!.Value.Month
+                                            && m.Year == entity.FromDate!.Value.Year);
+                    if(checkLocked != null)
+                    {
+                        response.status = StatusCodes.Status409Conflict;
+                        response.message = $"Nhân viên {checkLocked.EmployeeCode} đã được khóa kỳ dữ liệu công tháng {checkLocked.Month} năm {checkLocked.Year}";
+                        return response;
+                    }    
                     var checkExists = await _dbContext.LeaveRequests.FirstOrDefaultAsync(m => !(entity.ToDate!.Value.Date < m.FromDate!.Value.Date || entity.FromDate!.Value.Date > m.ToDate!.Value.Date) 
                                             && m.EmployeeId == entity.EmployeeId 
                                             && m.StatusCode != CommonConstants.STATUS_CODE_CANCELED && m.StatusCode != CommonConstants.STATUS_CODE_DENY); // bỏ 2 tình trạng hủy
@@ -702,6 +712,26 @@ namespace HNOne.API.Repositories
                 {
                     using (var connection = _dapperDbContext.CreateConnection())
                     {
+                        // kiểm tra dữ liệu công ông đây chốt chưa -> nếu chốt công không cho tạo
+                        var checkLocked = await _dbContext.AttendanceSummarys.FirstOrDefaultAsync(m => m.EmployeeId == entity.EmployeeId && m.IsDelete == false
+                                                && m.IsLocked == true && m.Month == entity.FromDate!.Value.Month
+                                                && m.Year == entity.FromDate!.Value.Year);
+                        if (checkLocked != null)
+                        {
+                            response.status = StatusCodes.Status409Conflict;
+                            response.message = $"Nhân viên {checkLocked.EmployeeCode} đã được khóa kỳ dữ liệu công tháng {checkLocked.Month} năm {checkLocked.Year}";
+                            return response;
+                        }
+
+                        var checkExists = await _dbContext.LeaveWorkingHours.FirstOrDefaultAsync(m => m.FromDate!.Value.Date == entity.FromDate!.Value.Date && m.EmployeeId == entity.EmployeeId
+                                            && m.StatusCode != CommonConstants.STATUS_CODE_CANCELED && m.StatusCode != CommonConstants.STATUS_CODE_DENY); // bỏ 2 tình trạng hủy
+                        if (checkExists != null)
+                        {
+                            response.status = StatusCodes.Status409Conflict;
+                            response.message = $"Ngày đăng ký đã tồn tại trong hệ thống. Số chứng từ [{checkExists.VoucherNo}]";
+                            return response;
+                        }
+
                         DynamicParameters parameters = new DynamicParameters();
                         parameters.Add("@Type", GlobalConstants.TABLE_LEAVE_WORKING_HOURS, DbType.String);
                         string commandText = @$"select {StoreConstants.FUNC_GET_VOUCHER}(@Type, '', '', '')";
@@ -710,14 +740,6 @@ namespace HNOne.API.Repositories
                         {
                             response.status = StatusCodes.Status204NoContent;
                             response.message = MessageConstants.MESSAGE_VOUCHER_NO_MISSING;
-                            return response;
-                        }
-                        var checkExists = await _dbContext.LeaveWorkingHours.FirstOrDefaultAsync(m => m.FromDate!.Value.Date == entity.FromDate!.Value.Date && m.EmployeeId == entity.EmployeeId
-                                            && m.StatusCode != CommonConstants.STATUS_CODE_CANCELED && m.StatusCode != CommonConstants.STATUS_CODE_DENY); // bỏ 2 tình trạng hủy
-                        if (checkExists != null)
-                        {
-                            response.status = StatusCodes.Status409Conflict;
-                            response.message = $"Ngày đăng ký đã tồn tại trong hệ thống. Số chứng từ [{checkExists.VoucherNo}]";
                             return response;
                         }
                         await _dbContext.Database.BeginTransactionAsync();
@@ -889,6 +911,16 @@ namespace HNOne.API.Repositories
             {
                 using (var connection = _dapperDbContext.CreateConnection())
                 {
+                    // kiểm tra dữ liệu công ông đây chốt chưa -> nếu chốt công không cho tạo
+                    var checkLocked = await _dbContext.AttendanceSummarys.FirstOrDefaultAsync(m => m.EmployeeId == entity.EmployeeId && m.IsDelete == false
+                                            && m.IsLocked == true && m.Month == entity.FromDate!.Value.Month
+                                            && m.Year == entity.FromDate!.Value.Year);
+                    if (checkLocked != null)
+                    {
+                        response.status = StatusCodes.Status409Conflict;
+                        response.message = $"Nhân viên {checkLocked.EmployeeCode} đã được khóa kỳ dữ liệu công tháng {checkLocked.Month} năm {checkLocked.Year}";
+                        return response;
+                    }
                     var checkExists = await _dbContext.ShiftChanges.FirstOrDefaultAsync(m => !(entity.ToDate!.Value.Date < m.FromDate!.Value.Date || entity.FromDate!.Value.Date > m.ToDate!.Value.Date)
                                             && m.EmployeeId == entity.EmployeeId
                                             && m.StatusCode != CommonConstants.STATUS_CODE_CANCELED && m.StatusCode != CommonConstants.STATUS_CODE_DENY); // bỏ 2 tình trạng hủy
@@ -1034,6 +1066,17 @@ namespace HNOne.API.Repositories
             {
                 using (var connection = _dapperDbContext.CreateConnection())
                 {
+                    // kiểm tra dữ liệu công ông đây chốt chưa -> nếu chốt công không cho tạo
+                    var checkLocked = await _dbContext.AttendanceSummarys.FirstOrDefaultAsync(m => m.EmployeeId == entity.EmployeeId && m.IsDelete == false
+                                            && m.IsLocked == true && m.Month == entity.FromDate!.Value.Month
+                                            && m.Year == entity.FromDate!.Value.Year);
+                    if (checkLocked != null)
+                    {
+                        response.status = StatusCodes.Status409Conflict;
+                        response.message = $"Nhân viên {checkLocked.EmployeeCode} đã được khóa kỳ dữ liệu công tháng {checkLocked.Month} năm {checkLocked.Year}";
+                        return response;
+                    }
+
                     // kiểm tra số giờ tăng ca có vượt ngưỡng không
                     EnumCatagories? enumConfig = await _dbContext.EnumCatagories.FirstOrDefaultAsync(m => m.EnumType == CommonConstants.MAX_OVERTIME_REQUEST);
                     double.TryParse(enumConfig?.Value, out double totalHours);
@@ -1678,6 +1721,17 @@ namespace HNOne.API.Repositories
                     // thêm chi tiết đề nghị nghỉ phép
                     foreach (var item in lstEntity1)
                     {
+                        // kiểm tra dữ liệu công ông đây chốt chưa -> nếu chốt công không cho tạo
+                        var checkLocked = await _dbContext.AttendanceSummarys.FirstOrDefaultAsync(m => m.EmployeeId == item.EmployeeId && m.IsDelete == false
+                                                && m.IsLocked == true && m.Month == item.WorkingDate.Month
+                                                && m.Year == item.WorkingDate.Year);
+                        if (checkLocked != null)
+                        {
+                            response.status = StatusCodes.Status409Conflict;
+                            response.message = $"Nhân viên {checkLocked.EmployeeCode} đã được khóa kỳ dữ liệu công tháng {checkLocked.Month} năm {checkLocked.Year}";
+                            if (isTrans) await _dbContext.Database.RollbackTransactionAsync();
+                            return response;
+                        }
                         ConfirmWorkingDay1s entity1 = new ConfirmWorkingDay1s();
                         entity1.ConfirmWorkingDayId = entity.Id;
                         entity1.EmployeeId = entity.EmployeeId;
