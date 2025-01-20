@@ -34,7 +34,9 @@
         TrichNop,
         QuyCachDanhMa,
         LoaiNghiPhep,
-        TrangThaiPhatSinhCong
+        TrangThaiPhatSinhCong,
+        LoaiChiLuong,
+        PhuongThucThanhToan
     }
 
     public enum EnumObjType

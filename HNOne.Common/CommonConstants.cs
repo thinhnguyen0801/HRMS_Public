@@ -18,6 +18,10 @@ namespace HNOne.Common
         public const string ENUM_ACTIVE = "ACTIVE";
         public const string ENUM_CATAGORY = "ENUM_CATAGORY";
         public const string ENUM_ALLOW_EDIT = "AllowEdit";
+        public const string ENUM_PAYMENT_TYPE_TM = "TM";
+        public const string ENUM_PAYMENT_TYPE_UNC = "UNC";
+        public const string ENUM_PAYMENT_REQUEST_TYPE_CHILUONG = "CHILUONG";
+        public const string ENUM_PAYMENT_REQUEST_TYPE_NOPBAOHIEM = "NOPBAOHIEM";
         #endregion
     }
 }
