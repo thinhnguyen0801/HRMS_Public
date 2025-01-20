@@ -173,5 +173,57 @@ namespace HNOne.Web.Services
             }
             catch (Exception) { throw; }
         }
+    
+        /// <summary>
+        /// Cập nhật thông tin document
+        /// </summary>
+        /// <param name="processKey"></param>
+        /// <param name="userId"></param>
+        /// <param name="token"></param>
+        /// <param name="branchId"></param>
+        /// <param name="json"></param>
+        /// <param name="jsonDetail"></param>
+        /// <returns></returns>
+        public async Task<int> UpdateDocumentAsync(string processKey, int userId, string token, int branchId, string json, string jsonDetail)
+        {
+            try
+            {
+                RequestModel request = new RequestModel();
+                request.process = processKey;
+                request.userId = userId;
+                request.token = token;
+                request.branchId = branchId;
+                request.json = json;
+                request.jsonDetail = jsonDetail;
+                HttpResponseMessage httpResponse = await PostAsync(EnpointConstants.SALARY_POST_DATA, request);
+                if (httpResponse.StatusCode == System.Net.HttpStatusCode.Unauthorized)
+                {
+                    _toastService.ShowInfo(MessageConstants.MESSAGE_LOGIN_EXPIRED);
+                    return -1;
+                }
+                var checkContent = ValidateJsonContent(httpResponse.Content);
+                if (!checkContent) _toastService.ShowError(MessageConstants.MESSAGE_JSON_INVALID);
+                else
+                {
+                    var content = await httpResponse.Content.ReadAsStringAsync();
+                    ResponseModel response = JsonConvert.DeserializeObject<ResponseModel>(content)!;
+                    if (httpResponse.IsSuccessStatusCode
+                        && response?.status == StatusCodes.Status200OK)
+                    {
+                        _toastService.ShowSuccess(response.message);
+                        int.TryParse(response.data?.ToString(), out int result);
+                        return result;
+                    }
+                    if (response?.status == StatusCodes.Status409Conflict)
+                    {
+                        _toastService.ShowInfo(response?.message ?? MessageConstants.MESSAGE_IT_SUPPORT);
+                        return -1;
+                    }
+                    _toastService.ShowError(response?.message ?? MessageConstants.MESSAGE_IT_SUPPORT);
+                }
+                return -1;
+            }
+            catch (Exception) { throw; }
+        }
     }
 }

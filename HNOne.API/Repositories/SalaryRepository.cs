@@ -81,6 +81,60 @@ namespace HNOne.API.Repositories
                 return lstResult;
             }
         }
+
+        /// <summary>
+        /// lấy ra danh sách master dưới store trong phân hệ lương
+        /// </summary>
+        /// <param name="request"></param>
+        /// <returns></returns>
+        public async Task<IEnumerable<dynamic>> GetSalaryMasterData(RequestModel request)
+        {
+            using (var connection = _dapperDbContext.CreateConnection())
+            {
+                var parameters = new DynamicParameters();
+                parameters.Add("@UserId", request.userId, DbType.Int32);
+                parameters.Add("@BranchId", request.branchId, DbType.Int32);
+                parameters.Add("@EmployeeId", request.employeeId, DbType.Int32);
+                parameters.Add("@Type", request.type, DbType.String);
+                parameters.Add("@Opt", $"{request.opt}", DbType.String);
+                parameters.Add("@Opt1", $"{request.opt1}", DbType.String);
+                parameters.Add("@Opt2", $"{request.opt2}", DbType.String);
+                parameters.Add("@Opt3", $"{request.opt3}", DbType.String);
+                var results = await connection.QueryAsync(StoreConstants.STORE_H1_SALARY_MASTER_DATA_SELECT, parameters
+                    , commandTimeout: GlobalConstants.COMMAND_TIMEOUT, commandType: CommandType.StoredProcedure);
+                return results;
+            }
+        }
+
+        public async Task<IEnumerable<SalaryExpenseAccountingModel>> GetSalaryExpenseAccounting(RequestModel request)
+        {
+            using (var connection = _dapperDbContext.CreateConnection())
+            {
+                request.fromDate ??= new DateTime(2000, 01, 01);
+                request.toDate ??= DateTime.Now.AddMonths(1);
+                var parameters = new DynamicParameters();
+                parameters.Add("@DocumentId", request.documentId, DbType.Int32);
+                parameters.Add("@UserId", request.userId, DbType.Int32);
+                parameters.Add("@BranchId", request.branchId, DbType.Int32);
+                parameters.Add("@StatusIds", request.opt, DbType.String);
+                parameters.Add("@FromDate", request.fromDate, DbType.Date);
+                parameters.Add("@ToDate", request.toDate, DbType.Date);
+                IEnumerable<SalaryExpenseAccountingModel>? lstResult = null;
+                var dtResult = await connection.QueryMultipleAsync(StoreConstants.STORE_H1_SALARY_EXPENSE_ACCOUNTING_SELECT, param: parameters
+                    , commandTimeout: GlobalConstants.COMMAND_TIMEOUT, commandType: CommandType.StoredProcedure);
+                if (dtResult != null)
+                {
+                    lstResult = dtResult.Read<SalaryExpenseAccountingModel>();
+                    if (request.documentId > 0)
+                    {
+                        var lstDetail = dtResult.Read<SalaryExpenseAccounting1Model>();
+                        string jsonDetail = JsonConvert.SerializeObject(lstDetail);
+                        lstResult = lstResult.Update(m => m.jsonDetail = jsonDetail);
+                    }
+                }
+                return lstResult ?? new List<SalaryExpenseAccountingModel>();
+            }
+        }
         #endregion Query
 
         #region Command
@@ -338,7 +392,144 @@ namespace HNOne.API.Repositories
                 throw;
             }
         }
-        
+
+        /// <summary>
+        /// Thêm mới + cập nhật dữ liệu hạch toán chi phí lương
+        /// </summary>
+        /// <param name="actionType"></param>
+        /// <param name="entity"></param>
+        /// <param name="lstEntity1"></param>
+        /// <returns></returns>
+        public async Task<ResponseModel> UpdateSalaryExpenseAccounting(string actionType, SalaryExpenseAccountings entity, IEnumerable<SalaryExpenseAccounting1s> lstEntity1)
+        {
+            bool isTrans = false;
+            ResponseModel response = new ResponseModel();
+            try
+            {
+                DateTime dateTimeNow = _dateTimeHelper.GetCurrentVietnamTime();  
+                if (actionType == ProcessConstants.POST_SALARY_EXPENSE_ACCOUNTING)
+                {
+                    using (var connection = _dapperDbContext.CreateConnection())
+                    {
+                        // Kiểm tra tính lương có ông nào chưa được khóa không
+                        var checkLocked = await _dbContext.Payrolls.FirstOrDefaultAsync(m => m.IsLocked == false && m.IsDelete == false
+                                            && m.Month == entity.Month && m.Year == entity.Year);
+                        if (checkLocked != null)
+                        {
+                            response.status = StatusCodes.Status409Conflict;
+                            response.message = $"Nhân viên {checkLocked.EmployeeCode} chưa được khóa kỳ dữ liệu lương tháng {checkLocked.Month} năm {checkLocked.Year}";
+                            return response;
+                        }
+
+                        // kiểm tra dữ liệu hạch toán đã tồn tại chưa
+                        var checkExists = await _dbContext.SalaryExpenseAccountings.FirstOrDefaultAsync(m => m.Month == entity.Month && m.Year == entity.Year
+                                && m.IsDelete == false && (m.StatusCode != CommonConstants.STATUS_CODE_CANCELED && m.StatusCode != CommonConstants.STATUS_CODE_DENY));
+                        if (checkExists != null)
+                        {
+                            response.status = StatusCodes.Status409Conflict;
+                            response.message = $"Hạch toán chi phí lương tháng {checkExists.Month} năm {checkExists.Year} đã tồn tại trong hệ thống. Số chứng từ [{checkExists.VoucherNo}]";
+                            return response;
+                        }
+
+                        DynamicParameters parameters = new DynamicParameters();
+                        parameters.Add("@Type", GlobalConstants.TABLE_SALARY_EXPENSE_ACCOUNTING, DbType.String);
+                        string commandText = @$"select {StoreConstants.FUNC_GET_VOUCHER}(@Type, '', '', '')";
+                        string? voucherNo = await connection.QueryFirstOrDefaultAsync<string>(commandText, param: parameters, commandTimeout: GlobalConstants.COMMAND_TIMEOUT, commandType: CommandType.Text);
+                        if (string.IsNullOrEmpty(voucherNo))
+                        {
+                            response.status = StatusCodes.Status204NoContent;
+                            response.message = MessageConstants.MESSAGE_VOUCHER_NO_MISSING;
+                            return response;
+                        }
+                        await _dbContext.Database.BeginTransactionAsync();
+                        isTrans = true;
+                        entity.Id = await _dbContext.SalaryExpenseAccountings.Select(m => m.Id).DefaultIfEmpty().MaxAsync() + 1;
+                        entity.VoucherNo = voucherNo;
+                        entity.DateTracking = dateTimeNow;
+                        entity.CreateDate = dateTimeNow;
+                        await _dbContext.SalaryExpenseAccountings.AddAsync(entity);
+                        // thêm chi tiết
+                        foreach (var item in lstEntity1)
+                        {
+                            SalaryExpenseAccounting1s entity1 = new SalaryExpenseAccounting1s();
+                            entity1.SalaryExpenseAccountingId = entity.Id;
+                            entity1.LineId = item.LineId;
+                            entity1.SalaryCatagoryCode = item.SalaryCatagoryCode;
+                            entity1.SalaryCatagoryName = item.SalaryCatagoryName;
+                            entity1.Account1 = item.Account1;
+                            entity1.Account2 = item.Account2;
+                            entity1.LineTotal = item.LineTotal;
+                            entity1.DateTracking = dateTimeNow;
+                            entity1.UserSign = entity.UserSign;
+                            await _dbContext.SalaryExpenseAccounting1s.AddAsync(entity1);
+                        }
+                        await _dbContext.SaveChangesAsync();
+                        await _dbContext.Database.CommitTransactionAsync();
+                        response.message = MessageConstants.MESSAGE_ADD_SUCCESS;
+                        response.data = entity.Id;
+                    }
+                    
+                }    
+                else
+                {
+                    var data = await _dbContext.SalaryExpenseAccountings.FirstOrDefaultAsync(m => m.Id == entity.Id);
+                    if (data == null)
+                    {
+                        response.status = StatusCodes.Status404NotFound;
+                        response.message = MessageConstants.MESSAGE_NOT_FOUNT;
+                        return response;
+                    }
+                    if (data.DateTracking != entity.DateTracking)
+                    {
+                        response.status = StatusCodes.Status409Conflict;
+                        response.message = MessageConstants.MESSAGE_DATA_CHECKING_MODIFIED;
+                        return response;
+                    }
+                    data.EmployeeSignatureId = entity.EmployeeSignatureId;
+                    data.Month = entity.Month;
+                    data.Year = entity.Year;
+                    data.DueDate = entity.DueDate;
+                    data.Remark = entity.Remark;
+                    data.DocTotal = entity.DocTotal;
+                    data.DateTracking = dateTimeNow;
+                    data.UpdateDate = dateTimeNow;
+                    data.UserSign2 = entity.UserSign2;
+                    await _dbContext.Database.BeginTransactionAsync();
+                    isTrans = true;
+                    _dbContext.SalaryExpenseAccountings.Attach(data);
+                    _dbContext.Entry(data).State = EntityState.Modified;
+                    // thêm chi tiết đề nghị nghỉ phép
+                    // bỏ dữ liệu củ đi
+                    var lstLeaveRequest1s = await _dbContext.SalaryExpenseAccounting1s.Where(m => m.SalaryExpenseAccountingId == data.Id).ToListAsync();
+                    if (!lstLeaveRequest1s.IsNullOrEmpty()) _dbContext.SalaryExpenseAccounting1s.RemoveRange(lstLeaveRequest1s);
+                    // thêm chi tiết
+                    foreach (var item in lstEntity1)
+                    {
+                        SalaryExpenseAccounting1s entity1 = new SalaryExpenseAccounting1s();
+                        entity1.SalaryExpenseAccountingId = entity.Id;
+                        entity1.LineId = item.LineId;
+                        entity1.SalaryCatagoryCode = item.SalaryCatagoryCode;
+                        entity1.SalaryCatagoryName = item.SalaryCatagoryName;
+                        entity1.Account1 = item.Account1;
+                        entity1.Account2 = item.Account2;
+                        entity1.LineTotal = item.LineTotal;
+                        entity1.DateTracking = dateTimeNow;
+                        entity1.UserSign = entity.UserSign;
+                        await _dbContext.SalaryExpenseAccounting1s.AddAsync(entity1);
+                    }
+                    await _dbContext.SaveChangesAsync();
+                    await _dbContext.Database.CommitTransactionAsync();
+                    response.message = MessageConstants.MESSAGE_UPDATE_SUCCESS;
+                    response.data = data.Id;
+                }
+                return response;
+            }
+            catch (Exception)
+            {
+                if (isTrans) await _dbContext.Database.RollbackTransactionAsync();
+                throw;
+            }
+        }
         #endregion Command
     }
 }

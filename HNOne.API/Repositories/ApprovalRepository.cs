@@ -237,6 +237,22 @@ namespace HNOne.API.Repositories
                         _dbContext.ConfirmWorkingDays.Attach(confirmWorkingDayRequest);
                         _dbContext.Entry(confirmWorkingDayRequest).State = EntityState.Modified;
                         break;
+                    case GlobalConstants.TABLE_SALARY_EXPENSE_ACCOUNTING:
+                        var salaryExpenseAccounting = await _dbContext.SalaryExpenseAccountings.FirstOrDefaultAsync(m => m.Id == entity.DocEntry);
+                        if (salaryExpenseAccounting == null)
+                        {
+                            response.status = StatusCodes.Status404NotFound;
+                            response.message = string.Format(MessageConstants.MESSAGE_NOT_FOUNT_FORMAT, "Hạch toán chi phí lương");
+                            return response;
+                        }
+                        await _dbContext.Database.BeginTransactionAsync();
+                        isTran = true;
+                        voucherNo = salaryExpenseAccounting.VoucherNo;
+                        salaryExpenseAccounting.StatusCode = CommonConstants.STATUS_CODE_APPROVAL_PENDING; // ĐÃ GỬI YÊU CẦU PHÊ DUYỆT
+                        salaryExpenseAccounting.DateTracking = dateTimeNow;
+                        _dbContext.SalaryExpenseAccountings.Attach(salaryExpenseAccounting);
+                        _dbContext.Entry(salaryExpenseAccounting).State = EntityState.Modified;
+                        break;
                     default:
                         response.status = StatusCodes.Status404NotFound;
                         response.message = $"ObjType {entity.ObjType} was not provider!!!";
@@ -424,6 +440,22 @@ namespace HNOne.API.Repositories
                             confirmWorkingDayRequest.DateTracking = dateTimeNow; // cập nhật ngày tracking
                             _dbContext.ConfirmWorkingDays.Attach(confirmWorkingDayRequest);
                             _dbContext.Entry(confirmWorkingDayRequest).State = EntityState.Modified;
+                            break;
+                        case GlobalConstants.TABLE_SALARY_EXPENSE_ACCOUNTING:
+                            var salaryExpenseAccounting = await _dbContext.SalaryExpenseAccountings.FirstOrDefaultAsync(m => m.Id == entity.DocEntry);
+                            if (salaryExpenseAccounting == null)
+                            {
+                                response.status = StatusCodes.Status404NotFound;
+                                response.message = string.Format(MessageConstants.MESSAGE_NOT_FOUNT_FORMAT, "Yêu cầu đào tạo");
+                                return response;
+                            }
+                            voucherNo = salaryExpenseAccounting.VoucherNo;
+                            employeeId = -1;
+                            salaryExpenseAccounting.StatusCode = entity.StatusCode; // tình trạng chứng từ "D": Đã duyệt, "T": từ chối, "C": đã hủy
+                            salaryExpenseAccounting.DateOfSigning = dateTimeNow; // cập nhật ngày ký
+                            salaryExpenseAccounting.DateTracking = dateTimeNow; // cập nhật ngày tracking
+                            _dbContext.SalaryExpenseAccountings.Attach(salaryExpenseAccounting);
+                            _dbContext.Entry(salaryExpenseAccounting).State = EntityState.Modified;
                             break;
                         default:
                             response.status = StatusCodes.Status404NotFound;

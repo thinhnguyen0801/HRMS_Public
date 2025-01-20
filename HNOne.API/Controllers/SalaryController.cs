@@ -36,6 +36,12 @@ namespace HNOne.API.Controllers
                     case ProcessConstants.GET_PAYROLL_SUMMARY:
                         response.data = await _salaryRepository.GetPayrollSummary(request);
                         break;
+                    case ProcessConstants.GET_SALARY_MASTER_DATA:
+                        response.data = await _salaryRepository.GetSalaryMasterData(request);
+                        break;
+                    case ProcessConstants.GET_SALARY_EXPENSE_ACCOUNTING:
+                        response.data = await _salaryRepository.GetSalaryExpenseAccounting(request);
+                        break;
                     default:
                         response.status = StatusCodes.Status404NotFound;
                         response.message = $"Process Key {processKey} was not provider!!!";
@@ -78,6 +84,12 @@ namespace HNOne.API.Controllers
                     case ProcessConstants.PUT_UNLOCK_PAYROLL_SALARY:
                         var lstPayrollUnlock = DeserializeJson<List<Payrolls>>($"{request.json}");
                         response = await _salaryRepository.UnLockPayroll(request.userId, lstPayrollUnlock!);
+                        break;
+                    case ProcessConstants.POST_SALARY_EXPENSE_ACCOUNTING:
+                    case ProcessConstants.PUT_SALARY_EXPENSE_ACCOUNTING:
+                        var salaryExpenseAccounting = DeserializeJson<SalaryExpenseAccountings>($"{request.json}");
+                        var lstsalaryExpenseAccounting1s = DeserializeJson<List<SalaryExpenseAccounting1s>>($"{request.jsonDetail}");
+                        response = await _salaryRepository.UpdateSalaryExpenseAccounting(processKey, salaryExpenseAccounting!, lstsalaryExpenseAccounting1s!);
                         break;
                     default:
                         response.status = StatusCodes.Status404NotFound;

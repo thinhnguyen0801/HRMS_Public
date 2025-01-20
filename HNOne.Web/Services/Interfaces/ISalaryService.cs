@@ -9,5 +9,6 @@ namespace HNOne.Web.Services.Interfaces
         Task<bool> UpdateMasterDataAsync(RequestModel request);
         Task<List<PayrollModel>?> SalaryCalculateAsync(RequestModel request);
         Task<string> UpdatePayrollAsync(RequestModel request);
+        Task<int> UpdateDocumentAsync(string processKey, int userId, string token, int branchId, string json, string jsonDetail);
     }
 }

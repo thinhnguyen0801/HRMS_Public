@@ -47,6 +47,7 @@
         OvertimeRequests, // đề nghị tăng ca
         Trainings,
         ConfirmWorkingDays, // xin nghỉ trong giờ
+        SalaryExpenseAccountings, // hạch toán chi phí lương
 
         // danh mục bảng
         Branchs,

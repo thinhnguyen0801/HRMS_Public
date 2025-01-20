@@ -157,6 +157,10 @@
 
         public const string GET_ATTENDANCE_SUMMARY = "get-attendance-summary";
         public const string GET_PAYROLL_SUMMARY = "get-payroll-summary";
+        public const string GET_SALARY_MASTER_DATA = "get-salary-master-data";
+        public const string GET_SALARY_EXPENSE_ACCOUNTING = "get-salary-expense-accounting";
+        public const string POST_SALARY_EXPENSE_ACCOUNTING = "post-salary-expense-accounting";
+        public const string PUT_SALARY_EXPENSE_ACCOUNTING = "put-salary-expense-accounting";
         #region Loại dưới store
         public const string GET_COMBO_TYPE_CONTRACT_BY_EMPLOYEEID = "CONTRACT_BY_EMPLOYEEID";
         public const string GET_COMBO_TYPE_SALARY_ADJUSTMENT_BY_CONTRACT = "SALARY_ADJUSTMENT_BY_CONTRACT";
@@ -171,6 +175,9 @@
         public const string GET_COMBO_LIST_SHIFT_PREIOD = "SA_LIST_SHIFT_PREIOD"; // danh sách kỳ công năm
         public const string GET_ITEM_DETAIL = "ITEM_DETAIL"; //
         public const string GET_ITEM_HEADER = "ITEM_HEADER"; //
+        public const string GET_COMBO_LIST_SALARY_PREIOD = "SA_LIST_SALARY_PREIOD"; // danh sách kỳ lương năm
+        public const string GET_COMBO_LIST_ACCOUNTED_SALARY_TYPE = "SA_LIST_ACCOUNTED_SALARY_TYPE"; // danh sách các khoản lương cần hạch toán
+        public const string GET_COMBO_LIST_ACCOUNTING = "SA_LIST_ACCOUNTING"; // danh sách các TÀI KHOẢN
         #endregion
     }
 }

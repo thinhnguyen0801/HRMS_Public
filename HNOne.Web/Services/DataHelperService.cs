@@ -13,6 +13,7 @@
             ListUris.Add("OvertimeRequests", "de-nghi-lam-them?key=");
             ListUris.Add("Trainings", "dao-tao?key=");
             ListUris.Add("ConfirmWorkingDays", "xac-nhan-gio-cong?key=");
+            ListUris.Add("SalaryExpenseAccountings", "hach-toan-chi-phi-luong?key=");
         }
     }
 }
