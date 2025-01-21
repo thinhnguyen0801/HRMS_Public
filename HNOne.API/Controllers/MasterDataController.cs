@@ -284,6 +284,9 @@ namespace HNOne.API.Controllers
                     case ProcessConstants.DELETE_DYNAMIC:
                         response = await _masterDataService.DeleteDynamic(request);
                         break;
+                    case ProcessConstants.POST_IMPORT_DATA:
+                        response = await _masterDataService.ImportData(request.branchId, request.userId, processKey: $"{request.opt}", $"{request.json}");
+                        break;
                     default:
                         response.status = StatusCodes.Status404NotFound;
                         response.message = $"Process Key {processKey} was not provider!!!";

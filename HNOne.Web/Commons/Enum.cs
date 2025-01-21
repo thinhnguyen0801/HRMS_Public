@@ -36,7 +36,8 @@
         LoaiNghiPhep,
         TrangThaiPhatSinhCong,
         LoaiChiLuong,
-        PhuongThucThanhToan
+        PhuongThucThanhToan,
+        DanhMucImport,
     }
 
     public enum EnumObjType

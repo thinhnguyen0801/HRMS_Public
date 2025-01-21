@@ -20,5 +20,7 @@ namespace HNOne.Model
         public string? employeeName { get; set; }
         public string? statusCode { get; set; }
         public string? shiftPreiodId { get; set; }
+        public string? filePath { get; set; }
+        public string? code { get; set; }
     }
 }

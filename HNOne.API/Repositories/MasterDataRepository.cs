@@ -1,4 +1,5 @@
-﻿using Azure.Core;
+﻿using Azure;
+using Azure.Core;
 using Dapper;
 using DocumentFormat.OpenXml.Spreadsheet;
 using HNOne.API.Constants;
@@ -9,6 +10,7 @@ using HNOne.Model.Entities;
 using HNOne.Model.Models;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
+using Newtonsoft.Json;
 using System.Data;
 
 namespace HNOne.API.Repositories
@@ -1357,6 +1359,231 @@ namespace HNOne.API.Repositories
                 response.message = ex.Message;
             }
             return response;
+        }
+        
+        /// <summary>
+        /// import dữ liệu
+        /// </summary>
+        /// <param name="branchId"></param>
+        /// <param name="userId"></param>
+        /// <param name="processKey"></param>
+        /// <param name="jData"></param>
+        /// <returns></returns>
+        public async Task<ResponseModel> ImportData(int branchId, int userId, string processKey, string jData)
+        {
+            bool isTrans = false;
+            try
+            {
+                using (var connection = _dapperDbContext.CreateConnection())
+                {
+                    ResponseModel response = new ResponseModel();
+                    var parameters = new DynamicParameters();
+                    parameters.Add($"@UserId", userId);
+                    parameters.Add($"@BranchId", branchId);
+                    parameters.Add($"@JData", jData);
+                    parameters.Add($"@ProcessKey", processKey);
+                    var dtResult = await connection.QueryMultipleAsync(StoreConstants.STORE_H1_IMPORT_DATA_VALIDATE
+                        , param: parameters, commandTimeout: GlobalConstants.COMMAND_TIMEOUT, commandType: CommandType.StoredProcedure);
+                    // lấy message
+                    var result = dtResult?.ReadFirstOrDefault<ResponseModel>();
+                    if (dtResult == null || result == null)
+                    {
+                        response.status = StatusCodes.Status409Conflict;
+                        response.message = MessageConstants.MESSAGE_DATA_INVALID;
+                        return response;
+                    }
+                    response.status = result.status;
+                    response.message = result.message;
+                    if (response.status != StatusCodes.Status200OK)
+                    {
+                        var lstError = dtResult.Read<dynamic>();
+                        response.returnValue = JsonConvert.SerializeObject(lstError);
+                        return response;
+                    }    
+                    DateTime dateTimeNow = _dateTimeHelper.GetCurrentVietnamTime();
+                    int maxId = 0;
+                    switch (processKey)
+                    {
+                        case ProcessConstants.POST_DEPARTMENT:
+                            var lstDepartment = dtResult.Read<Departments>();
+                            await _dbContext.Database.BeginTransactionAsync();
+                            isTrans = true;
+                            maxId = await _dbContext.Departments.Select(m => m.Id).DefaultIfEmpty().MaxAsync() + 1;
+                            foreach (var entity in lstDepartment!)
+                            {
+                                entity.Id = maxId;
+                                entity.UserSign = userId;
+                                entity.DateTracking = dateTimeNow;
+                                entity.CreateDate = dateTimeNow;
+                                entity.DeleteReason = "Import dữ liệu";
+                                await _dbContext.Departments.AddAsync(entity);
+                                maxId++;
+                            }
+                            await _dbContext.SaveChangesAsync();
+                            await _dbContext.Database.CommitTransactionAsync();
+                            response.message = MessageConstants.MESSAGE_ADD_SUCCESS;
+                            break;
+                        case ProcessConstants.POST_POSITION:
+                            var lstPositions = dtResult.Read<Positions>();
+                            await _dbContext.Database.BeginTransactionAsync();
+                            isTrans = true;
+                            maxId = await _dbContext.Positions.Select(m => m.Id).DefaultIfEmpty().MaxAsync() + 1;
+                            foreach (var entity in lstPositions!)
+                            {
+                                entity.Id = maxId;
+                                entity.UserSign = userId;
+                                entity.DateTracking = dateTimeNow;
+                                entity.CreateDate = dateTimeNow;
+                                entity.DeleteReason = "Import dữ liệu";
+                                await _dbContext.Positions.AddAsync(entity);
+                                maxId++;
+                            }
+                            await _dbContext.SaveChangesAsync();
+                            await _dbContext.Database.CommitTransactionAsync();
+                            response.message = MessageConstants.MESSAGE_ADD_SUCCESS;
+                            break;
+                        case ProcessConstants.POST_TITLE:
+                            var lstTitles = dtResult.Read<Titles>();
+                            await _dbContext.Database.BeginTransactionAsync();
+                            isTrans = true;
+                            maxId = await _dbContext.Titles.Select(m => m.Id).DefaultIfEmpty().MaxAsync() + 1;
+                            foreach (var entity in lstTitles!)
+                            {
+                                entity.Id = maxId;
+                                entity.UserSign = userId;
+                                entity.DateTracking = dateTimeNow;
+                                entity.CreateDate = dateTimeNow;
+                                entity.DeleteReason = "Import dữ liệu";
+                                await _dbContext.Titles.AddAsync(entity);
+                                maxId++;
+                            }
+                            await _dbContext.SaveChangesAsync();
+                            await _dbContext.Database.CommitTransactionAsync();
+                            response.message = MessageConstants.MESSAGE_ADD_SUCCESS;
+                            break;
+                        case ProcessConstants.POST_CONTRACTTYPE:
+                            var lstContractTypes = dtResult.Read<ContractTypes>();
+                            await _dbContext.Database.BeginTransactionAsync();
+                            isTrans = true;
+                            maxId = await _dbContext.ContractTypes.Select(m => m.Id).DefaultIfEmpty().MaxAsync() + 1;
+                            foreach (var entity in lstContractTypes!)
+                            {
+                                entity.Id = maxId;
+                                entity.UserSign = userId;
+                                entity.DateTracking = dateTimeNow;
+                                entity.CreateDate = dateTimeNow;
+                                entity.DeleteReason = "Import dữ liệu";
+                                await _dbContext.ContractTypes.AddAsync(entity);
+                                maxId++;
+                            }
+                            await _dbContext.SaveChangesAsync();
+                            await _dbContext.Database.CommitTransactionAsync();
+                            response.message = MessageConstants.MESSAGE_ADD_SUCCESS;
+                            break;
+                        case ProcessConstants.POST_SALARY_CONFIG:
+                            var lstSalaryConfigurations = dtResult.Read<SalaryConfigurations>();
+                            await _dbContext.Database.BeginTransactionAsync();
+                            isTrans = true;
+                            maxId = await _dbContext.SalaryConfigurations.Select(m => m.Id).DefaultIfEmpty().MaxAsync() + 1;
+                            foreach (var entity in lstSalaryConfigurations!)
+                            {
+                                entity.Id = maxId;
+                                entity.UserSign = userId;
+                                entity.DateTracking = dateTimeNow;
+                                entity.CreateDate = dateTimeNow;
+                                entity.DeleteReason = "Import dữ liệu";
+                                await _dbContext.SalaryConfigurations.AddAsync(entity);
+                                maxId++;
+                            }
+                            await _dbContext.SaveChangesAsync();
+                            await _dbContext.Database.CommitTransactionAsync();
+                            response.message = MessageConstants.MESSAGE_ADD_SUCCESS;
+                            break;
+                        case ProcessConstants.POST_SALARY_PARAMETER:
+                            var lstSalaryParameters = dtResult.Read<SalaryParameters>();
+                            await _dbContext.Database.BeginTransactionAsync();
+                            isTrans = true;
+                            maxId = await _dbContext.SalaryParameters.Select(m => m.Id).DefaultIfEmpty().MaxAsync() + 1;
+                            foreach (var entity in lstSalaryParameters!)
+                            {
+                                entity.Id = maxId;
+                                entity.UserSign = userId;
+                                entity.DateTracking = dateTimeNow;
+                                entity.CreateDate = dateTimeNow;
+                                entity.DeleteReason = "Import dữ liệu";
+                                await _dbContext.SalaryParameters.AddAsync(entity);
+                                maxId++;
+                            }
+                            await _dbContext.SaveChangesAsync();
+                            await _dbContext.Database.CommitTransactionAsync();
+                            response.message = MessageConstants.MESSAGE_ADD_SUCCESS;
+                            break;
+                        case ProcessConstants.POST_TAXT_RATE:
+                            var lstTaxRates = dtResult.Read<TaxRates>();
+                            await _dbContext.Database.BeginTransactionAsync();
+                            isTrans = true;
+                            maxId = await _dbContext.TaxRates.Select(m => m.Id).DefaultIfEmpty().MaxAsync() + 1;
+                            foreach (var entity in lstTaxRates!)
+                            {
+                                entity.Id = maxId;
+                                entity.UserSign = userId;
+                                entity.DateTracking = dateTimeNow;
+                                entity.CreateDate = dateTimeNow;
+                                entity.DeleteReason = "Import dữ liệu";
+                                await _dbContext.TaxRates.AddAsync(entity);
+                                maxId++;
+                            }
+                            await _dbContext.SaveChangesAsync();
+                            await _dbContext.Database.CommitTransactionAsync();
+                            response.message = MessageConstants.MESSAGE_ADD_SUCCESS;
+                            break;
+                        case ProcessConstants.POST_DEDUCTION_CONFIG:
+                            var lstDeductionConfigs = dtResult.Read<DeductionConfigs>();
+                            await _dbContext.Database.BeginTransactionAsync();
+                            isTrans = true;
+                            maxId = await _dbContext.DeductionConfigs.Select(m => m.Id).DefaultIfEmpty().MaxAsync() + 1;
+                            foreach (var entity in lstDeductionConfigs!)
+                            {
+                                entity.Id = maxId;
+                                entity.UserSign = userId;
+                                entity.DateTracking = dateTimeNow;
+                                entity.CreateDate = dateTimeNow;
+                                entity.DeleteReason = "Import dữ liệu";
+                                await _dbContext.DeductionConfigs.AddAsync(entity);
+                                maxId++;
+                            }
+                            await _dbContext.SaveChangesAsync();
+                            await _dbContext.Database.CommitTransactionAsync();
+                            response.message = MessageConstants.MESSAGE_ADD_SUCCESS;
+                            break;
+                        case ProcessConstants.POST_CHECK_IN_OUT:
+                            await _dbContext.Database.BeginTransactionAsync();
+                            var lstCheckInOut = JsonConvert.DeserializeObject<List<CheckInOuts>>(jData);
+                            isTrans = true;
+                            foreach (var entity in lstCheckInOut!)
+                            {
+                                entity.NguonCham = "Import dữ liệu";
+                                await _dbContext.CheckInOuts.AddAsync(entity);
+                            }    
+                            await _dbContext.SaveChangesAsync();
+                            await _dbContext.Database.CommitTransactionAsync();
+                            response.message = MessageConstants.MESSAGE_ADD_SUCCESS;
+                            break;
+                        default:
+                            response.status = StatusCodes.Status404NotFound;
+                            response.message = $"Process Key {processKey} was not provider!!!";
+                            break;
+                    }
+
+                    return response;
+                }
+            }
+            catch (Exception)
+            {
+                if (isTrans) await _dbContext.Database.RollbackTransactionAsync();
+                throw;
+            }
+            
         }
         #endregion
     }

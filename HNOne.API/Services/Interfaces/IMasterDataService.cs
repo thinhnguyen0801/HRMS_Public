@@ -37,5 +37,6 @@ namespace HNOne.API.Services.Interfaces
         Task<ResponseModel> UpdateTaxRate(string actionType, TaxRates entity);
         Task<ResponseModel> UpdateDeductionConfig(string actionType, DeductionConfigs entity);
         Task<IEnumerable<DeductionConfigModel>> GetDeductionConfig(RequestModel request);
+        Task<ResponseModel> ImportData(int branchId, int userId, string processKey, string jData);
     }
 }

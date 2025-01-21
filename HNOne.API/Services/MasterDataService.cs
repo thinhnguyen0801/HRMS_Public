@@ -434,6 +434,17 @@ namespace HNOne.API.Services
         /// <returns></returns>
         public async Task<ResponseModel> UpdateDeductionConfig(string actionType, DeductionConfigs entity)
            => await _masterRepository.UpdateDeductionConfig(actionType, entity);
+
+        /// <summary>
+        /// Import dữ liệu vào hệ thống
+        /// </summary>
+        /// <param name="branchId"></param>
+        /// <param name="userId"></param>
+        /// <param name="processKey"></param>
+        /// <param name="jData"></param>
+        /// <returns></returns>
+        public async Task<ResponseModel> ImportData(int branchId, int userId, string processKey, string jData)
+            => await _masterRepository.ImportData(branchId, userId, processKey, jData);
         #endregion
     }
 }

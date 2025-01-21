@@ -46,5 +46,6 @@ namespace HNOne.API.Repositories.Interfaces
         Task<IEnumerable<TaxRateModel>> GetTaxRate(RequestModel request);
         Task<ResponseModel> UpdateDeductionConfig(string actionType, DeductionConfigs entity);
         Task<IEnumerable<DeductionConfigModel>> GetDeductionConfig(RequestModel request);
+        Task<ResponseModel> ImportData(int branchId, int userId, string processKey, string jData);
     }
 }

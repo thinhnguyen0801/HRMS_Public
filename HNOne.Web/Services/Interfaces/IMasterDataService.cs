@@ -37,5 +37,6 @@ namespace HNOne.Web.Services.Interfaces
         Task<List<SalaryParameterModel>?> GetSalaryParameterAsync(int userId, string token, int branchId, string branchIds = "", string opt = "", bool isShowToast = false);
         Task<List<T>?> GetMasterAsync<T>(RequestModel request, bool isShowToast = false) where T : class;
         Task<bool> UpdateMasterAsync(RequestModel request);
+        Task<string> ImportDataAsync(RequestModel request);
     }
 }

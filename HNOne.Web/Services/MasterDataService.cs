@@ -1244,5 +1244,44 @@ namespace HNOne.Web.Services
             }
             catch (Exception) { throw; }
         }
+
+        /// <summary>
+        /// lưu thông tin bảng lương của nhân viên
+        /// </summary>
+        /// <param name="request"></param>
+        /// <returns></returns>
+        public async Task<string> ImportDataAsync(RequestModel request)
+        {
+            string statusId = "-1";
+            try
+            {
+                HttpResponseMessage httpResponse = await PostAsync(EnpointConstants.MASTERDATA_POST_DATA, request);
+                if (httpResponse.StatusCode == System.Net.HttpStatusCode.Unauthorized)
+                {
+                    _toastService.ShowInfo(MessageConstants.MESSAGE_LOGIN_EXPIRED);
+                    return statusId;
+                }
+                var checkContent = ValidateJsonContent(httpResponse.Content);
+                if (!checkContent)
+                {
+                    _toastService.ShowError(MessageConstants.MESSAGE_JSON_INVALID);
+                    return statusId;
+                }
+                var content = await httpResponse.Content.ReadAsStringAsync();
+                ResponseModel response = JsonConvert.DeserializeObject<ResponseModel>(content)!;
+                if (httpResponse.IsSuccessStatusCode
+                    && response.status == StatusCodes.Status200OK)
+                {
+                    _toastService.ShowSuccess(response.message);
+                    return "200"; // -- thành công
+                }
+                // Xử lý mã trạng thái cụ thể
+                _toastService.ShowInfo(response.message ?? MessageConstants.MESSAGE_IT_SUPPORT);
+                statusId = $"{response.returnValue}";
+                return statusId;
+            }
+            catch (Exception) { throw; }
+        }
+
     }
 }

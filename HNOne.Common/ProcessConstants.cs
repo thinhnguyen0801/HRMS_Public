@@ -161,6 +161,9 @@
         public const string GET_SALARY_EXPENSE_ACCOUNTING = "get-salary-expense-accounting";
         public const string POST_SALARY_EXPENSE_ACCOUNTING = "post-salary-expense-accounting";
         public const string PUT_SALARY_EXPENSE_ACCOUNTING = "put-salary-expense-accounting";
+        public const string POST_IMPORT_DATA = "post-import-data";
+        public const string POST_CHECK_IN_OUT = "post-check-in-out";
+
         #region Loại dưới store
         public const string GET_COMBO_TYPE_CONTRACT_BY_EMPLOYEEID = "CONTRACT_BY_EMPLOYEEID";
         public const string GET_COMBO_TYPE_SALARY_ADJUSTMENT_BY_CONTRACT = "SALARY_ADJUSTMENT_BY_CONTRACT";
