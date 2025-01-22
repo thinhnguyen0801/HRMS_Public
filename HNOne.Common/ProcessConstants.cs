@@ -85,6 +85,7 @@
         public const string PUT_EDUCATION = "put-education";
 
         public const string GET_PER_GROUP_ACCESS_CONTROL = "get-per-group-access-control";
+        public const string GET_DATA_PER_GROUP = "get-data-per-group";
         public const string POST_PER_GROUP_ACCESS_CONTROL = "post-per-group-access-control";
 
         public const string GET_LEAVE_CONFIG = "get-leave-config";

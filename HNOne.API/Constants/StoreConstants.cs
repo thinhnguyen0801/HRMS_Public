@@ -37,5 +37,6 @@
         public const string STORE_H1_SALARY_MASTER_DATA_SELECT = "[dbo].[H1_SALARY_MASTER_DATA_SELECT]";
         public const string STORE_H1_SALARY_EXPENSE_ACCOUNTING_SELECT = "[dbo].[H1_SALARY_EXPENSE_ACCOUNTING_SELECT]";
         public const string STORE_H1_IMPORT_DATA_VALIDATE = "[dbo].[H1_IMPORT_DATA_VALIDATE]";
+        public const string STORE_H1_LOGIN_SELECT = "[dbo].[H1_LOGIN_SELECT]";
     }
 }

@@ -14,7 +14,8 @@ namespace HNOne.API.Repositories.Interfaces
         Task<IEnumerable<PermissionGroupModel>> GetPermissionGroup(RequestModel request);
         Task<ResponseModel> AddPermissionGroup(PermissionGroups entity);
         Task<ResponseModel> UpdatePermissionGroup(PermissionGroups entity);
-        Task<ResponseModel> UpdateGroupAccessControl(int groupId, IEnumerable<GroupAccessControls> listEntity);
+        Task<ResponseModel> UpdateGroupAccessControl(int groupId, IEnumerable<GroupAccessControls> listEntity, IEnumerable<DataPermissions> lstAuthData);
         Task<IEnumerable<GroupAccessControls>> GetPermissionByGroupId(int groupId);
+        Task<IEnumerable<MenuModel>> GetDataPermissionByGroupId(int groupId);
     }
 }

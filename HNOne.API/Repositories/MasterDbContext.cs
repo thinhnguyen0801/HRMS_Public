@@ -61,6 +61,7 @@ namespace HNOne.API.Repositories
         public DbSet<PDeductionPeriods> PDeductionPeriods { get; set; }
         public DbSet<SalaryExpenseAccountings> SalaryExpenseAccountings { get; set; }
         public DbSet<SalaryExpenseAccounting1s> SalaryExpenseAccounting1s { get; set; }
+        public DbSet<DataPermissions> DataPermissions { get; set; }
 
         public MasterDbContext(DbContextOptions<MasterDbContext> options)
             : base(options)
@@ -94,6 +95,7 @@ namespace HNOne.API.Repositories
             modelBuilder.Entity<PIncomeTaxPeriods>().HasIndex(m => new { m.EmployeeId, m.BranchId, m.Month, m.Year }).IsUnique();
             modelBuilder.Entity<PDeductionPeriods>().HasIndex(m => new { m.EmployeeId, m.BranchId, m.Month, m.Year, m.DeductionConfigId }).IsUnique();
             modelBuilder.Entity<SalaryExpenseAccountings>().HasIndex(m => m.VoucherNo).IsUnique();
+            modelBuilder.Entity<DataPermissions>().HasIndex(m => new { m.GroupId, m.Type, m.Code }).IsUnique();
         }
 
 

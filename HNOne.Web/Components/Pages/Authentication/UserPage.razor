@@ -81,7 +81,7 @@
 
 <W1Popup @bind-IsOpenModal="@IsShowDialog"
          Width="65%" TextBtnAccept="Cập nhật"
-         HeaderText="Thêm mới danh mục lý do"
+         HeaderText="@(IsCreate ? "Thêm mới tài khoản" : "Cập nhật tài khoản")"
          HandleClickAccept="@SaveDataHandler">
     <div class="row row-gap-2">
         <div class="col-sm-12">
@@ -192,7 +192,7 @@
                 </div>
             </div>
         </div>
-        <div class="col-sm-12">
+        @* <div class="col-sm-12">
             <div class="d-flex">
                 <W1Label Value="Chi nhánh sử dụng" Id="bacLuong" Styles="width: 120px" />
                 <div style="width: calc(100% - 120px)">
@@ -221,7 +221,7 @@
                     </DxTagBox>
                 </div>
             </div>
-        </div>
+        </div> *@
         <div class="col-sm-12">
             <div class="d-flex">
                 <W1Label Value="" Id="bacLuong" Styles="width: 120px" />

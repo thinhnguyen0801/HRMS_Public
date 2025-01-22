@@ -11,6 +11,7 @@ using Microsoft.AspNetCore.Components;
 using Microsoft.JSInterop;
 using Newtonsoft.Json;
 using System.Reflection;
+using System.Threading.Tasks;
 
 namespace HNOne.Web.Controllers
 {
@@ -21,21 +22,27 @@ namespace HNOne.Web.Controllers
         [Inject] IJSRuntime _jsRuntime { get; set; }
         public W1Confirm confirm { get; set; }
         const string MENU_TYPE = "AUTHENTICATION";
+        const string MENU_TYPE_DATA = "AUTHENTICATION_DATA";
         const string STRING_KEY_EVENT_POST = "PERMISSION_GROUP_CONTROLLER_POST";
         const string STRING_KEY_EVENT_PUT = "PERMISSION_GROUP_CONTROLLER_PUT";
         const string STRING_KEY_EVENT_DELETE = "PERMISSION_GROUP_CONTROLLER_DELETE";
         #region Properties
+        public int ActiveTabIndex { get; set; } = 0;
         public List<PermissionGroupModel>? ListData { get; set; }
         public IGrid? GridData { get; set; }
         public IReadOnlyList<object>? SelectedItems { get; set; } = null;
         public List<MenuModel>? ListMenuAuth { get; set; } // danh sách menu để phân quyền 
         public IGrid? GridMenuAuth { get; set; }
-        
+
+        public List<MenuModel>? ListDataAuth { get; set; } // danh sách data để phân quyền 
+        public IGrid? GridDataAuth { get; set; }
+
         public PermissionGroupModel DataUpdate { get; set; } = new PermissionGroupModel();
 
         public bool IsCreate { get; set; } = true;
         public bool IsShowDialog { get; set; }
         public bool IsCheckAllEvent { get; set; }
+        public bool IsCheckAllData { get; set; }
         // nút quyền
         public bool IsAllowPost { get; set; }
         public bool IsAllowDelete { get; set; }
@@ -59,8 +66,10 @@ namespace HNOne.Web.Controllers
                         new BreadcrumbModel("Nhóm quyền", isActive: true)
                     };
                     await NotifyBreadcrumb.InvokeAsync(ListBreadcrumbs);
-                    await getPermissionGroup();
-                    await getMenuAuth();
+                    var task1 = getPermissionGroup();
+                    var task2 = getMenuAuth();
+                    var task3 = getDataAuth();
+                    await Task.WhenAll(task1, task2, task3);
                 }
                 catch (Exception ex)
                 {
@@ -113,6 +122,21 @@ namespace HNOne.Web.Controllers
             ListMenuAuth = await _masterDataService.GetMenuAsync(request);
         }
 
+        /// <summary>
+        /// lấy danh sách phân quyền dữ liệu
+        /// </summary>
+        /// <returns></returns>
+        private async Task getDataAuth()
+        {
+            RequestModel request = new RequestModel();
+            request.userId = UserId;
+            request.token = Token;
+            request.branchId = BranchId;
+            request.type = MENU_TYPE_DATA;
+            ListDataAuth = new List<MenuModel>();
+            ListDataAuth = await _masterDataService.GetMenuAsync(request);
+        }
+
         private void validateForSave(ref string errorMessage, ref string fieldName)
         {
             if (string.IsNullOrEmpty(DataUpdate.name))
@@ -157,8 +181,10 @@ namespace HNOne.Web.Controllers
                 if(isUserGroup) await getPermissionGroup();
                 else
                 {
-                    await getMenuAuth();
-                    if(!SelectedItems.IsNullOrEmpty()) await ItemGroupChangedHandler(SelectedItems![0]);
+                    var task2 = getMenuAuth();
+                    var task3 = getDataAuth();
+                    await Task.WhenAll(task2, task3);
+                    if (!SelectedItems.IsNullOrEmpty()) await ItemGroupChangedHandler(SelectedItems![0]);
                 }
 
             }
@@ -316,10 +342,19 @@ namespace HNOne.Web.Controllers
                         lstEvent.AddRange(dataEvetn);
                     }    
                 }    
+                var lstAutData = ListDataAuth!.Select(m => new
+                {
+                    type = m.parentID,
+                    code = m.menuID,
+                    m.isAllow,
+                    userSign = UserId,
+                    userSign2 = UserId,
+                });
                 DataUpdate.userSign = UserId;
                 DataUpdate.userSign2 = UserId;
-                string content = JsonConvert.SerializeObject(lstEvent);
-                isConfirm = await _userDataService.UpdatePerGroupControlAsync(permision!.id, UserId, Token, content);
+                string jsonAuthEvent = JsonConvert.SerializeObject(lstEvent);
+                string jsonAuthData = JsonConvert.SerializeObject(lstAutData);
+                isConfirm = await _userDataService.UpdatePerGroupControlAsync(permision!.id, UserId, Token, jsonAuthEvent, jsonAuthData);
                 if(isConfirm)
                 {
                     // load lại dữ liệu cấu hình
@@ -356,6 +391,7 @@ namespace HNOne.Web.Controllers
                 await ShowLoading();
                 IsCheckAllEvent = false;
                 ListMenuAuth!.Update(m => m.listEvent?.Update(m => m.isAllow = false));
+                ListDataAuth!.Update(m => m.isAllow = false);
                 PermissionGroupModel permissionSelected = (PermissionGroupModel)selected;
                 RequestModel request = new RequestModel();
                 request.userId = UserId;
@@ -363,7 +399,12 @@ namespace HNOne.Web.Controllers
                 request.branchId = BranchId;
                 request.documentId = permissionSelected.id;
                 request.process = ProcessConstants.GET_PER_GROUP_ACCESS_CONTROL;
-                var listResult = await _userDataService.GetMasterDataAsync<EventConfigModel>(request);
+                var task1 = _userDataService.GetMasterDataAsync<EventConfigModel>(request);
+                request.process = ProcessConstants.GET_DATA_PER_GROUP;
+                var task2 = _userDataService.GetMasterDataAsync<MenuModel>(request);
+                await Task.WhenAll(task1, task2);
+                var listResult = await task1;
+                var listDataAuth = await task2;
                 if (!listResult.IsNullOrEmpty())
                 {
                     foreach (var menu in ListMenuAuth!)
@@ -381,8 +422,23 @@ namespace HNOne.Web.Controllers
                             }
                         }
                     }
+                    if(ActiveTabIndex == 0) GridMenuAuth?.Reload();
                 }
-                GridMenuAuth?.Reload();
+                if(!listDataAuth.IsNullOrEmpty())
+                {
+                    foreach (var item in ListDataAuth!)
+                    {
+                        foreach (var permiss in listDataAuth!)
+                        {
+                            if (item.menuID == permiss.menuID && item.parentID == permiss.parentID)
+                            {
+                                item.isAllow = permiss.isAllow;
+                                break;
+                            }
+                        }
+                    }
+                    if (ActiveTabIndex == 1) GridDataAuth?.Reload();
+                }    
             }
             catch (Exception ex)
             {
@@ -402,15 +458,28 @@ namespace HNOne.Web.Controllers
         /// </summary>
         /// <param name="value"></param>
         /// <returns></returns>
-        protected async Task CheckedChangedHandler(bool value)
+        protected async Task CheckedChangedHandler(bool value, string controlId = nameof(IsCheckAllEvent))
         {
             try
             {
-                IsCheckAllEvent = value;
-                if (ListMenuAuth.IsNullOrEmpty()) return;
-                await ShowLoading();
-                await Task.Delay(75);
-                ListMenuAuth!.Update(m => m.listEvent?.Update(m => m.isAllow = IsCheckAllEvent));
+                switch(controlId)
+                {
+                    case nameof(IsCheckAllEvent):
+                        IsCheckAllEvent = value;
+                        if (ListMenuAuth.IsNullOrEmpty()) return;
+                        await ShowLoading();
+                        await Task.Delay(75);
+                        ListMenuAuth!.Update(m => m.listEvent?.Update(m => m.isAllow = IsCheckAllEvent));
+                        break;
+                    case nameof(IsCheckAllData):
+                        IsCheckAllData = value;
+                        if (ListDataAuth.IsNullOrEmpty()) return;
+                        await ShowLoading();
+                        await Task.Delay(75);
+                        ListDataAuth!.Update(m => m.isAllow = IsCheckAllData);
+                        break;
+                }    
+                
             }
             catch (Exception ex)
             {

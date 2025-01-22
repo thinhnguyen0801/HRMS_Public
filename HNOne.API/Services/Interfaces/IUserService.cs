@@ -12,7 +12,8 @@ namespace HNOne.API.Services.Interfaces
         Task<ResponseModel> UpdateUser(string actionType, Users entity);
         Task<IEnumerable<PermissionGroupModel>> GetPermissionGroup(RequestModel request);
         Task<ResponseModel> UpdatePermissionGroup(string actionType, PermissionGroups entity);
-        Task<ResponseModel> UpdateGroupAccessControl(int groupId, IEnumerable<GroupAccessControls> listEntity);
+        Task<ResponseModel> UpdateGroupAccessControl(int groupId, IEnumerable<GroupAccessControls> listEntity, IEnumerable<DataPermissions> lstAuthData);
         Task<IEnumerable<GroupAccessControls>> GetPermissionByGroupId(int groupId);
+        Task<IEnumerable<MenuModel>> GetDataPermissionByGroupId(int groupId);
     }
 }

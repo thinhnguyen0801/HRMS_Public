@@ -81,27 +81,27 @@ namespace HNOne.Web.Components.Layout
                     }
 
                     // kết nối tới hub
-                    //string apiUrl = _configuration.GetSection("appSettings:ApiUrl").Value + "";
-                    //_hubConnection = new HubConnectionBuilder().WithUrl($"{apiUrl}notificationHub?userId={result.employeeId}").WithAutomaticReconnect().Build();
-                    //_hubConnection.On<string>("ReceiveMessage", (incomingMessage) =>
-                    //{
-                    //    if (IsReceiveNotification) toastService.ShowInfo(incomingMessage);
-                    //    _= getNotifications();
-                    //});
-                    //_hubConnection.Closed += async (error) =>
-                    //{
-                    //    Console.WriteLine($"Connection closed: {error?.Message}");
-                    //    await Task.Delay(5000); // Đợi trước khi thử lại
-                    //    try
-                    //    {
-                    //        await _hubConnection.StartAsync();
-                    //    }
-                    //    catch (Exception ex)
-                    //    {
-                    //        _logger.LogError(ex, "Reconnection failed");
-                    //    }
-                    //};
-                    //await _hubConnection.StartAsync();
+                    string apiUrl = _configuration.GetSection("appSettings:ApiUrl").Value + "";
+                    _hubConnection = new HubConnectionBuilder().WithUrl($"{apiUrl}notificationHub?userId={result.employeeId}").WithAutomaticReconnect().Build();
+                    _hubConnection.On<string>("ReceiveMessage", (incomingMessage) =>
+                    {
+                        if (IsReceiveNotification) toastService.ShowInfo(incomingMessage);
+                        _ = getNotifications();
+                    });
+                    _hubConnection.Closed += async (error) =>
+                    {
+                        Console.WriteLine($"Connection closed: {error?.Message}");
+                        await Task.Delay(5000); // Đợi trước khi thử lại
+                        try
+                        {
+                            await _hubConnection.StartAsync();
+                        }
+                        catch (Exception ex)
+                        {
+                            _logger.LogError(ex, "Reconnection failed");
+                        }
+                    };
+                    await _hubConnection.StartAsync();
                 }    
                     
             }
@@ -173,14 +173,14 @@ namespace HNOne.Web.Components.Layout
              
         }
 
-        //public async ValueTask DisposeAsync()
-        //{
-        //    if (_hubConnection != null)
-        //    {
-        //        await _hubConnection.StopAsync(); // Dừng kết nối
-        //        await _hubConnection.DisposeAsync(); // Giải phóng tài nguyên
-        //    }
-        //}
+        public async ValueTask DisposeAsync()
+        {
+            if (_hubConnection != null)
+            {
+                await _hubConnection.StopAsync(); // Dừng kết nối
+                await _hubConnection.DisposeAsync(); // Giải phóng tài nguyên
+            }
+        }
         #endregion
     }
 }

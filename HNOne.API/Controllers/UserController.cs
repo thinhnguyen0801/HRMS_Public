@@ -149,6 +149,9 @@ namespace HNOne.API.Controllers
                     case ProcessConstants.GET_PER_GROUP_ACCESS_CONTROL:
                         response.data = await _userService.GetPermissionByGroupId(request.documentId);
                         break;
+                    case ProcessConstants.GET_DATA_PER_GROUP:
+                        response.data = await _userService.GetDataPermissionByGroupId(request.documentId);
+                        break;
 
                     default:
                         response.status = StatusCodes.Status404NotFound;
@@ -192,7 +195,8 @@ namespace HNOne.API.Controllers
                         break;
                     case ProcessConstants.POST_PER_GROUP_ACCESS_CONTROL:
                         var perGroupAccessControl = JsonConvert.DeserializeObject<List<GroupAccessControls>>($"{request.json}");
-                        response = await _userService.UpdateGroupAccessControl(request.documentId, perGroupAccessControl!);
+                        var perGroupDataAuth = JsonConvert.DeserializeObject<List<DataPermissions>>($"{request.jsonDetail}");
+                        response = await _userService.UpdateGroupAccessControl(request.documentId, perGroupAccessControl!, perGroupDataAuth!);
                         break;
                     default:
                         response.status = StatusCodes.Status404NotFound;

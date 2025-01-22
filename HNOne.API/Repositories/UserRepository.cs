@@ -45,56 +45,28 @@ namespace HNOne.API.Repositories
                 using (var connection = _dapperDbContext.CreateConnection())
                 {
                     DynamicParameters parameters = new DynamicParameters();
-                    bool isResult = true;
                     // kiểm tra tên đăng nhập
                     string userName = _encryptHelper.Decrypt(request.userName);
-                    string strQuery = "select count(1) from [Users] with(nolock) where UserName = @UserName";
-                    isResult = await connection.ExecuteScalarAsync<bool>(strQuery, new { userName });
-                    if (!isResult)
-                    {
-                        response.status = StatusCodes.Status404NotFound;
-                        response.message = "Tên đăng nhập không hợp lệ!";
-                        return response;
-                    }
-                    // Kiểm tra đăng nhập đúng chi nhánh không?
-                    strQuery = "select count(1) from [Users] with(nolock) where UserName = @UserName and charindex(','+ @BranchId +',',','+ BranchIds +',') > 0";
-                    parameters = new DynamicParameters();
-                    parameters.Add("@UserName", userName, DbType.String);
-                    parameters.Add("@BranchId", request.branchId, DbType.String);
-                    isResult = await connection.ExecuteScalarAsync<bool>(strQuery, parameters);
-                    if (!isResult)
-                    {
-                        response.status = StatusCodes.Status404NotFound;
-                        response.message = "Bạn không thuộc chi nhánh được chọn. Vui lòng liên hệ IT để được hổ trợ!";
-                        return response;
-                    }
-
-                    // Kiểm tra đúng password chưa
-                    strQuery = "Select T0.UserId, T0.UserName, T0.EmployeeId, T0.DepartmentIds, T0.BranchIds, T0.IsAdmin, T0.IsActive, T0.IsDelete" +
-                        " , T1.BranchId, T1.BranchCode, T1.BranchName" +
-                        " , isnull(T2.[Code], T0.UserName) EmployeeCode, isnull(T2.[Name], T0.UserName) EmployeeName, T2.DepartmentId " +
-                        " from [Users] as T0 with(nolock)" +
-                        " left join Employees as T2 with(nolock) on T0.EmployeeId = T2.Id" +
-                        " cross apply (select T00.BranchId, T00.BranchCode, T00.BranchName from Branchs as T00 with(nolock) where T00.BranchId = @BranchId ) as T1" +
-                        " where UserName = @UserName and (T0.Password = @Password or T0.DefaultPassword = @Password)";
-                    parameters = new DynamicParameters();
                     parameters.Add("@UserName", userName, DbType.String);
                     parameters.Add("@Password", request.password, DbType.String);
                     parameters.Add("@BranchId", request.branchId, DbType.String);
-                    var result = await connection.QueryFirstOrDefaultAsync<UserModel>(strQuery, parameters, commandTimeout: 500, commandType: CommandType.Text);
-                    if (result == null)
+                    var dtResult = await connection.QueryMultipleAsync(StoreConstants.STORE_H1_LOGIN_SELECT, param: parameters
+                    , commandTimeout: GlobalConstants.COMMAND_TIMEOUT, commandType: CommandType.StoredProcedure);
+                    // lấy message
+                    var responseSql = dtResult?.ReadFirstOrDefault<ResponseModel>();
+                    if (responseSql == null || responseSql.status != StatusCodes.Status200OK)
+                    {
+                        response.status = responseSql?.status ?? StatusCodes.Status404NotFound;
+                        response.message = responseSql?.message ?? MessageConstants.MESSAGE_DATA_INVALID;
+                        return response;
+                    }
+                    var result = dtResult!.ReadFirstOrDefault<UserModel>();
+                    if(result == null)
                     {
                         response.status = StatusCodes.Status404NotFound;
                         response.message = "Mật khẩu không hợp lệ!";
                         return response;
-                    }
-                    if(result.isDelete || !result.isActive)
-                    {
-                        response.status = StatusCodes.Status404NotFound;
-                        response.message = "Tài khoản đã bị khóa. Vui lòng liên hệ IT để được hổ trợ!";
-                        return response;
-                    }    
-                    response.status = StatusCodes.Status200OK;
+                    }   
                     response.data = result;
                 }
             }
@@ -187,6 +159,20 @@ namespace HNOne.API.Repositories
                 DynamicParameters parameters = new DynamicParameters();
                 parameters.Add("@GroupId", groupId, DbType.Int32);
                 var result = await connection.QueryAsync<GroupAccessControls>(strQuery, parameters, commandTimeout: 500, commandType: CommandType.Text);
+                return result;
+            }
+        }
+
+        public async Task<IEnumerable<MenuModel>> GetDataPermissionByGroupId(int groupId)
+        {
+            using (var connection = _dapperDbContext.CreateConnection())
+            {
+                string strQuery = "select [Type] as [ParentID], Code as [MenuID], IsAllow, DateTracking" +
+                    " from DataPermissions as T0 with(nolock)" +
+                    " where IsDelete = 0 and T0.GroupId = @GroupId";
+                DynamicParameters parameters = new DynamicParameters();
+                parameters.Add("@GroupId", groupId, DbType.Int32);
+                var result = await connection.QueryAsync<MenuModel>(strQuery, parameters, commandTimeout: 500, commandType: CommandType.Text);
                 return result;
             }
         }
@@ -373,7 +359,7 @@ namespace HNOne.API.Repositories
         /// <param name="groupId"></param>
         /// <param name="listEntity"></param>
         /// <returns></returns>
-        public async Task<ResponseModel> UpdateGroupAccessControl(int groupId,IEnumerable<GroupAccessControls> listEntity)
+        public async Task<ResponseModel> UpdateGroupAccessControl(int groupId,IEnumerable<GroupAccessControls> listEntity, IEnumerable<DataPermissions> lstAuthData)
         {
             ResponseModel response = new ResponseModel();
             bool isTran = false;
@@ -400,6 +386,24 @@ namespace HNOne.API.Repositories
                     _dbContext.GroupAccessControls.Attach(checkUpdate);
                     _dbContext.Entry(checkUpdate).State = EntityState.Modified;
                 }
+                foreach (var entity in lstAuthData)
+                {
+                    var checkUpdate = await _dbContext.DataPermissions.FirstOrDefaultAsync(m => m.GroupId == groupId && m.Type == entity.Type && m.Code == entity.Code);
+                    if (checkUpdate == null)
+                    {
+                        entity.GroupId = groupId;
+                        entity.DateTracking = dateTimeNow;
+                        entity.CreateDate = dateTimeNow;
+                        await _dbContext.DataPermissions.AddAsync(entity);
+                        continue;
+                    }
+                    checkUpdate.IsAllow = entity.IsAllow;
+                    checkUpdate.DateTracking = dateTimeNow;
+                    checkUpdate.UpdateDate = dateTimeNow;
+                    checkUpdate.UserSign2 = entity.UserSign2;
+                    _dbContext.DataPermissions.Attach(checkUpdate);
+                    _dbContext.Entry(checkUpdate).State = EntityState.Modified;
+                }    
                 await _dbContext.SaveChangesAsync();
                 await _dbContext.Database.CommitTransactionAsync();
                 response.message = MessageConstants.MESSAGE_UPDATE_SUCCESS;

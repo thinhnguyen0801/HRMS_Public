@@ -88,64 +88,121 @@
                         </Items>
                     </DxToolbar>
                 </div>
-                <div class="card-body p-1" style="height: calc(100vh - 160px); min-height: 350px">
-                    <DxGrid Data="ListMenuAuth" @ref="GridMenuAuth"
-                            ShowFilterRow="true"
-                            ColumnResizeMode="GridColumnResizeMode.ColumnsContainer"
-                            PagerPosition="GridPagerPosition.Bottom"
-                            PageSizeSelectorVisible="false"
-                            PageSize="100000"
-                            PageSizeSelectorAllRowsItemVisible="false"
-                            PagerSwitchToInputBoxButtonCount="10"
-                            PagerVisibleNumericButtonCount="10"
-                            TextWrapEnabled="false"
-                            FocusedRowEnabled="true"
-                            SelectionMode="@GridSelectionMode.Single"
-                            KeyFieldName="@nameof(MenuModel.menuID)"
-                            KeyboardNavigationEnabled="true"
-                            AutoExpandAllGroupRows="true"
-                            AllowSelectRowByClick="true"
-                            CssClass="h-full">
-                        <Columns>
-                            <DxGridDataColumn FieldName="@nameof(MenuModel.parentName)" Caption="Nhóm menu" MinWidth="110" GroupIndex="0" />
-                            <DxGridDataColumn FieldName="@nameof(MenuModel.menuName)" Caption="Chức năng" Width="170px" MinWidth="150" />
-                            <DxGridCommandColumn Caption="Quyền chức năng" MinWidth="470" Width="100%" ClearFilterButtonVisible="false" 
-                                CaptionAlignment="@GridTextAlignment.Left" TextAlignment="@GridTextAlignment.Left" >
-                                <HeaderTemplate>
-                                    <div>
-                                        <DxCheckBox CssClass="w-full w1FontSize" LabelWrapMode="@LabelWrapMode.Ellipsis"
-                                                    SizeMode="@SizeMode.Small"
-                                                    Checked="@IsCheckAllEvent"
-                                                    CheckedChanged="@((bool value) => CheckedChangedHandler(value))"
-                                                    LabelPosition="@LabelPosition.Right">
-                                            Quyền chức năng
-                                        </DxCheckBox>
-                                    </div>
-                                </HeaderTemplate>
-                                <CellDisplayTemplate>
-                                    @{
-                                        var lstEvent = (context.DataItem as MenuModel)!.listEvent;
-                                        @if (lstEvent != null && lstEvent.Any())
-                                        {
-                                            <div class="d-flex">
-                                                @foreach (var item in lstEvent)
+                <div class="card-header p-0 border-bottom-0">
+                    <DxTabs @bind-ActiveTabIndex="@ActiveTabIndex" Id="tabActive" CssClass="w-full w1FontSize">
+                        <DxTabPage Text="Chức năng" Id="tabAll" CssClass="w1FontSize"></DxTabPage>
+                        <DxTabPage Text="Dữ liệu" Id="tabPending" CssClass="w1FontSize"></DxTabPage>
+                    </DxTabs>
+                </div>
+                <div class="card-body p-1" style="height: calc(100vh - 197px); min-height: 350px">
+                    @switch (ActiveTabIndex)
+                    {
+                        case 0:
+                            <DxGrid Data="ListMenuAuth" @ref="GridMenuAuth"
+                                    ShowFilterRow="true"
+                                    ColumnResizeMode="GridColumnResizeMode.ColumnsContainer"
+                                    PagerPosition="GridPagerPosition.Bottom"
+                                    PageSizeSelectorVisible="false"
+                                    PageSize="100000"
+                                    PageSizeSelectorAllRowsItemVisible="false"
+                                    PagerSwitchToInputBoxButtonCount="10"
+                                    PagerVisibleNumericButtonCount="10"
+                                    TextWrapEnabled="false"
+                                    FocusedRowEnabled="true"
+                                    SelectionMode="@GridSelectionMode.Single"
+                                    KeyFieldName="@nameof(MenuModel.menuID)"
+                                    KeyboardNavigationEnabled="true"
+                                    AutoExpandAllGroupRows="true"
+                                    AllowSelectRowByClick="true"
+                                    CssClass="h-full">
+                                <Columns>
+                                    <DxGridDataColumn FieldName="@nameof(MenuModel.parentName)" Caption="Nhóm menu" MinWidth="110" GroupIndex="0" />
+                                    <DxGridDataColumn FieldName="@nameof(MenuModel.menuName)" Caption="Chức năng" Width="170px" MinWidth="150" />
+                                    <DxGridCommandColumn Caption="Quyền chức năng" MinWidth="470" Width="100%" ClearFilterButtonVisible="false"
+                                                         CaptionAlignment="@GridTextAlignment.Left" TextAlignment="@GridTextAlignment.Left">
+                                        <HeaderTemplate>
+                                            <div>
+                                                <DxCheckBox CssClass="w-full w1FontSize" LabelWrapMode="@LabelWrapMode.Ellipsis"
+                                                            SizeMode="@SizeMode.Small"
+                                                            Checked="@IsCheckAllEvent"
+                                                            CheckedChanged="@((bool value) => CheckedChangedHandler(value))"
+                                                            LabelPosition="@LabelPosition.Right">
+                                                    Quyền chức năng
+                                                </DxCheckBox>
+                                            </div>
+                                        </HeaderTemplate>
+                                        <CellDisplayTemplate>
+                                            @{
+                                                var lstEvent = (context.DataItem as MenuModel)!.listEvent;
+                                                @if (lstEvent != null && lstEvent.Any())
                                                 {
-                                                    <div style="min-width: 120px; max-width: 120px; margin-right: 5px" title="@item.actionName">
-                                                        <DxCheckBox CssClass="w-full w1FontSize" LabelWrapMode="@LabelWrapMode.Ellipsis"
-                                                                    SizeMode="@SizeMode.Small"
-                                                                    @bind-Checked="@item.isAllow"
-                                                                    LabelPosition="@LabelPosition.Right">
-                                                            @item.actionName
-                                                        </DxCheckBox>
+                                                    <div class="d-flex">
+                                                        @foreach (var item in lstEvent)
+                                                        {
+                                                            <div style="min-width: 120px; max-width: 120px; margin-right: 5px" title="@item.actionName">
+                                                                <DxCheckBox CssClass="w-full w1FontSize" LabelWrapMode="@LabelWrapMode.Ellipsis"
+                                                                            SizeMode="@SizeMode.Small"
+                                                                            @bind-Checked="@item.isAllow"
+                                                                            LabelPosition="@LabelPosition.Right">
+                                                                    @item.actionName
+                                                                </DxCheckBox>
+                                                            </div>
+                                                        }
                                                     </div>
                                                 }
+                                            }
+                                        </CellDisplayTemplate>
+                                    </DxGridCommandColumn>
+                                </Columns>
+                            </DxGrid>
+                            break;
+                        case 1:
+                            <DxGrid Data="ListDataAuth" @ref="GridDataAuth"
+                                    ShowFilterRow="true"
+                                    ColumnResizeMode="GridColumnResizeMode.ColumnsContainer"
+                                    PagerPosition="GridPagerPosition.Bottom"
+                                    PageSizeSelectorVisible="false"
+                                    PageSize="100000"
+                                    PageSizeSelectorAllRowsItemVisible="false"
+                                    PagerSwitchToInputBoxButtonCount="10"
+                                    PagerVisibleNumericButtonCount="10"
+                                    TextWrapEnabled="false"
+                                    FocusedRowEnabled="true"
+                                    SelectionMode="@GridSelectionMode.Single"
+                                    KeyboardNavigationEnabled="true"
+                                    AutoExpandAllGroupRows="true"
+                                    AllowSelectRowByClick="true"
+                                    CssClass="h-full">
+                                <Columns>
+                                    <DxGridDataColumn FieldName="@nameof(MenuModel.parentName)" Caption="Nhóm dữ liệu" MinWidth="110" GroupIndex="0" />
+                                    <DxGridDataColumn FieldName="@nameof(MenuModel.menuID)" Caption="Mã" Width="120px" MinWidth="110" />
+                                    <DxGridDataColumn FieldName="@nameof(MenuModel.menuName)" Caption="Tên" Width="190px" MinWidth="170" />
+                                    <DxGridCommandColumn Caption="Chọn tất cả" MinWidth="160" Width="100%" ClearFilterButtonVisible="false"
+                                                         CaptionAlignment="@GridTextAlignment.Left" TextAlignment="@GridTextAlignment.Left">
+                                        <HeaderTemplate>
+                                            <div>
+                                                <DxCheckBox CssClass="w-full w1FontSize" LabelWrapMode="@LabelWrapMode.Ellipsis"
+                                                            SizeMode="@SizeMode.Small"
+                                                            Checked="@IsCheckAllData"
+                                                            CheckedChanged="@((bool value) => CheckedChangedHandler(value, controlId: nameof(IsCheckAllData)))"
+                                                            LabelPosition="@LabelPosition.Right">
+                                                    Chọn tất cả
+                                                </DxCheckBox>
                                             </div>
-                                        }
-                                    }
-                                </CellDisplayTemplate>
-                            </DxGridCommandColumn>
-                        </Columns>
-                    </DxGrid>
+                                        </HeaderTemplate>
+                                        <CellDisplayTemplate>
+                                            <DxCheckBox CssClass="w-full w1FontSize" LabelWrapMode="@LabelWrapMode.Ellipsis"
+                                                        SizeMode="@SizeMode.Small"
+                                                        @bind-Checked="@((context.DataItem as MenuModel)!.isAllow)"
+                                                        LabelPosition="@LabelPosition.Right">
+                                            </DxCheckBox>
+                                        </CellDisplayTemplate>
+                                    </DxGridCommandColumn>
+                                </Columns>
+                            </DxGrid>
+                            break;
+                    }
+                    
                 </div>
             </div>
         </div>

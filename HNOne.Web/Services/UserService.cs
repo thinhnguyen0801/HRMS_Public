@@ -199,7 +199,7 @@ namespace HNOne.Web.Services
         /// <param name="token"></param>
         /// <param name="json"></param>
         /// <returns></returns>
-        public async Task<bool> UpdatePerGroupControlAsync(int groupId,int userId, string token, string json)
+        public async Task<bool> UpdatePerGroupControlAsync(int groupId,int userId, string token, string json, string jsonDetail)
         {
             try
             {
@@ -209,6 +209,7 @@ namespace HNOne.Web.Services
                 request.token = token;
                 request.json = json;
                 request.documentId = groupId;
+                request.jsonDetail = jsonDetail;
                 HttpResponseMessage httpResponse = await PostAsync(EnpointConstants.USER_POST_DATA, request);
                 if (httpResponse.StatusCode == System.Net.HttpStatusCode.Unauthorized)
                 {
