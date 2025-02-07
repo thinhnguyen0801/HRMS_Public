@@ -658,6 +658,7 @@ namespace HNOne.Web.Controllers
                 approval.branchId = BranchId;
                 approval.statusCode = CommonConstants.STATUS_CODE_APPROVAL_PENDING;
                 approval.userSign = UserId;
+                approval.employeeId = EmployeeId;
                 approval.employeeSignatureId = ContractDocument.employeeSignatureId;
                 string content = JsonConvert.SerializeObject(approval);
                 isConfirm = await _approvalService.UpdateApprovalAsync(processKey, UserId, Token, json: content);
@@ -674,6 +675,52 @@ namespace HNOne.Web.Controllers
                 await InvokeAsync(StateHasChanged);
             }
         }
+
+        /// <summary>
+        /// Hủy chứng từ
+        /// </summary>
+        /// <returns></returns>
+        protected async Task CancelDocumentHandler()
+        {
+            try
+            {
+                await checkPermission(MenuId);
+                if (!IsAllowDelete)
+                {
+                    ShowInfo(MessageConstants.MESSAGE_NO_PERMISSION);
+                    return;
+                }
+                string errorMessage = string.Empty;
+                bool isConfirm = true;
+                errorMessage = string.Format(MessageConstants.MESSAGE_CONFIRM_CANCEL_DOCUMENT_FORMAT, $"Phụ lục hợp đồng");
+                isConfirm = await confirm.SetConfirm(MessageConstants.MESSAGE_TITLE, $"{errorMessage}");
+                if (!isConfirm) return;
+                await ShowLoading();
+                string processKey = ProcessConstants.PUT_CANCEL_DOCUMENT;
+                ApprovalModel approval = new ApprovalModel();
+                approval.docEntry = ContractDocument.id;
+                approval.objType = nameof(EnumObjType.ContractAppendices);
+                approval.employeeId = EmployeeId;
+                approval.statusCode = CommonConstants.STATUS_CODE_APPROVAL_PENDING;
+                approval.approvalRemark = CommonConstants.STATUS_CODE_APPROVAL_PENDING;
+                approval.userSign = UserId;
+                var lstApproval = new List<ApprovalModel>() { approval };
+                string content = JsonConvert.SerializeObject(lstApproval);
+                isConfirm = await _approvalService.UpdateApprovalAsync(processKey, UserId, Token, json: content);
+                if (isConfirm) await showVoucher();
+            }
+            catch (Exception ex)
+            {
+                ShowError(ex.Message);
+                _logger.LogError(ex, "CancelDocumentHandler");
+            }
+            finally
+            {
+                await ShowLoading(false);
+                await InvokeAsync(StateHasChanged);
+            }
+        }
+
 
         /// <summary>
         /// làm mới mã hợp đồng

@@ -39,5 +39,6 @@ namespace HNOne.Common
         public const string MESSAGE_CONFLICT_FORMAT = "{0} đã tồn tại!";
         public const string MESSAGE_DATA_INVALID = "Dữ liệu đầu vào không hợp lệ!";
         public const string MESSAGE_CONFIRM_ADD_FORMAT = "Bạn có chắc muốn tạo mới {0} không?";
+        public const string MESSAGE_CONFIRM_CANCEL_DOCUMENT_FORMAT = "Bạn có chắc muốn hủy {0} không?";
     }
 }

@@ -62,6 +62,7 @@ namespace HNOne.API.Repositories
         public DbSet<SalaryExpenseAccountings> SalaryExpenseAccountings { get; set; }
         public DbSet<SalaryExpenseAccounting1s> SalaryExpenseAccounting1s { get; set; }
         public DbSet<DataPermissions> DataPermissions { get; set; }
+        public DbSet<DocumentHistories> DocumentHistories { get; set; }
 
         public MasterDbContext(DbContextOptions<MasterDbContext> options)
             : base(options)

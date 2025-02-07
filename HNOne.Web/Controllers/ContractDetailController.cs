@@ -43,7 +43,8 @@ namespace HNOne.Web.Controllers
         public List<ContractTypeModel>? ListCboContractType { get; set; } // ds cbo loại hợp đồng
         public List<EnumCatagoryModel>? ListCboEnumTax { get; set; } // cbo ds loại tính thuế
         public List<EnumCatagoryModel>? ListCboStatus { get; set; } // cbo ds tình trạng
-        
+        public List<ComboboxModel>? ListCboBranch { get; set; } // cbo ds chi nhánh
+
         private string? pPopupType { get; set; } = string.Empty; // mở popup nào
         public bool IsShowDialogEmpSearch { get; set; }
         public string? DepartmentIds { get; set; }
@@ -123,6 +124,7 @@ namespace HNOne.Web.Controllers
             ContractDocument.contractNumber = 1;
             ContractDocument.numberOfDaysReduced = 1;
             ContractDocument.statusCode = CommonConstants.STATUS_CODE_ADD; // mặc định là chờ xử lý
+            ContractDocument.branchId = BranchId;
             //ContractDocument.employeeId = EmployeeId;
             //ContractDocument.employeeCode = EmployeeCode;
             //ContractDocument.employeeName = EmployeeName;
@@ -154,18 +156,21 @@ namespace HNOne.Web.Controllers
                 var getTask3 = _masterDataService.GetPositionAsync(UserId, Token, BranchId, opt: CommonConstants.ENUM_ACTIVE); // ds chức vụ
                 var getTask4 = _masterDataService.GetEnumAsync(UserId, Token, nameof(EnumCatagory.DanhMucThueTNCN)); // ds loại tính thuế
                 var getTask5 = _masterDataService.GetFunEnumAsync(UserId, Token, nameof(EnumCatagory.TrangThaiHopDong)); // ds trạng thái
+                var getTask6 = _masterDataService.GetBranchAsync(UserId, Token);
                 await Task.WhenAll(
                     getTask1,
                     getTask2,
                     getTask3,
                     getTask4,
-                    getTask5
+                    getTask5,
+                    getTask6
                 );
                 ListCboContractType = await getTask1;
                 ListCboTitle = (await getTask2)?.Select(m => new ComboboxModel() { id = m.id, name = m.name })?.ToList();
                 ListCboPosition = (await getTask3)?.Select(m => new ComboboxModel() { id = m.id, name = m.name })?.ToList();
                 ListCboEnumTax = await getTask4;
                 ListCboStatus = await getTask5;
+                ListCboBranch = (await getTask6)?.Select(m => new ComboboxModel() { id = m.branchId, name = m.branchName })?.ToList();
             }
             catch (Exception) { throw; }
         }
@@ -731,6 +736,7 @@ namespace HNOne.Web.Controllers
                 approval.branchId = BranchId;
                 approval.statusCode = CommonConstants.STATUS_CODE_APPROVAL_PENDING;
                 approval.userSign = UserId;
+                approval.employeeId = EmployeeId;
                 approval.employeeSignatureId = ContractDocument.employeeSignatureId;
                 string content = JsonConvert.SerializeObject(approval);
                 isConfirm = await _approvalService.UpdateApprovalAsync(processKey, UserId, Token, json: content);
@@ -747,7 +753,52 @@ namespace HNOne.Web.Controllers
                 await InvokeAsync(StateHasChanged);
             }
         }
-        
+
+        /// <summary>
+        /// Hủy chứng từ
+        /// </summary>
+        /// <returns></returns>
+        protected async Task CancelDocumentHandler()
+        {
+            try
+            {
+                await checkPermission(MenuId);
+                if (!IsAllowDelete)
+                {
+                    ShowInfo(MessageConstants.MESSAGE_NO_PERMISSION);
+                    return;
+                }
+                string errorMessage = string.Empty;
+                bool isConfirm = true;
+                errorMessage = string.Format(MessageConstants.MESSAGE_CONFIRM_CANCEL_DOCUMENT_FORMAT, $"Hợp đồng");
+                isConfirm = await confirm.SetConfirm(MessageConstants.MESSAGE_TITLE, $"{errorMessage}");
+                if (!isConfirm) return;
+                await ShowLoading();
+                string processKey = ProcessConstants.PUT_CANCEL_DOCUMENT;
+                ApprovalModel approval = new ApprovalModel();
+                approval.docEntry = ContractDocument.id;
+                approval.objType = nameof(EnumObjType.Contracts);
+                approval.employeeId = EmployeeId;
+                approval.statusCode = CommonConstants.STATUS_CODE_CANCELED;
+                approval.approvalRemark = CommonConstants.STATUS_CODE_CANCELED;
+                approval.userSign = UserId;
+                var lstApproval = new List<ApprovalModel>() { approval };
+                string content = JsonConvert.SerializeObject(lstApproval);
+                isConfirm = await _approvalService.UpdateApprovalAsync(processKey, UserId, Token, json: content);
+                if (isConfirm) await showVoucher();
+            }
+            catch (Exception ex)
+            {
+                ShowError(ex.Message);
+                _logger.LogError(ex, "CancelDocumentHandler");
+            }
+            finally
+            {
+                await ShowLoading(false);
+                await InvokeAsync(StateHasChanged);
+            }
+        }
+
         /// <summary>
         /// làm mới dữ liệu
         /// </summary>

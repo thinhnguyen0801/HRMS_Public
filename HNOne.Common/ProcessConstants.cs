@@ -96,6 +96,7 @@
         public const string POST_APPROVAL = "post-approval";
         public const string PUT_APPROVAL = "put-approval";
         public const string GET_DOCUMENT_HISTORY = "get-document-history";
+        public const string PUT_CANCEL_DOCUMENT = "put-cancel-document";
 
         public const string GET_WORKFORCE_MASTER_DATA = "get-workforce-master-data";
 

@@ -179,13 +179,18 @@ namespace HNOne.API.Controllers
                         break;
                     case ProcessConstants.POST_APPROVAL:
                         // gửi phê duyệt
-                        var approval = JsonConvert.DeserializeObject<Approvals>($"{request.json}")!;
+                        var approval = JsonConvert.DeserializeObject<ApprovalModel>($"{request.json}")!;
                         response = await _approvalRepository.AddApproval(approval);
                         break;
                     case ProcessConstants.PUT_APPROVAL:
                         // duyệt/từ chối
-                        var approvalList = JsonConvert.DeserializeObject<List<Approvals>>($"{request.json}");
+                        var approvalList = JsonConvert.DeserializeObject<List<ApprovalModel>>($"{request.json}");
                         response = await _approvalRepository.UpdateApproval($"{request.type}", approvalList!);
+                        break;
+                    case ProcessConstants.PUT_CANCEL_DOCUMENT:
+                        // hủy chứng từ
+                        var cancelDocList = JsonConvert.DeserializeObject<List<ApprovalModel>>($"{request.json}");
+                        response = await _approvalRepository.CancelDocument(cancelDocList!);
                         break;
                     case ProcessConstants.GET_DOCUMENT_HISTORY:
                         response = await _approvalRepository.GetFnDocumentHistory(request);

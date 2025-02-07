@@ -16,6 +16,7 @@ namespace HNOne.Model.Models
         public string? statusName { get; set; } // trạng thái lấy từ enum
         public DateTime? createDate { get; set; } // ngày giờ tạo
         public int? userSign { get; set; } // người tạo
+        public int employeeId { get; set; }
         public string? employeeCode { get; set; } // mã nhân viên gửi
         public string? employeeName { get; set; } // tên nhân viên gửi
         public DateTime? updateDate { get; set; } // ngày giờ cập nhật

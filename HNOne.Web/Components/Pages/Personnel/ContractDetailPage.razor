@@ -16,7 +16,7 @@
                                Visible="@(!IsReadonlyControl && ContractDocument.statusCode == CommonConstants.STATUS_CODE_ADD && IsAllowDelete)" />
 
                 <DxToolbarItem Text="Hủy" BeginGroup="true" IconCssClass="@($"{IconClassConstants.ICON_DELETE}")" CssClass="w1FontSize"
-                               Alignment="@ToolbarItemAlignment.Right"
+                               Alignment="@ToolbarItemAlignment.Right" Click="@CancelDocumentHandler"
                                Visible="@(!IsReadonlyControl && pActionType != nameof(EnumType.Add) && ContractDocument.statusCode == CommonConstants.STATUS_CODE_ADD && IsAllowDelete)" />
 
                 <DxToolbarItem Text="In" BeginGroup="true" IconCssClass="@($"{IconClassConstants.ICON_PRINT}")" CssClass="w1FontSize"
@@ -215,14 +215,14 @@
                                         </div>
                                     </div>
 
-                                    <div class="col-md-6 col-sm-12">
+                                    @* <div class="col-md-6 col-sm-12">
                                         <div class="d-flex ">
                                             <W1Label Value="Số quyết định" Styles="width: 120px" />
                                             <div style="width: calc(100% - 120px)">
                                                 <DxTextBox @bind-Text="@ContractDocument.decisionNo" CssClass="w1FontSize" ReadOnly="@IsReadonlyControl" />
                                             </div>
                                         </div>
-                                    </div>
+                                    </div> *@
 
                                     <div class="col-md-6 col-sm-12">
                                         <div class="d-flex ">
