@@ -19,7 +19,6 @@ namespace HNOne.Model.Entities
         public int Id { get; set; }
         public int EmployeeId { get; set; }
         public int BranchId { get; set; }
-        public int TimesheetId { get; set; } // ID bảng công
         [MaxLength(250)]
         public string? ContractCode { get; set; } // số hợp đồng
         public DateTime? StartDate { get; set; } // Ngày bắt đầu
@@ -28,6 +27,7 @@ namespace HNOne.Model.Entities
         public DateTime? DeductionDate { get; set; } // Ngày trích nộp
         public int EmployeeSignatureId { get; set; } // nhân viên kí
         public int ContractTypeId { get; set; } // Loại hợp đồng
+        public int DepartmentId { get; set; } // Phòng ban
         public int PositionId { get; set; } // chức vụ
         public int TitleId { get; set; } // chức danh
         public int ContractNumber { get; set; } // kí lần thứ mấy rồi
@@ -49,8 +49,8 @@ namespace HNOne.Model.Entities
         public int PlaceOfWorkId { get; set; } // nơi làm việc
         public bool IsActive { get; set; } // áp dụng chưa
         public bool IsCompanyDeduction { get; set; } // công ty đóng trích nộp thay
-        public bool IsCompanyInsurance { get; set; } // công ty đóng bảo hiểm thay
-        
-        
+        public bool IsCompanyIncomeTax { get; set; } // công ty đóng thuế thay
+
+
     }
 }

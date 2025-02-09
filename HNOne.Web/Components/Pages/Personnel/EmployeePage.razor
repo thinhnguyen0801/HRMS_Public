@@ -103,15 +103,8 @@
                                                     </div>
                                                 </div>
                                             </div>
-                                            <div class="col-md-6 col-sm-12">
-                                                <div class="d-flex ">
-                                                    <W1Label Value="Họ tên" Styles="width: 120px" IsRequired="true" />
-                                                    <div style="width: calc(100% - 120px)">
-                                                        <DxTextBox @bind-Text="@EmployeeUpdate.name" CssClass="w1FontSize" Id="@nameof(EmployeeUpdate.name)"></DxTextBox>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                            <div class="col-md-6 col-sm-12">
+
+                                             <div class="col-md-6 col-sm-12">
                                                 <div class="d-flex ">
                                                     <W1Label Value="Trạng thái" Styles="width: 120px" IsRequired="true" />
                                                     <div style="width: calc(100% - 120px)">
@@ -124,6 +117,16 @@
                                                     </div>
                                                 </div>
                                             </div>
+
+                                            <div class="col-md-6 col-sm-12">
+                                                <div class="d-flex ">
+                                                    <W1Label Value="Họ tên" Styles="width: 120px" IsRequired="true" />
+                                                    <div style="width: calc(100% - 120px)">
+                                                        <DxTextBox @bind-Text="@EmployeeUpdate.name" CssClass="w1FontSize" Id="@nameof(EmployeeUpdate.name)"></DxTextBox>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                           
                                             <div class="col-md-6 col-sm-12">
                                                 <div class="d-flex ">
                                                     <W1Label Value="Giới tính" Styles="width: 120px" IsRequired="true" />
@@ -178,7 +181,7 @@
                                             </div>
                                             <div class="col-md-6 col-sm-12">
                                                 <div class="d-flex ">
-                                                    <W1Label Value="Chức danh" Styles="width: 120px" />
+                                                    <W1Label Value="Chức danh" Styles="width: 120px" IsRequired="true" />
                                                     <div style="width: calc(100% - 120px)">
                                                         <DxComboBox Data="@ListCboTitle"
                                                                     @bind-Value="@EmployeeUpdate.titleId"

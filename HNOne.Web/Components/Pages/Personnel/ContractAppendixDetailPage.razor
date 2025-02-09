@@ -16,7 +16,7 @@
                                Visible="@(!IsReadonlyControl && ContractDocument.statusCode == CommonConstants.STATUS_CODE_ADD && IsAllowDelete)" />
 
                 <DxToolbarItem Text="Hủy" BeginGroup="true" IconCssClass="@($"{IconClassConstants.ICON_DELETE}")" CssClass="w1FontSize"
-                               Alignment="@ToolbarItemAlignment.Right" Click="@CancelDocumentHandler"
+                               Alignment="@ToolbarItemAlignment.Right" Click="@(() => CancelDocumentHandler())"
                                Visible="@(!IsReadonlyControl && pActionType != nameof(EnumType.Add) && ContractDocument.statusCode == CommonConstants.STATUS_CODE_ADD && IsAllowDelete)" />
 
                 <DxToolbarItem Text="In" BeginGroup="true" IconCssClass="@($"{IconClassConstants.ICON_PRINT}")" CssClass="w1FontSize"
@@ -47,6 +47,35 @@
                                 <div class="row row-gap-2">
                                     <div class="col-md-6 col-sm-12">
                                         <div class="d-flex ">
+                                            <W1Label Value="Chi nhánh" Id="toDate" Styles="width: 110px" />
+                                            <div style="width: calc(100% - 110px)">
+                                                <DxComboBox Data="@ListCboBranch" ReadOnly="true"
+                                                            @bind-Value="@ContractDocument.branchId"
+                                                            FilteringMode="DataGridFilteringMode.Contains"
+                                                            TextFieldName="@nameof(ComboboxModel.name)"
+                                                            ValueFieldName="@nameof(ComboboxModel.id)"
+                                                            Id="txtBranchId" CssClass="w1FontSize">
+                                                </DxComboBox>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6 col-sm-12">
+                                        <div class="d-flex">
+                                            <W1Label Value="Tình trạng" Styles="width: 110px" />
+                                            <div style="width: calc(100% - 110px)">
+                                                <DxComboBox Data="@ListCboStatus"
+                                                            @bind-Value="@ContractDocument.statusCode"
+                                                            FilteringMode="DataGridFilteringMode.Contains"
+                                                            TextFieldName="@nameof(ComboboxModel.name)"
+                                                            ValueFieldName="@nameof(ComboboxModel.code)"
+                                                            ReadOnly="true"
+                                                            CssClass="w1FontSize">
+                                                </DxComboBox>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6 col-sm-12">
+                                        <div class="d-flex ">
                                             <W1Label Value="Nhân viên" Styles="width: 110px" IsRequired="true" />
                                             <div style="width: calc(100% - 110px)">
                                                 <div class="grid gap-1 row-gap-2">
@@ -70,21 +99,6 @@
                                     </div>
                                     <div class="col-md-6 col-sm-12">
                                         <div class="d-flex">
-                                            <W1Label Value="Tình trạng" Styles="width: 110px" />
-                                            <div style="width: calc(100% - 110px)">
-                                                <DxComboBox Data="@ListCboStatus"
-                                                            @bind-Value="@ContractDocument.statusCode"
-                                                            FilteringMode="DataGridFilteringMode.Contains"
-                                                            TextFieldName="@nameof(ComboboxModel.name)"
-                                                            ValueFieldName="@nameof(ComboboxModel.code)"
-                                                            ReadOnly="true"
-                                                            CssClass="w1FontSize">
-                                                </DxComboBox>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <div class="col-md-6 col-sm-12">
-                                        <div class="d-flex">
                                             <W1Label Value="Hợp đồng" Styles="width: 110px" IsRequired="true" />
                                             <div style="width: calc(100% - 110px)">
                                                 <DxComboBox Data="@ListCboContract"
@@ -100,6 +114,21 @@
                                         </div>
                                     </div>
                                     <div class="col-md-6 col-sm-12">
+                                        <div class="d-flex ">
+                                            <W1Label Value="Số phụ lục" Styles="width: 110px" IsRequired="true" />
+                                            <div style="width: calc(100% - 110px)">
+                                                <DxTextBox @bind-Text="@ContractDocument.contractAppendixCode" CssClass="w1FontSize" ReadOnly="true">
+                                                    <Buttons>
+                                                        <DxEditorButton style="width: 29px" CssClass="w1FontSize" Id="contractAppendixCode"
+                                                                        IconCssClass="@IconClassConstants.ICON_REFRESH"
+                                                                        Tooltip="Làm mới số phụ lục" Click="@RefreshContractAppendixNoHandler"
+                                                                        Visible="@(pActionType == nameof(EnumType.Add))" />
+                                                    </Buttons>
+                                                </DxTextBox>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-3 col-sm-12">
                                         <div class="d-flex ">
                                             <W1Label Value="Phụ lục thứ" Styles="width: 110px" />
                                             <div style="width: calc(100% - 110px)">
@@ -151,22 +180,7 @@
                                             </div>
                                         </div>
                                     </div>
-                                    <div class="col-md-6 col-sm-12">
-                                        <div class="d-flex ">
-                                            <W1Label Value="Số phụ lục" Styles="width: 110px" IsRequired="true" />
-                                            <div style="width: calc(100% - 110px)">
-                                                <DxTextBox @bind-Text="@ContractDocument.contractAppendixCode" CssClass="w1FontSize" ReadOnly="true">
-                                                    <Buttons>
-                                                        <DxEditorButton style="width: 29px" CssClass="w1FontSize" Id="contractAppendixCode"
-                                                                        IconCssClass="@IconClassConstants.ICON_REFRESH"
-                                                                        Tooltip="Làm mới số phụ lục" Click="@RefreshContractAppendixNoHandler"
-                                                                        Visible="@(pActionType == nameof(EnumType.Add))" />
-                                                    </Buttons>
-                                                </DxTextBox>
-                                            </div>
-                                        </div>
-                                    </div>
-
+                                    
                                     <div class="col-md-6 col-sm-12">
                                         <div class="d-flex ">
                                             <W1Label Value="Phòng ban" Styles="width: 110px" IsRequired="true" />
@@ -176,7 +190,7 @@
                                                             FilteringMode="DataGridFilteringMode.Contains"
                                                             TextFieldName="@nameof(ComboboxModel.name)"
                                                             ValueFieldName="@nameof(ComboboxModel.id)"
-                                                            ReadOnly="@IsReadonlyControl"
+                                                            ReadOnly="true"
                                                             Id="departmentId" CssClass="w1FontSize">
                                                 </DxComboBox>
                                             </div>
@@ -192,7 +206,7 @@
                                                             FilteringMode="DataGridFilteringMode.Contains"
                                                             TextFieldName="@nameof(ComboboxModel.name)"
                                                             ValueFieldName="@nameof(ComboboxModel.id)"
-                                                            ReadOnly="@IsReadonlyControl"
+                                                            ReadOnly="true"
                                                             Id="positionId" CssClass="w1FontSize">
                                                 </DxComboBox>
                                             </div>
@@ -208,13 +222,13 @@
                                                             FilteringMode="DataGridFilteringMode.Contains"
                                                             TextFieldName="@nameof(ComboboxModel.name)"
                                                             ValueFieldName="@nameof(ComboboxModel.id)"
-                                                            ReadOnly="@IsReadonlyControl"
+                                                            ReadOnly="true"
                                                             Id="titleId" CssClass="w1FontSize">
                                                 </DxComboBox>
                                             </div>
                                         </div>
                                     </div>
-                                    <div class="col-md-12 col-sm-12">
+                                    <div class="col-md-6 col-sm-12">
                                         <div class="d-flex ">
                                             <W1Label Value="Ghi chú" Styles="width: 110px" />
                                             <div style="width: calc(100% - 110px)">
@@ -301,7 +315,7 @@
                                                     </DxCheckBox>
                                                     <DxCheckBox CssClass="w-100 w1FontSize"
                                                                 SizeMode="@SizeMode.Small"
-                                                                @bind-Checked="@ContractDocument.isCompanyInsurance"
+                                                                @bind-Checked="@ContractDocument.isCompanyIncomeTax"
                                                                 ReadOnly="@IsReadonlyControl"
                                                                 LabelPosition="@LabelPosition.Right">
                                                         Công ty đóng thuế TNCN thay?
@@ -405,4 +419,13 @@
                     SelectedDataItemChanged="@EventCallbackEmpChangedHandler" />
     </div>
 </W1Popup>
+
+<W1Popup @bind-IsOpenModal="@IsShowPrompt" TextBtnAccept="Xác nhận"
+         HeaderText="Xác nhận" Width="55%" HandleClickAccept="@(() => CancelDocumentHandler(isAccept: true))">
+    <W1Label Value="Lý do hủy" Styles="width: 120px" IsRequired />
+    <div class="mt-1">
+        <DxMemo @bind-Text="@ReasonDelete" BindValueMode="@BindValueMode.OnInput" Rows="1" InputId="txtLyDoHuy" CssClass="w1FontSize" />
+    </div>
+</W1Popup>
+
 <W1Confirm @ref="confirm" />

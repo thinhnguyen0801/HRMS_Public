@@ -242,6 +242,24 @@ namespace HNOne.Web.Controllers
                 fieldName = nameof(EmployeeUpdate.name);
                 return;
             }
+            if (string.IsNullOrEmpty(EmployeeUpdate.statusId))
+            {
+                errorMessage = string.Format(MessageConstants.MESSAGE_STRING_REQUIRE, "Trạng thái");
+                fieldName = nameof(EmployeeUpdate.statusId);
+                return;
+            }
+            if (string.IsNullOrEmpty(EmployeeUpdate.gender))
+            {
+                errorMessage = string.Format(MessageConstants.MESSAGE_COMBOBOX_REQUIRE, "Giới tính");
+                fieldName = nameof(EmployeeUpdate.gender);
+                return;
+            }
+            if (EmployeeUpdate.dateOfBirth == null)
+            {
+                errorMessage = string.Format(MessageConstants.MESSAGE_STRING_REQUIRE, "Ngày sinh");
+                fieldName = nameof(EmployeeUpdate.dateOfBirth);
+                return;
+            }
             if (EmployeeUpdate.departmentId < 1)
             {
                 errorMessage = string.Format(MessageConstants.MESSAGE_COMBOBOX_REQUIRE, "Phòng ban");
@@ -254,16 +272,10 @@ namespace HNOne.Web.Controllers
                 fieldName = nameof(EmployeeUpdate.positionId);
                 return;
             }
-            if (EmployeeUpdate.dateOfBirth == null)
+            if (EmployeeUpdate.titleId < 1)
             {
-                errorMessage = string.Format(MessageConstants.MESSAGE_STRING_REQUIRE, "Ngày sinh");
-                fieldName = nameof(EmployeeUpdate.dateOfBirth);
-                return;
-            }
-            if (string.IsNullOrEmpty(EmployeeUpdate.gender))
-            {
-                errorMessage = string.Format(MessageConstants.MESSAGE_COMBOBOX_REQUIRE, "Giới tính");
-                fieldName = nameof(EmployeeUpdate.gender);
+                errorMessage = string.Format(MessageConstants.MESSAGE_COMBOBOX_REQUIRE, "Chức danh");
+                fieldName = nameof(EmployeeUpdate.titleId);
                 return;
             }
             if (string.IsNullOrEmpty(EmployeeUpdate.cIC))

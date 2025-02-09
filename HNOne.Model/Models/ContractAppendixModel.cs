@@ -38,7 +38,7 @@ namespace HNOne.Model.Models
         public string? authorizationLetter { get; set; } // giấy ủy quyền
         public bool isSalaryAdjustment { get; set; } // điều chỉnh lương
         public bool isCompanyDeduction { get; set; } // cty đóng trích nộp thay
-        public bool isCompanyInsurance { get; set; } // cty đóng trích nộp thay
+        public bool isCompanyIncomeTax { get; set; } // cty đóng trích nộp thay
         public string? taxTypeCode { get; set; } // loại tính thuế
         public string? departmentName { get; set; } // tên phòng ban
         public string? link { get; set; }

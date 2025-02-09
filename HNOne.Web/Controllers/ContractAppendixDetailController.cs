@@ -44,6 +44,7 @@ namespace HNOne.Web.Controllers
         public List<ComboboxModel>? ListCboTitle { get; set; } // cbo ds chức danh
         public List<EnumCatagoryModel>? ListCboEnumTax { get; set; } // cbo ds loại tính thuế
         public List<EnumCatagoryModel>? ListCboStatus { get; set; } // cbo ds tình trạng
+        public List<ComboboxModel>? ListCboBranch { get; set; } // cbo ds chi nhánh
 
         private string? pPopupType { get; set; } = string.Empty; // mở popup nào
         public bool IsShowDialogEmpSearch { get; set; }
@@ -52,6 +53,8 @@ namespace HNOne.Web.Controllers
         public object? EmployeeSelected { get; set; } // Nhân viên được chọn
         public string? VoucherHistory { get; set; } = string.Empty; // lịch sử chứng từ
 
+        public bool IsShowPrompt { get; set; }
+        public string? ReasonDelete { get; set; } // lý do hủy
         // nút quyền
         public bool IsAllowPost { get; set; }
         public bool IsAllowDelete { get; set; }
@@ -119,6 +122,7 @@ namespace HNOne.Web.Controllers
             ContractDocument.salaryCoefficient = 1.0;
             ContractDocument.effectiveDate = DateTime.Now;
             ContractDocument.statusCode = CommonConstants.STATUS_CODE_ADD; // mặc định là chờ xử lý
+            ContractDocument.branchId = BranchId;
             //ContractDocument.employeeId = EmployeeId;
             //ContractDocument.employeeCode = EmployeeCode;
             //ContractDocument.employeeName = EmployeeName;
@@ -156,16 +160,19 @@ namespace HNOne.Web.Controllers
                 var getTask3 = _masterDataService.GetPositionAsync(UserId, Token, BranchId, opt: CommonConstants.ENUM_ACTIVE); // ds chức vụ
                 var getTask4 = _masterDataService.GetEnumAsync(UserId, Token, nameof(EnumCatagory.DanhMucThueTNCN)); // ds loại tính thuế
                 var getTask5 = _masterDataService.GetFunEnumAsync(UserId, Token, nameof(EnumCatagory.TrangThaiHopDong)); // ds trạng thái
+                var getTask6 = _masterDataService.GetBranchAsync(UserId, Token);
                 await Task.WhenAll(
                     getTask1,
                     getTask2,
                     getTask3,
                     getTask4,
-                    getTask5
+                    getTask5,
+                    getTask6
                 );
                 ListCboDepartment = (await getTask1)?.Select(m => new ComboboxModel() { id = m.id, name = m.name })?.ToList();
                 ListCboTitle = (await getTask2)?.Select(m => new ComboboxModel() { id = m.id, name = m.name })?.ToList();
                 ListCboPosition = (await getTask3)?.Select(m => new ComboboxModel() { id = m.id, name = m.name })?.ToList();
+                ListCboBranch = (await getTask6)?.Select(m => new ComboboxModel() { id = m.branchId, name = m.branchName })?.ToList();
                 ListCboEnumTax = await getTask4;
                 ListCboStatus = await getTask5;
             }
@@ -680,7 +687,7 @@ namespace HNOne.Web.Controllers
         /// Hủy chứng từ
         /// </summary>
         /// <returns></returns>
-        protected async Task CancelDocumentHandler()
+        protected async Task CancelDocumentHandler(bool isAccept = false)
         {
             try
             {
@@ -690,24 +697,39 @@ namespace HNOne.Web.Controllers
                     ShowInfo(MessageConstants.MESSAGE_NO_PERMISSION);
                     return;
                 }
+                if (!isAccept)
+                {
+                    ReasonDelete = string.Empty;
+                    IsShowPrompt = true;
+                    return;
+                }
+                if (string.IsNullOrEmpty(ReasonDelete))
+                {
+                    ShowWarning(string.Format(MessageConstants.MESSAGE_STRING_REQUIRE, "Lý do hủy"));
+                    return;
+                }
                 string errorMessage = string.Empty;
                 bool isConfirm = true;
-                errorMessage = string.Format(MessageConstants.MESSAGE_CONFIRM_CANCEL_DOCUMENT_FORMAT, $"Phụ lục hợp đồng");
-                isConfirm = await confirm.SetConfirm(MessageConstants.MESSAGE_TITLE, $"{errorMessage}");
-                if (!isConfirm) return;
+                //errorMessage = string.Format(MessageConstants.MESSAGE_CONFIRM_CANCEL_DOCUMENT_FORMAT, $"Phụ lục hợp đồng");
+                //isConfirm = await confirm.SetConfirm(MessageConstants.MESSAGE_TITLE, $"{errorMessage}");
+                //if (!isConfirm) return;
                 await ShowLoading();
                 string processKey = ProcessConstants.PUT_CANCEL_DOCUMENT;
                 ApprovalModel approval = new ApprovalModel();
                 approval.docEntry = ContractDocument.id;
                 approval.objType = nameof(EnumObjType.ContractAppendices);
                 approval.employeeId = EmployeeId;
-                approval.statusCode = CommonConstants.STATUS_CODE_APPROVAL_PENDING;
-                approval.approvalRemark = CommonConstants.STATUS_CODE_APPROVAL_PENDING;
+                approval.statusCode = CommonConstants.STATUS_CODE_CANCELED;
+                approval.approvalRemark = ReasonDelete;
                 approval.userSign = UserId;
                 var lstApproval = new List<ApprovalModel>() { approval };
                 string content = JsonConvert.SerializeObject(lstApproval);
                 isConfirm = await _approvalService.UpdateApprovalAsync(processKey, UserId, Token, json: content);
-                if (isConfirm) await showVoucher();
+                if (isConfirm)
+                {
+                    IsShowPrompt = false;
+                    await showVoucher();
+                }
             }
             catch (Exception ex)
             {

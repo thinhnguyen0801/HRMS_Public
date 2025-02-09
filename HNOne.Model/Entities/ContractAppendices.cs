@@ -16,7 +16,6 @@ namespace HNOne.Model.Entities
         public int ContractId { get; set; } // hợp đồng
         public int EmployeeId { get; set; }
         public int BranchId { get; set; }
-        public int TimesheetId { get; set; } // ID bảng công
         [MaxLength(250)]
         public string? ContractCode { get; set; } // số hợp đồng
         [MaxLength(250)]
@@ -48,7 +47,7 @@ namespace HNOne.Model.Entities
         [Column(TypeName = "decimal(19, 6)")]
         public decimal NetSalary { get; set; } // Tổng lương thực nhận
         public bool IsCompanyDeduction { get; set; } // công ty đóng trích nộp thay
-        public bool IsCompanyInsurance { get; set; } // công ty đóng bảo hiểm thay
+        public bool IsCompanyIncomeTax { get; set; } // công ty đóng thuế thay
 
     }
 }

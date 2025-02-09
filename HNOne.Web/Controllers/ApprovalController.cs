@@ -166,7 +166,9 @@ namespace HNOne.Web.Controllers
                     approvalRemark = m.approvalRemark,
                     remark = m.remark,
                     employeeSignatureId = m.employeeSignatureId,
-                    userSign2 = UserId
+                    userSign2 = UserId,
+                    employeeId = EmployeeId,
+                    userSign = UserId
                 });
                 string content = JsonConvert.SerializeObject(lstApproval);
                 var result = await _approvalService.UpdateApprovalAsync(ProcessConstants.PUT_APPROVAL, UserId, Token, content, approvalType: statusCode);

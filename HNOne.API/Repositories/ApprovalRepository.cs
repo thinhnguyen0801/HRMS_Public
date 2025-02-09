@@ -233,7 +233,7 @@ namespace HNOne.API.Repositories
                         , entity.statusCode, dynamicRecord.StatusCode, entity.approvalRemark, entity.userSign ?? -1, dateTimeNow);
 
                     // cập nhật tình trạng chứng từ
-                    dynamicRecord.StatusCode = CommonConstants.STATUS_CODE_APPROVAL_PENDING; // ĐÃ GỬI YÊU CẦU PHÊ DUYỆT
+                    dynamicRecord.StatusCode = entity.statusCode;
                     dynamicRecord.DateOfSigning = dateTimeNow;
                     dynamicRecord.DateTracking = dateTimeNow;
                     _dbContext.Attach(dynamicRecord);
@@ -260,7 +260,6 @@ namespace HNOne.API.Repositories
                 {
                     CommonConstants.STATUS_CODE_APPROVED => MessageConstants.MESSAGE_APPROVAL_SUCCESS,
                     CommonConstants.STATUS_CODE_DENY => MessageConstants.MESSAGE_DENY_SUCCESS,
-                    CommonConstants.STATUS_CODE_CANCELED => MessageConstants.MESSAGE_CANCEL_SUCCESS,
                     _ => response.message
                 };
             }

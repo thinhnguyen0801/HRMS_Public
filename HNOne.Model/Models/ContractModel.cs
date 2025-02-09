@@ -7,7 +7,6 @@
         public string? employeeCode { get; set; }
         public string? employeeName { get; set; }
         public int branchId { get; set; }
-        public int timesheetId { get; set; } // ID bảng công
         public string? contractCode { get; set; }
         public DateTime? startDate { get; set; } // Ngày bắt đầu
         public DateTime? endDate { get; set; } // Ngày kết thúc
@@ -33,7 +32,7 @@
         public string? decisionNo { get; set; } // số chứng từ quyết định
         public bool isActive { get; set; } // áp dụng chưa
         public bool isCompanyDeduction { get; set; } // cty đóng trích nộp thay
-        public bool isCompanyInsurance { get; set; } // cty đóng trích nộp thay
+        public bool isCompanyIncomeTax { get; set; } // cty đóng thuế thay
         public int placeOfWorkId { get; set; } // nơi làm việc
         public string? taxTypeCode { get; set; } // loại tính thuế
         public string? departmentName { get; set; } // tên phòng ban

@@ -505,12 +505,12 @@ namespace HNOne.API.Repositories
                 }    
                 DateTime dateTimeNow = _dateTimeHelper.GetCurrentVietnamTime();
                 data.EmployeeId = entity.EmployeeId;
-                data.TimesheetId = entity.TimesheetId;
                 data.StartDate = entity.StartDate;
                 data.EndDate = entity.EndDate;
                 data.DateOfSigning = entity.DateOfSigning;
                 data.DeductionDate = entity.DeductionDate;
                 data.EmployeeSignatureId = entity.EmployeeSignatureId;
+                data.DepartmentId = entity.DepartmentId;
                 data.PositionId = entity.PositionId;
                 data.TitleId = entity.TitleId;
                 data.Remark = entity.Remark;
@@ -525,7 +525,7 @@ namespace HNOne.API.Repositories
                 data.PlaceOfWorkId = entity.PlaceOfWorkId;
                 data.IsActive = entity.IsActive;
                 data.IsCompanyDeduction = entity.IsCompanyDeduction;
-                data.IsCompanyInsurance = entity.IsCompanyInsurance;
+                data.IsCompanyIncomeTax = entity.IsCompanyIncomeTax;
                 data.DateTracking = dateTimeNow;
                 data.UpdateDate = dateTimeNow;
                 data.UserSign2 = entity.UserSign2;
@@ -692,7 +692,6 @@ namespace HNOne.API.Repositories
                     await _dbContext.SalaryAdjustments.AddRangeAsync(lstSalaryConfig!);
                 }
                 data.EmployeeId = entity.EmployeeId;
-                data.TimesheetId = entity.TimesheetId;
                 data.DateOfSigning = entity.DateOfSigning;
                 data.EffectiveDate = entity.EffectiveDate;
                 data.DeductionDate = entity.DeductionDate;
@@ -713,7 +712,7 @@ namespace HNOne.API.Repositories
                 data.PlaceOfWorkId = entity.PlaceOfWorkId;
                 data.IsActive = entity.IsActive;
                 data.IsCompanyDeduction = entity.IsCompanyDeduction;
-                data.IsCompanyInsurance = entity.IsCompanyInsurance;
+                data.IsCompanyIncomeTax = entity.IsCompanyIncomeTax;
                 data.DateTracking = dateTimeNow;
                 data.UpdateDate = dateTimeNow;
                 data.UserSign2 = entity.UserSign2;
