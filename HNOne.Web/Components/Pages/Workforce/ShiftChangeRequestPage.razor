@@ -18,7 +18,7 @@
                                    Visible="@(ShiftRequestDocument.statusCode == CommonConstants.STATUS_CODE_ADD && IsAllowDelete)" />
 
                     <DxToolbarItem Text="Hủy" BeginGroup="true" IconCssClass="@($"{IconClassConstants.ICON_DELETE}")" CssClass="w1FontSize"
-                                   Alignment="@ToolbarItemAlignment.Right" Click="@CancelDocumentHandler"
+                                   Alignment="@ToolbarItemAlignment.Right" Click="@(() => CancelDocumentHandler())"
                                    Visible="@(pActionType != nameof(EnumType.Add) && ShiftRequestDocument.statusCode == CommonConstants.STATUS_CODE_ADD && IsAllowDelete)" />
 
                     <DxToolbarItem Text="Làm mới" BeginGroup="true" IconCssClass="@($"{IconClassConstants.ICON_REFRESH}")" CssClass="w1FontSize"
@@ -292,6 +292,13 @@
     <div style="height: 400px; min-height: 350px">
         <W1Employee UserId="@UserId" Token="@Token" BranchId="@BranchId" DepartmentIds="@DepartmentIds" StatusIds="@StatusIds"
                     SelectedDataItemChanged="@EventCallbackEmpChangedHandler" />
+    </div>
+</W1Popup>
+<W1Popup @bind-IsOpenModal="@IsShowPrompt" TextBtnAccept="Xác nhận"
+         HeaderText="Xác nhận" Width="55%" HandleClickAccept="@(() => CancelDocumentHandler(isAccept: true))">
+    <W1Label Value="Lý do hủy" Styles="width: 120px" IsRequired />
+    <div class="mt-1">
+        <DxMemo @bind-Text="@ReasonDelete" BindValueMode="@BindValueMode.OnInput" Rows="1" InputId="txtLyDoHuy" CssClass="w1FontSize" />
     </div>
 </W1Popup>
 <W1Confirm @ref="confirm" />

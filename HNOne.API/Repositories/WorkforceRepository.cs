@@ -87,6 +87,7 @@ namespace HNOne.API.Repositories
                 parameters.Add("@StatusIds", request.opt, DbType.String);
                 parameters.Add("@FromDate", request.fromDate, DbType.Date);
                 parameters.Add("@ToDate", request.toDate, DbType.Date);
+                parameters.Add("@EmployeeId", request.employeeId, DbType.Int32);
                 IEnumerable<LeaveRequestModel>? lstResult = null;
                 var dtResult = await connection.QueryMultipleAsync(StoreConstants.STORE_H1_LEAVE_REQUEST_SELECT, param: parameters
                     , commandTimeout: GlobalConstants.COMMAND_TIMEOUT, commandType: CommandType.StoredProcedure);
@@ -122,6 +123,7 @@ namespace HNOne.API.Repositories
                 parameters.Add("@StatusIds", request.opt, DbType.String);
                 parameters.Add("@FromDate", request.fromDate, DbType.Date);
                 parameters.Add("@ToDate", request.toDate, DbType.Date);
+                parameters.Add("@EmployeeId", request.employeeId, DbType.Int32);
                 IEnumerable<LeaveRequestModel>? lstResult = null;
                 var dtResult = await connection.QueryMultipleAsync(StoreConstants.STORE_H1_LEAVE_WORKING_HOUR_SELECT, param: parameters
                     , commandTimeout: GlobalConstants.COMMAND_TIMEOUT, commandType: CommandType.StoredProcedure);
@@ -176,6 +178,7 @@ namespace HNOne.API.Repositories
                 parameters.Add("@StatusIds", request.opt, DbType.String);
                 parameters.Add("@FromDate", request.fromDate, DbType.Date);
                 parameters.Add("@ToDate", request.toDate, DbType.Date);
+                parameters.Add("@EmployeeId", request.employeeId, DbType.Int32);
                 IEnumerable<ShiftChangeModel>? lstResult = null;
                 var dtResult = await connection.QueryMultipleAsync(StoreConstants.STORE_H1_SHIFT_CHANGE_REQUEST_SELECT, param: parameters
                     , commandTimeout: GlobalConstants.COMMAND_TIMEOUT, commandType: CommandType.StoredProcedure);
@@ -211,6 +214,7 @@ namespace HNOne.API.Repositories
                 parameters.Add("@StatusIds", request.opt, DbType.String);
                 parameters.Add("@FromDate", request.fromDate, DbType.Date);
                 parameters.Add("@ToDate", request.toDate, DbType.Date);
+                parameters.Add("@EmployeeId", request.employeeId, DbType.Int32);
                 IEnumerable<OvertimeRequestModel>? lstResult = null;
                 var dtResult = await connection.QueryMultipleAsync(StoreConstants.STORE_H1_OVERTIME_REQUEST_SELECT, param: parameters
                     , commandTimeout: GlobalConstants.COMMAND_TIMEOUT, commandType: CommandType.StoredProcedure);
@@ -397,7 +401,7 @@ namespace HNOne.API.Repositories
         }
 
         /// <summary>
-        /// lấy danh sách đề nghị nghỉ phép
+        /// lấy danh sách xác nhận giờ công
         /// </summary>
         /// <param name="request"></param>
         /// <returns></returns>
@@ -414,6 +418,7 @@ namespace HNOne.API.Repositories
                 parameters.Add("@StatusIds", request.opt, DbType.String);
                 parameters.Add("@FromDate", request.fromDate, DbType.Date);
                 parameters.Add("@ToDate", request.toDate, DbType.Date);
+                parameters.Add("@EmployeeId", request.employeeId, DbType.Int32);
                 IEnumerable<ConfirmWorkingDayModel>? lstResult = null;
                 var dtResult = await connection.QueryMultipleAsync(StoreConstants.STORE_H1_CONFIRM_WORKING_HOUR_SELECT, param: parameters
                     , commandTimeout: GlobalConstants.COMMAND_TIMEOUT, commandType: CommandType.StoredProcedure);

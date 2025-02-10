@@ -90,6 +90,7 @@ namespace HNOne.Web.Controllers
             request.fromDate = FromDate;
             request.toDate = ToDate;
             request.process = ProcessConstants.GET_CONFIRM_WORKING_HOUR_REQUEST;
+            request.employeeId = EmployeeId;
             var listResult = await _workforceService.GetMasterDataAsync<ConfirmWorkingDayModel>(request, isShowToast: true);
             listResult = listResult?.Update(m =>
             {

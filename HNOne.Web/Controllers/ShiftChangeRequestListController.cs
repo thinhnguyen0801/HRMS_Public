@@ -89,6 +89,7 @@ namespace HNOne.Web.Controllers
             request.fromDate = FromDate;
             request.toDate = ToDate;
             request.process = ProcessConstants.GET_SHIFT_CHANGE_REQUEST;
+            request.employeeId = EmployeeId;
             var listResult = await _workforceService.GetShiftChangeRequestAsync(request, isShowToast: true);
             listResult = listResult?.Update(m =>
             {

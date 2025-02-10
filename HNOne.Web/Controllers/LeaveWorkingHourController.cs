@@ -47,6 +47,8 @@ namespace HNOne.Web.Controllers
         // lock control lại
         public bool IsReadonlyControl { get; set; } = false;
 
+        public bool IsShowPrompt { get; set; }
+        public string? ReasonDelete { get; set; } // lý do hủy
         // nút quyền
         public bool IsAllowPost { get; set; }
         public bool IsAllowDelete { get; set; }
@@ -569,6 +571,7 @@ namespace HNOne.Web.Controllers
                 approval.branchId = BranchId;
                 approval.statusCode = CommonConstants.STATUS_CODE_APPROVAL_PENDING;
                 approval.userSign = UserId;
+                approval.employeeId = EmployeeId;
                 approval.employeeSignatureId = LeaveRequestDocument.employeeSignatureId;
                 string content = JsonConvert.SerializeObject(approval);
                 isConfirm = await _approvalService.UpdateApprovalAsync(processKey, UserId, Token, json: content);
@@ -692,6 +695,66 @@ namespace HNOne.Web.Controllers
             {
                 ShowError(ex.Message);
                 _logger.LogError(ex, "RefreshDataHandler");
+            }
+            finally
+            {
+                await ShowLoading(false);
+                await InvokeAsync(StateHasChanged);
+            }
+        }
+
+        /// <summary>
+        /// Hủy chứng từ
+        /// </summary>
+        /// <returns></returns>
+        protected async Task CancelDocumentHandler(bool isAccept = false)
+        {
+            try
+            {
+                await checkPermission(MenuId);
+                if (!IsAllowDelete)
+                {
+                    ShowInfo(MessageConstants.MESSAGE_NO_PERMISSION);
+                    return;
+                }
+                if (!isAccept)
+                {
+                    ReasonDelete = string.Empty;
+                    IsShowPrompt = true;
+                    return;
+                }
+                if (string.IsNullOrEmpty(ReasonDelete))
+                {
+                    ShowWarning(string.Format(MessageConstants.MESSAGE_STRING_REQUIRE, "Lý do hủy"));
+                    return;
+                }
+                string errorMessage = string.Empty;
+                bool isConfirm = true;
+                //errorMessage = string.Format(MessageConstants.MESSAGE_CONFIRM_CANCEL_DOCUMENT_FORMAT, $"Phụ lục hợp đồng");
+                //isConfirm = await confirm.SetConfirm(MessageConstants.MESSAGE_TITLE, $"{errorMessage}");
+                //if (!isConfirm) return;
+                await ShowLoading();
+                string processKey = ProcessConstants.PUT_CANCEL_DOCUMENT;
+                ApprovalModel approval = new ApprovalModel();
+                approval.docEntry = LeaveRequestDocument.id;
+                approval.objType = nameof(EnumObjType.LeaveWorkingHours);
+                approval.employeeId = EmployeeId;
+                approval.statusCode = CommonConstants.STATUS_CODE_CANCELED;
+                approval.approvalRemark = ReasonDelete;
+                approval.userSign = UserId;
+                var lstApproval = new List<ApprovalModel>() { approval };
+                string content = JsonConvert.SerializeObject(lstApproval);
+                isConfirm = await _approvalService.UpdateApprovalAsync(processKey, UserId, Token, json: content);
+                if (isConfirm)
+                {
+                    IsShowPrompt = false;
+                    await showVoucher();
+                }
+            }
+            catch (Exception ex)
+            {
+                ShowError(ex.Message);
+                _logger.LogError(ex, "CancelDocumentHandler");
             }
             finally
             {

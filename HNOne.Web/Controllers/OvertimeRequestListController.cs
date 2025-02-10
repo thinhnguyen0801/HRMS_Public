@@ -77,6 +77,7 @@ namespace HNOne.Web.Controllers
             request.fromDate = FromDate;
             request.toDate = ToDate;
             request.process = ProcessConstants.GET_OVERTIME_REQUEST;
+            request.employeeId = EmployeeId;
             var listResult = await _workforceService.GetOvertimeRequestAsync(request, isShowToast: true);
             listResult = listResult?.Update(m =>
             {

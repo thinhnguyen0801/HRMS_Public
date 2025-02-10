@@ -480,6 +480,7 @@ namespace HNOne.Web.Controllers
                 approval.branchId = BranchId;
                 approval.statusCode = CommonConstants.STATUS_CODE_APPROVAL_PENDING;
                 approval.userSign = UserId;
+                approval.employeeId = EmployeeId;
                 approval.employeeSignatureId = TrainDocument.employeeSignatureId;
                 string content = JsonConvert.SerializeObject(approval);
                 isConfirm = await _approvalService.UpdateApprovalAsync(processKey, UserId, Token, json: content);

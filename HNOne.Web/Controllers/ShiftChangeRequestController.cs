@@ -47,6 +47,8 @@ namespace HNOne.Web.Controllers
         // lock control lại
         public bool IsReadonlyControl { get; set; } = false;
 
+        public bool IsShowPrompt { get; set; }
+        public string? ReasonDelete { get; set; } // lý do hủy
         // nút quyền
         public bool IsAllowPost { get; set; }
         public bool IsAllowDelete { get; set; }
@@ -507,6 +509,7 @@ namespace HNOne.Web.Controllers
                 approval.branchId = BranchId;
                 approval.statusCode = CommonConstants.STATUS_CODE_APPROVAL_PENDING;
                 approval.userSign = UserId;
+                approval.employeeId = EmployeeId;
                 approval.employeeSignatureId = ShiftRequestDocument.employeeSignatureId;
                 string content = JsonConvert.SerializeObject(approval);
                 isConfirm = await _approvalService.UpdateApprovalAsync(processKey, UserId, Token, json: content);
@@ -668,7 +671,11 @@ namespace HNOne.Web.Controllers
             }
         }
 
-        protected async Task CancelDocumentHandler()
+        /// <summary>
+        /// Hủy chứng từ
+        /// </summary>
+        /// <returns></returns>
+        protected async Task CancelDocumentHandler(bool isAccept = false)
         {
             try
             {
@@ -678,25 +685,44 @@ namespace HNOne.Web.Controllers
                     ShowInfo(MessageConstants.MESSAGE_NO_PERMISSION);
                     return;
                 }
-                string errorMessage = string.Empty;
-                string fieldName = string.Empty; // trả ra trường nào cần validate
-                bool isConfirm = true;
-                validateForSaveApproval(ref errorMessage, ref fieldName);
-                if (!string.IsNullOrEmpty(errorMessage))
+                if (!isAccept)
                 {
-                    ShowWarning(errorMessage);
-                    await _jsRuntime.InvokeVoidAsync("focusInput", fieldName);
+                    ReasonDelete = string.Empty;
+                    IsShowPrompt = true;
                     return;
                 }
-                await Task.Yield();
-                errorMessage = string.Format(MessageConstants.MESSAGE_CONFIRM_SEND_APPROVAL_FORMAT, $"đến nhân viên {ShiftRequestDocument.employeeSignatureName}");
-                isConfirm = await confirm.SetConfirm(MessageConstants.MESSAGE_TITLE, $"{errorMessage}");
-                if (!isConfirm) return;
+                if (string.IsNullOrEmpty(ReasonDelete))
+                {
+                    ShowWarning(string.Format(MessageConstants.MESSAGE_STRING_REQUIRE, "Lý do hủy"));
+                    return;
+                }
+                string errorMessage = string.Empty;
+                bool isConfirm = true;
+                //errorMessage = string.Format(MessageConstants.MESSAGE_CONFIRM_CANCEL_DOCUMENT_FORMAT, $"Phụ lục hợp đồng");
+                //isConfirm = await confirm.SetConfirm(MessageConstants.MESSAGE_TITLE, $"{errorMessage}");
+                //if (!isConfirm) return;
+                await ShowLoading();
+                string processKey = ProcessConstants.PUT_CANCEL_DOCUMENT;
+                ApprovalModel approval = new ApprovalModel();
+                approval.docEntry = ShiftRequestDocument.id;
+                approval.objType = nameof(EnumObjType.ShiftChanges);
+                approval.employeeId = EmployeeId;
+                approval.statusCode = CommonConstants.STATUS_CODE_CANCELED;
+                approval.approvalRemark = ReasonDelete;
+                approval.userSign = UserId;
+                var lstApproval = new List<ApprovalModel>() { approval };
+                string content = JsonConvert.SerializeObject(lstApproval);
+                isConfirm = await _approvalService.UpdateApprovalAsync(processKey, UserId, Token, json: content);
+                if (isConfirm)
+                {
+                    IsShowPrompt = false;
+                    await showVoucher();
+                }
             }
             catch (Exception ex)
             {
                 ShowError(ex.Message);
-                _logger.LogError(ex, "SubmitForApprovalHandler");
+                _logger.LogError(ex, "CancelDocumentHandler");
             }
             finally
             {

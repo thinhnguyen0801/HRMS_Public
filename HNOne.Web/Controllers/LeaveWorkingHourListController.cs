@@ -88,6 +88,7 @@ namespace HNOne.Web.Controllers
             request.fromDate = FromDate;
             request.toDate = ToDate;
             request.process = ProcessConstants.GET_LEAVE_WORKING_HOUR;
+            request.employeeId = EmployeeId;
             var listResult = await _workforceService.GetLeaveRequestAsync(request, isShowToast: true);
             listResult = listResult?.Update(m =>
             {

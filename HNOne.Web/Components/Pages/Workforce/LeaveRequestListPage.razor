@@ -33,8 +33,8 @@
                                            Alignment="@ToolbarItemAlignment.Right" Click="@RefreshHandler" />
                             <DxToolbarItem Text="Thêm mới" BeginGroup="true" IconCssClass="@($"{IconClassConstants.ICON_ADD}")" CssClass="w1FontSize"
                                            Alignment="@ToolbarItemAlignment.Right" Click="@RedirectPageDetailHandler" Visible="@(IsAllowPost)" />
-                            <DxToolbarItem Text="Hủy" BeginGroup="true" IconCssClass="@($"{IconClassConstants.ICON_DELETE}")" CssClass="w1FontSize"
-                                           Alignment="@ToolbarItemAlignment.Right" Visible="@(IsAllowDelete)" />
+                           @*  <DxToolbarItem Text="Hủy" BeginGroup="true" IconCssClass="@($"{IconClassConstants.ICON_DELETE}")" CssClass="w1FontSize"
+                                           Alignment="@ToolbarItemAlignment.Right" Visible="@(IsAllowDelete)" /> *@
                             <DxToolbarItem Text="Kết xuất" BeginGroup="true" IconCssClass="@($"{IconClassConstants.ICON_EXPORT_EXCEL}")" CssClass="w1FontSize"
                                            Alignment="@ToolbarItemAlignment.Right" Click="@(()=> ExportExcelHandler())" />
                         </Items>
