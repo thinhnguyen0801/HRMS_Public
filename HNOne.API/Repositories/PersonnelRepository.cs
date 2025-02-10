@@ -73,6 +73,7 @@ namespace HNOne.API.Repositories
                 parameters.Add("@FromDate", request.fromDate, DbType.Date);
                 parameters.Add("@ToDate", request.toDate, DbType.Date);
                 parameters.Add("@EmployeeId", request.employeeId, DbType.Int32);
+                parameters.Add("@Type", request.type, DbType.String);
                 IEnumerable<ContractModel>? lstResult = null;
                 var dtResult = await connection.QueryMultipleAsync(StoreConstants.STORE_H1_CONTRACT_SELECT, param: parameters, commandTimeout: GlobalConstants.COMMAND_TIMEOUT, commandType: CommandType.StoredProcedure);
                 if(dtResult != null)
@@ -149,6 +150,7 @@ namespace HNOne.API.Repositories
                 parameters.Add("@StatusIds", request.opt, DbType.String);
                 parameters.Add("@FromDate", request.fromDate, DbType.Date);
                 parameters.Add("@ToDate", request.toDate, DbType.Date);
+                parameters.Add("@EmployeeId", request.employeeId, DbType.Int32);
                 IEnumerable<ContractAppendixModel>? lstResult = null;
                 var dtResult = await connection.QueryMultipleAsync(StoreConstants.STORE_H1_CONTRACT_APPENDIX_SELECT, param: parameters
                     , commandTimeout: GlobalConstants.COMMAND_TIMEOUT, commandType: CommandType.StoredProcedure);

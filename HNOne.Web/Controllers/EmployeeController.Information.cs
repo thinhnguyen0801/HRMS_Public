@@ -160,6 +160,7 @@ namespace HNOne.Web.Controllers
             request.userId = UserId;
             request.branchId = BranchId;
             request.token = Token;
+            request.type = "BY_EMPLOYEE";
             request.opt = ActiveTabIndex == 0 ? "ACTIVE" : "";
             request.employeeId = EmployeeUpdate.id;
             var lstContract = await _personnelService.GetContractAsync(request, isShowToast: false);

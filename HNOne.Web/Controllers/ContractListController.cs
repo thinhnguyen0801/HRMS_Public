@@ -87,6 +87,7 @@ namespace HNOne.Web.Controllers
             request.opt = ActiveTabIndex == 0 ? "ACTIVE" : "";
             request.fromDate = FromDate;
             request.toDate = ToDate;
+            request.employeeId = EmployeeId;
             var lstContract = await _personnelService.GetContractAsync(request, isShowToast: true);
             lstContract = lstContract?.Update(m =>
             {
