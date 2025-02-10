@@ -31,5 +31,7 @@ namespace HNOne.Model.Models
         public decimal amount { get; set; } // số tiền
         public int contractId { get; set; } // ID hợp đồng
         public int contractAppendixId { get; set; } // ID phụ lục hợp đồng
+        public bool isPrintSalary { get; set; }
+
     }
 }

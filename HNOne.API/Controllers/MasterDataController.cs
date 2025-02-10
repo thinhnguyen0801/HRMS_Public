@@ -476,7 +476,7 @@ namespace HNOne.API.Controllers
                 if (text.Text.Contains("##EndDate##")) text.Text = text.Text.Replace("##EndDate##", contract.endDate?.ToString(GlobalConstants.FORMAT_DATE));
                 if (text.Text.Contains("##JobPositionName##")) text.Text = text.Text.Replace("##JobPositionName##", contract.titleName);
                 if (text.Text.Contains("##OrganizationUnitName##")) text.Text = text.Text.Replace("##OrganizationUnitName##", contract.branchName);
-                if (text.Text.Contains("##SALARY_DECIDES##")) text.Text = text.Text.Replace("##SALARY_DECIDES##", lstSalaryConfig.First(m=>m.salaryCategoryCode == "LTT").amount.ToString(GlobalConstants.FORMAT_CURRENCY));
+                if (text.Text.Contains("##SALARY_DECIDES##")) text.Text = text.Text.Replace("##SALARY_DECIDES##", (lstSalaryConfig.FirstOrDefault(m => m.isPrintSalary)?.amount ?? 0).ToString(GlobalConstants.FORMAT_CURRENCY));
             }
         }
 
@@ -528,7 +528,7 @@ namespace HNOne.API.Controllers
                 if (text.Text.Contains("##PermanentAddress##")) text.Text = text.Text.Replace("##PermanentAddress##", contract.placeOfResidence);
                 if (text.Text.Contains("##ContractCode##")) text.Text = text.Text.Replace("##ContractCode##", $"{contract.contractCode}");
                 if (text.Text.Contains("##StartDate##")) text.Text = text.Text.Replace("##StartDate##", contract.dateOfSigning?.ToString(GlobalConstants.FORMAT_DATE));
-                if (text.Text.Contains("##SALARY_DECIDES##")) text.Text = text.Text.Replace("##SALARY_DECIDES##", lstSalaryConfig.First(m => m.salaryCategoryCode == "LQD").amount.ToString(GlobalConstants.FORMAT_CURRENCY));
+                if (text.Text.Contains("##SALARY_DECIDES##")) text.Text = text.Text.Replace("##SALARY_DECIDES##", (lstSalaryConfig.FirstOrDefault(m => m.isPrintSalary)?.amount ?? 0).ToString(GlobalConstants.FORMAT_CURRENCY));
             }
         }
 
