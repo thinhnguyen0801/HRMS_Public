@@ -85,7 +85,7 @@ namespace HNOne.Web.Controllers
         {
             try
             {
-                var getTask1 = _masterDataService.GetBranchAsync(UserId, Token);
+                var getTask1 = _masterDataService.GetBranchAsync(UserId, Token, BranchId, $"{BranchIds}");
                 await Task.WhenAll(
                     getTask1
                     );

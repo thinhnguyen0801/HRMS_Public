@@ -83,7 +83,7 @@ namespace HNOne.Web.Controllers
         {
             try
             {
-                var getTask1 = _masterDataService.GetBranchAsync(UserId, Token);
+                var getTask1 = _masterDataService.GetBranchAsync(UserId, Token, BranchId, $"{BranchIds}");
                 var getTask2 = _masterDataService.GetSalaryCatagoryAsync(UserId, Token, "ACTIVE"); // ds loại lương chỉ lấy active
                 var getTask3 = _masterDataService.GetEnumAsync(UserId, Token, nameof(EnumCatagory.CachTinhLuongPhuCap));
                 await Task.WhenAll(

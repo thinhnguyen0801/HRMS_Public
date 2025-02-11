@@ -54,7 +54,7 @@ namespace HNOne.API.Controllers
                 switch (processKey)
                 {
                     case ProcessConstants.GET_BRANCH:
-                        response.data = await _masterDataService.GetBranch();
+                        response.data = await _masterDataService.GetBranch(request);
                         break;
                     default:
                         response.status = StatusCodes.Status404NotFound;

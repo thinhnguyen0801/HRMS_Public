@@ -35,7 +35,7 @@ namespace HNOne.Web.Controllers
                 {
                     await _progressService.SetPercent(0.4);
                     await _localStorage.ClearAsync(); // xóa hết dữ liệu lưu ở local store
-                    var lstBranch = await _masterDataService.GetBranchAsync(1, "");
+                    var lstBranch = await _masterDataService.GetBranchAsync(1, "", opt: CommonConstants.ENUM_PAGE_LOGIN);
                     await _progressService.SetPercent(0.6);
                     ListBranch = lstBranch?.Select(m => new ComboboxModel() { id = m.branchId, code = m.branchId.ToString(), name = m.branchName })?.ToList();
                     LoginRequest.branchId = ListBranch?.FirstOrDefault()?.code;

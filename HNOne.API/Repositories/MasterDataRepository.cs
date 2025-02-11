@@ -33,12 +33,21 @@ namespace HNOne.API.Repositories
 
         #region Query
 
-        public async Task<IEnumerable<Branchs>> GetBranch()
+        public async Task<IEnumerable<Branchs>> GetBranch(RequestModel request)
         {
             using (var connection = _dapperDbContext.CreateConnection())
             {
+                DynamicParameters parameters = new DynamicParameters();
                 string strQuery = "select * from Branchs as T0 with(nolock) where T0.IsDelete = 0";
-                var result = await connection.QueryAsync<Branchs>(strQuery, commandTimeout: 500, commandType: CommandType.Text);
+                if(request.opt != CommonConstants.ENUM_PAGE_LOGIN)
+                {
+                    request.branchIds += $",{request.branchId}";
+                    request.branchIds = request.branchIds.Trim(',');
+                    strQuery += " and T0.BranchId in ((select [Value] from string_split(@BranchIds, ',')))";
+                    parameters.Add("@BranchIds", request.branchIds, DbType.String);
+                }
+                strQuery += " order by T0.BranchId";
+                var result = await connection.QueryAsync<Branchs>(strQuery, parameters, commandTimeout: 500, commandType: CommandType.Text);
                 return result;
             }
         }

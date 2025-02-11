@@ -8,7 +8,7 @@ namespace HNOne.API.Services.Interfaces
     public interface IMasterDataService
     {
         Task<IEnumerable<MenuModel>> GetMenu(RequestModel request);
-        Task<IEnumerable<Branchs>> GetBranch();
+        Task<IEnumerable<Branchs>> GetBranch(RequestModel request);
         Task<IEnumerable<DepartmentModel>> GetDepartment(RequestModel request);
         Task<IEnumerable<TitleModel>> GetTitle(RequestModel request);
         Task<IEnumerable<PositionModel>> GetPosition(RequestModel request);

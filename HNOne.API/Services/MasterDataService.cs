@@ -31,8 +31,8 @@ namespace HNOne.API.Services
         /// lấy ra danh sách chi nhánh
         /// </summary>
         /// <returns></returns>
-        public async Task<IEnumerable<Branchs>> GetBranch()
-            => await _masterRepository.GetBranch();
+        public async Task<IEnumerable<Branchs>> GetBranch(RequestModel request)
+            => await _masterRepository.GetBranch(request);
 
         /// <summary>
         /// lấy ra danh sách phòng ban

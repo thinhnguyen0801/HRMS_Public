@@ -158,7 +158,7 @@ namespace HNOne.Web.Controllers
                 var getTask3 = _masterDataService.GetPositionAsync(UserId, Token, BranchId, opt: CommonConstants.ENUM_ACTIVE); // ds chức vụ
                 var getTask4 = _masterDataService.GetEnumAsync(UserId, Token, nameof(EnumCatagory.DanhMucThueTNCN)); // ds loại tính thuế
                 var getTask5 = _masterDataService.GetFunEnumAsync(UserId, Token, nameof(EnumCatagory.TrangThaiHopDong)); // ds trạng thái
-                var getTask6 = _masterDataService.GetBranchAsync(UserId, Token);
+                var getTask6 = _masterDataService.GetBranchAsync(UserId, Token, BranchId, $"{BranchIds}");
                 var getTask7 = _masterDataService.GetDepartmentAsync(UserId, Token, BranchId, opt: CommonConstants.ENUM_ACTIVE); // ds phòng ban
                 await Task.WhenAll(
                     getTask1,

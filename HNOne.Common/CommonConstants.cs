@@ -22,6 +22,7 @@ namespace HNOne.Common
         public const string ENUM_PAYMENT_TYPE_UNC = "UNC";
         public const string ENUM_PAYMENT_REQUEST_TYPE_CHILUONG = "CHILUONG";
         public const string ENUM_PAYMENT_REQUEST_TYPE_NOPBAOHIEM = "NOPBAOHIEM";
+        public const string ENUM_PAGE_LOGIN = "LOGIN";
         #endregion
     }
 }

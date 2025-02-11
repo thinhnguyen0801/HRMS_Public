@@ -8,7 +8,7 @@ namespace HNOne.Web.Services.Interfaces
     public interface IMasterDataService
     {
         Task<List<MenuModel>?> GetMenuAsync(RequestModel request);
-        Task<List<BranchModel>?> GetBranchAsync(int userId, string token = "");
+        Task<List<BranchModel>?> GetBranchAsync(int userId, string token = "", int branchId = -1, string branchIds = "", string opt = "", bool isShowToast = false);
         Task<List<DepartmentModel>?> GetDepartmentAsync(int userId, string token, int branchId, string branchIds = "", string opt = "", bool isShowToast = false);
         Task<List<TitleModel>?> GetTitleAsync(int userId, string token, int branchId, string branchIds = "", string opt = "", bool isShowToast = false);
         Task<List<PositionModel>?> GetPositionAsync(int userId, string token, int branchId, string branchIds = "", string opt = "", bool isShowToast = false);

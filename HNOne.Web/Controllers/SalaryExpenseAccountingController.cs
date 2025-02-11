@@ -148,7 +148,7 @@ namespace HNOne.Web.Controllers
                 request.branchId = BranchId;
                 request.token = Token;
                 request.type = ProcessConstants.GET_COMBO_LIST_SALARY_PREIOD;
-                var getTask4 = _masterDataService.GetBranchAsync(UserId, Token);
+                var getTask4 = _masterDataService.GetBranchAsync(UserId, Token, BranchId, $"{BranchIds}");
                 var getTask5 = _masterDataService.GetFunEnumAsync(UserId, Token, nameof(EnumCatagory.TrangThaiHopDong)); // ds trạng thái
                 var getTask3 = _salaryService.GetMasterDataAsync<ComboboxModel>(request);
                 request.type = ProcessConstants.GET_COMBO_LIST_ACCOUNTING;
