@@ -94,7 +94,10 @@ namespace HNOne.Web.Components.Layout
                         await Task.Delay(5000); // Đợi trước khi thử lại
                         try
                         {
-                            await _hubConnection.StartAsync();
+                            if (_hubConnection.State == HubConnectionState.Disconnected && !string.IsNullOrEmpty(_hubConnection.ConnectionId))
+                            {
+                                await _hubConnection.StartAsync();
+                            }
                         }
                         catch (Exception ex)
                         {

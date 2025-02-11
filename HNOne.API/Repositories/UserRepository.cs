@@ -110,21 +110,13 @@ namespace HNOne.API.Repositories
         {
             using (var connection = _dapperDbContext.CreateConnection())
             {
+                request.branchIds += $",{request.branchId}";
+                request.branchIds = request.branchIds.Trim(',');
                 DynamicParameters parameters = new DynamicParameters();
-                string strQuery = "select T0.*" +
-                    " ,T1.BranchCode as BranchCode, T1.BranchName as BranchName, T2.[Code] as EmployeeCode, T2.[Name] as EmployeeName" +
-                    " ,T3.[Code] as PerGroupCode, T3.[Name] as PerGroupName" +
-                    " from Users as T0 with(nolock) " +
-                    " inner join Branchs as T1 with(nolock) on T0.BranchId = T1.BranchId " +
-                    " left join Employees as T2 with(nolock) on T0.EmployeeId = T2.Id" +
-                    " left join PermissionGroups as T3 with(nolock) on T0.PerGroupId = T3.Id" +
-                    " where T0.IsDelete = 0";
-                if (request.documentId > 0)
-                {
-                    strQuery += " and T0.UserId = @UserId";
-                    parameters.Add("@UserId", request.documentId, DbType.Int32);
-                }
-                var result = await connection.QueryAsync<UserModel>(strQuery, parameters, commandTimeout: 500, commandType: CommandType.Text);
+                parameters.Add("@UserId", request.userId, DbType.Int32);
+                parameters.Add("@UserLogin", request.documentId, DbType.Int32);
+                parameters.Add("@BranchIds", request.branchIds, DbType.String);
+                var result = await connection.QueryAsync<UserModel>(StoreConstants.STORE_H1_USER_SELECT, parameters, commandTimeout: 500, commandType: CommandType.StoredProcedure);
                 return result;
             }
 ;

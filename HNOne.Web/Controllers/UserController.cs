@@ -101,6 +101,7 @@ namespace HNOne.Web.Controllers
             request.userId = UserId;
             request.branchId = BranchId;
             request.opt = "";
+            request.branchIds = BranchIds;
             ListUser = new List<UserModel>();
             ListUser = await _userDataService.GetUserAsync(request);
         }
