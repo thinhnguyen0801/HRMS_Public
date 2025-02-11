@@ -76,6 +76,7 @@ namespace HNOne.Web.Controllers
                         new BreadcrumbModel("Hệ thống"),
                         new BreadcrumbModel("Tài khoản", isActive: true)
                     };
+                    await NotifyBreadcrumb.InvokeAsync(ListBreadcrumbs);
                     await buildComboAsync();
                     await getUsers();
 
