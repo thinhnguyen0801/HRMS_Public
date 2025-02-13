@@ -20,5 +20,6 @@ namespace HNOne.Model.Entities
         public bool IsActive { get; set; } // hoạt động không
         [MaxLength(250)]
         public string? Remark { get; set; } // Mô tả
+        public int BranchId { get; set; } // nhóm quyền thuộc chi nhánh
     }
 }

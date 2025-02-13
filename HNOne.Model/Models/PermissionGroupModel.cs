@@ -8,5 +8,8 @@ namespace HNOne.Model.Models
         public string? name { get; set; } // Tên nhóm
         public bool isActive { get; set; } = true; // hoạt động không
         public string? remark { get; set; } // Mô tả
+        public int branchId { get; set; }
+        public string? branchCode { get; set; }
+        public string? branchName { get; set; }
     }
 }

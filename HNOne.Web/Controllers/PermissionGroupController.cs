@@ -34,11 +34,12 @@ namespace HNOne.Web.Controllers
         public List<MenuModel>? ListMenuAuth { get; set; } // danh sách menu để phân quyền 
         public IGrid? GridMenuAuth { get; set; }
 
+        public List<MenuModel>? ListDataAuthTemp { get; set; } // danh sách data để phân quyền 
         public List<MenuModel>? ListDataAuth { get; set; } // danh sách data để phân quyền 
         public IGrid? GridDataAuth { get; set; }
 
         public PermissionGroupModel DataUpdate { get; set; } = new PermissionGroupModel();
-
+        public List<ComboboxModel>? ListCboBranch { get; set; } // cbo ds chi nhánh
         public bool IsCreate { get; set; } = true;
         public bool IsShowDialog { get; set; }
         public bool IsCheckAllEvent { get; set; }
@@ -69,7 +70,8 @@ namespace HNOne.Web.Controllers
                     var task1 = getPermissionGroup();
                     var task2 = getMenuAuth();
                     var task3 = getDataAuth();
-                    await Task.WhenAll(task1, task2, task3);
+                    var task4 = buildComboboxAsync();
+                    await Task.WhenAll(task1, task2, task3, task4);
                 }
                 catch (Exception ex)
                 {
@@ -85,6 +87,23 @@ namespace HNOne.Web.Controllers
         }
 
         #region Private Functions
+        private async Task buildComboboxAsync()
+        {
+            try
+            {
+                var getTask1 = _masterDataService.GetBranchAsync(UserId, Token, BranchId, $"{BranchIds}");
+                await Task.WhenAll(
+                    getTask1
+                    );
+                ListCboBranch = (await getTask1)?.Select(m => new ComboboxModel() { id = m.branchId, name = m.branchName })?.ToList();
+            }
+            catch (Exception ex)
+            {
+                ShowError(ex.Message);
+                _logger.LogError(ex, "BuildComboAsync");
+            }
+        }
+
         /// <summary>
         /// kiểm tra quyền nút
         /// </summary>
@@ -103,6 +122,7 @@ namespace HNOne.Web.Controllers
             request.userId = UserId;
             request.branchId = BranchId;
             request.opt = "";
+            request.branchIds = BranchIds;
             ListData = new List<PermissionGroupModel>();
             ListData = await _userDataService.GetPermissionGroup(request);
         }
@@ -135,14 +155,21 @@ namespace HNOne.Web.Controllers
             request.type = MENU_TYPE_DATA;
             ListDataAuth = new List<MenuModel>();
             ListDataAuth = await _masterDataService.GetMenuAsync(request);
+            ListDataAuthTemp = ListDataAuth;
         }
 
         private void validateForSave(ref string errorMessage, ref string fieldName)
         {
             if (string.IsNullOrEmpty(DataUpdate.name))
             {
-                errorMessage = string.Format(MessageConstants.MESSAGE_STRING_REQUIRE, "tên tài khoản");
+                errorMessage = string.Format(MessageConstants.MESSAGE_STRING_REQUIRE, "Tên tài khoản");
                 fieldName = "txtName";
+                return;
+            }
+            if (DataUpdate.branchId < 1)
+            {
+                errorMessage = string.Format(MessageConstants.MESSAGE_STRING_REQUIRE, "Chi nhánh");
+                fieldName = "txtBranchId";
                 return;
             }
         }
@@ -217,6 +244,9 @@ namespace HNOne.Web.Controllers
                     DataUpdate.name = pItemDetails!.name;
                     DataUpdate.remark = pItemDetails!.remark;
                     DataUpdate.isActive = pItemDetails!.isActive;
+                    DataUpdate.branchId = pItemDetails!.branchId;
+                    DataUpdate.branchCode = pItemDetails!.branchCode;
+                    DataUpdate.branchName = pItemDetails!.branchName;
                     IsCreate = false;
                 }
                 IsShowDialog = true;
@@ -385,14 +415,21 @@ namespace HNOne.Web.Controllers
             {
                 if(ListMenuAuth.IsNullOrEmpty())
                 {
-                    ShowWarning(string.Format(MessageConstants.MESSAGE_NOT_FOUNT_FORMAT, "Phân quyền"));
+                    ShowWarning(string.Format(MessageConstants.MESSAGE_NOT_FOUNT_FORMAT, "Phân quyền chức năng"));
+                    return;
+                }
+                if (ListDataAuthTemp.IsNullOrEmpty())
+                {
+                    ShowWarning(string.Format(MessageConstants.MESSAGE_NOT_FOUNT_FORMAT, "Phân quyền dữ liệu"));
                     return;
                 }
                 await ShowLoading();
                 IsCheckAllEvent = false;
-                ListMenuAuth!.Update(m => m.listEvent?.Update(m => m.isAllow = false));
-                ListDataAuth!.Update(m => m.isAllow = false);
                 PermissionGroupModel permissionSelected = (PermissionGroupModel)selected;
+                ListMenuAuth!.Update(m => m.listEvent?.Update(m => m.isAllow = false));
+                if (permissionSelected.branchCode == "System") ListDataAuth = ListDataAuthTemp;
+                else ListDataAuth = ListDataAuthTemp!.Where(m => m.branchId == permissionSelected.branchId).ToList();
+                ListDataAuth!.Update(m => m.isAllow = false);
                 RequestModel request = new RequestModel();
                 request.userId = UserId;
                 request.token = Token;

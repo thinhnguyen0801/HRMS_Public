@@ -17,6 +17,7 @@
         public string? actionKey { get; set; }
         public string? actionName { get; set; }
         public bool isAllow { get; set; }
+        public int branchId { get; set; }
         public List<EventConfigModel>? listEvent { get; set; }
     }
 

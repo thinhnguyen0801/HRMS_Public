@@ -59,6 +59,7 @@
                                 </CellDisplayTemplate>
                             </DxGridDataColumn>
                             <DxGridDataColumn FieldName="@nameof(PermissionGroupModel.name)" Caption="Tên nhóm" MinWidth="170" />
+                            <DxGridDataColumn FieldName="@nameof(ContractTypeModel.branchName)" Caption="Chi nhánh" MinWidth="170" />
                             <DxGridDataColumn FieldName="@nameof(ContractTypeModel.isActive)" Caption="Hoạt động?" MinWidth="100" />
                             <DxGridDataColumn FieldName="@nameof(PermissionGroupModel.remark)" Caption="Ghi chú" MinWidth="210" />
                             <DxGridDataColumn FieldName="@nameof(PermissionGroupModel.dateTracking)" Caption="Ngày cập nhật" MinWidth="120" DisplayFormat="@GlobalContants.FORMAT_DATE_TIME" />
@@ -240,6 +241,20 @@
                 <W1Label Value="Tên nhóm quyền" Id="bacLuong" Styles="width: 120px" IsRequired="true" />
                 <div style="width: calc(100% - 120px)">
                     <DxTextBox @bind-Text="@DataUpdate.name" CssClass="w1FontSize" Id="txtName"></DxTextBox>
+                </div>
+            </div>
+        </div>
+        <div class="col-sm-12">
+            <div class="d-flex ">
+                <W1Label Value="Chi nhánh" Styles="width: 120px" IsRequired="true" />
+                <div style="width: calc(100% - 120px)">
+                    <DxComboBox Data="@ListCboBranch"
+                                @bind-Value="@DataUpdate.branchId"
+                                FilteringMode="DataGridFilteringMode.Contains"
+                                TextFieldName="@nameof(ComboboxModel.name)"
+                                Id="txtBranchId"
+                                ValueFieldName="@nameof(ComboboxModel.id)" CssClass="w1FontSize">
+                    </DxComboBox>
                 </div>
             </div>
         </div>

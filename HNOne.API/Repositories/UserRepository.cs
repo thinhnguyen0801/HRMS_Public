@@ -131,12 +131,19 @@ namespace HNOne.API.Repositories
         {
             using (var connection = _dapperDbContext.CreateConnection())
             {
+                DynamicParameters parameters = new DynamicParameters();
+                request.branchIds += $",{request.branchId}";
+                request.branchIds = request.branchIds.Trim(',');
                 string strQuery = "select T0.*" +
+                    " ,T1.BranchCode, T1.BranchName" +
                     " from PermissionGroups as T0 with(nolock)" +
-                    " where IsDelete = 0";
+                    " left join Branchs as T1 with(nolock) on T0.BranchId = T1.BranchId" +
+                    " where T0.IsDelete = 0";
                 // thêm điều kiện
                 if (request.opt == CommonConstants.ENUM_ACTIVE) strQuery += " and T0.IsActive = '1'";
-                var result = await connection.QueryAsync<PermissionGroupModel>(strQuery, commandTimeout: 500, commandType: CommandType.Text);
+                strQuery += " and T0.BranchId in ((select [Value] from string_split(@BranchIds, ',')))";
+                parameters.Add("@BranchIds", request.branchIds, DbType.String);
+                var result = await connection.QueryAsync<PermissionGroupModel>(strQuery, parameters, commandTimeout: 500, commandType: CommandType.Text);
                 return result;
             }    
         }
@@ -331,6 +338,7 @@ namespace HNOne.API.Repositories
                     return response;
                 }
                 data.Name = entity.Name;
+                data.BranchId = entity.BranchId;
                 data.IsActive = entity.IsActive;
                 data.Remark = entity.Remark;
                 data.DateTracking = _dateTimeHelper.GetCurrentVietnamTime();

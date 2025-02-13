@@ -84,6 +84,7 @@ namespace HNOne.Web.Controllers
                 RequestModel request = new RequestModel();
                 request.userId = UserId;
                 request.branchId = BranchId;
+                request.branchIds = BranchIds;
                 request.opt = "ACTIVE";
                 var getTask3 = _userDataService.GetPermissionGroup(request);
                 await Task.WhenAll(
