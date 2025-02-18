@@ -12,6 +12,7 @@ using HNOne.Common;
 using Blazored.LocalStorage;
 using Microsoft.AspNetCore.SignalR.Client;
 using HNOne.Model.Entities;
+using HNOne.Web.Services;
 
 namespace HNOne.Web.Components.Layout
 {
@@ -25,6 +26,7 @@ namespace HNOne.Web.Components.Layout
         [Inject] IEncryptHelper  _encryptHelper { get; init; }
         [Inject] ILocalStorageService _localStorage { get; init; }
         [Inject] IConfiguration _configuration { get; init; }
+        [Inject] DataHelperService _dataHelperService { get; set; }
         HubConnection? _hubConnection;
         #region Properties
         public List<BreadcrumbModel>? ListBreadcrumbs { get; set; }
@@ -168,7 +170,16 @@ namespace HNOne.Web.Components.Layout
                 if (!result.IsNullOrEmpty())
                 {
                     TotalNotifiCations = result![0].totalRow;
-                    ListNotification = result!;
+                    ListNotification = result!.Update(m=>
+                    {
+                        Dictionary<string, string> pParams = new Dictionary<string, string>
+                        {
+                            { "pActionType", nameof(EnumType.Update) },
+                            { "pDocEntry", $"{m.docEntry}" }
+                        };
+                        if (m.objType == nameof(EnumObjType.ContractAppendices)) pParams.TryAdd("pContractId", $"{m.contractId}");
+                        m.link = _dataHelperService.ListUris[$"{m.objType}"] + _encryptHelper.Encrypt(JsonConvert.SerializeObject(pParams));
+                    })!.ToList();
                     await InvokeAsync(StateHasChanged);
                 }
             }

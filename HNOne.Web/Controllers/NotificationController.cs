@@ -3,15 +3,17 @@ using HNOne.Model;
 using HNOne.Model.Models;
 using HNOne.Web.Commons;
 using HNOne.Web.Models;
+using HNOne.Web.Services;
 using HNOne.Web.Services.Interfaces;
 using Microsoft.AspNetCore.Components;
+using Newtonsoft.Json;
 
 namespace HNOne.Web.Controllers
 {
     public class NotificationController : DocListControllerBase<NotificationModel>
     {
         [Inject] IMasterDataService _masterDataService { get; init; }
-
+        [Inject] DataHelperService _dataHelperService { get; set; }
         #region Properties
         #endregion
 
@@ -60,6 +62,16 @@ namespace HNOne.Web.Controllers
             request.opt1 = FromDate?.ToString();
             request.opt2 = ToDate?.ToString();
             var result = await _masterDataService.GetMasterDataAsync<NotificationModel>(request);
+            result = result?.Update(m =>
+            {
+                Dictionary<string, string> pParams = new Dictionary<string, string>
+                        {
+                            { "pActionType", nameof(EnumType.Update) },
+                            { "pDocEntry", $"{m.docEntry}" }
+                        };
+                if (m.objType == nameof(EnumObjType.ContractAppendices)) pParams.TryAdd("pContractId", $"{m.contractId}");
+                m.link = _dataHelperService.ListUris[$"{m.objType}"] + _encryptHelper.Encrypt(JsonConvert.SerializeObject(pParams));
+            })?.ToList();
             if (ActiveTabIndex == 0)
             {
                 ListPending = result;
@@ -84,6 +96,29 @@ namespace HNOne.Web.Controllers
                 }
                 await ShowLoading();
                 await getNotifications();
+            }
+            catch (Exception ex)
+            {
+                _logger!.LogError(ex, "RefreshHandler");
+                ShowError(ex.Message);
+            }
+            finally
+            {
+                await ShowLoading(false);
+                await InvokeAsync(StateHasChanged);
+            }
+        }
+
+        protected async Task SaveDataHandler()
+        {
+            try
+            {
+                if(SelectedPendings.IsNullOrEmpty())
+                {
+                    ShowWarning(string.Format(MessageConstants.MESSAGE_COMBOBOX_REQUIRE, "Thông báo"));
+                    return;
+                }    
+
             }
             catch (Exception ex)
             {

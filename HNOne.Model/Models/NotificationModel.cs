@@ -5,6 +5,7 @@
         public int id { get; set; }
         public int branchId { get; set; }
         public int docEntry { get; set; }
+        public int contractId { get; set; }
         public string? voucherNo { get; set; } // mã chứng từ
         public string? objType { get; set; } // loại chứng từ
         public string? objTypeName { get; set; } // loại chứng từ
@@ -15,5 +16,6 @@
         public DateTime? createDate { get; set; } // ngày giờ tạo
         public int? userSign { get; set; } // người tạo
         public int totalRow { get; set; } // tổng số thông báo
+        public string? link { get; set; }
     }
 }

@@ -10,6 +10,8 @@
                         <Items>
                             <DxToolbarItem Text="Làm mới" BeginGroup="true" IconCssClass="@($"{IconClassConstants.ICON_REFRESH}")" CssClass="w1FontSize"
                                            Alignment="@ToolbarItemAlignment.Right" Click="@RefreshHandler" />
+                            <DxToolbarItem Text="Đánh dấu đã đọc" BeginGroup="true" IconCssClass="@($"{IconClassConstants.ICON_UPDATE}")" CssClass="w1FontSize"
+                                           Alignment="@ToolbarItemAlignment.Right" Click="@SaveDataHandler" />
                         </Items>
                     </DxToolbar>
                 </div>
@@ -47,7 +49,7 @@
                                     <DxGridDataColumn FieldName="@nameof(NotificationModel.voucherNo)" Caption="Mã chứng từ" MinWidth="130" Width="140px">
                                         <CellDisplayTemplate>
                                             @{
-                                                <a href="@($"{(context.DataItem as NotificationModel)!.voucherNo}")">@context.Value</a>
+                                                <a href="@($"{(context.DataItem as NotificationModel)!.link}")">@context.Value</a>
                                             }
                                         </CellDisplayTemplate>
                                     </DxGridDataColumn>
@@ -84,7 +86,7 @@
                                     <DxGridDataColumn FieldName="@nameof(NotificationModel.voucherNo)" Caption="Mã chứng từ" MinWidth="130" Width="140px">
                                         <CellDisplayTemplate>
                                             @{
-                                                <a href="@($"{(context.DataItem as NotificationModel)!.voucherNo}")">@context.Value</a>
+                                                <a href="@($"{(context.DataItem as NotificationModel)!.link}")">@context.Value</a>
                                             }
                                         </CellDisplayTemplate>
                                     </DxGridDataColumn>
