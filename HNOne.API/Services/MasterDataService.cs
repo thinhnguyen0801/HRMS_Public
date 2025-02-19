@@ -445,6 +445,14 @@ namespace HNOne.API.Services
         /// <returns></returns>
         public async Task<ResponseModel> ImportData(int branchId, int userId, string processKey, string jData)
             => await _masterRepository.ImportData(branchId, userId, processKey, jData);
+
+        /// <summary>
+        /// cập nhật thông báo thành đã đọc
+        /// </summary>
+        /// <param name="request"></param>
+        /// <returns></returns>
+        public async Task<ResponseModel> UpdateStatusNotification(RequestModel request)
+            => await _masterRepository.UpdateStatusNotification(request);
         #endregion
     }
 }

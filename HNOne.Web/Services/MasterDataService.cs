@@ -1207,14 +1207,14 @@ namespace HNOne.Web.Services
         }
 
         /// <summary>
-        /// cập nhật thông tin phòng ban
+        /// cập nhật thông tin cho master data
         /// </summary>
         /// <param name="userId"></param>
         /// <param name="token"></param>
         /// <param name="processKey"></param>
         /// <param name="json"></param>
         /// <returns></returns>
-        public async Task<bool> UpdateMasterAsync(RequestModel request)
+        public async Task<bool> UpdateMasterAsync(RequestModel request, bool isShowToast = true)
         {
             try
             {
@@ -1233,7 +1233,7 @@ namespace HNOne.Web.Services
                     if (httpResponse.IsSuccessStatusCode
                         && response?.status == StatusCodes.Status200OK)
                     {
-                        _toastService.ShowSuccess(response.message);
+                        if (isShowToast) _toastService.ShowSuccess(response.message);
                         return true;
                     }
                     if (response?.status == StatusCodes.Status409Conflict)

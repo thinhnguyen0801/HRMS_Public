@@ -36,7 +36,7 @@ namespace HNOne.Web.Services.Interfaces
         Task<DotNetStreamReference?> PrintDocumentAsync(int userId, string token, int branchId, int documentId, string processKey, string fileName, int documentId2 = -1);
         Task<List<SalaryParameterModel>?> GetSalaryParameterAsync(int userId, string token, int branchId, string branchIds = "", string opt = "", bool isShowToast = false);
         Task<List<T>?> GetMasterAsync<T>(RequestModel request, bool isShowToast = false) where T : class;
-        Task<bool> UpdateMasterAsync(RequestModel request);
+        Task<bool> UpdateMasterAsync(RequestModel request, bool isShowToast = true);
         Task<string> ImportDataAsync(RequestModel request);
     }
 }

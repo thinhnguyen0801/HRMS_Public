@@ -292,6 +292,9 @@ namespace HNOne.API.Controllers
                     case ProcessConstants.POST_IMPORT_DATA:
                         response = await _masterDataService.ImportData(request.branchId, request.userId, processKey: $"{request.opt}", $"{request.json}");
                         break;
+                    case ProcessConstants.POST_NOTIFICATION_STATUS_READ:
+                        response = await _masterDataService.UpdateStatusNotification(request);
+                        break;
                     default:
                         response.status = StatusCodes.Status404NotFound;
                         response.message = $"Process Key {processKey} was not provider!!!";

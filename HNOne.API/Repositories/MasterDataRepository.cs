@@ -4,10 +4,12 @@ using Dapper;
 using DocumentFormat.OpenXml.Spreadsheet;
 using HNOne.API.Constants;
 using HNOne.API.Repositories.Interfaces;
+using HNOne.API.Services;
 using HNOne.Common;
 using HNOne.Model;
 using HNOne.Model.Entities;
 using HNOne.Model.Models;
+using Microsoft.AspNetCore.SignalR;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Newtonsoft.Json;
@@ -21,14 +23,17 @@ namespace HNOne.API.Repositories
         private readonly IDapperDbContext _dapperDbContext;
         private readonly IDateTimeHelper _dateTimeHelper;
         private readonly IEncryptHelper _encryptHelper;
+        private readonly IHubContext<HubService> _hubContext;
         public MasterDataRepository(MasterDbContext dbContext
             , IDapperDbContext dapperDbContext, IDateTimeHelper dateTimeHelper
-            , IEncryptHelper encryptHelper) 
+            , IEncryptHelper encryptHelper
+            , IHubContext<HubService> hubContext) 
         {
             _dbContext = dbContext;
             _dapperDbContext = dapperDbContext;
             _dateTimeHelper = dateTimeHelper;
             _encryptHelper = encryptHelper;
+            _hubContext = hubContext;
         }
 
         #region Query
@@ -1593,6 +1598,33 @@ namespace HNOne.API.Repositories
                 throw;
             }
             
+        }
+        
+        /// <summary>
+        /// Cập nhật thông báo thành đã đọc
+        /// </summary>
+        /// <param name="request"></param>
+        /// <returns></returns>
+        public async Task<ResponseModel> UpdateStatusNotification(RequestModel request)
+        {
+            using (var connection = _dapperDbContext.CreateConnection())
+            {
+                ResponseModel response = new ResponseModel();
+                DynamicParameters parameters = new DynamicParameters();
+                parameters.Add("@Ids", request.opt, DbType.String);
+                string strQuery = "update Notifications set IsView = 1 where Id in ((select [Value] from string_split(@Ids, ',')))";
+                var result = await connection.ExecuteAsync(strQuery, parameters, commandTimeout: 500, commandType: CommandType.Text);
+                response.status = 200;
+                response.message = MessageConstants.MESSAGE_UPDATE_SUCCESS;
+                // Lấy ConnectionId từ UserId
+                var connectionId = HubService.GetConnectionIdByUserId(request.employeeId.ToString());
+                if (connectionId != null)
+                {
+                    // Gửi thông báo đến ConnectionId
+                    await _hubContext.Clients.Client(connectionId).SendAsync("ReceiveMessage", "");
+                }
+                return response;
+            }    
         }
         #endregion
     }

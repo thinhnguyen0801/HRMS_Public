@@ -7,6 +7,7 @@ using HNOne.Web.Services;
 using HNOne.Web.Services.Interfaces;
 using Microsoft.AspNetCore.Components;
 using Newtonsoft.Json;
+using System.Security.Cryptography;
 
 namespace HNOne.Web.Controllers
 {
@@ -117,8 +118,20 @@ namespace HNOne.Web.Controllers
                 {
                     ShowWarning(string.Format(MessageConstants.MESSAGE_COMBOBOX_REQUIRE, "Thông báo"));
                     return;
-                }    
-
+                }
+                await ShowLoading();
+                RequestModel request = new RequestModel();
+                request.userId = UserId;
+                request.token = Token;
+                request.branchId = BranchId;
+                request.process = ProcessConstants.POST_NOTIFICATION_STATUS_READ;
+                request.opt = $"{string.Join(",", SelectedPendings!.Cast<NotificationModel>().Select(m => m.id))}";
+                request.employeeId = EmployeeId;
+                bool isSuccess = await _masterDataService.UpdateMasterAsync(request, isShowToast: true);
+                if (isSuccess)
+                {
+                    await getNotifications();
+                }
             }
             catch (Exception ex)
             {

@@ -13,6 +13,7 @@ using Blazored.LocalStorage;
 using Microsoft.AspNetCore.SignalR.Client;
 using HNOne.Model.Entities;
 using HNOne.Web.Services;
+using DevExpress.Pdf.Native.BouncyCastle.Asn1.Ocsp;
 
 namespace HNOne.Web.Components.Layout
 {
@@ -87,7 +88,7 @@ namespace HNOne.Web.Components.Layout
                     _hubConnection = new HubConnectionBuilder().WithUrl($"{apiUrl}notificationHub?userId={result.employeeId}").WithAutomaticReconnect().Build();
                     _hubConnection.On<string>("ReceiveMessage", (incomingMessage) =>
                     {
-                        if (IsReceiveNotification) toastService.ShowInfo(incomingMessage);
+                        if (IsReceiveNotification && !string.IsNullOrEmpty(incomingMessage)) toastService.ShowInfo(incomingMessage);
                         _ = getNotifications();
                     });
                     _hubConnection.Closed += async (error) =>
@@ -127,6 +128,26 @@ namespace HNOne.Web.Components.Layout
             {
                 _logger.LogError(ex, "CloseMenuHandler");
             }
+        }
+
+        /// <summary>
+        /// Khi click vào thông báo thì hiểu là đã đọc thông báo đó rồi
+        /// </summary>
+        /// <returns></returns>
+        protected void ReadNotifyHandler(int pId)
+        {
+            try
+            {
+                RequestModel request = new RequestModel();
+                request.userId = UserId;
+                request.token = Token;
+                request.branchId = BranchId;
+                request.process = ProcessConstants.POST_NOTIFICATION_STATUS_READ;
+                request.opt = $"{pId}";
+                request.employeeId = EmployeeId;
+                _ = _masterDataService.UpdateMasterAsync(request, isShowToast: false);
+            }
+            catch { }
         }
 
         #region Private Function

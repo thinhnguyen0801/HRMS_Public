@@ -165,6 +165,7 @@
         public const string PUT_SALARY_EXPENSE_ACCOUNTING = "put-salary-expense-accounting";
         public const string POST_IMPORT_DATA = "post-import-data";
         public const string POST_CHECK_IN_OUT = "post-check-in-out";
+        public const string POST_NOTIFICATION_STATUS_READ = "post-notification-status-read";
 
         #region Loại dưới store
         public const string GET_COMBO_TYPE_CONTRACT_BY_EMPLOYEEID = "CONTRACT_BY_EMPLOYEEID";
