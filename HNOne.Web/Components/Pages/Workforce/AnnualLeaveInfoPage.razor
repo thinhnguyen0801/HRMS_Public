@@ -3,88 +3,167 @@
 <PageTitle>Thông tin phép năm</PageTitle>
 
 <div class="h-content-filter">
-    <div class="card card-lg mt-1" style="padding: 5px">
-        <div class="row row-gap-2">
-            <div class="col-12">
-                <div class="accordion" id="accordion-info">
-                    <div class="accordion-item" style="border: none">
-                        <span class="accordion-header" id="heading-1">
-                            <button class="accordion-button " style="padding-top: 1px; padding-bottom: 1px;padding-left: 5px;"
-                                    type="button" data-bs-toggle="collapse" data-bs-target="#collapse-info" aria-expanded="true">
-                                <h4 class="mb-0 w1FontSize">Thông tin tìm kiếm</h4>
-                            </button>
-                        </span>
-                        <div style="border-bottom: 1px solid var(--tblr-border-color); margin-top: 2px"></div>
-                        <div id="collapse-info" class="accordion-collapse collapse show" data-bs-parent="#accordion-info">
-                            <div class="accordion-body p-2">
-                                <div class="row row-gap-2">
-                                    <div class="col-md-4 col-sm-12">
-                                        <div class="d-flex ">
-                                            <W1Label Value="Năm công" Styles="width: 100px" IsRequired="true" />
-                                            <div style="width: calc(100% - 100px)">
-                                                <DxComboBox Data="@ListCboYear"
-                                                            @bind-Value="@SearchUpdate.year"
-                                                            FilteringMode="DataGridFilteringMode.Contains"
-                                                            TextFieldName="@nameof(ComboboxModel.name)"
-                                                            ValueFieldName="@nameof(ComboboxModel.id)"
-                                                            CssClass="w1FontSize">
-                                                </DxComboBox>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <div class="col-md-8 col-sm-12">
-                                        <div class="d-flex ">
-                                            <W1Label Value="Phòng ban" Styles="width: 100px" IsRequired="true" />
-                                            <div style="width: calc(100% - 100px)">
-                                                <DxTagBox Data="@ListCboDepartment"
-                                                          @bind-Values="@ListDepartmentSelected" CssClass="w1FontSize"
-                                                          DropDownBodyCssClass="w1FontSize" DropDownCssClass="w1FontSize"
-                                                          ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
-                                                          TextFieldName="@nameof(ComboboxModel.name)">
-                                                    <DxListEditorColumn FieldName="@nameof(ComboboxModel.code)" Caption="Mã" Width="120px" />
-                                                    <DxListEditorColumn FieldName="@nameof(ComboboxModel.name)" Caption="Tên" />
-                                                </DxTagBox>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <div class="col-md-4 col-sm-12">
-                                        <div class="d-flex ">
-                                            <W1Label Value="Nhân viên" Id="txtKiDanhGia" Styles="width: 100px" IsRequired="true" />
-                                            <div style="width: calc(100% - 100px)">
-                                                <div class="grid gap-1 row-gap-2">
-                                                    <div class="g-col-md-4 g-col-sm-12 g-col-12">
-                                                        <DxTextBox @bind-Text="@SearchUpdate.employeeCode" ReadOnly="true" CssClass="w1FontSize" />
-                                                    </div>
-                                                    <div class="g-col-md-8 g-col-sm-12 g-col-12">
-                                                        <DxTextBox @bind-Text="@SearchUpdate.employeeName" CssClass="w1FontSize" ReadOnly="true">
-                                                            <Buttons>
-                                                                <DxEditorButton style="width: 29px" CssClass="w1FontSize" IconCssClass="fas fa-search" Tooltip="Tìm kiếm nhân viên"
-                                                                                Click="@(async () => await OpenPopupHandler(nameof(EmployeeSelected), nameof(SearchUpdate.employeeCode)))" />
-                                                            </Buttons>
-                                                        </DxTextBox>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <div class="col-md-8 col-sm-12">
-                                        <div class="d-flex ">
-                                            <W1Label Value="Trạng thái" Styles="width: 100px" IsRequired="true" />
-                                            <div style="width: calc(100% - 100px)">
-                                                <DxTagBox Data="@ListCboStatus"
-                                                          @bind-Values="@ListCboStatusSelected" CssClass="w1FontSize"
-                                                          DropDownBodyCssClass="w1FontSize" DropDownCssClass="w1FontSize"
-                                                          ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
-                                                          TextFieldName="@nameof(ComboboxModel.name)">
-                                                    <DxListEditorColumn FieldName="@nameof(ComboboxModel.code)" Caption="Mã" Width="120px" />
-                                                    <DxListEditorColumn FieldName="@nameof(ComboboxModel.name)" Caption="Tên" />
-                                                </DxTagBox>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    
+    <div class="grid gap-1 row-gap-2">
+        <div class="@(IsShowFilter ? "g-col-md-4 g-col-sm-12 g-col-12" : "d-none")">
+            <div class="card w1FontSize">
+                <div class="card-header py-1 px-2">
+                    <h4 class="mb-0 w1FontSize">Thông tin tìm kiếm</h4>
+                </div>
+                <div class="card-body p-1">
+                    <div class="row row-gap-2">
+                        <div class="col-sm-12">
+                            <div class="d-flex px-1">
+                                <W1Label Value="Chi nhánh" Styles="width: 90px" IsRequired="true" />
+                                <div style="width: calc(100% - 90px)">
+                                    <DxComboBox Data="@ListCboBranch"
+                                                @bind-Value="@SearchUpdate.branchId"
+                                                FilteringMode="DataGridFilteringMode.Contains"
+                                                TextFieldName="@nameof(ComboboxModel.name)"
+                                                Id="txtBranchId"
+                                                ReadOnly="true"
+                                                ValueFieldName="@nameof(ComboboxModel.id)" CssClass="w1FontSize">
+                                    </DxComboBox>
                                 </div>
                             </div>
+                        </div>
+                        <div class="col-sm-12">
+                            <div class="d-flex px-1">
+                                <W1Label Value="Năm công" Styles="width: 90px" IsRequired="true" />
+                                <div style="width: calc(100% - 90px)">
+                                    <DxComboBox Data="@ListCboYear"
+                                                @bind-Value="@SearchUpdate.year"
+                                                FilteringMode="DataGridFilteringMode.Contains"
+                                                TextFieldName="@nameof(ComboboxModel.name)"
+                                                ValueFieldName="@nameof(ComboboxModel.id)"
+                                                CssClass="w1FontSize">
+                                    </DxComboBox>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-sm-12">
+                            <div class="d-flex px-1">
+                                <W1Label Value="Phòng ban" Styles="width: 90px" IsRequired="true" />
+                                <div style="width: calc(100% - 90px)">
+                                    <DxTagBox Data="@ListCboDepartment"
+                                              @bind-Values="@ListDepartmentSelected" CssClass="w1FontSize"
+                                              DropDownBodyCssClass="w1FontSize" DropDownCssClass="w1FontSize"
+                                              ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
+                                              TextFieldName="@nameof(ComboboxModel.name)">
+                                        <DxListEditorColumn FieldName="@nameof(ComboboxModel.code)" Caption="Mã" Width="120px" />
+                                        <DxListEditorColumn FieldName="@nameof(ComboboxModel.name)" Caption="Tên" />
+                                    </DxTagBox>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-sm-12">
+                            <div class="d-flex px-1">
+                                <W1Label Value="Trạng thái" Styles="width: 90px" IsRequired="true" />
+                                <div style="width: calc(100% - 90px)">
+                                    <DxTagBox Data="@ListCboStatus"
+                                              @bind-Values="@ListCboStatusSelected" CssClass="w1FontSize"
+                                              DropDownBodyCssClass="w1FontSize" DropDownCssClass="w1FontSize"
+                                              ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
+                                              TextFieldName="@nameof(ComboboxModel.name)">
+                                        <DxListEditorColumn FieldName="@nameof(ComboboxModel.code)" Caption="Mã" Width="120px" />
+                                        <DxListEditorColumn FieldName="@nameof(ComboboxModel.name)" Caption="Tên" />
+                                    </DxTagBox>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-sm-12">
+                            <div style="height: calc(100vh - 305px); min-height: 250px">
+                                <DxGrid Data="ListEmpSearch" @ref="GridEmpSearch"
+                                        ShowFilterRow="true"
+                                        ColumnResizeMode="GridColumnResizeMode.ColumnsContainer"
+                                        PagerPosition="GridPagerPosition.Bottom"
+                                        PageSizeSelectorVisible="true"
+                                        PageSize="@GlobalContants.PageSize"
+                                        PageSizeSelectorItems="@(GlobalContants.PageSizeList)"
+                                        PageSizeSelectorAllRowsItemVisible="true"
+                                        PagerSwitchToInputBoxButtonCount="10"
+                                        PagerVisibleNumericButtonCount="10"
+                                        TextWrapEnabled="false"
+                                        FocusedRowEnabled="true"
+                                        SelectionMode="@GridSelectionMode.Multiple"
+                                        AutoExpandAllGroupRows="true"
+                                        AllowSelectRowByClick="true"
+                                        @bind-SelectedDataItems="@SelectedDataEmployees"
+                                        CssClass="h-full">
+                                    <ToolbarTemplate>
+                                        <DxToolbar ItemRenderStyleMode="@ToolbarRenderStyleMode.Plain">
+                                            <Items>
+                                                <DxToolbarItem BeginGroup="true" Alignment="ToolbarItemAlignment.Right" Tooltip="Làm mới"
+                                                               IconCssClass="@($"{IconClassConstants.ICON_REFRESH}")" CssClass="w1FontSize"
+                                                               Click="@ReloadEmployeeHandler" />
+                                            </Items>
+                                        </DxToolbar>
+                                    </ToolbarTemplate>
+                                    <Columns>
+                                        <DxGridSelectionColumn Width="35px" />
+                                        <DxGridDataColumn FieldName="@nameof(EmployeeModel.code)" Caption="Mã nhân viên" MinWidth="100" />
+                                        <DxGridDataColumn FieldName="@nameof(EmployeeModel.name)" Caption="Họ tên" MinWidth="150" />
+                                        <DxGridDataColumn FieldName="@nameof(EmployeeModel.departmentName)" Caption="Phòng ban" MinWidth="120" />
+                                        <DxGridDataColumn FieldName="@nameof(EmployeeModel.titleName)" Caption="Chức danh" MinWidth="140" />
+                                        <DxGridDataColumn FieldName="@nameof(EmployeeModel.statusName)" Caption="Trạng thái" MinWidth="150" />
+                                    </Columns>
+                                </DxGrid>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="@(IsShowFilter ? "g-col-md-8 g-col-sm-12 g-col-12" : "g-col-md-12 g-col-sm-12 g-col-12")">
+            <div class="row row-gap-2">
+                <div class="col-12">
+                    <div class="card w1FontSize">
+                        <div class="card-header p-1 position-relative">
+                            <div class="position-absolute" style="z-index: 10">
+                                <i class="@(IsShowFilter ? $"{IconClassConstants.ICON_FILTER_CLEAR}" : $"{IconClassConstants.ICON_FILTER}") @IconClassConstants.FONT_SIZE_ICON"
+                                   title="@(IsShowFilter ? "Thu gọn vùng tìm kiếm" : "Mở rộng vùng tìm kiếm")" @onclick="@ShowFilterHandler" />
+                            </div>
+                            <DxToolbar ItemRenderStyleMode="@ToolbarRenderStyleMode.Contained">
+                                <Items>
+                                    <DxToolbarItem Text="Làm mới" BeginGroup="true" IconCssClass="@($"{IconClassConstants.ICON_REFRESH}")" CssClass="w1FontSize"
+                                                   Alignment="@ToolbarItemAlignment.Right" Click="@RefreshHandler" />
+                                </Items>
+                            </DxToolbar>
+                        </div>
+                        <div class="card-body p-1" style="height: calc(100vh - 165px); min-height: 450px">
+                            <DxGrid Data="ListAnnualLeaveInfo" @ref="GridAnnualLeaveInfo"
+                                    ShowFilterRow="true"
+                                    ColumnResizeMode="GridColumnResizeMode.ColumnsContainer"
+                                    PagerPosition="GridPagerPosition.Bottom"
+                                    PageSizeSelectorVisible="true"
+                                    PageSize="@GlobalContants.PageSize"
+                                    PageSizeSelectorItems="@(GlobalContants.PageSizeList)"
+                                    PageSizeSelectorAllRowsItemVisible="true"
+                                    PagerSwitchToInputBoxButtonCount="10"
+                                    PagerVisibleNumericButtonCount="10"
+                                    TextWrapEnabled="false"
+                                    FocusedRowEnabled="true"
+                                    AutoExpandAllGroupRows="true"
+                                    KeyboardNavigationEnabled="true"
+                                    CssClass="h-full">
+                                <Columns>
+                                    <DxGridDataColumn FieldName="@nameof(AnnualLeaveInfoModel.employeeCode)" Caption="Mã nhân viên" MinWidth="120" Width="110px" />
+                                    <DxGridDataColumn FieldName="@nameof(AnnualLeaveInfoModel.employeeName)" Caption="Tên nhân viên" MinWidth="140" />
+                                    <DxGridDataColumn FieldName="@nameof(AnnualLeaveInfoModel.probationStartDate)" Caption="Ngày vào làm" MinWidth="100" Width="110px" DisplayFormat="@GlobalContants.FORMAT_DATE" />
+                                    <DxGridDataColumn FieldName="@nameof(AnnualLeaveInfoModel.year)" DisplayFormat="d" Caption="Năm" MinWidth="80" Width="80px" />
+                                    <DxGridDataColumn FieldName="@nameof(AnnualLeaveInfoModel.numOfLeaveDefault)" DisplayFormat="d" Caption="Phép mặc định" MinWidth="110" Width="110px" />
+                                    <DxGridDataColumn FieldName="@nameof(AnnualLeaveInfoModel.numOfLeave)" DisplayFormat="d" Caption="Phép trong năm" MinWidth="110" Width="110px" />
+                                    <DxGridDataColumn FieldName="@nameof(AnnualLeaveInfoModel.numOfLeaveLevel)" DisplayFormat="d" Caption="Phép thâm niên" MinWidth="110" Width="110px" />
+                                    <DxGridDataColumn FieldName="@nameof(AnnualLeaveInfoModel.numOfLeaveUsed)" DisplayFormat="d" Caption="Phép đã sử dụng" MinWidth="110" Width="110px" />
+                                    <DxGridDataColumn FieldName="@nameof(AnnualLeaveInfoModel.numOfLeavePaid)" DisplayFormat="d" Caption="Phép đã thanh toán" MinWidth="130" Width="140px" />
+                                    <DxGridDataColumn FieldName="@nameof(AnnualLeaveInfoModel.numOfLeaveRemaining)" DisplayFormat="d" Caption="Phép còn lại" MinWidth="110" Width="110px" />
+                                    <DxGridDataColumn FieldName="@nameof(AnnualLeaveInfoModel.numOfLeaveOld)" DisplayFormat="d" Caption="Phép năm củ" MinWidth="110" Width="110px" />
+                                </Columns>
+                                <TotalSummary>
+                                    <DxGridSummaryItem DisplayText="@GlobalContants.FORMAT_GRID_DISPLAYTEXT_COUNT" SummaryType="GridSummaryItemType.Count"
+                                                       FieldName="@nameof(AnnualLeaveInfoModel.employeeCode)" ValueDisplayFormat="@GlobalContants.FORMAT_CURRENCY"
+                                                       FooterColumnName="@nameof(AnnualLeaveInfoModel.employeeCode)" />
+                                </TotalSummary>
+                            </DxGrid>
                         </div>
                     </div>
                 </div>
@@ -92,7 +171,7 @@
         </div>
     </div>
 
-    <div class="row row-gap-2 mt-1 mb-3">
+    @* <div class="row row-gap-2 mt-1 mb-3">
         <div class="col-12">
             <div class="card w1FontSize">
                 <div class="card-header p-1">
@@ -152,15 +231,5 @@
                 </div>
             </div>
         </div>
-    </div>
+    </div> *@
 </div>
-
-<W1Popup @bind-IsOpenModal="@IsShowDialogEmpSearch" Width="70%"
-         HandleClickAccept="@(()=> SelectEmployeeHandler())"
-         TextBtnAccept="Chọn"
-         HeaderText="Danh sách nhân viên">
-    <div style="height: 400px; min-height: 350px">
-        <W1Employee UserId="@UserId" Token="@Token" BranchId="@BranchId" DepartmentIds="@DepartmentIds" StatusIds="@StatusIds"
-                    SelectedDataItemChanged="@EventCallbackEmpChangedHandler" />
-    </div>
-</W1Popup>

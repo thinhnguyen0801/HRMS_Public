@@ -324,9 +324,9 @@ namespace HNOne.API.Repositories
                 parameters.Add("@UserId", request.userId);
                 parameters.Add("@BranchId", request.branchId);
                 parameters.Add("@Year", year);
-                parameters.Add("@DepartmentIds", request.opt1);
-                parameters.Add("@EmployeeIds", request.opt2);
-                parameters.Add("@StatusIds", request.opt3);
+                parameters.Add("@DepartmentIds", request.departmentIds);
+                parameters.Add("@EmployeeIds", request.opt3);
+                parameters.Add("@StatusIds", request.opt2);
                 var lstResult = await connection.QueryAsync<AnnualLeaveInfoModel>(StoreConstants.STORE_H1_ANNUAL_LEAVE_INFO_SELECT, param: parameters, commandTimeout: GlobalConstants.COMMAND_TIMEOUT, commandType: CommandType.StoredProcedure);
                 return lstResult;
             }

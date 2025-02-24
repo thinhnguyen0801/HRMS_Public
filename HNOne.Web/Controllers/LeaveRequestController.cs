@@ -11,6 +11,7 @@ using HNOne.Web.Models;
 using Microsoft.AspNetCore.WebUtilities;
 using Newtonsoft.Json;
 using HNOne.Web.Services;
+using HNOne.Model.Entities;
 
 namespace HNOne.Web.Controllers
 {
@@ -78,6 +79,7 @@ namespace HNOne.Web.Controllers
                     //
                     initDataAsync();
                     await buildComboAsync();
+                    await getAnnualLeaveInfo(EmployeeId);
                     if (pDocEntry > 0)
                     {
                         await showVoucher();
@@ -311,9 +313,10 @@ namespace HNOne.Web.Controllers
                 request.branchId = BranchId;
                 request.token = Token;
                 request.opt = DateTime.Now.Year.ToString(); // lấy năm hiện tại
+                request.departmentIds = "";
                 request.opt1 = ""; // phòng ban
-                request.opt2 = employeeId.ToString(); // nhân viên
-                request.opt3 = ""; // tình trạng
+                request.opt2 = ""; 
+                request.opt3 = employeeId.ToString(); // nhân viên
                 var result = await _workforceService.GetMasterDataAsync<AnnualLeaveInfoModel>(request);
                 if(!result.IsNullOrEmpty())
                 {
@@ -321,9 +324,9 @@ namespace HNOne.Web.Controllers
                     LeaveRequestDocument.numOfLeave = header.numOfLeave;
                     LeaveRequestDocument.numOfLeaveLevel = header.numOfLeaveLevel;
                     LeaveRequestDocument.numOfLeaveOld = header.numOfLeaveOld;
-                    LeaveRequestDocument.numOfLeaveTotal = 0;
+                    LeaveRequestDocument.numOfLeaveTotal = header.numOfLeave + header.numOfLeaveLevel + header.numOfLeaveOld;
                     LeaveRequestDocument.numOfLeaveUsed = header.numOfLeaveUsed;
-                    LeaveRequestDocument.numOfLeaveRemaining = header.numOfLeaveRemaining;
+                    LeaveRequestDocument.numOfLeaveRemaining = LeaveRequestDocument.numOfLeaveTotal - LeaveRequestDocument.numOfLeaveUsed;
                 }    
             }
             catch(Exception){ throw; }

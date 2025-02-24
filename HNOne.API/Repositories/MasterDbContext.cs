@@ -63,6 +63,7 @@ namespace HNOne.API.Repositories
         public DbSet<SalaryExpenseAccounting1s> SalaryExpenseAccounting1s { get; set; }
         public DbSet<DataPermissions> DataPermissions { get; set; }
         public DbSet<DocumentHistories> DocumentHistories { get; set; }
+        public DbSet<AnnualLeaveInformations> AnnualLeaveInformations { get; set; } // thông tin phép của nhân viên
 
         public MasterDbContext(DbContextOptions<MasterDbContext> options)
             : base(options)
@@ -77,6 +78,7 @@ namespace HNOne.API.Repositories
             modelBuilder.Entity<Positions>().HasIndex(m => m.Code).IsUnique();
             modelBuilder.Entity<Titles>().HasIndex(m => m.Code).IsUnique();
             modelBuilder.Entity<Employees>().HasIndex(m => m.Code).IsUnique();
+            modelBuilder.Entity<Employees>().ToTable(m => m.UseSqlOutputClause(false));
             modelBuilder.Entity<ContractTypes>().HasIndex(m => new { m.Code, m.BranchId }).IsUnique();
             modelBuilder.Entity<Users>().HasIndex(m => m.UserName).IsUnique();
             modelBuilder.Entity<SalaryCategories>().HasIndex(m => m.Code).IsUnique();
@@ -97,6 +99,7 @@ namespace HNOne.API.Repositories
             modelBuilder.Entity<PDeductionPeriods>().HasIndex(m => new { m.EmployeeId, m.BranchId, m.Month, m.Year, m.DeductionConfigId }).IsUnique();
             modelBuilder.Entity<SalaryExpenseAccountings>().HasIndex(m => m.VoucherNo).IsUnique();
             modelBuilder.Entity<DataPermissions>().HasIndex(m => new { m.GroupId, m.Type, m.Code }).IsUnique();
+            modelBuilder.Entity<AnnualLeaveInformations>().HasIndex(m => new { m.EmployeeId, m.BranchId, m.Year }).IsUnique();
         }
 
 
