@@ -131,6 +131,9 @@ namespace HNOne.Model.Models
         public int? attendanceSheetId { get; set; } // id bảng công
         public string? attendanceSheetCode { get; set; } // mã chấm công
         public int branchId { get; set; } // ID chi nhánh
+        public string? branchName { get; set; } //  chi nhánh
+        public int workingBranchId { get; set; } // ID chi nhánh làm việc
+        public string? workingBranchName { get; set; } // ID chi nhánh làm việc
         public int departmentId { get; set; } // phòng ban
         public int positionId { get; set; } // chức vụ
         public int? titleId { get; set; } // chức danh

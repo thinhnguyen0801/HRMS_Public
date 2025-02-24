@@ -100,8 +100,10 @@ namespace HNOne.Web.Controllers
         {
             RequestModel request = new RequestModel();
             request.userId = UserId;
+            request.token = Token;
             request.branchId = BranchId;
             request.opt = StatusFilter;
+            request.branchIds = BranchIds;
             ListEmployee = new List<EmployeeModel>();
             var lstEmp = await _personnelService.GetEmployeeAsync(request);
             if(IsAllowPut)

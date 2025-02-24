@@ -39,6 +39,7 @@ namespace HNOne.Model.Entities
         [MaxLength(1000)]
         public string? ImageUrl { get; set; } // Đường dẫn ảnh
         public int BranchId { get; set; } // ID chi nhánh
+        public int WorkingBranchId { get; set; } // ID chi nhánh làm việc
         #endregion
 
         #region thông tin cmnd, hộ chiếu

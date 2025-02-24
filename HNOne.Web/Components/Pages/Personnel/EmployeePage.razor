@@ -192,6 +192,37 @@
                                                     </div>
                                                 </div>
                                             </div>
+
+                                            <div class="col-md-6 col-sm-12">
+                                                <div class="d-flex ">
+                                                    <W1Label Value="Chi nhánh" Styles="width: 120px" />
+                                                    <div style="width: calc(100% - 120px)">
+                                                        <DxComboBox Data="@ListCboBranch"
+                                                                    @bind-Value="@EmployeeUpdate.branchId"
+                                                                    FilteringMode="DataGridFilteringMode.Contains"
+                                                                    TextFieldName="@nameof(ComboboxModel.name)"
+                                                                    Id="txtBranchId"
+                                                                    ReadOnly="true"
+                                                                    ValueFieldName="@nameof(ComboboxModel.id)" CssClass="w1FontSize">
+                                                        </DxComboBox>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="col-md-6 col-sm-12">
+                                                <div class="d-flex ">
+                                                    <W1Label Value="Chi nhánh làm việc" Styles="width: 120px" IsRequired="true" />
+                                                    <div style="width: calc(100% - 120px)">
+                                                        <DxComboBox Data="@ListCboBranch"
+                                                                    @bind-Value="@EmployeeUpdate.workingBranchId"
+                                                                    FilteringMode="DataGridFilteringMode.Contains"
+                                                                    TextFieldName="@nameof(ComboboxModel.name)"
+                                                                    Id="workingBranchId"
+                                                                    ValueFieldName="@nameof(ComboboxModel.id)" CssClass="w1FontSize">
+                                                        </DxComboBox>
+                                                    </div>
+                                                </div>
+                                            </div>
+
                                             <div class="col-md-6 col-sm-12">
                                                 <div class="d-flex ">
                                                     <W1Label Value="Quản lý trực tiếp" Styles="width: 120px" />

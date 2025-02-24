@@ -13,6 +13,8 @@ namespace HNOne.Model.Entities
         public string? BranchCode { get; set; }
         [MaxLength(250)]
         public string? BranchName { get; set; }
+        [MaxLength(50)]
+        public string? PrefixCode { get; set; }
         [MaxLength]
         public string? ImgUrl { get; set; }
         [MaxLength(500)]

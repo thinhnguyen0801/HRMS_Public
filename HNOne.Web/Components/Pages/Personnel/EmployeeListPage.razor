@@ -71,6 +71,8 @@
                             <DxGridDataColumn FieldName="@nameof(EmployeeModel.titleName)" Caption="Chức danh" MinWidth="190" />
                             <DxGridDataColumn FieldName="@nameof(EmployeeModel.statusName)" Caption="Trạng thái" MinWidth="170" />
                             <DxGridDataColumn FieldName="@nameof(EmployeeModel.shiftName)" Caption="Ca làm việc" MinWidth="150" />
+                            <DxGridDataColumn FieldName="@nameof(EmployeeModel.branchName)" Caption="Chi nhánh" MinWidth="170" />
+                            <DxGridDataColumn FieldName="@nameof(EmployeeModel.workingBranchName)" Caption="Chi nhánh làm việc" MinWidth="170" />
                             <DxGridDataColumn FieldName="@nameof(EmployeeModel.dateTracking)" Caption="Ngày cập nhật" MinWidth="120" DisplayFormat="@GlobalContants.FORMAT_DATE_TIME" />
                             <DxGridDataColumn FieldName="@nameof(EmployeeModel.userSignName)" Caption="Người tạo" MinWidth="120" />
                             <DxGridDataColumn FieldName="@nameof(EmployeeModel.userSignName)" Caption="Người cập nhật" MinWidth="120" />
@@ -78,7 +80,7 @@
                         <TotalSummary>
                             <DxGridSummaryItem DisplayText="@GlobalContants.FORMAT_GRID_DISPLAYTEXT_COUNT" SummaryType="GridSummaryItemType.Count"
                                                FieldName="@nameof(EmployeeModel.code)" ValueDisplayFormat="@GlobalContants.FORMAT_CURRENCY"
-                                               FooterColumnName="@nameof(EmployeeModel.departmentName)" />
+                                               FooterColumnName="@nameof(EmployeeModel.code)" />
                         </TotalSummary>
                     </DxGrid>
                 </div>

@@ -117,6 +117,12 @@ namespace HNOne.Web.Controllers
                 fieldName = nameof(BranchUpdate.branchName);
                 return;
             }
+            if (string.IsNullOrEmpty(BranchUpdate.prefixCode))
+            {
+                errorMessage = String.Format(MessageConstants.MESSAGE_STRING_REQUIRE, "Tiền tố");
+                fieldName = nameof(BranchUpdate.prefixCode);
+                return;
+            }
             if (string.IsNullOrEmpty(BranchUpdate.defaultPassword))
             {
                 errorMessage = String.Format(MessageConstants.MESSAGE_STRING_REQUIRE, "Mật khẩu mặc định");
@@ -173,6 +179,7 @@ namespace HNOne.Web.Controllers
                     BranchUpdate.branchId = pItemDetails!.branchId;
                     BranchUpdate.branchCode = pItemDetails!.branchCode;
                     BranchUpdate.branchName = pItemDetails!.branchName;
+                    BranchUpdate.prefixCode = pItemDetails!.prefixCode;
                     BranchUpdate.phoneNumber = pItemDetails!.phoneNumber;
                     BranchUpdate.imgUrl = pItemDetails!.imgUrl;
                     BranchUpdate.address = pItemDetails!.address;

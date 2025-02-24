@@ -38,6 +38,7 @@ namespace HNOne.Web.Controllers
         public string AddressStr = "{0}, {1}, {2}, {3}, {4}";
 
         public EmployeeModel EmployeeUpdate { get; set; } = new EmployeeModel();
+        public List<ComboboxModel>? ListCboBranch { get; set; } // cbo ds chi nhánh
         public List<EnumCatagoryModel>? ListCboStatus { get; set; } // cbo ds tình trạng
         public List<ComboboxModel>? ListCboDepartment { get; set; } // cbo ds phòng ban
         public List<ComboboxModel>? ListCboPosition { get; set; } // cbo ds chức vụ
@@ -110,7 +111,7 @@ namespace HNOne.Web.Controllers
 
         private void initDataAsync(bool isRefresh = false)
         {
-
+            EmployeeUpdate.branchId = BranchId;
             var uri = _navigationManager?.ToAbsoluteUri(_navigationManager.Uri);
             if(!isRefresh && uri != null && QueryHelpers.ParseQuery(uri.Query).Count > 0)
             {
@@ -142,6 +143,7 @@ namespace HNOne.Web.Controllers
                 var getTask9 = _masterDataService.GetEnumAsync(UserId, Token, nameof(EnumCatagory.LoaiNhanVien)); // ds loại nhân viên
                 var getTask8 = _masterDataService.GetLocationAsync(UserId, Token, nameof(EnumCatagory.Province), "VN");
                 var getTask10 = _masterDataService.GetEnumAsync(UserId, Token, nameof(EnumCatagory.CaLamViec)); // ds loại nhân viên
+                var getTask11 = _masterDataService.GetBranchAsync(1, "", opt: CommonConstants.ENUM_PAGE_LOGIN); // danh sách chi nhánh
                 await Task.WhenAll(
                     getTask1,
                     getTask2,
@@ -152,9 +154,10 @@ namespace HNOne.Web.Controllers
                     getTask7,
                     getTask8,
                     getTask9,
-                    getTask10
+                    getTask10,
+                    getTask11
                 );
-
+                ListCboBranch = (await getTask11)?.Select(m => new ComboboxModel() { id = m.branchId, name = m.branchName })?.ToList();
                 ListCboDepartment = (await getTask1)?.Select(m => new ComboboxModel() { id = m.id, name = m.name })?.ToList();
                 ListCboPosition = (await getTask2)?.Select(m => new ComboboxModel() { id = m.id, name = m.name })?.ToList();
                 ListCboTitle = (await getTask3)?.Select(m => new ComboboxModel() { id = m.id, name = m.name })?.ToList();
@@ -276,6 +279,12 @@ namespace HNOne.Web.Controllers
             {
                 errorMessage = string.Format(MessageConstants.MESSAGE_COMBOBOX_REQUIRE, "Chức danh");
                 fieldName = nameof(EmployeeUpdate.titleId);
+                return;
+            }
+            if (EmployeeUpdate.workingBranchId < 1)
+            {
+                errorMessage = string.Format(MessageConstants.MESSAGE_COMBOBOX_REQUIRE, "Chi nhánh sử dụng");
+                fieldName = nameof(EmployeeUpdate.workingBranchId);
                 return;
             }
             if (string.IsNullOrEmpty(EmployeeUpdate.cIC))

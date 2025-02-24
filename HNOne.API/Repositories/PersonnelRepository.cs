@@ -43,12 +43,15 @@ namespace HNOne.API.Repositories
         {
             using (var connection = _dapperDbContext.CreateConnection())
             {
+                request.branchIds += $",{request.branchId}";
+                request.branchIds = request.branchIds.Trim(',');
                 var parameters = new DynamicParameters();
                 parameters.Add("@EmployeeId", request.employeeId, DbType.Int32);
                 parameters.Add("@UserId", request.userId, DbType.Int32);
                 parameters.Add("@BranchId", request.branchId, DbType.Int32);
                 parameters.Add("@DepartmentIds", $"{request.departmentIds}", DbType.String);
                 parameters.Add("@StatusIds", $"{request.opt}", DbType.String);
+                parameters.Add("@BranchIds", $"{request.branchIds}", DbType.String);
                 var lstResult = await connection.QueryAsync<EmployeeModel>(StoreConstants.STORE_H1_EMPLOYEE_SELECT, param: parameters, commandTimeout: GlobalConstants.COMMAND_TIMEOUT, commandType: CommandType.StoredProcedure);
                 return lstResult;
             }; 
@@ -1017,7 +1020,8 @@ namespace HNOne.API.Repositories
             data.LevelOfComputerLiteracy = entity.LevelOfComputerLiteracy;
             data.OtherSkills = entity.OtherSkills;
             data.ProbationEndDate = entity.ProbationEndDate;
-            data.BranchId = entity.BranchId;
+            //data.BranchId = entity.BranchId;
+            data.WorkingBranchId = entity.WorkingBranchId;
             data.DepartmentId = entity.DepartmentId;
             data.PositionId = entity.PositionId;
             data.TitleId = entity.TitleId;

@@ -613,6 +613,7 @@ namespace HNOne.API.Repositories
                     return response;
                 }
                 branch.BranchName = entity.BranchName;
+                branch.PrefixCode = entity.PrefixCode;
                 branch.Address = entity.Address;
                 branch.ImgUrl = entity.ImgUrl;
                 branch.PhoneNumber = entity.PhoneNumber;

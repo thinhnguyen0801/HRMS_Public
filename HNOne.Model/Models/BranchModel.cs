@@ -5,6 +5,7 @@
         public int branchId { get; set; }
         public string? branchCode { get; set; }
         public string? branchName { get; set; }
+        public string? prefixCode { get; set; }
         public string? imgUrl { get; set; }
         public string? address { get; set; }
         public string? phoneNumber { get; set; }

@@ -54,6 +54,7 @@
                                 </CellDisplayTemplate>
                             </DxGridDataColumn>
                             <DxGridDataColumn FieldName="@nameof(BranchModel.branchName)" Caption="Tên chi nhánh" MinWidth="170" />
+                            <DxGridDataColumn FieldName="@nameof(BranchModel.prefixCode)" Caption="Tiền tố" MinWidth="130" />
                             <DxGridDataColumn FieldName="@nameof(BranchModel.phoneNumber)" Caption="Số điện thoại" MinWidth="170" />
                             <DxGridDataColumn FieldName="@nameof(BranchModel.address)" Caption="Địa chỉ" MinWidth="210" />
                             <DxGridDataColumn FieldName="@nameof(BranchModel.dateTracking)" Caption="Ngày cập nhật" MinWidth="120" DisplayFormat="@GlobalContants.FORMAT_DATE_TIME" />
@@ -90,6 +91,14 @@
                 <W1Label Value="Tên chi nhánh" Styles="width: 140px" IsRequired="true" />
                 <div style="width: calc(100% - 140px)">
                     <DxTextBox @bind-Text="@BranchUpdate.branchName" CssClass="w1FontSize" Id="branchName"></DxTextBox>
+                </div>
+            </div>
+        </div>
+        <div class="col-sm-12">
+            <div class="d-flex ">
+                <W1Label Value="Tiền tố" Styles="width: 140px" IsRequired="true" />
+                <div style="width: calc(100% - 140px)">
+                    <DxTextBox @bind-Text="@BranchUpdate.prefixCode" CssClass="w1FontSize" Id="prefixCode"></DxTextBox>
                 </div>
             </div>
         </div>
