@@ -192,49 +192,22 @@
                 </div>
             </div>
         </div>
-        @* <div class="col-sm-12">
-            <div class="d-flex">
-                <W1Label Value="Chi nhánh sử dụng" Id="bacLuong" Styles="width: 120px" />
-                <div style="width: calc(100% - 120px)">
-                    <DxTagBox Data="@ListCboBranch"
-                              @bind-Values="@ListCboBranchSelected" CssClass="w1FontSize"
-                              DropDownBodyCssClass="w1FontSize" DropDownCssClass="w1FontSize"
-                              ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
-                              TextFieldName="@nameof(ComboboxModel.name)">
-                        <DxListEditorColumn FieldName="@nameof(ComboboxModel.code)" Caption="Mã" Width="120px" />
-                        <DxListEditorColumn FieldName="@nameof(ComboboxModel.name)" Caption="Tên" />
-                    </DxTagBox>
+        @if(IsAdmin)
+        {
+            <div class="col-sm-12">
+                <div class="d-flex">
+                    <W1Label Value="" Id="bacLuong" Styles="width: 120px" />
+                    <div style="width: calc(100% - 120px)">
+                        <DxCheckBox CssClass="w-100 w1FontSize"
+                                    SizeMode="@SizeMode.Small"
+                                    @bind-Checked="@UserUpdate.isAdmin"
+                                    LabelPosition="@LabelPosition.Right">
+                            Quản trị viên?
+                        </DxCheckBox>
+                    </div>
                 </div>
             </div>
-        </div>
-        <div class="col-sm-12">
-            <div class="d-flex">
-                <W1Label Value="Phòng ban sử dụng" Id="bacLuong" Styles="width: 120px" />
-                <div style="width: calc(100% - 120px)">
-                    <DxTagBox Data="@ListCboDepartment"
-                              @bind-Values="@ListDepartmentSelected" CssClass="w1FontSize"
-                              DropDownBodyCssClass="w1FontSize" DropDownCssClass="w1FontSize"
-                              ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
-                              TextFieldName="@nameof(ComboboxModel.name)">
-                        <DxListEditorColumn FieldName="@nameof(ComboboxModel.code)" Caption="Mã" Width="120px" />
-                        <DxListEditorColumn FieldName="@nameof(ComboboxModel.name)" Caption="Tên" />
-                    </DxTagBox>
-                </div>
-            </div>
-        </div> *@
-        @* <div class="col-sm-12">
-            <div class="d-flex">
-                <W1Label Value="" Id="bacLuong" Styles="width: 120px" />
-                <div style="width: calc(100% - 120px)">
-                    <DxCheckBox CssClass="w-100 w1FontSize"
-                                SizeMode="@SizeMode.Small"
-                                @bind-Checked="@UserUpdate.isAdmin"
-                                LabelPosition="@LabelPosition.Right">
-                        Quản trị viên?
-                    </DxCheckBox>
-                </div>
-            </div>
-        </div> *@
+        }
     </div>
 </W1Popup>
 

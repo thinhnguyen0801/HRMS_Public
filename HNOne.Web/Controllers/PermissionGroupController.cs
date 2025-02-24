@@ -459,7 +459,7 @@ namespace HNOne.Web.Controllers
                 await ShowLoading();
                 IsCheckAllEvent = false;
                 ListMenuAuth!.Update(m => m.listEvent?.Update(m => m.isAllow = false));
-                if (permissionSelected.branchCode == "System") ListDataAuth = ListDataAuthTemp;
+                if (IsAdmin) ListDataAuth = ListDataAuthTemp; // nếu là admin thì được thấy hết
                 else ListDataAuth = ListDataAuthTemp!.Where(m => m.branchId == permissionSelected.branchId).ToList();
                 ListDataAuth!.Update(m => m.isAllow = false);
                 RequestModel request = new RequestModel();
