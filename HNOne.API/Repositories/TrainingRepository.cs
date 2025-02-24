@@ -75,7 +75,8 @@ namespace HNOne.API.Repositories
                     DateTime dateTimeNow = _dateTimeHelper.GetCurrentVietnamTime();
                     DynamicParameters parameters = new DynamicParameters();
                     parameters.Add("@Type", GlobalConstants.TABLE_TRAINING, DbType.String);
-                    string commandText = @$"select {StoreConstants.FUNC_GET_VOUCHER}(@Type, '', '', '')";
+                    parameters.Add("@BranchId", entity.BranchId, DbType.Int32);
+                    string commandText = @$"select {StoreConstants.FUNC_GET_VOUCHER}(@Type, @BranchId, '', '', '')";
                     string? voucherNo = await connection.QueryFirstOrDefaultAsync<string>(commandText, param: parameters, commandTimeout: GlobalConstants.COMMAND_TIMEOUT, commandType: CommandType.Text);
                     if (string.IsNullOrEmpty(voucherNo))
                     {

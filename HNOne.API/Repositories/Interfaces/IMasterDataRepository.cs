@@ -32,7 +32,7 @@ namespace HNOne.API.Repositories.Interfaces
         Task<IEnumerable<SalaryConfigurationModel>> GetSalaryConfig(RequestModel request);
         Task<ResponseModel> UpdateSalaryConfig(SalaryConfigurations entity);
         Task<ResponseModel> AddSalaryConfig(SalaryConfigurations entity);
-        Task<string?> GetDocumentNo(string? type, string? opt = "", string? opt1 = "", string? opt2 = "");
+        Task<string?> GetDocumentNo(string? type, int branchId, string? opt = "", string? opt1 = "", string? opt2 = "");
         Task<IEnumerable<ComboboxModel?>> GetLocationData(string? type, string? opt = "", string? opt1 = "", string? opt2 = "");
         Task<IEnumerable<dynamic>?> GetMasterData(RequestModel request);
         Task<IEnumerable<EnumCatagoryModel>> GetFnEnum(RequestModel request);

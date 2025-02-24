@@ -27,7 +27,7 @@ namespace HNOne.API.Services.Interfaces
         Task<ResponseModel> UpdateSalaryConfig(string actionType, SalaryConfigurations entity);
         Task<IEnumerable<SalaryParameterModel>> GetSalaryParameter(RequestModel request);
         Task<ResponseModel> UpdateSalaryParameter(string actionType, SalaryParameters entity);
-        Task<string?> GetDocumentNo(string? type, string? opt = "", string? opt1 = "", string? opt2 = "");
+        Task<string?> GetDocumentNo(string? type, int branchId, string? opt = "", string? opt1 = "", string? opt2 = "");
         Task<IEnumerable<ComboboxModel?>> GetLocationData(string? type, string? opt = "", string? opt1 = "", string? opt2 = "");
         Task<IEnumerable<dynamic>?> GetMasterData(RequestModel request);
         Task<IEnumerable<EnumCatagoryModel>> GetFnEnum(RequestModel request);

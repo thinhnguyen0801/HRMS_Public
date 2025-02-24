@@ -298,8 +298,8 @@ namespace HNOne.API.Repositories
                 using (var connection = _dapperDbContext.CreateConnection())
                 {
                     DateTime currentDate = _dateTimeHelper.GetCurrentVietnamTime();
-                    string commandText = @$"select {StoreConstants.FUNC_GET_VOUCHER}(@Type, '', '', '')";
-                    string? voucherNo = await connection.QueryFirstOrDefaultAsync<string>(commandText, param: new { Type = GlobalConstants.TABLE_PERMISSION_GROUP }, commandTimeout: GlobalConstants.COMMAND_TIMEOUT, commandType: CommandType.Text);
+                    string commandText = @$"select {StoreConstants.FUNC_GET_VOUCHER}(@Type, @BranchId, '', '', '')";
+                    string? voucherNo = await connection.QueryFirstOrDefaultAsync<string>(commandText, param: new { Type = GlobalConstants.TABLE_PERMISSION_GROUP, entity.BranchId }, commandTimeout: GlobalConstants.COMMAND_TIMEOUT, commandType: CommandType.Text);
                     if (string.IsNullOrEmpty(voucherNo))
                     {
                         response.status = StatusCodes.Status204NoContent;

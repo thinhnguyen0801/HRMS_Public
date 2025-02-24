@@ -77,8 +77,8 @@ namespace HNOne.API.Services
         /// <param name="opt1"></param>
         /// <param name="opt2"></param>
         /// <returns></returns>
-        public async Task<string?> GetDocumentNo(string? type, string? opt = "", string? opt1 = "", string? opt2 = "")
-            => await _masterRepository.GetDocumentNo(type, opt, opt1, opt2);
+        public async Task<string?> GetDocumentNo(string? type, int branchId, string? opt = "", string? opt1 = "", string? opt2 = "")
+            => await _masterRepository.GetDocumentNo(type, branchId, opt, opt1, opt2);
 
         /// <summary>
         /// Lấy danh sách Quốc gia, Tỉnh thành, Quận/Huyện, Xã/Phường

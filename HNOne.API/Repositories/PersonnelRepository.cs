@@ -204,7 +204,8 @@ namespace HNOne.API.Repositories
                     var parameters = new DynamicParameters();
                     parameters.Add("@Type", GlobalConstants.TABLE_EMPLOYEE, DbType.String);
                     parameters.Add("@Opt", entity.EmployeeType, DbType.String);
-                    string commandText = @$"select {StoreConstants.FUNC_GET_VOUCHER}(@Type, @Opt, '', '')";
+                    parameters.Add("@BranchId", entity.BranchId, DbType.Int32);
+                    string commandText = @$"select {StoreConstants.FUNC_GET_VOUCHER}(@Type, @BranchId, @Opt, '', '')";
                     string? voucherNo = await connection.QueryFirstOrDefaultAsync<string>(commandText, param: parameters, commandTimeout: GlobalConstants.COMMAND_TIMEOUT, commandType: CommandType.Text);
                     if (string.IsNullOrEmpty(voucherNo))
                     {

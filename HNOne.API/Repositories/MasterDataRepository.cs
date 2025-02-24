@@ -394,15 +394,16 @@ namespace HNOne.API.Repositories
         /// <param name="opt1"></param>
         /// <param name="opt2"></param>
         /// <returns></returns>
-        public async Task<string?> GetDocumentNo(string? type, string? opt = "", string? opt1 = "", string? opt2 = "")
+        public async Task<string?> GetDocumentNo(string? type, int branchId, string? opt = "", string? opt1 = "", string? opt2 = "")
         {
             try
             {
                 using (var connection = _dapperDbContext.CreateConnection())
                 {
-                    string commandText = @$"select {StoreConstants.FUNC_GET_VOUCHER}(@Type,@Opt,@Opt1,@Opt2)";
+                    string commandText = @$"select {StoreConstants.FUNC_GET_VOUCHER}(@Type,@BranchId,@Opt,@Opt1,@Opt2)";
                     DynamicParameters parameters = new DynamicParameters();
                     parameters.Add("@Type", type, DbType.String);
+                    parameters.Add("@BranchId", branchId, DbType.Int32);
                     parameters.Add("@Opt", opt, DbType.String);
                     parameters.Add("@Opt1", opt1, DbType.String);
                     parameters.Add("@Opt2", opt2, DbType.String);
@@ -712,8 +713,8 @@ namespace HNOne.API.Repositories
             {
                 using (var connection = _dapperDbContext.CreateConnection())
                 {
-                    string commandText = @$"select {StoreConstants.FUNC_GET_VOUCHER}(@Type, '', '', '')";
-                    string? voucherNo = await connection.QueryFirstOrDefaultAsync<string>(commandText, param: new { Type = GlobalConstants.TABLE_POSITION }, commandTimeout: GlobalConstants.COMMAND_TIMEOUT, commandType: CommandType.Text);
+                    string commandText = @$"select {StoreConstants.FUNC_GET_VOUCHER}(@Type, @BranchId, '', '', '')";
+                    string? voucherNo = await connection.QueryFirstOrDefaultAsync<string>(commandText, param: new { Type = GlobalConstants.TABLE_POSITION, entity.BranchId }, commandTimeout: GlobalConstants.COMMAND_TIMEOUT, commandType: CommandType.Text);
                     if (string.IsNullOrEmpty(voucherNo))
                     {
                         response.status = StatusCodes.Status204NoContent;
@@ -781,8 +782,8 @@ namespace HNOne.API.Repositories
             {
                 using (var connection = _dapperDbContext.CreateConnection())
                 {
-                    string commandText = @$"select {StoreConstants.FUNC_GET_VOUCHER}(@Type, '', '', '')";
-                    string? voucherNo = await connection.QueryFirstOrDefaultAsync<string>(commandText, param: new { Type = GlobalConstants.TABLE_TITLE }, commandTimeout: GlobalConstants.COMMAND_TIMEOUT, commandType: CommandType.Text);
+                    string commandText = @$"select {StoreConstants.FUNC_GET_VOUCHER}(@Type, @BranchId, '', '', '')";
+                    string? voucherNo = await connection.QueryFirstOrDefaultAsync<string>(commandText, param: new { Type = GlobalConstants.TABLE_TITLE, entity.BranchId }, commandTimeout: GlobalConstants.COMMAND_TIMEOUT, commandType: CommandType.Text);
                     if (string.IsNullOrEmpty(voucherNo))
                     {
                         response.status = StatusCodes.Status204NoContent;
