@@ -68,5 +68,6 @@
         EnumCatagories,
         TaxRates,
         DeductionConfigs,
+        PermissionGroups
     }
 }

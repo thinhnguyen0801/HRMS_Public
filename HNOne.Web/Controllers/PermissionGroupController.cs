@@ -306,6 +306,10 @@ namespace HNOne.Web.Controllers
             }
         }
 
+        /// <summary>
+        /// xóa dữ liệu
+        /// </summary>
+        /// <returns></returns>
         protected async Task DeleteDataHandler()
         { 
             try
@@ -316,6 +320,33 @@ namespace HNOne.Web.Controllers
                     ShowInfo(MessageConstants.MESSAGE_NO_PERMISSION);
                     return;
                 }
+                if (SelectedItems.IsNullOrEmpty())
+                {
+                    ShowWarning(MessageConstants.MESSAGE_NO_CHOSE_DATA);
+                    return;
+                }
+                bool isConfirm = await confirm.SetConfirm(MessageConstants.MESSAGE_TITLE, $"{MessageConstants.MESSAGE_CONFIRM_DELETE} ");
+                if (!isConfirm) return;
+                await ShowLoading();
+                string tableName = _encryptHelper.Encrypt(nameof(EnumObjType.PermissionGroups));
+                string pKey = _encryptHelper.Encrypt(nameof(PermissionGroupModel.id));
+                string fKey = _encryptHelper.Encrypt(nameof(UserModel.perGroupId));
+                string ids = string.Join(",", SelectedItems!.Cast<PermissionGroupModel>().Select(m => m.id));
+                string reasonDelete = "";
+                string strResult = await _masterDataService.DeleteDynnamicAsync(UserId, Token, BranchId, tableName, pKey, fKey, ids, reasonDelete);
+                if (strResult == "-1") return;
+                if (strResult == StatusCodes.Status200OK.ToString())
+                {
+                    await getPermissionGroup();
+                    SelectedItems = null;
+                    return;
+                }
+                await Task.Delay(75);
+                await ShowLoading(false);
+                await Task.Yield();
+                isConfirm = await confirm.SetConfirm(MessageConstants.MESSAGE_NOTIFICATION, $"{strResult} ", isShowFooter: false);
+                return;
+                
             }
             catch (Exception ex)
             {
@@ -423,9 +454,10 @@ namespace HNOne.Web.Controllers
                     ShowWarning(string.Format(MessageConstants.MESSAGE_NOT_FOUNT_FORMAT, "Phân quyền dữ liệu"));
                     return;
                 }
+                PermissionGroupModel permissionSelected = (PermissionGroupModel)selected;
+                if (permissionSelected == null) return;
                 await ShowLoading();
                 IsCheckAllEvent = false;
-                PermissionGroupModel permissionSelected = (PermissionGroupModel)selected;
                 ListMenuAuth!.Update(m => m.listEvent?.Update(m => m.isAllow = false));
                 if (permissionSelected.branchCode == "System") ListDataAuth = ListDataAuthTemp;
                 else ListDataAuth = ListDataAuthTemp!.Where(m => m.branchId == permissionSelected.branchId).ToList();
