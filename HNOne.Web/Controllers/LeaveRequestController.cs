@@ -324,7 +324,7 @@ namespace HNOne.Web.Controllers
                     LeaveRequestDocument.numOfLeave = header.numOfLeave;
                     LeaveRequestDocument.numOfLeaveLevel = header.numOfLeaveLevel;
                     LeaveRequestDocument.numOfLeaveOld = header.numOfLeaveOld;
-                    LeaveRequestDocument.numOfLeaveTotal = LeaveRequestDocument.numOfLeaveTotal;
+                    LeaveRequestDocument.numOfLeaveTotal = header.numOfLeaveTotal;
                     LeaveRequestDocument.numOfLeaveUsed = header.numOfLeaveUsed;
                     LeaveRequestDocument.numOfLeaveRemaining = header.numOfLeaveRemaining;
                 }    

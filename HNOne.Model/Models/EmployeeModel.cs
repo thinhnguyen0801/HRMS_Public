@@ -133,6 +133,7 @@ namespace HNOne.Model.Models
         public int branchId { get; set; } // ID chi nhánh
         public string? branchName { get; set; } //  chi nhánh
         public int workingBranchId { get; set; } // ID chi nhánh làm việc
+        public string? workingBranchCode { get; set; } // ID chi nhánh làm việc
         public string? workingBranchName { get; set; } // ID chi nhánh làm việc
         public int departmentId { get; set; } // phòng ban
         public int positionId { get; set; } // chức vụ

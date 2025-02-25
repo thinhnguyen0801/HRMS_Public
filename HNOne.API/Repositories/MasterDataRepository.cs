@@ -1585,6 +1585,25 @@ namespace HNOne.API.Repositories
                             await _dbContext.Database.CommitTransactionAsync();
                             response.message = MessageConstants.MESSAGE_ADD_SUCCESS;
                             break;
+                        case ProcessConstants.POST_EMPLOYEE:
+                            var lstEmployees = dtResult.Read<Employees>();
+                            await _dbContext.Database.BeginTransactionAsync();
+                            isTrans = true;
+                            maxId = await _dbContext.Employees.Select(m => m.Id).DefaultIfEmpty().MaxAsync() + 1;
+                            foreach (var entity in lstEmployees!)
+                            {
+                                entity.Id = maxId;
+                                entity.UserSign = userId;
+                                entity.DateTracking = dateTimeNow;
+                                entity.CreateDate = dateTimeNow;
+                                entity.DeleteReason = "Import dữ liệu";
+                                await _dbContext.Employees.AddAsync(entity);
+                                maxId++;
+                            }
+                            await _dbContext.SaveChangesAsync();
+                            await _dbContext.Database.CommitTransactionAsync();
+                            response.message = MessageConstants.MESSAGE_ADD_SUCCESS;
+                            break;
                         default:
                             response.status = StatusCodes.Status404NotFound;
                             response.message = $"Process Key {processKey} was not provider!!!";

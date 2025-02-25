@@ -17,6 +17,7 @@
         public int numOfLeaveRemaining { get; set; } // phép còn lại
         public int numOfLeavePaid { get; set; } // phép đã thanh toán
         public int numOfLeaveOld { get; set; } // phép của năm củ
+        public int numOfLeaveTotal { get; set; } // Tổng số phép
 
     }
 }
