@@ -44,8 +44,9 @@ namespace HNOne.API.Repositories
             {
                 DynamicParameters parameters = new DynamicParameters();
                 string strQuery = "select * from Branchs as T0 with(nolock) where T0.IsDelete = 0";
-                if(request.opt != CommonConstants.ENUM_PAGE_LOGIN)
+                if(request.opt != CommonConstants.ENUM_PAGE_LOGIN && request.opt1 == "N")
                 {
+                    // nếu khác page login và không phải là super admin
                     request.branchIds += $",{request.branchId}";
                     request.branchIds = request.branchIds.Trim(',');
                     strQuery += " and T0.BranchId in ((select [Value] from string_split(@BranchIds, ',')))";

@@ -101,7 +101,7 @@ namespace HNOne.Web.Controllers
         private async Task getBranchs()
         {
             ListBranch = new List<BranchModel>();
-            ListBranch = await _masterDataService.GetBranchAsync(UserId, Token, BranchId, $"{BranchIds}", isShowToast: true);
+            ListBranch = await _masterDataService.GetBranchAsync(UserId, Token, BranchId, $"{BranchIds}", supperAdmin: IsAdmin ? "Y" : "N", isShowToast: true);
         }
         private void validateForSave(ref string errorMessage, ref string fieldName)
         {

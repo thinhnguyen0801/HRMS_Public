@@ -62,7 +62,8 @@ namespace HNOne.Web.Services
         /// </summary>
         /// <param name="request"></param>
         /// <returns></returns>
-        public async Task<List<BranchModel>?> GetBranchAsync(int userId, string token = "", int branchId = -1, string branchIds = "", string opt = "", bool isShowToast = false)
+        public async Task<List<BranchModel>?> GetBranchAsync(int userId, string token = "", int branchId = -1
+            , string branchIds = "", string opt = "", string supperAdmin = "N", bool isShowToast = false)
         {
 
             try
@@ -75,6 +76,7 @@ namespace HNOne.Web.Services
                 request.branchId = branchId;
                 request.branchIds = branchIds;
                 request.opt = opt;
+                request.opt1 = supperAdmin;
                 HttpResponseMessage httpResponse = await PostAsync(EnpointConstants.MASTERDATA_GET_DATA_WITHOUT_TOKEN, request);
                 var checkContent = ValidateJsonContent(httpResponse.Content);
                 if (!checkContent) _toastService.ShowInfo(MessageConstants.MESSAGE_JSON_INVALID);

@@ -115,7 +115,7 @@ namespace HNOne.Web.Controllers
                 request.branchId = BranchId;
                 request.opt = "ACTIVE";
                 request.branchIds = BranchIds;
-                var getTask1 = _masterDataService.GetBranchAsync(UserId, Token, BranchId, $"{BranchIds}");
+                var getTask1 = _masterDataService.GetBranchAsync(UserId, Token, BranchId, $"{BranchIds}", supperAdmin: IsAdmin ? "Y" : "N");
                 var getTask2 = _masterDataService.GetDepartmentAsync(UserId, Token, BranchId, opt: CommonConstants.ENUM_ACTIVE);
                 var getTask3 = _userDataService.GetPermissionGroup(request);
                 await Task.WhenAll(

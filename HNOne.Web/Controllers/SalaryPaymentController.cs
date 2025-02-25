@@ -152,7 +152,7 @@ namespace HNOne.Web.Controllers
                 request.branchId = BranchId;
                 request.token = Token;
                 request.type = ProcessConstants.GET_COMBO_LIST_SALARY_PREIOD;
-                var getTask4 = _masterDataService.GetBranchAsync(UserId, Token, BranchId, $"{BranchIds}");
+                var getTask4 = _masterDataService.GetBranchAsync(UserId, Token, BranchId, $"{BranchIds}", supperAdmin: IsAdmin ? "Y" : "N");
                 var getTask5 = _masterDataService.GetFunEnumAsync(UserId, Token, nameof(EnumCatagory.TrangThaiHopDong)); // ds trạng thái
                 var getTask1 = _masterDataService.GetFunEnumAsync(UserId, Token, nameof(EnumCatagory.LoaiChiLuong)); // ds loại chi lương
                 var getTask2 = _masterDataService.GetFunEnumAsync(UserId, Token, nameof(EnumCatagory.PhuongThucThanhToan)); // ds phương thức thanh toán
