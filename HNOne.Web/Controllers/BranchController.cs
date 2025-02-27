@@ -200,7 +200,12 @@ namespace HNOne.Web.Controllers
         {
             try
             {
-                await checkPermission(MenuId);
+                if (!IsAdmin)
+                {
+                    ShowInfo(MessageConstants.MESSAGE_NO_PERMISSION_ADMIN);
+                    return;
+                }
+                await checkPermission(MenuId);  
                 if ((IsCreate && !IsAllowPost) || (!IsCreate && !IsAllowPut))
                 {
                     ShowInfo(MessageConstants.MESSAGE_NO_PERMISSION);
@@ -252,6 +257,11 @@ namespace HNOne.Web.Controllers
         {
             try
             {
+                if (!IsAdmin)
+                {
+                    ShowInfo(MessageConstants.MESSAGE_NO_PERMISSION_ADMIN);
+                    return;
+                }
                 await checkPermission(MenuId);
                 if(!IsAllowDelete)
                 {
