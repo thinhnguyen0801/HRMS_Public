@@ -48,5 +48,7 @@ namespace HNOne.API.Repositories.Interfaces
         Task<IEnumerable<DeductionConfigModel>> GetDeductionConfig(RequestModel request);
         Task<ResponseModel> ImportData(int branchId, int userId, string processKey, string jData);
         Task<ResponseModel> UpdateStatusNotification(RequestModel request);
+        Task<IEnumerable<WorkingBranchModel>> GetWorkingBranch(RequestModel request);
+        Task<ResponseModel> UpdateWorkingBranch(string actionType, WorkingBranchs entity);
     }
 }

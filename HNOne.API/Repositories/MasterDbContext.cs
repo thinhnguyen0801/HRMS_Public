@@ -64,6 +64,7 @@ namespace HNOne.API.Repositories
         public DbSet<DataPermissions> DataPermissions { get; set; }
         public DbSet<DocumentHistories> DocumentHistories { get; set; }
         public DbSet<AnnualLeaveInformations> AnnualLeaveInformations { get; set; } // thông tin phép của nhân viên
+        public DbSet<WorkingBranchs> WorkingBranchs { get; set; } // chi nhánh làm việc
 
         public MasterDbContext(DbContextOptions<MasterDbContext> options)
             : base(options)

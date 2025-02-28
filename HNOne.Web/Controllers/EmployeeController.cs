@@ -39,6 +39,7 @@ namespace HNOne.Web.Controllers
 
         public EmployeeModel EmployeeUpdate { get; set; } = new EmployeeModel();
         public List<ComboboxModel>? ListCboBranch { get; set; } // cbo ds chi nhánh
+        public List<ComboboxModel>? ListCboWorkingBranch { get; set; } // cbo ds chi nhánh làm việc
         public List<EnumCatagoryModel>? ListCboStatus { get; set; } // cbo ds tình trạng
         public List<ComboboxModel>? ListCboDepartment { get; set; } // cbo ds phòng ban
         public List<ComboboxModel>? ListCboPosition { get; set; } // cbo ds chức vụ
@@ -133,6 +134,12 @@ namespace HNOne.Web.Controllers
         {
             try
             {
+                RequestModel request = new RequestModel();
+                request.userId = UserId;
+                request.token = Token;
+                request.branchId = BranchId;
+                request.opt = CommonConstants.ENUM_ACTIVE;
+                request.process = ProcessConstants.GET_WORKING_BRANCH;
                 var getTask1 = _masterDataService.GetDepartmentAsync(UserId, Token, BranchId, opt: CommonConstants.ENUM_ACTIVE); // ds phòng ban
                 var getTask2 = _masterDataService.GetPositionAsync(UserId, Token, BranchId, opt: CommonConstants.ENUM_ACTIVE); // ds chức vụ
                 var getTask3 = _masterDataService.GetTitleAsync(UserId, Token, BranchId, opt: CommonConstants.ENUM_ACTIVE); // ds chức danh
@@ -144,6 +151,7 @@ namespace HNOne.Web.Controllers
                 var getTask8 = _masterDataService.GetLocationAsync(UserId, Token, nameof(EnumCatagory.Province), "VN");
                 var getTask10 = _masterDataService.GetEnumAsync(UserId, Token, nameof(EnumCatagory.CaLamViec)); // ds loại nhân viên
                 var getTask11 = _masterDataService.GetBranchAsync(1, "", opt: CommonConstants.ENUM_PAGE_LOGIN); // danh sách chi nhánh
+                var getTask12 = _masterDataService.GetMasterAsync<WorkingBranchModel>(request, isShowToast: false); // danh sách chi nhánh
                 await Task.WhenAll(
                     getTask1,
                     getTask2,
@@ -155,7 +163,8 @@ namespace HNOne.Web.Controllers
                     getTask8,
                     getTask9,
                     getTask10,
-                    getTask11
+                    getTask11,
+                    getTask12
                 );
                 ListCboBranch = (await getTask11)?.Select(m => new ComboboxModel() { id = m.branchId, name = m.branchName })?.ToList();
                 ListCboDepartment = (await getTask1)?.Select(m => new ComboboxModel() { id = m.id, name = m.name })?.ToList();
@@ -169,6 +178,7 @@ namespace HNOne.Web.Controllers
                 ListCboProvince = await getTask8;
                 ListCboEmployeeType = await getTask9;
                 ListCboShift = await getTask10;
+                ListCboWorkingBranch = (await getTask12)?.Select(m => new ComboboxModel() { id = m.id, name = m.name})?.ToList();
             }
             catch (Exception ex)
             {

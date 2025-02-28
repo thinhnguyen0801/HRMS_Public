@@ -550,7 +550,41 @@ namespace HNOne.API.Repositories
                 return results;
             }
         }
-        #endregion 
+
+        /// <summary>
+        /// lấy danh sách chi nhánh làm việc
+        /// </summary>
+        /// <param name="request"></param>
+        /// <returns></returns>
+        public async Task<IEnumerable<WorkingBranchModel>> GetWorkingBranch(RequestModel request)
+        {
+            using (var connection = _dapperDbContext.CreateConnection())
+            {
+                var parameters = new DynamicParameters();
+                string strQuery = "select T0.*, T2.BranchCode, T2.BranchName" +
+                    " from WorkingBranchs as T0 with(nolock)" +
+                    " inner join Branchs as T2 with(nolock) on T0.BranchId = T2.BranchId" +
+                    " where T0.IsDelete = '0'";
+                // thêm điều kiện
+                if (request.opt == CommonConstants.ENUM_ACTIVE)
+                {
+                    // ở các chứng từ
+                    strQuery += " and T0.BranchId = @BranchId";
+                    parameters.Add("@BranchId", request.branchId, DbType.Int32);
+                }
+                else
+                {
+                    // Ở page danh mục. Kiểm tra có quyền xem chi nhánh nào thì where thêm
+                    request.branchIds += $",{request.branchId}";
+                    request.branchIds = request.branchIds.Trim(',');
+                    strQuery += " and T0.BranchId in ((select [Value] from string_split(@BranchIds, ',')))";
+                    parameters.Add("@BranchIds", request.branchIds, DbType.String);
+                }
+                var results = await connection.QueryAsync<WorkingBranchModel>(strQuery, parameters, commandTimeout: GlobalConstants.COMMAND_TIMEOUT, commandType: CommandType.Text);
+                return results;
+            }    
+        }
+        #endregion
 
         #region Command
 
@@ -1647,6 +1681,56 @@ namespace HNOne.API.Repositories
                 }
                 return response;
             }    
+        }
+        
+        /// <summary>
+        /// thêm mới & cập nhật thông tin chi nhánh làm việc
+        /// </summary>
+        /// <param name="actionType"></param>
+        /// <param name="entity"></param>
+        /// <returns></returns>
+        public async Task<ResponseModel> UpdateWorkingBranch(string actionType, WorkingBranchs entity)
+        {
+            ResponseModel response = new ResponseModel();
+            try
+            {
+                DateTime dateTimeNow = _dateTimeHelper.GetCurrentVietnamTime();
+                if (actionType == ProcessConstants.POST_WORKING_BRANCH)
+                {
+                    // Tạo mới
+                    entity.Id = await _dbContext.WorkingBranchs.Select(m => m.Id).DefaultIfEmpty().MaxAsync() + 1;
+                    entity.DateTracking = dateTimeNow;
+                    entity.CreateDate = dateTimeNow;
+                    await _dbContext.WorkingBranchs.AddAsync(entity);
+                    await _dbContext.SaveChangesAsync();
+                    response.message = MessageConstants.MESSAGE_ADD_SUCCESS;
+                    return response;
+                }
+                // cập nhật
+                var data = await _dbContext.WorkingBranchs.FirstOrDefaultAsync(m => m.Id == entity.Id);
+                if (data == null)
+                {
+                    response.status = StatusCodes.Status404NotFound;
+                    response.message = MessageConstants.MESSAGE_NOT_FOUNT;
+                    return response;
+                }
+                data.BranchId = entity.BranchId;
+                data.Name = entity.Name;
+                data.Remark = entity.Remark;
+                data.DateTracking = dateTimeNow;
+                data.UpdateDate = dateTimeNow;
+                data.UserSign2 = entity.UserSign2;
+                _dbContext.WorkingBranchs.Attach(data);
+                _dbContext.Entry(data).State = EntityState.Modified;
+                await _dbContext.SaveChangesAsync();
+                response.message = MessageConstants.MESSAGE_UPDATE_SUCCESS;
+            }
+            catch (Exception ex)
+            {
+                response.status = StatusCodes.Status400BadRequest;
+                response.message = ex.Message;
+            }
+            return response;
         }
         #endregion
     }

@@ -102,6 +102,9 @@ namespace HNOne.API.Services
 
         public async Task<IEnumerable<DeductionConfigModel>> GetDeductionConfig(RequestModel request)
             => await _masterRepository.GetDeductionConfig(request);
+        
+        public async Task<IEnumerable<WorkingBranchModel>> GetWorkingBranch(RequestModel request)
+            => await _masterRepository.GetWorkingBranch(request);
         #endregion
 
         #region Command
@@ -453,6 +456,15 @@ namespace HNOne.API.Services
         /// <returns></returns>
         public async Task<ResponseModel> UpdateStatusNotification(RequestModel request)
             => await _masterRepository.UpdateStatusNotification(request);
+
+        /// <summary>
+        /// Thêm mới & cập nhật thông tin chi nhánh làm việc
+        /// </summary>
+        /// <param name="actionType"></param>
+        /// <param name="entity"></param>
+        /// <returns></returns>
+        public async Task<ResponseModel> UpdateWorkingBranch(string actionType, WorkingBranchs entity)
+            => await _masterRepository.UpdateWorkingBranch(actionType, entity);
         #endregion
     }
 }

@@ -139,6 +139,9 @@ namespace HNOne.API.Controllers
                     case ProcessConstants.GET_DEDUCTION_CONFIG:
                         response.data = await _masterDataService.GetDeductionConfig(request);
                         break;
+                    case ProcessConstants.GET_WORKING_BRANCH:
+                        response.data = await _masterDataService.GetWorkingBranch(request);
+                        break;
                     default:
                         response.status = StatusCodes.Status404NotFound;
                         response.message = $"Process Key {processKey} was not provider!!!";
@@ -294,6 +297,11 @@ namespace HNOne.API.Controllers
                         break;
                     case ProcessConstants.POST_NOTIFICATION_STATUS_READ:
                         response = await _masterDataService.UpdateStatusNotification(request);
+                        break;
+                    case ProcessConstants.POST_WORKING_BRANCH:
+                    case ProcessConstants.PUT_WORKING_BRANCH:
+                        var workingBranch = JsonConvert.DeserializeObject<WorkingBranchs>($"{request.json}");
+                        response = await _masterDataService.UpdateWorkingBranch(processKey, workingBranch!);
                         break;
                     default:
                         response.status = StatusCodes.Status404NotFound;

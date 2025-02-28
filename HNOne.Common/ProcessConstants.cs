@@ -167,6 +167,10 @@
         public const string POST_CHECK_IN_OUT = "post-check-in-out";
         public const string POST_NOTIFICATION_STATUS_READ = "post-notification-status-read";
 
+        public const string GET_WORKING_BRANCH = "get-working-branch";
+        public const string POST_WORKING_BRANCH = "post-working-branch";
+        public const string PUT_WORKING_BRANCH = "put-working-branch";
+
         #region Loại dưới store
         public const string GET_COMBO_TYPE_CONTRACT_BY_EMPLOYEEID = "CONTRACT_BY_EMPLOYEEID";
         public const string GET_COMBO_TYPE_SALARY_ADJUSTMENT_BY_CONTRACT = "SALARY_ADJUSTMENT_BY_CONTRACT";
