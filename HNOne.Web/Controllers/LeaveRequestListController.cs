@@ -12,6 +12,7 @@ namespace HNOne.Web.Controllers
 {
     public class LeaveRequestListController : DocumentControllerBase
     {
+        [Inject] IMasterDataService _masterDataService { get; init; }
         [Inject] IWorkforceService _workforceService { get; init; }
         const string STRING_KEY_EVENT_POST = "LEAVE_REQUEST_CONTROLLER_POST";
         const string STRING_KEY_EVENT_PUT = "LEAVE_REQUEST_CONTROLLER_PUT";
@@ -21,11 +22,15 @@ namespace HNOne.Web.Controllers
         public IGrid? GridPending { get; set; }
         public List<LeaveRequestModel>? ListAll { get; set; }
         public IGrid? GridAll { get; set; }
+        public List<ComboboxModel>? ListCboBranch { get; set; } // cbo ds chi nhánh
+        public IReadOnlyList<object>? ListCboBranchSelected { get; set; } // chi nhánh được chọn
+        public List<ComboboxModel>? ListCboDepartment { get; set; } // cbo ds phòng ban
+        public IReadOnlyList<object>? ListCboDepartmentSelected { get; set; }
 
         public int ActiveTabIndex { get; set; } = 0;
         public DateTime? FromDate { get; set; }
         public DateTime? ToDate { get; set; }
-
+        public bool IsShowFilter { get; set; } = true; // mở rộng vùng tìm kiếm
         // nút quyền
         public bool IsAllowPost { get; set; }
         public bool IsAllowDelete { get; set; }
@@ -48,9 +53,11 @@ namespace HNOne.Web.Controllers
                         new BreadcrumbModel("Công - Phép", isActive: true),
                         new BreadcrumbModel("Danh sách đề nghị nghỉ phép", isActive: true)
                     };
+                    await NotifyBreadcrumb.InvokeAsync(ListBreadcrumbs);
                     FromDate = new DateTime(DateTime.Now.Year, DateTime.Now.Month, 01);
                     ToDate = DateTime.Now;
-                    await NotifyBreadcrumb.InvokeAsync(ListBreadcrumbs);
+                    
+                    await buildComboAsync();
                     await getLeaveRequestList();
                 }
                 catch (Exception ex)
@@ -91,6 +98,9 @@ namespace HNOne.Web.Controllers
             request.toDate = ToDate;
             request.process = ProcessConstants.GET_LEAVE_REQUEST;
             request.employeeId = EmployeeId;
+            request.branchIds = ListCboBranchSelected.IsNullOrEmpty() ? BranchIds : string.Join(",", ListCboBranchSelected!.Cast<ComboboxModel>().Select(m => m.id));
+            request.departmentIds = ListCboDepartmentSelected.IsNullOrEmpty() ? DepartmentIds : string.Join(",", ListCboDepartmentSelected!.Cast<ComboboxModel>().Select(m => m.id));
+            request.type = CommonConstants.ENUM_LIST;
             var listResult = await _workforceService.GetLeaveRequestAsync(request, isShowToast: true);
             listResult = listResult?.Update(m =>
             {
@@ -118,6 +128,26 @@ namespace HNOne.Web.Controllers
                     errorMessage = "Ngày đến không hợp lệ. [Từ ngày] phải nhỏ hơn [Đến ngày]";
                     return;
                 }
+            }
+        }
+
+        private async Task buildComboAsync()
+        {
+            try
+            {
+                var getTask1 = _masterDataService.GetDepartmentAsync(UserId, Token, BranchId, $"{BranchIds}", departmentIds: $"{DepartmentIds}", opt: CommonConstants.ENUM_FILTER); // ds phòng ban
+                var getTask4 = _masterDataService.GetBranchAsync(UserId, Token, BranchId, $"{BranchIds}", supperAdmin: IsAdmin ? "Y" : "N");
+                await Task.WhenAll(
+                    getTask1,
+                    getTask4
+                );
+                ListCboDepartment = (await getTask1)?.Select(m => new ComboboxModel() { id = m.id, code = m.code, name = m.name })?.ToList();
+                ListCboBranch = (await getTask4)?.Select(m => new ComboboxModel() { id = m.branchId, code = m.branchCode, name = m.branchName })?.ToList();
+            }
+            catch (Exception ex)
+            {
+                ShowError(ex.Message);
+                _logger.LogError(ex, "buildComboAsync");
             }
         }
         #endregion
@@ -218,6 +248,11 @@ namespace HNOne.Web.Controllers
                 await InvokeAsync(StateHasChanged);
             }
         }
+
+        /// <summary>
+        /// Mở rộng & thu gọn vùng tìm kiếm
+        /// </summary>
+        protected void ShowFilterHandler() => IsShowFilter = !IsShowFilter;
         #endregion
     }
 
