@@ -4,6 +4,7 @@
     {
         public static int[] PageSizeList = [10, 50, 100, 300, 500, 1000];
         public static int PageSize = 50;
+        public static int PageSizeDefault = 5000;
         public const string FORMAT_GRID_DISPLAYTEXT_COUNT = "Số dòng: {0}";
         public const string FORMAT_GRID_DISPLAYTEXT_SUM = "Tổng: {0}";
         public const string FORMAT_GRID_DISPLAYTEXT_SUM_PAYROLL = "{0}";

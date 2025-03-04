@@ -121,6 +121,17 @@ namespace HNOne.API.Repositories
                     strQuery += " and T0.BranchId = @BranchId";
                     parameters.Add("@BranchId", request.branchId, DbType.Int32);
                 }
+                else if (request.opt == CommonConstants.ENUM_FILTER)
+                {
+                    // ở các bộ lọc -> lấy theo PQ
+                    strQuery += " and T0.IsActive = '1'";
+                    request.branchIds += $",{request.branchId}";
+                    request.branchIds = request.branchIds.Trim(',');
+                    strQuery += " and T0.BranchId in ((select [Value] from string_split(@BranchIds, ',')))";
+                    strQuery += " and T0.Id in ((select [Value] from string_split(@DepartmentIds, ',')))";
+                    parameters.Add("@BranchIds", request.branchIds, DbType.String);
+                    parameters.Add("@DepartmentIds", request.departmentIds, DbType.String);
+                }    
                 else
                 {
                     // Ở page danh mục. Kiểm tra có quyền xem chi nhánh nào thì where thêm

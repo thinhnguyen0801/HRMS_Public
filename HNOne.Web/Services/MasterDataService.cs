@@ -151,7 +151,7 @@ namespace HNOne.Web.Services
         /// </summary>
         /// <param name="request"></param>
         /// <returns></returns>
-        public async Task<List<DepartmentModel>?> GetDepartmentAsync(int userId, string token, int branchId, string branchIds = "", string opt = "", bool isShowToast = false)
+        public async Task<List<DepartmentModel>?> GetDepartmentAsync(int userId, string token, int branchId, string branchIds = "", string departmentIds = "", string opt = "", bool isShowToast = false)
         {
 
             try
@@ -163,6 +163,7 @@ namespace HNOne.Web.Services
                 request.token = token;
                 request.branchId = branchId;
                 request.branchIds = branchIds;
+                request.departmentIds = departmentIds;
                 request.opt = opt;
                 HttpResponseMessage httpResponse = await PostAsync(EnpointConstants.MASTERDATA_GET_DATA, request);
                 var checkContent = ValidateJsonContent(httpResponse.Content);

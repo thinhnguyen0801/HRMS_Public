@@ -8,6 +8,7 @@ using Microsoft.AspNetCore.Components;
 using Newtonsoft.Json;
 using HNOne.Web.Models;
 using HNOne.Web.Components.Controls;
+using HNOne.Model.Entities;
 
 namespace HNOne.Web.Controllers
 {
@@ -20,11 +21,16 @@ namespace HNOne.Web.Controllers
         const string STRING_KEY_EVENT_DELETE = "EMPLOYEE_CONTROLLER_DELETE";
         const string STRING_KEY_EVENT_PUT = "EMPLOYEE_CONTROLLER_PUT";
         #region Properties
-        public string? StatusFilter { get; set; } // tình trạng
         public List<EmployeeModel>? ListEmployee { get; set; }
         public IGrid? GridEmployee { get; set; }
         public IReadOnlyList<object>? SelectedEmployees { get; set; } = null;
-        public List<EnumCatagoryModel>? ListCboStatus { get; set; } // danh sách tình trạng nhân viên
+        public List<ComboboxModel>? ListCboStatus { get; set; } // danh sách tình trạng nhân viên
+        public IReadOnlyList<object>? ListCboStatusSelected { get; set; } // cbo ds phòng ban
+        public List<ComboboxModel>? ListCboBranch { get; set; } // cbo ds chi nhánh
+        public IReadOnlyList<object>? ListCboBranchSelected { get; set; } // chi nhánh được chọn
+        public List<ComboboxModel>? ListCboDepartment { get; set; } // cbo ds phòng ban
+        public IReadOnlyList<object>? ListCboDepartmentSelected { get; set; }
+        public bool IsShowFilter { get; set; } = true; // mở rộng vùng tìm kiếm
 
         // nút quyền
         public bool IsAllowPost { get; set; }
@@ -73,22 +79,27 @@ namespace HNOne.Web.Controllers
         /// <returns></returns>
         private async Task checkPermission(string menuId)
         {
-            //List<string> lstKey = await CheckEventPermission(menuId);
-            //IsAllowPost = lstKey.FirstOrDefault(m => m == STRING_KEY_EVENT_POST) != null;
-            //IsAllowDelete = lstKey.FirstOrDefault(m => m == STRING_KEY_EVENT_DELETE) != null;
-            //IsAllowPut = lstKey.FirstOrDefault(m => m == STRING_KEY_EVENT_PUT) != null;
-            IsAllowPost = true;
-            IsAllowDelete = true;
-            IsAllowPut = true;
+            List<string> lstKey = await CheckEventPermission(menuId);
+            IsAllowPost = lstKey.FirstOrDefault(m => m == STRING_KEY_EVENT_POST) != null;
+            IsAllowDelete = lstKey.FirstOrDefault(m => m == STRING_KEY_EVENT_DELETE) != null;
+            IsAllowPut = lstKey.FirstOrDefault(m => m == STRING_KEY_EVENT_PUT) != null;
         }
 
         private async Task buildComboAsync()
         {
             try
             {
-
-                ListCboStatus = await _masterDataService.GetEnumAsync(UserId, Token, nameof(EnumCatagory.TrangThaiNhanVien)); // ds trạng thái nhân viên
-                if (!ListCboStatus.IsNullOrEmpty()) StatusFilter = ListCboStatus![0].code;
+                var getTask1 = _masterDataService.GetDepartmentAsync(UserId, Token, BranchId, $"{BranchIds}", departmentIds: $"{DepartmentIds}", opt: CommonConstants.ENUM_FILTER); // ds phòng ban
+                var getTask3 = _masterDataService.GetEnumAsync(UserId, Token, nameof(EnumCatagory.TrangThaiNhanVien)); // ds trạng thái
+                var getTask4 = _masterDataService.GetBranchAsync(UserId, Token, BranchId, $"{BranchIds}", supperAdmin: IsAdmin ? "Y" : "N");
+                await Task.WhenAll(
+                    getTask1,
+                    getTask3,
+                    getTask4
+                );
+                ListCboDepartment = (await getTask1)?.Select(m => new ComboboxModel() { id = m.id, code = m.code, name = m.name })?.ToList();
+                ListCboStatus = (await getTask3)?.Where(m => m.rowOrder != 0).Select(m => new ComboboxModel() { code = m.code, name = m.name })?.ToList();
+                ListCboBranch = (await getTask4)?.Select(m => new ComboboxModel() { id = m.branchId, code = m.branchCode, name = m.branchName })?.ToList();
             }
             catch (Exception ex)
             {
@@ -102,8 +113,10 @@ namespace HNOne.Web.Controllers
             request.userId = UserId;
             request.token = Token;
             request.branchId = BranchId;
-            request.opt = StatusFilter;
-            request.branchIds = BranchIds;
+            request.opt = ListCboStatusSelected.IsNullOrEmpty() ? "" : string.Join(",", ListCboStatusSelected!.Cast<ComboboxModel>().Select(m => m.code)); ;
+            request.branchIds = ListCboBranchSelected.IsNullOrEmpty() ? BranchIds : string.Join(",", ListCboBranchSelected!.Cast<ComboboxModel>().Select(m=>m.id));
+            request.departmentIds = ListCboDepartmentSelected.IsNullOrEmpty() ? DepartmentIds : string.Join(",", ListCboDepartmentSelected!.Cast<ComboboxModel>().Select(m => m.id));
+            request.type = CommonConstants.ENUM_LIST;
             ListEmployee = new List<EmployeeModel>();
             var lstEmp = await _personnelService.GetEmployeeAsync(request);
             if(IsAllowPut)
@@ -247,6 +260,11 @@ namespace HNOne.Web.Controllers
                 await InvokeAsync(StateHasChanged);
             }
         }
+
+        /// <summary>
+        /// Mở rộng & thu gọn vùng tìm kiếm
+        /// </summary>
+        protected void ShowFilterHandler() => IsShowFilter = !IsShowFilter;
         #endregion
 
     }

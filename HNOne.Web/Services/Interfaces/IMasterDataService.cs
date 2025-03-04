@@ -9,7 +9,7 @@ namespace HNOne.Web.Services.Interfaces
     {
         Task<List<MenuModel>?> GetMenuAsync(RequestModel request);
         Task<List<BranchModel>?> GetBranchAsync(int userId, string token = "", int branchId = -1, string branchIds = "", string opt = "", string supperAdmin = "N", bool isShowToast = false);
-        Task<List<DepartmentModel>?> GetDepartmentAsync(int userId, string token, int branchId, string branchIds = "", string opt = "", bool isShowToast = false);
+        Task<List<DepartmentModel>?> GetDepartmentAsync(int userId, string token, int branchId, string branchIds = "", string departmentIds = "", string opt = "", bool isShowToast = false);
         Task<List<TitleModel>?> GetTitleAsync(int userId, string token, int branchId, string branchIds = "", string opt = "", bool isShowToast = false);
         Task<List<PositionModel>?> GetPositionAsync(int userId, string token, int branchId, string branchIds = "", string opt = "", bool isShowToast = false);
         Task<List<ContractTypeModel>?> GetContractTypeAsync(int userId, string token, int branchId, string branchIds = "", string opt = "", bool isShowToast = false);
