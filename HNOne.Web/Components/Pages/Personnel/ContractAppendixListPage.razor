@@ -1,144 +1,220 @@
 ﻿@page "/danh-sach-phu-luc-hop-dong"
 @inherits Controllers.ContractAppendixListController
 <PageTitle>Danh sách hợp đồng</PageTitle>
+
 <div class="h-content-filter">
-    <div class="row row-gap-2">
-        <div class="col-md-5 col-sm-12">
-            <div class="d-flex ">
-                <W1Label Value="Thời gian" Id="txtKiDanhGia" Styles="width: 80px" />
-                <div style="width: calc(100% - 80px)">
-                    <div class="grid gap-1 row-gap-2">
-                        <div class="g-col-md-6 g-col-sm-12 g-col-12">
-                            <DxDateEdit @bind-Date="@FromDate" DisplayFormat="@GlobalContants.FORMAT_DATE"
-                                        Mask="@GlobalContants.FORMAT_DATE" Format="@GlobalContants.FORMAT_DATE" CssClass="w1FontSize" />
-                        </div>
-                        <div class="g-col-md-6 g-col-sm-12 g-col-12">
-                            <DxDateEdit @bind-Date="@ToDate" DisplayFormat="@GlobalContants.FORMAT_DATE"
-                                        Mask="@GlobalContants.FORMAT_DATE" Format="@GlobalContants.FORMAT_DATE" CssClass="w1FontSize" />
+    <div class="card bg-transparent border-0">
+        <div class="row g-1 row-gap-1">
+            <div class="@(IsShowFilter ? "col-md-4 col-sm-12" : "d-none")">
+                <div class="card w1FontSize h-full">
+                    <div class="card-header py-1 px-2">
+                        <h4 class="mb-0 w1FontSize">Thông tin tìm kiếm</h4>
+                    </div>
+                    <div class="card-body p-1">
+                        <div class="row row-gap-2">
+                             <div class="col-sm-12">
+                                <div class="d-flex ">
+                                    <W1Label Value="Thời gian" Id="txtKiDanhGia" Styles="width: 80px" />
+                                    <div style="width: calc(100% - 80px)">
+                                        <div class="grid gap-1 row-gap-2">
+                                            <div class="g-col-md-6 g-col-sm-12 g-col-12">
+                                                <DxDateEdit @bind-Date="@FromDate" DisplayFormat="@GlobalContants.FORMAT_DATE"
+                                                            Mask="@GlobalContants.FORMAT_DATE" Format="@GlobalContants.FORMAT_DATE" CssClass="w1FontSize" />
+                                            </div>
+                                            <div class="g-col-md-6 g-col-sm-12 g-col-12">
+                                                <DxDateEdit @bind-Date="@ToDate" DisplayFormat="@GlobalContants.FORMAT_DATE"
+                                                            Mask="@GlobalContants.FORMAT_DATE" Format="@GlobalContants.FORMAT_DATE" CssClass="w1FontSize" />
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                             </div>
+                            <div class="col-sm-12">
+                                <div style="height: 100%; max-height: 200px">
+                                    <DxGrid Data="ListCboBranch"
+                                            ShowFilterRow="true"
+                                            ColumnResizeMode="GridColumnResizeMode.ColumnsContainer"
+                                            PagerPosition="GridPagerPosition.Bottom"
+                                            PageSizeSelectorVisible="false"
+                                            PageSize="@GlobalContants.PageSizeDefault"
+                                            PageSizeSelectorItems="@(GlobalContants.PageSizeList)"
+                                            PageSizeSelectorAllRowsItemVisible="false"
+                                            PagerSwitchToInputBoxButtonCount="10"
+                                            PagerVisibleNumericButtonCount="10"
+                                            TextWrapEnabled="false"
+                                            FocusedRowEnabled="true"
+                                            SelectionMode="@GridSelectionMode.Multiple"
+                                            AutoExpandAllGroupRows="true"
+                                            AllowSelectRowByClick="true"
+                                            @bind-SelectedDataItems="@ListCboBranchSelected"
+                                            CssClass="h-full">
+                                        <Columns>
+                                            <DxGridSelectionColumn Width="35px" />
+                                            <DxGridDataColumn FieldName="@nameof(ComboboxModel.code)" Caption="Mã chi nhánh" MinWidth="100" Width="100px" />
+                                            <DxGridDataColumn FieldName="@nameof(ComboboxModel.name)" Caption="Tên chi nhánh" MinWidth="150" />
+                                        </Columns>
+                                    </DxGrid>
+                                </div>
+                            </div>
+
+                            @if (ListCboDepartment != null && ListCboDepartment.Any())
+                            {
+                                <div class="col-sm-12">
+                                    <div style="height: 100%; max-height: 200px">
+                                        <DxGrid Data="ListCboDepartment"
+                                                ShowFilterRow="true"
+                                                ColumnResizeMode="GridColumnResizeMode.ColumnsContainer"
+                                                PagerPosition="GridPagerPosition.Bottom"
+                                                PageSizeSelectorVisible="false"
+                                                PageSize="@GlobalContants.PageSizeDefault"
+                                                PageSizeSelectorItems="@(GlobalContants.PageSizeList)"
+                                                PageSizeSelectorAllRowsItemVisible="false"
+                                                PagerSwitchToInputBoxButtonCount="10"
+                                                PagerVisibleNumericButtonCount="10"
+                                                TextWrapEnabled="false"
+                                                FocusedRowEnabled="true"
+                                                SelectionMode="@GridSelectionMode.Multiple"
+                                                AutoExpandAllGroupRows="true"
+                                                AllowSelectRowByClick="true"
+                                                @bind-SelectedDataItems="@ListCboDepartmentSelected"
+                                                CssClass="h-full">
+                                            <Columns>
+                                                <DxGridSelectionColumn Width="35px" />
+                                                <DxGridDataColumn FieldName="@nameof(ComboboxModel.code)" Caption="Mã phòng ban" MinWidth="100" Width="100px" />
+                                                <DxGridDataColumn FieldName="@nameof(ComboboxModel.name)" Caption="Tên phòng ban" MinWidth="150" />
+                                            </Columns>
+                                        </DxGrid>
+                                    </div>
+                                </div>
+                            }
+                            <div class="col-sm-12"></div>
                         </div>
                     </div>
                 </div>
             </div>
-        </div>
-    </div>
-    <div class="row row-gap-2 mt-2">
-        <div class="col-12">
-            <div class="card w1FontSize">
-                <div class="card-header p-1">
-                    <DxToolbar ItemRenderStyleMode="@ToolbarRenderStyleMode.Contained">
-                        <Items>
-                            <DxToolbarItem Text="Làm mới" BeginGroup="true" IconCssClass="@($"{IconClassConstants.ICON_REFRESH}")" CssClass="w1FontSize"
-                                           Alignment="@ToolbarItemAlignment.Right" Click="@RefreshHandler" />
-                            <DxToolbarItem Text="Thêm mới" BeginGroup="true" IconCssClass="@($"{IconClassConstants.ICON_ADD}")" CssClass="w1FontSize"
-                                           Alignment="@ToolbarItemAlignment.Right" Click="@RedirectPageDetailHandler"
-                                           Visible="@(IsAllowPost)" />
-                            @* <DxToolbarItem Text="Hủy" BeginGroup="true" IconCssClass="@($"{IconClassConstants.ICON_DELETE}")" CssClass="w1FontSize"
-                                           Alignment="@ToolbarItemAlignment.Right"
-                                           Visible="@(IsAllowDelete)" /> *@
-                            <DxToolbarItem Text="Kết xuất" BeginGroup="true" IconCssClass="@($"{IconClassConstants.ICON_EXPORT_EXCEL}")" CssClass="w1FontSize"
-                                           Alignment="@ToolbarItemAlignment.Right" Click="@(()=> ExportExcelHandler())" />
-                        </Items>
-                    </DxToolbar>
-                </div>
-                <div class="card-header p-0 border-bottom-0">
-                    <DxTabs @bind-ActiveTabIndex="@ActiveTabIndex" Id="tabActive" CssClass="w-full w1FontSize">
-                        <DxTabPage Text="Đang áp dụng" Id="tabPending" CssClass="w1FontSize"></DxTabPage>
-                        <DxTabPage Text="Tất cả" Id="tabAll" CssClass="w1FontSize"></DxTabPage>
-                    </DxTabs>
-                </div>
-                <div class="card-body p-1" style="height: calc(100vh - 230px); min-height: 350px">
-                    @switch (ActiveTabIndex)
-                    {
-                        case 0:
-                            <DxGrid Data="ListContract" @ref="GridContract"
-                                    ShowFilterRow="true"
-                                    ColumnResizeMode="GridColumnResizeMode.ColumnsContainer"
-                                    PagerPosition="GridPagerPosition.Bottom"
-                                    PageSizeSelectorVisible="true"
-                                    PageSize="@GlobalContants.PageSize"
-                                    PageSizeSelectorItems="@(GlobalContants.PageSizeList)"
-                                    PageSizeSelectorAllRowsItemVisible="true"
-                                    PagerSwitchToInputBoxButtonCount="10"
-                                    PagerVisibleNumericButtonCount="10"
-                                    TextWrapEnabled="false"
-                                    FocusedRowEnabled="true"
-                                    AutoExpandAllGroupRows="true"
-                                    KeyboardNavigationEnabled="true"
-                                    CssClass="h-full">
-                                <Columns>
-                                    <DxGridDataColumn FieldName="@nameof(ContractAppendixModel.contractAppendixCode)" Caption="Mã phụ lục" MinWidth="140">
-                                        <CellDisplayTemplate>
-                                            @{
-                                                <a href="@($"chi-tiet-phu-luc-hop-dong?key={(context.DataItem as ContractAppendixModel)!.link}")">@context.Value</a>
-                                            }
-                                        </CellDisplayTemplate>
-                                    </DxGridDataColumn>
-                                    <DxGridDataColumn FieldName="@nameof(ContractAppendixModel.contractCode)" Caption="Mã hợp đồng" MinWidth="140" />
-                                    <DxGridDataColumn FieldName="@nameof(ContractAppendixModel.statusName)" Caption="Trạng thái" MinWidth="130" />
-                                    <DxGridDataColumn FieldName="@nameof(ContractAppendixModel.employeeCode)" Caption="Mã nhân viên" MinWidth="110" />
-                                    <DxGridDataColumn FieldName="@nameof(ContractAppendixModel.employeeName)" Caption="Tên nhân viên" MinWidth="150" />
-                                    <DxGridDataColumn FieldName="@nameof(ContractAppendixModel.departmentName)" Caption="Tên phòng ban" MinWidth="150" />
-                                    <DxGridDataColumn FieldName="@nameof(ContractAppendixModel.contractNumber)" Caption="Phụ luc số" MinWidth="100" />
-                                    <DxGridDataColumn FieldName="@nameof(ContractAppendixModel.dateOfSigning)" Caption="Ngày ký" DisplayFormat="@GlobalContants.FORMAT_DATE" MinWidth="120" />
-                                    <DxGridDataColumn FieldName="@nameof(ContractAppendixModel.effectiveDate)" Caption="Ngày áp dụng" DisplayFormat="@GlobalContants.FORMAT_DATE" MinWidth="120" />
-                                    <DxGridDataColumn FieldName="@nameof(ContractAppendixModel.remark)" Caption="Ghi chú" MinWidth="140" />
-                                    <DxGridDataColumn FieldName="@nameof(ContractAppendixModel.dateTracking)" Caption="Ngày cập nhật" MinWidth="120" DisplayFormat="@GlobalContants.FORMAT_DATE_TIME" />
-                                    <DxGridDataColumn FieldName="@nameof(ContractAppendixModel.userSignName)" Caption="Người tạo" MinWidth="120" />
-                                    <DxGridDataColumn FieldName="@nameof(ContractAppendixModel.userSignName)" Caption="Người cập nhật" MinWidth="120" />
-                                </Columns>
-                                <TotalSummary>
-                                    <DxGridSummaryItem DisplayText="@GlobalContants.FORMAT_GRID_DISPLAYTEXT_COUNT" SummaryType="GridSummaryItemType.Count"
-                                                       FieldName="@nameof(ContractAppendixModel.contractAppendixCode)" ValueDisplayFormat="@GlobalContants.FORMAT_CURRENCY"
-                                                       FooterColumnName="@nameof(ContractAppendixModel.contractAppendixCode)" />
-                                </TotalSummary>
-                            </DxGrid>
-                            break;
-                        case 1:
-                            <DxGrid Data="ListContractAll" @ref="GridContractAll"
-                                    ShowFilterRow="true"
-                                    ColumnResizeMode="GridColumnResizeMode.ColumnsContainer"
-                                    PagerPosition="GridPagerPosition.Bottom"
-                                    PageSizeSelectorVisible="true"
-                                    PageSize="@GlobalContants.PageSize"
-                                    PageSizeSelectorItems="@(GlobalContants.PageSizeList)"
-                                    PageSizeSelectorAllRowsItemVisible="true"
-                                    PagerSwitchToInputBoxButtonCount="10"
-                                    PagerVisibleNumericButtonCount="10"
-                                    TextWrapEnabled="false"
-                                    FocusedRowEnabled="true"
-                                    AutoExpandAllGroupRows="true"
-                                    KeyboardNavigationEnabled="true"
-                                    CssClass="h-full">
-                                <Columns>
-                                    <DxGridDataColumn FieldName="@nameof(ContractAppendixModel.contractAppendixCode)" Caption="Mã phụ lục" MinWidth="140">
-                                        <CellDisplayTemplate>
-                                            @{
-                                                <a href="@($"chi-tiet-phu-luc-hop-dong?key={(context.DataItem as ContractAppendixModel)!.link}")">@context.Value</a>
-                                            }
-                                        </CellDisplayTemplate>
-                                    </DxGridDataColumn>
-                                    <DxGridDataColumn FieldName="@nameof(ContractAppendixModel.contractCode)" Caption="Mã hợp đồng" MinWidth="140" />
-                                    <DxGridDataColumn FieldName="@nameof(ContractAppendixModel.statusName)" Caption="Trạng thái" MinWidth="130" />
-                                    <DxGridDataColumn FieldName="@nameof(ContractAppendixModel.employeeCode)" Caption="Mã nhân viên" MinWidth="110" />
-                                    <DxGridDataColumn FieldName="@nameof(ContractAppendixModel.employeeName)" Caption="Tên nhân viên" MinWidth="150" />
-                                    <DxGridDataColumn FieldName="@nameof(ContractAppendixModel.departmentName)" Caption="Tên phòng ban" MinWidth="150" />
-                                    <DxGridDataColumn FieldName="@nameof(ContractAppendixModel.contractNumber)" Caption="Phụ luc số" MinWidth="100" />
-                                    <DxGridDataColumn FieldName="@nameof(ContractAppendixModel.dateOfSigning)" Caption="Ngày ký" DisplayFormat="@GlobalContants.FORMAT_DATE" MinWidth="120" />
-                                    <DxGridDataColumn FieldName="@nameof(ContractAppendixModel.effectiveDate)" Caption="Ngày áp dụng" DisplayFormat="@GlobalContants.FORMAT_DATE" MinWidth="120" />
-                                    <DxGridDataColumn FieldName="@nameof(ContractAppendixModel.remark)" Caption="Ghi chú" MinWidth="140" />
-                                    <DxGridDataColumn FieldName="@nameof(ContractAppendixModel.dateTracking)" Caption="Ngày cập nhật" MinWidth="120" DisplayFormat="@GlobalContants.FORMAT_DATE_TIME" />
-                                    <DxGridDataColumn FieldName="@nameof(ContractAppendixModel.userSignName)" Caption="Người tạo" MinWidth="120" />
-                                    <DxGridDataColumn FieldName="@nameof(ContractAppendixModel.userSignName)" Caption="Người cập nhật" MinWidth="120" />
-                                </Columns>
-                                <TotalSummary>
-                                    <DxGridSummaryItem DisplayText="@GlobalContants.FORMAT_GRID_DISPLAYTEXT_COUNT" SummaryType="GridSummaryItemType.Count"
-                                                       FieldName="@nameof(ContractAppendixModel.contractAppendixCode)" ValueDisplayFormat="@GlobalContants.FORMAT_CURRENCY"
-                                                       FooterColumnName="@nameof(ContractAppendixModel.contractAppendixCode)" />
-                                </TotalSummary>
-                            </DxGrid>
-                            break;
-                    }
+            <div class="@(IsShowFilter ? "col-md-8 col-sm-12" : "col-md-12 col-sm-12")">
+                <div class="row row-gap-2">
+                    <div class="col-12">
+                        <div class="card w1FontSize">
+                            <div class="card-header p-1">
+                                <div class="position-absolute" style="z-index: 10">
+                                    <i class="@(IsShowFilter ? $"{IconClassConstants.ICON_FILTER_CLEAR}" : $"{IconClassConstants.ICON_FILTER}") @IconClassConstants.FONT_SIZE_ICON"
+                                       title="@(IsShowFilter ? "Thu gọn vùng tìm kiếm" : "Mở rộng vùng tìm kiếm")" @onclick="@ShowFilterHandler" />
+                                </div>
+                                <DxToolbar ItemRenderStyleMode="@ToolbarRenderStyleMode.Contained">
+                                    <Items>
+                                        <DxToolbarItem Text="Làm mới" BeginGroup="true" IconCssClass="@($"{IconClassConstants.ICON_REFRESH}")" CssClass="w1FontSize"
+                                                       Alignment="@ToolbarItemAlignment.Right" Click="@RefreshHandler" />
+                                        <DxToolbarItem Text="Thêm mới" BeginGroup="true" IconCssClass="@($"{IconClassConstants.ICON_ADD}")" CssClass="w1FontSize"
+                                                       Alignment="@ToolbarItemAlignment.Right" Click="@RedirectPageDetailHandler"
+                                                       Visible="@(IsAllowPost)" />
+                                        <DxToolbarItem Text="Kết xuất" BeginGroup="true" IconCssClass="@($"{IconClassConstants.ICON_EXPORT_EXCEL}")" CssClass="w1FontSize"
+                                                       Alignment="@ToolbarItemAlignment.Right" Click="@(()=> ExportExcelHandler())" />
+                                    </Items>
+                                </DxToolbar>
+                            </div>
+                            <div class="card-header p-0 border-bottom-0">
+                                <DxTabs @bind-ActiveTabIndex="@ActiveTabIndex" Id="tabActive" CssClass="w-full w1FontSize">
+                                    <DxTabPage Text="Đang áp dụng" Id="tabPending" CssClass="w1FontSize"></DxTabPage>
+                                    <DxTabPage Text="Tất cả" Id="tabAll" CssClass="w1FontSize"></DxTabPage>
+                                </DxTabs>
+                            </div>
+                            <div class="card-body p-1" style="height: calc(100vh - 200px); min-height: 350px">
+                                @switch (ActiveTabIndex)
+                                {
+                                    case 0:
+                                        <DxGrid Data="ListContract" @ref="GridContract"
+                                                ShowFilterRow="true"
+                                                ColumnResizeMode="GridColumnResizeMode.ColumnsContainer"
+                                                PagerPosition="GridPagerPosition.Bottom"
+                                                PageSizeSelectorVisible="true"
+                                                PageSize="@GlobalContants.PageSize"
+                                                PageSizeSelectorItems="@(GlobalContants.PageSizeList)"
+                                                PageSizeSelectorAllRowsItemVisible="true"
+                                                PagerSwitchToInputBoxButtonCount="10"
+                                                PagerVisibleNumericButtonCount="10"
+                                                TextWrapEnabled="false"
+                                                FocusedRowEnabled="true"
+                                                AutoExpandAllGroupRows="true"
+                                                KeyboardNavigationEnabled="true"
+                                                CssClass="h-full">
+                                            <Columns>
+                                                <DxGridDataColumn FieldName="@nameof(ContractAppendixModel.contractAppendixCode)" Caption="Mã phụ lục" MinWidth="140">
+                                                    <CellDisplayTemplate>
+                                                        @{
+                                                            <a href="@($"chi-tiet-phu-luc-hop-dong?key={(context.DataItem as ContractAppendixModel)!.link}")">@context.Value</a>
+                                                        }
+                                                    </CellDisplayTemplate>
+                                                </DxGridDataColumn>
+                                                <DxGridDataColumn FieldName="@nameof(ContractAppendixModel.contractCode)" Caption="Mã hợp đồng" MinWidth="140" />
+                                                <DxGridDataColumn FieldName="@nameof(ContractAppendixModel.statusName)" Caption="Trạng thái" MinWidth="130" />
+                                                <DxGridDataColumn FieldName="@nameof(ContractAppendixModel.employeeCode)" Caption="Mã nhân viên" MinWidth="110" />
+                                                <DxGridDataColumn FieldName="@nameof(ContractAppendixModel.employeeName)" Caption="Tên nhân viên" MinWidth="150" />
+                                                <DxGridDataColumn FieldName="@nameof(ContractAppendixModel.departmentName)" Caption="Tên phòng ban" MinWidth="150" />
+                                                <DxGridDataColumn FieldName="@nameof(ContractAppendixModel.contractNumber)" Caption="Phụ luc số" MinWidth="100" />
+                                                <DxGridDataColumn FieldName="@nameof(ContractAppendixModel.dateOfSigning)" Caption="Ngày ký" DisplayFormat="@GlobalContants.FORMAT_DATE" MinWidth="120" />
+                                                <DxGridDataColumn FieldName="@nameof(ContractAppendixModel.effectiveDate)" Caption="Ngày áp dụng" DisplayFormat="@GlobalContants.FORMAT_DATE" MinWidth="120" />
+                                                <DxGridDataColumn FieldName="@nameof(ContractAppendixModel.remark)" Caption="Ghi chú" MinWidth="140" />
+                                                <DxGridDataColumn FieldName="@nameof(ContractAppendixModel.dateTracking)" Caption="Ngày cập nhật" MinWidth="120" DisplayFormat="@GlobalContants.FORMAT_DATE_TIME" />
+                                                <DxGridDataColumn FieldName="@nameof(ContractAppendixModel.userSignName)" Caption="Người tạo" MinWidth="120" />
+                                                <DxGridDataColumn FieldName="@nameof(ContractAppendixModel.userSignName)" Caption="Người cập nhật" MinWidth="120" />
+                                            </Columns>
+                                            <TotalSummary>
+                                                <DxGridSummaryItem DisplayText="@GlobalContants.FORMAT_GRID_DISPLAYTEXT_COUNT" SummaryType="GridSummaryItemType.Count"
+                                                                   FieldName="@nameof(ContractAppendixModel.contractAppendixCode)" ValueDisplayFormat="@GlobalContants.FORMAT_CURRENCY"
+                                                                   FooterColumnName="@nameof(ContractAppendixModel.contractAppendixCode)" />
+                                            </TotalSummary>
+                                        </DxGrid>
+                                        break;
+                                    case 1:
+                                        <DxGrid Data="ListContractAll" @ref="GridContractAll"
+                                                ShowFilterRow="true"
+                                                ColumnResizeMode="GridColumnResizeMode.ColumnsContainer"
+                                                PagerPosition="GridPagerPosition.Bottom"
+                                                PageSizeSelectorVisible="true"
+                                                PageSize="@GlobalContants.PageSize"
+                                                PageSizeSelectorItems="@(GlobalContants.PageSizeList)"
+                                                PageSizeSelectorAllRowsItemVisible="true"
+                                                PagerSwitchToInputBoxButtonCount="10"
+                                                PagerVisibleNumericButtonCount="10"
+                                                TextWrapEnabled="false"
+                                                FocusedRowEnabled="true"
+                                                AutoExpandAllGroupRows="true"
+                                                KeyboardNavigationEnabled="true"
+                                                CssClass="h-full">
+                                            <Columns>
+                                                <DxGridDataColumn FieldName="@nameof(ContractAppendixModel.contractAppendixCode)" Caption="Mã phụ lục" MinWidth="140">
+                                                    <CellDisplayTemplate>
+                                                        @{
+                                                            <a href="@($"chi-tiet-phu-luc-hop-dong?key={(context.DataItem as ContractAppendixModel)!.link}")">@context.Value</a>
+                                                        }
+                                                    </CellDisplayTemplate>
+                                                </DxGridDataColumn>
+                                                <DxGridDataColumn FieldName="@nameof(ContractAppendixModel.contractCode)" Caption="Mã hợp đồng" MinWidth="140" />
+                                                <DxGridDataColumn FieldName="@nameof(ContractAppendixModel.statusName)" Caption="Trạng thái" MinWidth="130" />
+                                                <DxGridDataColumn FieldName="@nameof(ContractAppendixModel.employeeCode)" Caption="Mã nhân viên" MinWidth="110" />
+                                                <DxGridDataColumn FieldName="@nameof(ContractAppendixModel.employeeName)" Caption="Tên nhân viên" MinWidth="150" />
+                                                <DxGridDataColumn FieldName="@nameof(ContractAppendixModel.departmentName)" Caption="Tên phòng ban" MinWidth="150" />
+                                                <DxGridDataColumn FieldName="@nameof(ContractAppendixModel.contractNumber)" Caption="Phụ luc số" MinWidth="100" />
+                                                <DxGridDataColumn FieldName="@nameof(ContractAppendixModel.dateOfSigning)" Caption="Ngày ký" DisplayFormat="@GlobalContants.FORMAT_DATE" MinWidth="120" />
+                                                <DxGridDataColumn FieldName="@nameof(ContractAppendixModel.effectiveDate)" Caption="Ngày áp dụng" DisplayFormat="@GlobalContants.FORMAT_DATE" MinWidth="120" />
+                                                <DxGridDataColumn FieldName="@nameof(ContractAppendixModel.remark)" Caption="Ghi chú" MinWidth="140" />
+                                                <DxGridDataColumn FieldName="@nameof(ContractAppendixModel.dateTracking)" Caption="Ngày cập nhật" MinWidth="120" DisplayFormat="@GlobalContants.FORMAT_DATE_TIME" />
+                                                <DxGridDataColumn FieldName="@nameof(ContractAppendixModel.userSignName)" Caption="Người tạo" MinWidth="120" />
+                                                <DxGridDataColumn FieldName="@nameof(ContractAppendixModel.userSignName)" Caption="Người cập nhật" MinWidth="120" />
+                                            </Columns>
+                                            <TotalSummary>
+                                                <DxGridSummaryItem DisplayText="@GlobalContants.FORMAT_GRID_DISPLAYTEXT_COUNT" SummaryType="GridSummaryItemType.Count"
+                                                                   FieldName="@nameof(ContractAppendixModel.contractAppendixCode)" ValueDisplayFormat="@GlobalContants.FORMAT_CURRENCY"
+                                                                   FooterColumnName="@nameof(ContractAppendixModel.contractAppendixCode)" />
+                                            </TotalSummary>
+                                        </DxGrid>
+                                        break;
+                                }
 
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
