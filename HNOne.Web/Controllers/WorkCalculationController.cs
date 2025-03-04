@@ -21,9 +21,9 @@ namespace HNOne.Web.Controllers
         [Inject] DataHelperService _dataHelperService { get; set; }
         public W1Confirm confirm { get; set; }
 
-        const string STRING_KEY_EVENT_POST = "WORK_CALCULATION_CONTROLLER_POST";
-        const string STRING_KEY_EVENT_PUT = "LEAVE_REQUEST_CONTROLLER_PUT";
-        const string STRING_KEY_EVENT_PUT_ACCEPT = "WORK_CALCULATION_CONTROLLER_PUT_ACCEPT";
+        const string STRING_KEY_EVENT_POST = "WORK_CALCULATION_CONTROLLER_POST_CALC";
+        const string STRING_KEY_EVENT_PUT = "WORK_CALCULATION_CONTROLLER_PUT";
+        const string STRING_KEY_EVENT_PUT_ACCEPT = "WORK_CALCULATION_CONTROLLER_PUT_LOCK";
         #region Properties
         public int ActiveTabIndex { get; set; } = 0;
         public SearchModel SearchUpdate { get; set; } = new SearchModel();
@@ -67,7 +67,7 @@ namespace HNOne.Web.Controllers
                     string errMessage = await CheckMenuPermissionAsync("tinh-cong-nhan-vien");
                     if (errMessage == "401") return;
                     await ShowLoading();
-                    //await checkPermission(errMessage);
+                    await checkPermission(errMessage);
                     ListBreadcrumbs = new List<BreadcrumbModel>()
                     {
                         new BreadcrumbModel("Công - phép"),
@@ -265,6 +265,12 @@ namespace HNOne.Web.Controllers
         {
             try
             {
+                await checkPermission(MenuId);
+                if (!IsAllowPost)
+                {
+                    ShowInfo(MessageConstants.MESSAGE_NO_PERMISSION);
+                    return;
+                }
                 await ShowLoading();
                 SelectedItems = null;
                 ListTimesheet = new List<ShiftAssignmentModel>();
@@ -304,7 +310,7 @@ namespace HNOne.Web.Controllers
             try
             {
                 await checkPermission(MenuId);
-                if (!IsAllowPost)
+                if (!IsAllowPut)
                 {
                     ShowInfo(MessageConstants.MESSAGE_NO_PERMISSION);
                     return;
@@ -356,6 +362,12 @@ namespace HNOne.Web.Controllers
         {
             try
             {
+                await checkPermission(MenuId);
+                if (!IsAllowPutAccept)
+                {
+                    ShowInfo(MessageConstants.MESSAGE_NO_PERMISSION);
+                    return;
+                }
                 if (SelectedItems.IsNullOrEmpty())
                 {
                     ShowWarning(MessageConstants.MESSAGE_NO_CHOSE_DATA);
@@ -398,12 +410,12 @@ namespace HNOne.Web.Controllers
         {
             try
             {
-                //await checkPermission(MenuId);
-                //if (!IsAllowPut)
-                //{
-                //    ShowInfo(MessageConstants.MESSAGE_NO_PERMISSION);
-                //    return;
-                //}
+                await checkPermission(MenuId);
+                if (!IsAllowPutAccept)
+                {
+                    ShowInfo(MessageConstants.MESSAGE_NO_PERMISSION);
+                    return;
+                }
                 if (SelectedItems.IsNullOrEmpty())
                 {
                     ShowWarning(MessageConstants.MESSAGE_NO_CHOSE_DATA);

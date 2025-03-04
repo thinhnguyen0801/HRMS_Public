@@ -416,6 +416,7 @@
          HeaderText="Danh sách nhân viên">
     <div style="height: 400px; min-height: 350px">
         <W1Employee UserId="@UserId" Token="@Token" BranchId="@BranchId" DepartmentIds="@DepartmentIds" StatusIds="@StatusIds"
+                    EnumType="@CommonConstants.ENUM_EMPLOYEE_SIGNATURE"
                     SelectedDataItemChanged="@EventCallbackEmpChangedHandler" />
     </div>
 </W1Popup>

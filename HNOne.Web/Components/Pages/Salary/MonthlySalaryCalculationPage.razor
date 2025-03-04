@@ -143,16 +143,16 @@
                                                    Alignment="@ToolbarItemAlignment.Right" Click="@RefreshHandler" />
 
                                     <DxToolbarItem Text="Tính lương" BeginGroup="true" IconCssClass="@($"{IconClassConstants.ICON_CALCULATOR}")" CssClass="w1FontSize"
-                                                   Alignment="@ToolbarItemAlignment.Right" Click="@SalaryCalculateHandler" />
+                                                   Alignment="@ToolbarItemAlignment.Right" Click="@SalaryCalculateHandler" Visible="@(IsAllowPost)" />
 
                                     <DxToolbarItem Text="Lưu lương tháng" BeginGroup="true" IconCssClass="@($"{IconClassConstants.ICON_UPDATE}")" CssClass="w1FontSize"
-                                                   Alignment="@ToolbarItemAlignment.Right" Click="@SaveDataHandler" />
+                                                   Alignment="@ToolbarItemAlignment.Right" Click="@SaveDataHandler" Visible="@(IsAllowPut)" />
 
                                     <DxToolbarItem Text="Khóa kỳ" BeginGroup="true" IconCssClass="@($"{IconClassConstants.ICON_TABLE_LOCK}")" CssClass="w1FontSize"
-                                                   Alignment="@ToolbarItemAlignment.Right" Click="@LockPayrollEmployeeHandler" />
+                                                   Alignment="@ToolbarItemAlignment.Right" Click="@LockPayrollEmployeeHandler" Visible="@(IsAllowPutAccept)" />
 
                                     <DxToolbarItem Text="Mở kỳ" BeginGroup="true" IconCssClass="@($"{IconClassConstants.ICON_TABLE_UNLOCK}")" CssClass="w1FontSize"
-                                                   Alignment="@ToolbarItemAlignment.Right" Click="@UnlockPayrollEmployeeHandler" />
+                                                   Alignment="@ToolbarItemAlignment.Right" Click="@UnlockPayrollEmployeeHandler" Visible="@(IsAllowPutAccept)" />
 
                                     <DxToolbarItem Text="Kết xuất" BeginGroup="true" IconCssClass="@($"{IconClassConstants.ICON_EXPORT_EXCEL}")" CssClass="w1FontSize"
                                                    Alignment="@ToolbarItemAlignment.Right" Click="@(()=> ExportExcelHandler())" />

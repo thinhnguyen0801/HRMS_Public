@@ -38,7 +38,7 @@ namespace HNOne.Web.Controllers
 
         private string? pPopupType { get; set; } = string.Empty; // mở popup nào
         public bool IsShowDialogEmpSearch { get; set; }
-        public string? DepartmentIds { get; set; }
+        public string EnumEmployeeType { get; set; } = string.Empty; // Hiện có nhân viên lập & nhân viên ký
         public string? StatusIds { get; set; } // Tình trạng nào
         public object? EmployeeSelected { get; set; } // Nhân viên được chọn
         public bool firstRender = true;
@@ -392,6 +392,7 @@ namespace HNOne.Web.Controllers
                     case nameof(EmployeeSelected):
                         //ListCboDepartment ??= new();
                         //DepartmentIds = string.Join(",", ListCboDepartment.Select(m => m.id));
+                        EnumEmployeeType = popupType == nameof(OvertimeRequestDocument.employeeSignatureCode) ? CommonConstants.ENUM_EMPLOYEE_SIGNATURE : "";
                         IsShowDialogEmpSearch = true;
                         break;
                 }

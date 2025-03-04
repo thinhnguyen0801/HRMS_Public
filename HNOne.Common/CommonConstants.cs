@@ -26,6 +26,7 @@ namespace HNOne.Common
         public const string ENUM_PAGE_LOGIN = "LOGIN";
         public const string ENUM_LIST = "LIST";
         public const string ENUM_DETAIL = "DETAIL";
+        public const string ENUM_EMPLOYEE_SIGNATURE = "EMPLOYEE_SIGNATURE";
         #endregion
     }
 }

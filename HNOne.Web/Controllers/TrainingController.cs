@@ -38,7 +38,6 @@ namespace HNOne.Web.Controllers
         public List<EnumCatagoryModel>? ListCboTrainFormat { get; set; } // cbo ds hình thức đào tạo
         private string? pPopupType { get; set; } = string.Empty; // mở popup nào
         public bool IsShowDialogEmpSearch { get; set; }
-        public string? DepartmentIds { get; set; }
         public string? StatusIds { get; set; } // Tình trạng nào
         public GridSelectionMode DxGridEmployeeSelectionMode { get; set; } = GridSelectionMode.Single; // chọn môt/nhiều
         public object? EmployeeSelected { get; set; } // Nhân viên được chọn
