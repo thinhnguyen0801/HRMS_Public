@@ -1,1 +1,336 @@
 ﻿@page "/bao-cao-tong-hop-luong"
+@inherits Controllers.SalarySummaryRptController
+<PageTitle>Báo cáo tổng hợp lương</PageTitle>
+
+<div class="h-content-filter">
+    <div class="card bg-transparent border-0">
+        <div class="row g-1 row-gap-1">
+            <div class="@(IsShowFilter ? "col-md-4 col-sm-12" : "d-none")">
+                <div class="card w1FontSize h-full">
+                    <div class="card-header py-1 px-2">
+                        <h4 class="mb-0 w1FontSize">Thông tin tìm kiếm</h4>
+                    </div>
+                    <div class="card-body p-1">
+                        <div class="row row-gap-2">
+                            <div class="col-sm-12">
+                                <div class="d-flex px-1">
+                                    <W1Label Value="Tháng/năm" Id="txtKiDanhGia" Styles="width: 80px" />
+                                    <div style="width: calc(100% - 80px)">
+                                        <div class="grid gap-1 row-gap-2">
+                                            <div class="g-col-md-6 g-col-sm-12 g-col-12">
+                                                <DxComboBox Data="@ListCboMonth"
+                                                            @bind-Value="@SearchUpdate.month"
+                                                            FilteringMode="DataGridFilteringMode.Contains"
+                                                            TextFieldName="@nameof(ComboboxModel.name)"
+                                                            ValueFieldName="@nameof(ComboboxModel.id)"
+                                                            CssClass="w1FontSize">
+                                                </DxComboBox>
+                                            </div>
+                                            <div class="g-col-md-6 g-col-sm-12 g-col-12">
+                                                <DxComboBox Data="@ListCboYear"
+                                                            @bind-Value="@SearchUpdate.year"
+                                                            FilteringMode="DataGridFilteringMode.Contains"
+                                                            TextFieldName="@nameof(ComboboxModel.name)"
+                                                            ValueFieldName="@nameof(ComboboxModel.id)"
+                                                            CssClass="w1FontSize">
+                                                </DxComboBox>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-sm-12">
+                                <div class="d-flex px-1">
+                                    <W1Label Value="Chi nhánh" Styles="width: 80px" IsRequired="true" />
+                                    <div style="width: calc(100% - 80px)">
+                                        <DxComboBox Data="@ListCboBranch"
+                                                    @bind-Value="@SearchUpdate.branchId"
+                                                    FilteringMode="DataGridFilteringMode.Contains"
+                                                    TextFieldName="@nameof(ComboboxModel.name)"
+                                                    Id="txtBranchId"
+                                                    SelectedItemChanged="@((ComboboxModel value) => ComboboxItemChangedHandler(value, nameof(SearchUpdate.branchId)))"
+                                                    ValueFieldName="@nameof(ComboboxModel.id)" CssClass="w1FontSize">
+                                        </DxComboBox>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="col-sm-12">
+                                <div style="height: 100%; max-height: 250px">
+                                    <DxGrid Data="ListCboDepartment"
+                                            ShowFilterRow="true"
+                                            ColumnResizeMode="GridColumnResizeMode.ColumnsContainer"
+                                            PagerPosition="GridPagerPosition.Bottom"
+                                            PageSizeSelectorVisible="false"
+                                            PageSize="@GlobalContants.PageSizeDefault"
+                                            PageSizeSelectorItems="@(GlobalContants.PageSizeList)"
+                                            PageSizeSelectorAllRowsItemVisible="false"
+                                            PagerSwitchToInputBoxButtonCount="10"
+                                            PagerVisibleNumericButtonCount="10"
+                                            TextWrapEnabled="false"
+                                            FocusedRowEnabled="true"
+                                            SelectionMode="@GridSelectionMode.Multiple"
+                                            AutoExpandAllGroupRows="true"
+                                            AllowSelectRowByClick="true"
+                                            @bind-SelectedDataItems="@ListCboDepartmentSelected"
+                                            CssClass="h-full">
+                                        <Columns>
+                                            <DxGridSelectionColumn Width="35px" />
+                                            <DxGridDataColumn FieldName="@nameof(ComboboxModel.code)" Caption="Mã phòng ban" MinWidth="100" Width="100px" />
+                                            <DxGridDataColumn FieldName="@nameof(ComboboxModel.name)" Caption="Tên phòng ban" MinWidth="150" />
+                                        </Columns>
+                                    </DxGrid>
+                                </div>
+                            </div>
+                            <div class="col-sm-12"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="@(IsShowFilter ? "col-md-8 col-sm-12" : "col-md-12 col-sm-12")">
+                <div class="row row-gap-2">
+                    <div class="col-12">
+                        <div class="card w1FontSize">
+                            <div class="card-header p-1">
+                                <div class="position-absolute" style="z-index: 10">
+                                    <i class="@(IsShowFilter ? $"{IconClassConstants.ICON_FILTER_CLEAR}" : $"{IconClassConstants.ICON_FILTER}") @IconClassConstants.FONT_SIZE_ICON"
+                                       title="@(IsShowFilter ? "Thu gọn vùng tìm kiếm" : "Mở rộng vùng tìm kiếm")" @onclick="@ShowFilterHandler" />
+                                </div>
+                                <DxToolbar ItemRenderStyleMode="@ToolbarRenderStyleMode.Contained">
+                                    <Items>
+                                        <DxToolbarItem Text="Làm mới" BeginGroup="true" IconCssClass="@($"{IconClassConstants.ICON_REFRESH}")" CssClass="w1FontSize"
+                                                       Alignment="@ToolbarItemAlignment.Right" Click="@RefreshHandler" />
+                                        <DxToolbarItem Text="Kết xuất" BeginGroup="true" IconCssClass="@($"{IconClassConstants.ICON_EXPORT_EXCEL}")" CssClass="w1FontSize"
+                                                       Alignment="@ToolbarItemAlignment.Right" Click="@(()=> ExportExcelHandler())" />
+                                    </Items>
+                                </DxToolbar>
+                            </div>
+
+                            <div class="card-body p-1" style="height: calc(100vh - 165px); min-height: 350px">
+                                <DxGrid Data="ListSalary" @ref="GridSalary"
+                                        ShowFilterRow="true"
+                                        ColumnResizeMode="GridColumnResizeMode.ColumnsContainer"
+                                        PagerPosition="GridPagerPosition.Bottom"
+                                        PageSizeSelectorVisible="true"
+                                        PageSize="@GlobalContants.PageSize"
+                                        PageSizeSelectorItems="@(GlobalContants.PageSizeList)"
+                                        PageSizeSelectorAllRowsItemVisible="true"
+                                        PagerSwitchToInputBoxButtonCount="10"
+                                        PagerVisibleNumericButtonCount="10"
+                                        TextWrapEnabled="false"
+                                        FocusedRowEnabled="true"
+                                        SelectionMode="GridSelectionMode.Single"
+                                        AllowSelectRowByClick="true"
+                                        AutoExpandAllGroupRows="true"
+                                        KeyboardNavigationEnabled="true"
+                                        CssClass="h-full">
+                                    <Columns>
+                                        <DxGridDataColumn FieldName="@nameof(SalaryReportModel.departmentName)" Caption="Phòng ban" Width="145px" MinWidth="120" GroupIndex="0" FixedPosition="@GridColumnFixedPosition.Left" />
+                                        <DxGridDataColumn FieldName="@nameof(SalaryReportModel.employeeCode)" Caption="Mã nhân viên" Width="110px" MinWidth="100" FixedPosition="@GridColumnFixedPosition.Left">
+                                            <CellDisplayTemplate>
+                                                @{
+                                                    <a @onclick="@(()=> OpenPopupDetailHandler((context.DataItem as SalaryReportModel)))">@context.Value</a>
+                                                }
+                                            </CellDisplayTemplate>
+                                        </DxGridDataColumn>
+                                        <DxGridDataColumn FieldName="@nameof(SalaryReportModel.employeeName)" Caption="Họ tên" Width="135px" MinWidth="100" FixedPosition="@GridColumnFixedPosition.Left" />
+                                        <DxGridDataColumn FieldName="@nameof(SalaryReportModel.month)" Caption="Tháng" MinWidth="70" Width="75px" DisplayFormat="d" />
+                                        <DxGridDataColumn FieldName="@nameof(SalaryReportModel.year)" Caption="Năm" MinWidth="70" Width="75px" DisplayFormat="d" />
+                                        <DxGridDataColumn FieldName="@nameof(SalaryReportModel.basicSalary)" Caption="Lương cơ bản" MinWidth="90" Width="100px"
+                                                          CaptionAlignment="@GridTextAlignment.Center" DisplayFormat="@GlobalContants.FORMAT_CURRENCY">
+                                            <HeaderCaptionTemplate>
+                                                <div>Lương</div>
+                                                <div>Cơ bản</div>
+                                            </HeaderCaptionTemplate>
+                                        </DxGridDataColumn>
+                                        <DxGridDataColumn FieldName="@nameof(SalaryReportModel.negotiatedSalary)" Caption="Lương thỏa thuận" MinWidth="90" Width="100px"
+                                                          CaptionAlignment="@GridTextAlignment.Center" DisplayFormat="@GlobalContants.FORMAT_CURRENCY">
+                                            <HeaderCaptionTemplate>
+                                                <div>Lương</div>
+                                                <div>Thỏa thuận</div>
+                                            </HeaderCaptionTemplate>
+                                        </DxGridDataColumn>
+                                        <DxGridDataColumn FieldName="@nameof(SalaryReportModel.salaryCoefficient)" Caption="HSL" MinWidth="60" Width="65px" DisplayFormat="@GlobalContants.FORMAT_CURRENCY" />
+                                        <DxGridDataColumn FieldName="@nameof(SalaryReportModel.convertedNegotiatedSalary)" Caption="Lương quy đổi" MinWidth="90" Width="100px"
+                                                          CaptionAlignment="@GridTextAlignment.Center" DisplayFormat="@GlobalContants.FORMAT_CURRENCY">
+                                            <HeaderCaptionTemplate>
+                                                <div>Lương</div>
+                                                <div>Quy đổi <span style="color: red;">&nbsp;(*)</span></div>
+                                            </HeaderCaptionTemplate>
+                                        </DxGridDataColumn>
+                                        <DxGridDataColumn FieldName="@nameof(SalaryReportModel.totalNet)" Caption="Tổng thưc nhận" MinWidth="110" CaptionAlignment="@GridTextAlignment.Center" DisplayFormat="@GlobalContants.FORMAT_CURRENCY">
+                                            <HeaderCaptionTemplate>
+                                                <div>Tổng</div>
+                                                <div>Thực nhận <span style="color: red;">&nbsp;(*)</span></div>
+                                            </HeaderCaptionTemplate>
+                                        </DxGridDataColumn>
+                                        <DxGridDataColumn FieldName="@nameof(SalaryReportModel.totalSalary)" Caption="Lương thực tế" MinWidth="110"
+                                                          CaptionAlignment="@GridTextAlignment.Center" DisplayFormat="@GlobalContants.FORMAT_CURRENCY">
+                                            <HeaderCaptionTemplate>
+                                                <div>Lương</div>
+                                                <div>Thực tế <span style="color: red;">&nbsp;(*)</span></div>
+                                            </HeaderCaptionTemplate>
+                                        </DxGridDataColumn>
+                                        <DxGridDataColumn FieldName="@nameof(SalaryReportModel.totalAllowance)" Caption="Phụ cấp" MinWidth="110" CaptionAlignment="@GridTextAlignment.Center" DisplayFormat="@GlobalContants.FORMAT_CURRENCY" />
+                                        <DxGridDataColumn FieldName="@nameof(SalaryReportModel.totalOvertime)" Caption="Tăng ca" MinWidth="110" CaptionAlignment="@GridTextAlignment.Center" DisplayFormat="@GlobalContants.FORMAT_CURRENCY" />
+                                        <DxGridDataColumn FieldName="@nameof(SalaryReportModel.totalUnionFee)" Caption="Công đoàn" MinWidth="110" CaptionAlignment="@GridTextAlignment.Center" DisplayFormat="@GlobalContants.FORMAT_CURRENCY" />
+                                        <DxGridDataColumn FieldName="@nameof(SalaryReportModel.totalInsurance)" Caption="Bảo hiểm" MinWidth="110" CaptionAlignment="@GridTextAlignment.Center" DisplayFormat="@GlobalContants.FORMAT_CURRENCY" />
+                                        <DxGridDataColumn FieldName="@nameof(SalaryReportModel.totalTax)" Caption="Thuế" MinWidth="110" CaptionAlignment="@GridTextAlignment.Center" DisplayFormat="@GlobalContants.FORMAT_CURRENCY" />
+                                    </Columns>
+                                    <TotalSummary>
+
+                                        <DxGridSummaryItem DisplayText="@GlobalContants.FORMAT_GRID_DISPLAYTEXT_SUM_PAYROLL" SummaryType="GridSummaryItemType.Sum"
+                                                           FieldName="@nameof(SalaryReportModel.totalSalary)" ValueDisplayFormat="@GlobalContants.FORMAT_CURRENCY"
+                                                           FooterColumnName="@nameof(SalaryReportModel.totalSalary)" />
+
+                                        <DxGridSummaryItem DisplayText="@GlobalContants.FORMAT_GRID_DISPLAYTEXT_SUM_PAYROLL" SummaryType="GridSummaryItemType.Sum"
+                                                           FieldName="@nameof(SalaryReportModel.totalAllowance)" ValueDisplayFormat="@GlobalContants.FORMAT_CURRENCY"
+                                                           FooterColumnName="@nameof(SalaryReportModel.totalAllowance)" />
+
+                                        <DxGridSummaryItem DisplayText="@GlobalContants.FORMAT_GRID_DISPLAYTEXT_SUM_PAYROLL" SummaryType="GridSummaryItemType.Sum"
+                                                           FieldName="@nameof(SalaryReportModel.totalOvertime)" ValueDisplayFormat="@GlobalContants.FORMAT_CURRENCY"
+                                                           FooterColumnName="@nameof(SalaryReportModel.totalOvertime)" />
+
+                                        <DxGridSummaryItem DisplayText="@GlobalContants.FORMAT_GRID_DISPLAYTEXT_SUM_PAYROLL" SummaryType="GridSummaryItemType.Sum"
+                                                           FieldName="@nameof(SalaryReportModel.totalUnionFee)" ValueDisplayFormat="@GlobalContants.FORMAT_CURRENCY"
+                                                           FooterColumnName="@nameof(SalaryReportModel.totalUnionFee)" />
+                                        
+                                        <DxGridSummaryItem DisplayText="@GlobalContants.FORMAT_GRID_DISPLAYTEXT_SUM_PAYROLL" SummaryType="GridSummaryItemType.Sum"
+                                                           FieldName="@nameof(SalaryReportModel.totalInsurance)" ValueDisplayFormat="@GlobalContants.FORMAT_CURRENCY"
+                                                           FooterColumnName="@nameof(SalaryReportModel.totalInsurance)" />
+
+                                        <DxGridSummaryItem DisplayText="@GlobalContants.FORMAT_GRID_DISPLAYTEXT_SUM_PAYROLL" SummaryType="GridSummaryItemType.Sum"
+                                                           FieldName="@nameof(SalaryReportModel.totalTax)" ValueDisplayFormat="@GlobalContants.FORMAT_CURRENCY"
+                                                           FooterColumnName="@nameof(SalaryReportModel.totalTax)" />
+
+                                        <DxGridSummaryItem DisplayText="@GlobalContants.FORMAT_GRID_DISPLAYTEXT_SUM_PAYROLL" SummaryType="GridSummaryItemType.Sum"
+                                                           FieldName="@nameof(SalaryReportModel.totalNet)" ValueDisplayFormat="@GlobalContants.FORMAT_CURRENCY"
+                                                           FooterColumnName="@nameof(SalaryReportModel.totalNet)" />
+                                    </TotalSummary>
+                                </DxGrid>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<W1Popup @bind-IsOpenModal="@IsShowDetail" Width="75%"
+         TextBtnAccept="Chọn"
+         IsShowFooter="false"
+         HeaderText="@HeaderTextDetail">
+    <div style="card w1FontSize">
+         <div class="card-body p-1" style="height: 400px; min-height: 350px">
+             <div class="row row-gap-2">
+                <div class="col-md-6 col-sm-12 text-truncate">
+                    <div class="d-flex align-items-center">Nhân viên: <span class="fw-bold mx-2">@PayrollDetail.employeeCode - @PayrollDetail.employeeName</span></div>
+                </div>
+                <div class="col-md-6 col-sm-12">
+                    <div class="d-flex align-items-center">Phòng ban: <span class="fw-bold mx-2">@PayrollDetail.departmentName</span></div>
+                </div>
+                <div class="col-md-6 col-sm-12 text-truncate">
+                    <div class="d-flex align-items-center">Hợp đồng số: <span class="fw-bold mx-2">@PayrollDetail.contractCode</span></div>
+                </div>
+                <div class="col-md-6 col-sm-12">
+                    <div class="d-flex align-items-center">Phụ lục số: <span class="fw-bold mx-2">@PayrollDetail.contractAppendixCode</span></div>
+                </div>
+                <div class="col-md-6 col-sm-12">
+                    <div class="d-flex align-items-center">Lương cơ bản: <span class="fw-bold mx-2">@PayrollDetail.basicSalary.ToString(GlobalContants.FORMAT_CURRENCY)</span></div>
+                </div>
+                <div class="col-md-6 col-sm-12">
+                    <div class="d-flex align-items-center">Lương thỏa thuận: <span class="fw-bold mx-2">@PayrollDetail.convertedNegotiatedSalary.ToString(GlobalContants.FORMAT_CURRENCY)</span></div>
+                </div>
+                <div class="col-md-6 col-sm-12">
+                    <div class="d-flex align-items-center">Tổng thu nhập trước thuế: <span class="fw-bold mx-2">@PayrollDetail.totalSalaryGross.ToString(GlobalContants.FORMAT_CURRENCY)</span></div>
+                </div>
+                <div class="col-md-6 col-sm-12">
+                    <div class="d-flex align-items-center">Tổng lương thực nhận: <span class="fw-bold mx-2">@PayrollDetail.totalSalaryNet.ToString(GlobalContants.FORMAT_CURRENCY)</span></div>
+                </div>
+
+                <div class="col-md-6 col-sm-12">
+                    <div class="d-flex align-items-center">Tổng trích nộp: <span class="fw-bold mx-2">@PayrollDetail.totalDeductionEmployee.ToString(GlobalContants.FORMAT_CURRENCY)</span></div>
+                </div>
+                <div class="col-md-6 col-sm-12">
+                    <div class="d-flex align-items-center">Công ty đóng trích nộp thay: <span class="fw-bold mx-2">@(PayrollDetail.isCompanyDeduction ? "Có" : "Không")</span></div>
+                </div>
+                <div class="col-md-6 col-sm-12">
+                    <div class="d-flex align-items-center">Tổng thuế: <span class="fw-bold mx-2">@PayrollDetail.taxPayment.ToString(GlobalContants.FORMAT_CURRENCY)</span></div>
+                </div>
+                <div class="col-md-6 col-sm-12">
+                    <div class="d-flex align-items-center">Công ty đóng thuế thay: <span class="fw-bold mx-2">@(PayrollDetail.isCompanyIncomeTax ? "Có" : "Không")</span></div>
+                </div>
+
+                <div class="col-12"><hr class="m-0" /></div>
+
+                <div class="col-md-6 col-sm-12">
+                    <div class="d-flex align-items-center">Tổng ngày công: <span class="fw-bold mx-2">@PayrollDetail.tNC.ToString(GlobalContants.FORMAT_CURRENCY)</span></div>
+                </div>
+                <div class="col-md-6 col-sm-12">
+                    <div class="d-flex align-items-center">Công định mức: <span class="fw-bold mx-2">@PayrollDetail.cDM.ToString(GlobalContants.FORMAT_CURRENCY)</span></div>
+                </div>
+
+                <div class="col-md-6 col-sm-12">
+                    <div class="d-flex align-items-center">Công thực tế: <span class="fw-bold mx-2">@PayrollDetail.cTT.ToString(GlobalContants.FORMAT_CURRENCY)</span></div>
+                </div>
+                <div class="col-md-6 col-sm-12">
+                    <div class="d-flex align-items-center">Lương công thực tế: <span class="fw-bold mx-2">@PayrollDetail.actualSalary.ToString(GlobalContants.FORMAT_CURRENCY)</span></div>
+                </div>
+
+                <div class="col-md-6 col-sm-12">
+                    <div class="d-flex align-items-center">Công phép năm: <span class="fw-bold mx-2">@PayrollDetail.nPN.ToString(GlobalContants.FORMAT_CURRENCY)</span></div>
+                </div>
+                <div class="col-md-6 col-sm-12">
+                    <div class="d-flex align-items-center">Lương công phép năm: <span class="fw-bold mx-2">@PayrollDetail.annualLeaveSalary.ToString(GlobalContants.FORMAT_CURRENCY)</span></div>
+                </div>
+
+                <div class="col-md-6 col-sm-12">
+                    <div class="d-flex align-items-center">Công chế độ: <span class="fw-bold mx-2">@PayrollDetail.nCD.ToString(GlobalContants.FORMAT_CURRENCY)</span></div>
+                </div>
+                <div class="col-md-6 col-sm-12">
+                    <div class="d-flex align-items-center">Lương công chế độ: <span class="fw-bold mx-2">@PayrollDetail.regulatedSalary.ToString(GlobalContants.FORMAT_CURRENCY)</span></div>
+                </div>
+
+                <div class="col-md-6 col-sm-12">
+                    <div class="d-flex align-items-center">Công nghỉ lễ: <span class="fw-bold mx-2">@PayrollDetail.nL.ToString(GlobalContants.FORMAT_CURRENCY)</span></div>
+                </div>
+                <div class="col-md-6 col-sm-12">
+                    <div class="d-flex align-items-center">Lương nghỉ lễ: <span class="fw-bold mx-2">@PayrollDetail.holidaySalary.ToString(GlobalContants.FORMAT_CURRENCY)</span></div>
+                </div>
+
+                <div class="col-md-6 col-sm-12">
+                    <div class="d-flex align-items-center">Công tính phụ cấp: <span class="fw-bold mx-2">@PayrollDetail.cTPC.ToString(GlobalContants.FORMAT_CURRENCY)</span></div>
+                </div>
+                <div class="col-md-6 col-sm-12">
+                    <div class="d-flex align-items-center">Tổng phụ cấp: <span class="fw-bold mx-2">@PayrollDetail.allowanceSalary.ToString(GlobalContants.FORMAT_CURRENCY)</span></div>
+                </div>
+
+
+                <div class="col-md-6 col-sm-12">
+                    <div class="d-flex align-items-center">Giờ công tăng ca: <span class="fw-bold mx-2">@PayrollDetail.tGTC.ToString(GlobalContants.FORMAT_CURRENCY)</span></div>
+                </div>
+                <div class="col-md-6 col-sm-12">
+                    <div class="d-flex align-items-center">Lương công Tăng ca: <span class="fw-bold mx-2">@PayrollDetail.overtimeSalary.ToString(GlobalContants.FORMAT_CURRENCY)</span></div>
+                </div>
+
+                <div class="col-md-6 col-sm-12">
+                    <div class="d-flex align-items-center">Giờ công thiếu: <span class="fw-bold mx-2">@PayrollDetail.sGT.ToString(GlobalContants.FORMAT_CURRENCY)</span></div>
+                </div>
+                <div class="col-md-6 col-sm-12">
+                    <div class="d-flex align-items-center">Lương giờ thiếu: <span class="fw-bold mx-2">@PayrollDetail.missingWorkingHourSalary.ToString(GlobalContants.FORMAT_CURRENCY)</span></div>
+                </div>
+
+                <div class="col-md-6 col-sm-12">
+                    <div class="d-flex align-items-center">Số phút đi trễ về sớm: <span class="fw-bold mx-2">@PayrollDetail.tGDLTVS.ToString(GlobalContants.FORMAT_CURRENCY)</span></div>
+                </div>
+                <div class="col-md-6 col-sm-12">
+                    <div class="d-flex align-items-center">Lương đi trễ về sớm: <span class="fw-bold mx-2">@PayrollDetail.lateSalary.ToString(GlobalContants.FORMAT_CURRENCY)</span></div>
+                </div>
+                
+             </div>
+
+             
+        </div>        
+    </div>
+</W1Popup>

@@ -171,6 +171,8 @@
         public const string POST_WORKING_BRANCH = "post-working-branch";
         public const string PUT_WORKING_BRANCH = "put-working-branch";
 
+        public const string GET_RPT_PAYROLL_SUMMARY = "get-rpt-payroll-summary";
+
         #region Loại dưới store
         public const string GET_COMBO_TYPE_CONTRACT_BY_EMPLOYEEID = "CONTRACT_BY_EMPLOYEEID";
         public const string GET_COMBO_TYPE_SALARY_ADJUSTMENT_BY_CONTRACT = "SALARY_ADJUSTMENT_BY_CONTRACT";

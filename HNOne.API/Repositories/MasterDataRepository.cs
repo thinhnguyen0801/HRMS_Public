@@ -125,8 +125,6 @@ namespace HNOne.API.Repositories
                 {
                     // ở các bộ lọc -> lấy theo PQ
                     strQuery += " and T0.IsActive = '1'";
-                    request.branchIds += $",{request.branchId}";
-                    request.branchIds = request.branchIds.Trim(',');
                     strQuery += " and T0.BranchId in ((select [Value] from string_split(@BranchIds, ',')))";
                     strQuery += " and T0.Id in ((select [Value] from string_split(@DepartmentIds, ',')))";
                     parameters.Add("@BranchIds", request.branchIds, DbType.String);

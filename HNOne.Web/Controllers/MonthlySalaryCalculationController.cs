@@ -466,12 +466,23 @@ namespace HNOne.Web.Controllers
             {
                 await ShowLoading(true);
                 await Task.Yield();
+                string enumType = CommonConstants.ENUM_EMPLOYEE_SIGNATURE; // lấy hết theo tình trạng & chi nhánh
+                string? departmentIds = ""; // lấy id phân quyền
+                if(!ListCboDepartment.IsNullOrEmpty())
+                {
+                    departmentIds = ListDepartmentSelected.IsNullOrEmpty() 
+                        ? string.Join(",", ListCboDepartment!.Select(m => m.id)) 
+                        : string.Join(",", ListDepartmentSelected!.Select(m => m.id));
+                    enumType = CommonConstants.ENUM_LIST;
+                }    
                 RequestModel request = new RequestModel();
                 request.userId = UserId;
                 request.branchId = BranchId;
                 request.employeeId = -1;
-                request.departmentIds = ListDepartmentSelected.IsNullOrEmpty() ? "" : string.Join(",", ListDepartmentSelected!.Select(m => m.id));
                 request.opt = ListCboStatusSelected.IsNullOrEmpty() ? "" : string.Join(",", ListCboStatusSelected!.Select(m => m.code));
+                request.branchIds = $"{BranchId}";
+                request.departmentIds = departmentIds;
+                request.type = enumType;
                 SelectedDataEmployees = null;
                 ListEmpSearch = new List<EmployeeModel>();
                 ListEmpSearch = await _personnelService.GetEmployeeAsync(request);

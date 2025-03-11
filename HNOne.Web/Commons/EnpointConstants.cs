@@ -21,5 +21,6 @@
         public const string TRAINING_POST_DATA = "Training/post-data";
         public const string SALARY_GET_DATA = "Salary/get-data";
         public const string SALARY_POST_DATA = "Salary/post-data";
+        public const string REPORT_GET_DATA = "Report/get-data";
     }
 }

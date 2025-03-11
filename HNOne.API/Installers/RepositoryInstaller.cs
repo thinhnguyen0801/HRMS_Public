@@ -24,6 +24,7 @@ namespace HNOne.API.Installers
             services.AddScoped<IApprovalRepository, ApprovalRepository>();
             services.AddScoped<ITrainingRepository, TrainingRepository>();
             services.AddScoped<ISalaryRepository, SalaryRepository>();
+            services.AddScoped<IReportRepository, ReportRepository>();
 
         }
     }

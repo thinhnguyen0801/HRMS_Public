@@ -62,6 +62,7 @@ namespace HNOne.Web.Controllers
             request.opt = EmployeeId.ToString();
             request.opt1 = FromDate?.ToString();
             request.opt2 = ToDate?.ToString();
+            request.opt3 = ActiveTabIndex == 0 ? "0" : "1";
             var result = await _masterDataService.GetMasterDataAsync<NotificationModel>(request);
             result = result?.Update(m =>
             {

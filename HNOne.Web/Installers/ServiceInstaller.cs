@@ -15,6 +15,7 @@ namespace HNOne.Web.Installers
             services.AddScoped<IApprovalService, ApprovalService>();
             services.AddScoped<ITrainingService, TrainingService>();
             services.AddScoped<ISalaryService, SalaryService>();
+            services.AddScoped<IReportService, ReportService>();
             services.AddSingleton<DataHelperService>();
         }
     }
