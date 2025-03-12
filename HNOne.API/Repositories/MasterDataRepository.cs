@@ -382,11 +382,9 @@ namespace HNOne.API.Repositories
             using (var connection = _dapperDbContext.CreateConnection())
             {
                 var parameters = new DynamicParameters();
-                string strQuery = "select T0.*, T1.Code as SalaryCategoryCode" +
-                    ",T1.Name as SalaryCategoryName" +
+                string strQuery = "select T0.*, T0.Id as SalaryCategoryId" +
                     ",T2.BranchCode, T2.BranchName, T3.Name as SalaryCalculateMethodName" +
                     " from SalaryConfigurations as T0 with(nolock) " +
-                    " inner join SalaryCategories as T1 with(nolock) on T0.SalaryCategoryId = T1.Id " +
                     " inner join Branchs as T2 with(nolock) on T0.BranchId = T2.BranchId" +
                     " left join EnumCatagories as T3 with(nolock) on T0.SalaryCalculateMethod = T3.Code and T3.EnumType = 'CachTinhLuongPhuCap'" +
                     " where T0.IsDelete = '0'";
@@ -1115,15 +1113,15 @@ namespace HNOne.API.Repositories
                 using (var connection = _dapperDbContext.CreateConnection())
                 {
                     DynamicParameters parameters = new DynamicParameters();
-                    bool isResult = true;
-                    string strQuery = "select count(1) from [SalaryConfigurations] with(nolock) where SalaryCategoryId = @SalaryCategoryId and BranchId = @BranchId";
-                    isResult = await connection.ExecuteScalarAsync<bool>(strQuery, new { entity.SalaryCategoryId, entity.BranchId });
-                    if (isResult)
-                    {
-                        response.status = StatusCodes.Status409Conflict;
-                        response.message = "Thông tin cấu hình lương đã tồn tại. Vui lòng kiểm tra Loại lương và Chi nhánh!";
-                        return response;
-                    }
+                    //bool isResult = true;
+                    //string strQuery = "select count(1) from [SalaryConfigurations] with(nolock) where SalaryCategoryCode = @SalaryCategoryCode and BranchId = @BranchId";
+                    //isResult = await connection.ExecuteScalarAsync<bool>(strQuery, new { entity.SalaryCategoryCode, entity.BranchId });
+                    //if (isResult)
+                    //{
+                    //    response.status = StatusCodes.Status409Conflict;
+                    //    response.message = "Thông tin cấu hình lương đã tồn tại. Vui lòng kiểm tra Loại lương và Chi nhánh!";
+                    //    return response;
+                    //}
                     entity.Id = await _dbContext.SalaryConfigurations.Select(m => m.Id).DefaultIfEmpty().MaxAsync() + 1;
                     entity.DateTracking = _dateTimeHelper.GetCurrentVietnamTime();
                     entity.CreateDate = _dateTimeHelper.GetCurrentVietnamTime();
@@ -1153,6 +1151,7 @@ namespace HNOne.API.Repositories
                     response.message = MessageConstants.MESSAGE_NOT_FOUNT;
                     return response;
                 }
+                result.SalaryCategoryName = entity.SalaryCategoryName;
                 result.IsActive = entity.IsActive;
                 result.IsPersonalIncomeTax = entity.IsPersonalIncomeTax;
                 result.TaxLimit = entity.TaxLimit;

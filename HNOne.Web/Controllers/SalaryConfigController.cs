@@ -84,7 +84,8 @@ namespace HNOne.Web.Controllers
             try
             {
                 var getTask1 = _masterDataService.GetBranchAsync(UserId, Token, BranchId, $"{BranchIds}", supperAdmin: IsAdmin ? "Y" : "N");
-                var getTask2 = _masterDataService.GetSalaryCatagoryAsync(UserId, Token, "ACTIVE"); // ds loại lương chỉ lấy active
+                //var getTask2 = _masterDataService.GetSalaryCatagoryAsync(UserId, Token, "ACTIVE"); // ds loại lương chỉ lấy active
+                var getTask2 = _masterDataService.GetFunEnumAsync(UserId, Token, nameof(EnumCatagory.LoaiLuong)); // ds loại lương
                 var getTask3 = _masterDataService.GetEnumAsync(UserId, Token, nameof(EnumCatagory.CachTinhLuongPhuCap));
                 await Task.WhenAll(
                     getTask1,
@@ -92,7 +93,7 @@ namespace HNOne.Web.Controllers
                     getTask3
                 );
                 ListCboBranch = (await getTask1)?.Select(m => new ComboboxModel() { id = m.branchId, name = m.branchName })?.ToList();
-                ListCboSalaryCatagory = (await getTask2)?.Select(m => new ComboboxModel() { id = m.id, name = m.name })?.ToList();
+                ListCboSalaryCatagory = (await getTask2)?.Select(m => new ComboboxModel() { code = m.code, name = m.name })?.ToList();
                 ListCboFormula = await getTask3;
             }
             catch (Exception ex)
@@ -104,10 +105,22 @@ namespace HNOne.Web.Controllers
 
         private void validateForSave(ref string errorMessage, ref string fieldName)
         {
-            if (EntityUpdate.salaryCategoryId < 1)
+            //if (EntityUpdate.salaryCategoryId < 1)
+            //{
+            //    errorMessage = String.Format(MessageConstants.MESSAGE_COMBOBOX_REQUIRE, "Loại lương");
+            //    fieldName = "txtSalaryCategoryId";
+            //    return;
+            //}
+            if (string.IsNullOrEmpty(EntityUpdate.salaryCategoryCode))
             {
-                errorMessage = String.Format(MessageConstants.MESSAGE_COMBOBOX_REQUIRE, "Loại lương");
-                fieldName = "txtSalaryCategoryId";
+                errorMessage = String.Format(MessageConstants.MESSAGE_COMBOBOX_REQUIRE, "Mã loại lương");
+                fieldName = "salaryCategoryCode";
+                return;
+            }
+            if (string.IsNullOrEmpty(EntityUpdate.salaryCategoryName))
+            {
+                errorMessage = String.Format(MessageConstants.MESSAGE_COMBOBOX_REQUIRE, "Tên loại lương");
+                fieldName = "salaryCategoryCode";
                 return;
             }
             if (EntityUpdate.branchId < 1)
@@ -166,6 +179,8 @@ namespace HNOne.Web.Controllers
                 {
                     EntityUpdate.id = pItemDetails!.id;
                     EntityUpdate.salaryCategoryId = pItemDetails!.salaryCategoryId;
+                    EntityUpdate.salaryCategoryCode = pItemDetails!.salaryCategoryCode;
+                    EntityUpdate.salaryCategoryName = pItemDetails!.salaryCategoryName;
                     EntityUpdate.branchId = pItemDetails!.branchId;
                     EntityUpdate.isActive = pItemDetails!.isActive;
                     EntityUpdate.isPersonalIncomeTax = pItemDetails!.isPersonalIncomeTax;

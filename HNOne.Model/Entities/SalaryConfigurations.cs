@@ -13,6 +13,10 @@ namespace HNOne.Model.Entities
         [DatabaseGenerated(DatabaseGeneratedOption.None)] // không tự tăng
         public int Id { get; set; }
         public int SalaryCategoryId { get; set; } // ID loại lương
+        [MaxLength(50)]
+        public string? SalaryCategoryCode { get; set; } // mã loại lương
+        [MaxLength(250)]
+        public string? SalaryCategoryName { get; set; } // tên loại lương
         public int BranchId { get; set; }
         public bool IsActive { get; set; } // áp dụng chưa
         public bool IsPersonalIncomeTax { get; set; } // TNCN ?

@@ -102,13 +102,13 @@
                     <div class="row row-gap-2">
                         <div class="col-md-8 col-sm-12">
                             <DxComboBox Data="@ListCboSalaryCatagory"
-                                        @bind-Value="@EntityUpdate.salaryCategoryId"
+                                        @bind-Value="@EntityUpdate.salaryCategoryCode"
                                         FilteringMode="DataGridFilteringMode.Contains"
                                         TextFieldName="@nameof(ComboboxModel.name)"
-                                        ValueFieldName="@nameof(ComboboxModel.id)"
+                                        ValueFieldName="@nameof(ComboboxModel.code)"
                                         ReadOnly="@(!IsCreate)"
                                         CssClass="w1FontSize"
-                                        Id="txtSalaryCategoryId">
+                                        Id="salaryCategoryCode">
                             </DxComboBox>
                         </div>
                         <div class="col-md-4 col-sm-12">
@@ -118,6 +118,18 @@
                                         LabelPosition="@LabelPosition.Right">
                                 Hiệu lực?
                             </DxCheckBox>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-sm-12">
+            <div class="d-flex ">
+                <W1Label Value="Tên loại lương" Styles="width: 110px" IsRequired="true" />
+                <div style="width: calc(100% - 110px)">
+                    <div class="row row-gap-2">
+                        <div class="col-md-8 col-sm-12">
+                            <DxTextBox @bind-Text="@EntityUpdate.salaryCategoryName" CssClass="w1FontSize" Id="salaryCategoryName"></DxTextBox>
                         </div>
                     </div>
                 </div>
@@ -139,12 +151,12 @@
                             </DxComboBox>
                         </div>
                         <div class="col-md-4 col-sm-12">
-                            <DxCheckBox CssClass="w-100 w1FontSize"
+                            @* <DxCheckBox CssClass="w-100 w1FontSize"
                                         SizeMode="@SizeMode.Small"
                                         @bind-Checked="@EntityUpdate.isUseOfGradeLevel"
                                         LabelPosition="@LabelPosition.Right">
                                 Sử dụng ngạch bậc?
-                            </DxCheckBox>
+                            </DxCheckBox> *@
                         </div>
                     </div>
                 </div>
