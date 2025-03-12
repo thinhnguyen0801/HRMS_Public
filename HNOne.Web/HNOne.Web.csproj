@@ -7,6 +7,10 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Content Remove="Components\Pages\MasterData\SalaryCategory.razor" />
+  </ItemGroup>
+
+  <ItemGroup>
     <Folder Include="Configurations\" />
   </ItemGroup>
 

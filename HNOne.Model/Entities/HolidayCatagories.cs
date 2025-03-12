@@ -15,6 +15,7 @@ namespace HNOne.Model.Entities
         [MaxLength(250)]
         [Required]
         public string? Name { get; set; } // tên loại ngày nghỉ
+        public int BranchId { get; set; }
         public DateTime FromDate { get; set; }
         public DateTime ToDate { get; set; }
         [MaxLength(250)]

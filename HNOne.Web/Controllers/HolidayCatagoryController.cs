@@ -30,6 +30,7 @@ namespace HNOne.Web.Controllers
         public HolidayCatagoryModel HolidayUpdate { get; set; } = new HolidayCatagoryModel();
 
         public List<EnumCatagoryModel>? ListCboType { get; set; } // cbo ds loại ngày nghỉ
+        public List<ComboboxModel>? ListCboBranch { get; set; } // cbo ds chi nhánh
         public bool IsShowDialog { get; set; }
         public bool IsCreate { get; set; } = true;
 
@@ -56,7 +57,7 @@ namespace HNOne.Web.Controllers
                         new BreadcrumbModel("Danh mục ngày nghỉ phép", isActive: true)
                     };
                     await NotifyBreadcrumb.InvokeAsync(ListBreadcrumbs);
-                    ListCboType = await _masterDataService.GetFunEnumAsync(UserId, Token, nameof(EnumCatagory.LoaiNgayNghi)); // ds trạng thái
+                    await buildComboboxAsync();
                     await getHolidayCatagory();
 
                 }
@@ -74,6 +75,25 @@ namespace HNOne.Web.Controllers
         }
 
         #region Private Functions
+        private async Task buildComboboxAsync()
+        {
+            try
+            {
+                var getTask1 = _masterDataService.GetBranchAsync(UserId, Token, BranchId, $"{BranchIds}", supperAdmin: IsAdmin ? "Y" : "N");
+                var getTask2 = _masterDataService.GetFunEnumAsync(UserId, Token, nameof(EnumCatagory.LoaiNgayNghi)); // ds trạng thái
+                await Task.WhenAll(
+                    getTask1,
+                    getTask2
+                );
+                ListCboBranch = (await getTask1)?.Select(m => new ComboboxModel() { id = m.branchId, name = m.branchName })?.ToList();
+                ListCboType = await getTask2;
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
         /// <summary>
         /// kiểm tra quyền nút
         /// </summary>
@@ -92,6 +112,7 @@ namespace HNOne.Web.Controllers
             request.userId = UserId;
             request.branchId = BranchId;
             request.process = ProcessConstants.GET_HOILDAY_CATAGORY;
+            request.branchIds = $"{BranchIds}";
             ListHoliday = new List<HolidayCatagoryModel>();
             ListHoliday = await _workforceService.GetMasterDataAsync<HolidayCatagoryModel>(request, isShowToast: true);
         }
@@ -151,11 +172,13 @@ namespace HNOne.Web.Controllers
                     HolidayUpdate = new HolidayCatagoryModel();
                     HolidayUpdate.fromDate = DateTime.Now;
                     HolidayUpdate.toDate = DateTime.Now;
+                    HolidayUpdate.branchId = BranchId;
                 }
                 else
                 {
                     HolidayUpdate.id = pItemDetails!.id;
                     HolidayUpdate.name = pItemDetails!.name;
+                    HolidayUpdate.branchId = pItemDetails!.branchId;
                     HolidayUpdate.fromDate = pItemDetails!.fromDate;
                     HolidayUpdate.toDate = pItemDetails!.toDate;
                     HolidayUpdate.color = pItemDetails!.color;

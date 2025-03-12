@@ -338,6 +338,7 @@ namespace HNOne.Web.Controllers
             request.employeeId = ShiftRequestDocument.employeeId;
             request.userId = UserId;
             request.token = Token;
+            request.branchId = BranchId;
             request.opt = ShiftRequestDocument.fromDate!.FormatDateTimeSql();
             request.opt1 = ShiftRequestDocument.toDate!.FormatDateTimeSql();
             request.opt2 = ShiftRequestDocument.shiftCode2;

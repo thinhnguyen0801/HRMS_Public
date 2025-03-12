@@ -326,6 +326,7 @@ namespace HNOne.Web.Controllers
             request.process = ProcessConstants.GET_WORKFORCE_MASTER_DATA;
             request.userId = UserId;
             request.token = Token;
+            request.branchId = BranchId;
             request.opt = LeaveRequestDocument.fromDate!.FormatDateTimeSql();
             request.opt1 = LeaveRequestDocument.toDate!.FormatDateTimeSql();
             request.type = ProcessConstants.GET_COMBO_LIST_OF_VACATION_DAY;

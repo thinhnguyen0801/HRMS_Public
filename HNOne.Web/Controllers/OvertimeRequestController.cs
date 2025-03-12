@@ -370,6 +370,7 @@ namespace HNOne.Web.Controllers
             request.process = ProcessConstants.GET_WORKFORCE_MASTER_DATA;
             request.userId = UserId;
             request.token = Token;
+            request.branchId = BranchId;
             request.opt = OvertimeRequestDocument.fromDate!.FormatDateTimeSql();
             request.opt1 = OvertimeRequestDocument.toDate!.FormatDateTimeSql();
             request.opt2 = OvertimeRequestDocument.shiftCode;

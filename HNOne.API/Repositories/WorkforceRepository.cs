@@ -154,12 +154,31 @@ namespace HNOne.API.Repositories
         {
             using (var connection = _dapperDbContext.CreateConnection())
             {
-                string query = "select T0.*" +
+                var parameters = new DynamicParameters();
+                string strQuery = "select T0.*" +
                     " ,T1.[Name] as TypeName" +
+                    " ,T2.BranchCode, T2.BranchName" +
                     " from HolidayCatagories as T0 with(nolock)" +
                     " inner join dbo.HRM_FN_GET_ENUM('LoaiNgayNghi', '', '' ) as T1 on T0.Type = T1.Code" +
+                    " inner join Branchs as T2 with(nolock) on T0.BranchId = T2.BranchId" +
                     " where T0.IsDelete = 0";
-                var lstResult = await connection.QueryAsync<HolidayCatagoryModel>(query, commandTimeout: GlobalConstants.COMMAND_TIMEOUT, commandType: CommandType.Text);
+                // thêm điều kiện
+                if (request.opt == CommonConstants.ENUM_ACTIVE)
+                {
+                    // ở các chứng từ
+                    strQuery += " and T0.IsActive = '1'";
+                    strQuery += " and T0.BranchId = @BranchId";
+                    parameters.Add("@BranchId", request.branchId, DbType.Int32);
+                }
+                else
+                {
+                    // Ở page danh mục. Kiểm tra có quyền xem chi nhánh nào thì where thêm
+                    request.branchIds += $",{request.branchId}";
+                    request.branchIds = request.branchIds.Trim(',');
+                    strQuery += " and T0.BranchId in ((select [Value] from string_split(@BranchIds, ',')))";
+                    parameters.Add("@BranchIds", request.branchIds, DbType.String);
+                }
+                var lstResult = await connection.QueryAsync<HolidayCatagoryModel>(strQuery, param: parameters, commandTimeout: GlobalConstants.COMMAND_TIMEOUT, commandType: CommandType.Text);
                 return lstResult;
             }
         }
@@ -896,6 +915,7 @@ namespace HNOne.API.Repositories
                     response.message = MessageConstants.MESSAGE_NOT_FOUNT;
                     return response;
                 }
+                data.BranchId = entity.BranchId;
                 data.Name = entity.Name;
                 data.FromDate = entity.FromDate;
                 data.ToDate = entity.ToDate;

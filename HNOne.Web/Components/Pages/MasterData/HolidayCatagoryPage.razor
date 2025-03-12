@@ -57,6 +57,7 @@
                                 </CellDisplayTemplate>
                             </DxGridDataColumn>
                             <DxGridDataColumn FieldName="@nameof(HolidayCatagoryModel.typeName)" Caption="Loại ngày nghỉ" MinWidth="130" />
+                            <DxGridDataColumn FieldName="@nameof(HolidayCatagoryModel.branchName)" Caption="Chi nhánh" MinWidth="160" />
                             <DxGridDataColumn FieldName="@nameof(HolidayCatagoryModel.fromDate)" Caption="Từ ngày" MinWidth="110" DisplayFormat="@GlobalContants.FORMAT_DATE" />
                             <DxGridDataColumn FieldName="@nameof(HolidayCatagoryModel.toDate)" Caption="Đến ngày" MinWidth="110" DisplayFormat="@GlobalContants.FORMAT_DATE" />
                             @* <DxGridDataColumn FieldName="@nameof(HolidayCatagoryModel.color)" Caption="Màu hiển thị" MinWidth="110" /> *@
@@ -101,6 +102,21 @@
                 <W1Label Value="Tên ngày nghỉ" Styles="width: 120px" IsRequired="true" />
                 <div style="width: calc(100% - 120px)">
                     <DxTextBox @bind-Text="@HolidayUpdate.name" CssClass="w1FontSize" Id="txtName"></DxTextBox>
+                </div>
+            </div>
+        </div>
+        <div class="col-sm-12">
+            <div class="d-flex ">
+                <W1Label Value="Chi nhánh" Styles="width: 120px" IsRequired="true" />
+                <div style="width: calc(100% - 120px)">
+                    <DxComboBox Data="@ListCboBranch"
+                                @bind-Value="@HolidayUpdate.branchId"
+                                FilteringMode="DataGridFilteringMode.Contains"
+                                TextFieldName="@nameof(ComboboxModel.name)"
+                                Id="txtBranchId"
+                                CssClass="w1FontSize"
+                                ValueFieldName="@nameof(ComboboxModel.id)">
+                    </DxComboBox>
                 </div>
             </div>
         </div>
