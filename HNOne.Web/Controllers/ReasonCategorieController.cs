@@ -164,6 +164,7 @@ namespace HNOne.Web.Controllers
                 {
                     IsCreate = true;
                     ReasonCategorieUpdate = new ReasonCategorieModel();
+                    ReasonCategorieUpdate.branchId = BranchId;
                 }
                 else
                 {
