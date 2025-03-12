@@ -31,7 +31,7 @@ namespace HNOne.Web.Controllers
         public bool IsCreate { get; set; } = true;
         public List<EnumCatagoryModel>? ListCboType { get; set; } // cbo ds loại lý do
         public List<EnumCatagoryModel>? ListCboLeaveRequest { get; set; } // cbo ds loại nghỉ phép
-
+        public List<ComboboxModel>? ListCboBranch { get; set; } // cbo ds chi nhánh
         // nút quyền
         public bool IsAllowPost { get; set; }
         public bool IsAllowDelete { get; set; }
@@ -77,17 +77,20 @@ namespace HNOne.Web.Controllers
         {
             var getTask1 = _masterDataService.GetFunEnumAsync(UserId, Token, nameof(EnumCatagory.LoaiLyDo));
             var getTask2 = _masterDataService.GetFunEnumAsync(UserId, Token, nameof(EnumCatagory.LoaiNghiPhep));
+            var getTask3 = _masterDataService.GetBranchAsync(UserId, Token, BranchId, $"{BranchIds}", supperAdmin: IsAdmin ? "Y" : "N");
             await Task.WhenAll(
                     getTask1,
-                    getTask2
+                    getTask2,
+                    getTask3
                 );
             ListCboType = await getTask1;
             ListCboLeaveRequest = await getTask2;
+            ListCboBranch = (await getTask3)?.Select(m => new ComboboxModel() { id = m.branchId, name = m.branchName })?.ToList();
         }
         private async Task getReasonCategories()
         {
             ListReasonCategory = new List<ReasonCategorieModel>();
-            ListReasonCategory = await _masterDataService.GetReasonCategoryAsync(UserId, Token);
+            ListReasonCategory = await _masterDataService.GetReasonCategoryAsync(UserId, Token, BranchId, $"{BranchIds}");
         }
         
         private void validateForSave(ref string errorMessage, ref string fieldName)
@@ -96,6 +99,12 @@ namespace HNOne.Web.Controllers
             {
                 errorMessage = string.Format(MessageConstants.MESSAGE_STRING_REQUIRE, "Tên lý do");
                 fieldName = "txtName";
+                return;
+            }
+            if (ReasonCategorieUpdate.branchId < 1)
+            {
+                errorMessage = string.Format(MessageConstants.MESSAGE_COMBOBOX_REQUIRE, "Chi nhánh");
+                fieldName = "txtBranchId";
                 return;
             }
             if (string.IsNullOrEmpty(ReasonCategorieUpdate.type))
@@ -160,6 +169,7 @@ namespace HNOne.Web.Controllers
                 {
                     ReasonCategorieUpdate.id = pItemDetails!.id;
                     ReasonCategorieUpdate.name = pItemDetails!.name;
+                    ReasonCategorieUpdate.branchId = pItemDetails!.branchId;
                     ReasonCategorieUpdate.type = pItemDetails!.type;
                     decimal.TryParse(pItemDetails!.value, out decimal oConfig);
                     decimal.TryParse(pItemDetails!.value1, out decimal oConfig1);

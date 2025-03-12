@@ -240,17 +240,17 @@ namespace HNOne.Web.Controllers
         {
             try
             {
-                //if (GridEmployee == null || ListEmployee.IsNullOrEmpty())
-                //{
-                //    ShowWarning(MessageConstants.MESSAGE_NOT_FOUNT);
-                //    return;
-                //}
-                //await ShowLoading();
-                //await GridEmployee!.ExportToXlsxAsync("Danh-sach-nhan-vien", new GridXlExportOptions()
-                //{
-                //    ExportTotalSummaries = false,
-                //    ExportGroupSummaries = false
-                //});
+                if (GridSalary == null || ListSalary.IsNullOrEmpty())
+                {
+                    ShowWarning(MessageConstants.MESSAGE_NOT_FOUNT);
+                    return;
+                }
+                await ShowLoading();
+                await GridSalary!.ExportToXlsxAsync("Bao-cao-tong-hop-luong", new GridXlExportOptions()
+                {
+                    ExportTotalSummaries = false,
+                    ExportGroupSummaries = false
+                });
             }
             catch (Exception ex)
             {

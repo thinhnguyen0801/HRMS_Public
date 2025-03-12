@@ -144,7 +144,7 @@ namespace HNOne.Web.Controllers
             try
             {
                 var getTask1 = _masterDataService.GetDepartmentAsync(UserId, Token, BranchId, opt: CommonConstants.ENUM_ACTIVE); // ds phòng ban
-                var getTask2 = _masterDataService.GetReasonCategoryAsync(UserId, Token, GlobalContants.ENUM_REASON_DNNP, opt: CommonConstants.ENUM_ACTIVE);
+                var getTask2 = _masterDataService.GetReasonCategoryAsync(UserId, Token, branchId: BranchId, reasonType: GlobalContants.ENUM_REASON_DNNP, opt: CommonConstants.ENUM_ACTIVE);
                 var getTask5 = _masterDataService.GetFunEnumAsync(UserId, Token, nameof(EnumCatagory.TrangThaiHopDong)); // ds trạng thái
                 await Task.WhenAll(
                     getTask1,

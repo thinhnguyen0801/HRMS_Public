@@ -490,7 +490,7 @@ namespace HNOne.Web.Services
         /// </summary>
         /// <param name="request"></param>
         /// <returns></returns>
-        public async Task<List<ReasonCategorieModel>?> GetReasonCategoryAsync(int userId, string token, string reasonType = "", string opt = "", bool isShowToast = false)
+        public async Task<List<ReasonCategorieModel>?> GetReasonCategoryAsync(int userId, string token, int branchId = -1, string branchIds = "", string reasonType = "", string opt = "", bool isShowToast = false)
         {
 
             try
@@ -500,6 +500,8 @@ namespace HNOne.Web.Services
                 request.process = ProcessConstants.GET_REASONCATEGORIE;
                 request.userId = userId;
                 request.token = token;
+                request.branchId = branchId;
+                request.branchIds = branchIds;
                 request.type = reasonType;
                 request.opt = opt;
                 HttpResponseMessage httpResponse = await PostAsync(EnpointConstants.MASTERDATA_GET_DATA, request);

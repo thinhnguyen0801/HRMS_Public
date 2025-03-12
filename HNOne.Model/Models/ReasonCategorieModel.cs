@@ -14,6 +14,9 @@ namespace HNOne.Model.Models
         public decimal config { get; set; } // config nếu có
         public decimal config1 { get; set; } // config nếu có 1
         public decimal config2 { get; set; } // config nếu có 2
+        public int branchId { get; set; }
+        public string? branchCode { get; set; }
+        public string? branchName { get; set; }
         public DateTime? createDate { get; set; }
         public int? userSign { get; set; }
         public DateTime? updateDate { get; set; }

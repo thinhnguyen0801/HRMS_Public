@@ -265,11 +265,26 @@ namespace HNOne.API.Repositories
             {
                 DynamicParameters parameters = new DynamicParameters();
                 string strQuery = "select T0.*, T1.Name as TypeName" +
+                    " ,T2.BranchCode as BranchCode, T2.BranchName as BranchName" +
                     " from ReasonCategories as T0 with(nolock)" +
                     " inner join [dbo].[HRM_FN_GET_ENUM] ('LoaiLyDo', '', '') as T1 on T0.Type = T1.Code" +
+                    " inner join Branchs as T2 with(nolock) on T0.BranchId = T2.BranchId" +
                     " where T0.IsDelete = 0";
                 // thêm điều kiện
-                if (request.opt == CommonConstants.ENUM_ACTIVE) strQuery += " and T0.IsActive = '1'";
+                if (request.opt == CommonConstants.ENUM_ACTIVE)
+                {
+                    strQuery += " and T0.IsActive = '1'";
+                    strQuery += " and T0.BranchId = @BranchId";
+                    parameters.Add("@BranchId", request.branchId, DbType.Int32);
+                }
+                else
+                {
+                    // Ở page danh mục. Kiểm tra có quyền xem chi nhánh nào thì where thêm
+                    request.branchIds += $",{request.branchId}";
+                    request.branchIds = request.branchIds.Trim(',');
+                    strQuery += " and T0.BranchId in ((select [Value] from string_split(@BranchIds, ',')))";
+                    parameters.Add("@BranchIds", request.branchIds, DbType.String);
+                }
                 if (!string.IsNullOrEmpty(request.type))
                 {
                     strQuery += " and T0.Type = @EnumType";
@@ -1003,6 +1018,7 @@ namespace HNOne.API.Repositories
                     return response;
                 }
                 data.Name = entity.Name;
+                data.BranchId = entity.BranchId;
                 data.Type = entity.Type;
                 data.IsActive = entity.IsActive;
                 data.Value = entity.Value;

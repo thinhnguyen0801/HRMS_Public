@@ -38,7 +38,7 @@
                             FocusedRowEnabled="true"
                             SelectionMode="@GridSelectionMode.Multiple"
                             @bind-SelectedDataItems="@SelectedReasonCategories"
-                            KeyFieldName="@nameof(ReasonCategorieModel.name)"
+                            KeyFieldName="@nameof(ReasonCategorieModel.id)"
                             CssClass="h-full">
                         <Columns>
                             <DxGridSelectionColumn Width="45px" />
@@ -56,12 +56,13 @@
                                     }
                                 </CellDisplayTemplate>
                             </DxGridDataColumn>/>
+                            <DxGridDataColumn FieldName="@nameof(ReasonCategorieModel.branchName)" Caption="Chi nhánh" MinWidth="170" />
                             <DxGridDataColumn FieldName="@nameof(ReasonCategorieModel.typeName)" Caption="Loại lý do" MinWidth="170" />
                             <DxGridDataColumn FieldName="@nameof(ReasonCategorieModel.isActive)" Caption="Hoạt động?" MinWidth="100" />
                             <DxGridDataColumn FieldName="@nameof(ReasonCategorieModel.value)" Caption="% Tính lương" MinWidth="100" />
-                            <DxGridDataColumn FieldName="@nameof(DepartmentModel.dateTracking)" Caption="Ngày cập nhật" MinWidth="120" DisplayFormat="@GlobalContants.FORMAT_DATE_TIME" />
-                            <DxGridDataColumn FieldName="@nameof(DepartmentModel.userSignName)" Caption="Người tạo" MinWidth="120" />
-                            <DxGridDataColumn FieldName="@nameof(DepartmentModel.userSign2Name)" Caption="Người cập nhật" MinWidth="120" />
+                            <DxGridDataColumn FieldName="@nameof(ReasonCategorieModel.dateTracking)" Caption="Ngày cập nhật" MinWidth="120" DisplayFormat="@GlobalContants.FORMAT_DATE_TIME" />
+                            <DxGridDataColumn FieldName="@nameof(ReasonCategorieModel.userSignName)" Caption="Người tạo" MinWidth="120" />
+                            <DxGridDataColumn FieldName="@nameof(ReasonCategorieModel.userSign2Name)" Caption="Người cập nhật" MinWidth="120" />
                         </Columns>
                         <TotalSummary>
                             <DxGridSummaryItem DisplayText="@GlobalContants.FORMAT_GRID_DISPLAYTEXT_COUNT" SummaryType="GridSummaryItemType.Count"
@@ -97,6 +98,21 @@
                             </DxCheckBox>
                         </div>
                     </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-sm-12">
+            <div class="d-flex ">
+                <W1Label Value="Chi nhánh" Styles="width: 110px" IsRequired="true" />
+                <div style="width: calc(100% - 110px)">
+                    <DxComboBox Data="@ListCboBranch"
+                                @bind-Value="@ReasonCategorieUpdate.branchId"
+                                FilteringMode="DataGridFilteringMode.Contains"
+                                TextFieldName="@nameof(ComboboxModel.name)"
+                                Id="txtBranchId"
+                                CssClass="w1FontSize"
+                                ValueFieldName="@nameof(ComboboxModel.id)">
+                    </DxComboBox>
                 </div>
             </div>
         </div>
