@@ -17,5 +17,7 @@ namespace HNOne.Model.Models
         public bool isOffSaturday { get; set; } // được nghỉ T7 không
         public bool isOffSunday { get; set; } // được nghỉ chủ nhật không
         public bool isActive { get; set; }
+        public int branchId { get; set; }
+        public string? branchName { get; set; }
     }
 }

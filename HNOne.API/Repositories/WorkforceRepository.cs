@@ -39,8 +39,29 @@ namespace HNOne.API.Repositories
         {
             using (var connection = _dapperDbContext.CreateConnection())
             {
-                string query = "select T0.* from LeaveConfigs as T0 with(nolock) where T0.IsDelete = 0";
-                var lstResult = await connection.QueryAsync<LeaveConfigModel>(query, commandTimeout: GlobalConstants.COMMAND_TIMEOUT, commandType: CommandType.Text);
+                var parameters = new DynamicParameters();
+                string strQuery = "select T0.* " +
+                    ",T2.BranchCode, T2.BranchName" +
+                    " from LeaveConfigs as T0 with(nolock) " +
+                    " inner join Branchs as T2 with(nolock) on T0.BranchId = T2.BranchId" +
+                    " where T0.IsDelete = 0";
+                // thêm điều kiện
+                if (request.opt == CommonConstants.ENUM_ACTIVE)
+                {
+                    // ở các chứng từ
+                    strQuery += " and T0.IsActive = '1'";
+                    strQuery += " and T0.BranchId = @BranchId";
+                    parameters.Add("@BranchId", request.branchId, DbType.Int32);
+                }
+                else
+                {
+                    // Ở page danh mục. Kiểm tra có quyền xem chi nhánh nào thì where thêm
+                    request.branchIds += $",{request.branchId}";
+                    request.branchIds = request.branchIds.Trim(',');
+                    strQuery += " and T0.BranchId in ((select [Value] from string_split(@BranchIds, ',')))";
+                    parameters.Add("@BranchIds", request.branchIds, DbType.String);
+                }
+                var lstResult = await connection.QueryAsync<LeaveConfigModel>(strQuery, param: parameters, commandTimeout: GlobalConstants.COMMAND_TIMEOUT, commandType: CommandType.Text);
                 return lstResult;
             }    
         }
@@ -510,7 +531,7 @@ namespace HNOne.API.Repositories
                 if (actionType == ProcessConstants.POST_LEAVE_CONFIG)
                 {
                     // kiểm tra trùng năm không & đang áp dụng
-                    var checkExists = await _dbContext.LeaveConfigs.FirstOrDefaultAsync(m => m.Year == entity.Year && m.IsActive && m.IsDelete == false);
+                    var checkExists = await _dbContext.LeaveConfigs.FirstOrDefaultAsync(m => m.Year == entity.Year && m.IsActive && m.IsDelete == false && m.BranchId == entity.BranchId);
                     if (checkExists != null)
                     {
                         response.status = StatusCodes.Status409Conflict;
@@ -538,14 +559,15 @@ namespace HNOne.API.Repositories
                 {
                     // kiểm tra trùng năm không & đang áp dụng
                     var checkExists = await _dbContext.LeaveConfigs.FirstOrDefaultAsync(m => m.Year == entity.Year && m.IsActive 
-                            && m.IsDelete == false && m.Id != data.Id);
+                            && m.IsDelete == false && m.Id != data.Id && m.BranchId == entity.BranchId);
                     if (checkExists != null)
                     {
                         response.status = StatusCodes.Status409Conflict;
                         response.message = $"Thông số phép của năm [{checkExists.Year}] đã tồn tại";
                         return response;
                     }
-                }    
+                }
+                data.BranchId = entity.BranchId;
                 data.FromDate = entity.FromDate;
                 data.ToDate = entity.ToDate;
                 data.ExpiryDate = entity.ExpiryDate;
@@ -892,7 +914,7 @@ namespace HNOne.API.Repositories
                     // kiểm tra có ngày trùng không
                     //var checkExists = await _dbContext.HolidayCatagories.AnyAsync(m => (m.FromDate.Date <= entity.FromDate.Date && entity.FromDate.Date <= entity.ToDate.Date)
                     //    || (m.FromDate.Date <= entity.ToDate.Date && entity.ToDate.Date <= m.ToDate.Date));
-                    var checkExists = await _dbContext.HolidayCatagories.AnyAsync(m => !(entity.ToDate.Date < m.FromDate.Date || entity.FromDate.Date > m.ToDate.Date));
+                    var checkExists = await _dbContext.HolidayCatagories.AnyAsync(m => !(entity.ToDate.Date < m.FromDate.Date || entity.FromDate.Date > m.ToDate.Date) && m.BranchId == entity.BranchId);
                     if (checkExists)
                     {
                         response.status = StatusCodes.Status409Conflict;
@@ -1291,6 +1313,7 @@ namespace HNOne.API.Repositories
                 if (year == 0) year = DateTime.Now.Year;
                 var parameters = new DynamicParameters();
                 parameters.Add("@UserId", request.userId);
+                parameters.Add("@BranchId", request.branchId);
                 parameters.Add("@Year", year);
                 parameters.Add("@Type", request.type);
                 var lstResult = await connection.QueryAsync<WorkConfigModel>(StoreConstants.STORE_H1_GENERATE_WORK_CONFIG_UPDATE, param: parameters, commandTimeout: GlobalConstants.COMMAND_TIMEOUT, commandType: CommandType.StoredProcedure);

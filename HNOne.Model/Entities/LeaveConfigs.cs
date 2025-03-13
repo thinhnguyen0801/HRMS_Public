@@ -21,5 +21,6 @@ namespace HNOne.Model.Entities
         public bool IsOffSaturday { get; set; } // được nghỉ T7 không
         public bool IsOffSunday { get; set; } // được nghỉ chủ nhật không
         public bool IsActive { get; set; }
+        public int BranchId { get; set; }
     }
 }

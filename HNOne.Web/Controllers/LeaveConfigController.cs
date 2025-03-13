@@ -31,7 +31,7 @@ namespace HNOne.Web.Controllers
         public LeaveConfigModel LeaveConfigUpdate { get; set; } = new LeaveConfigModel();
         public bool IsShowDialog { get; set; }
         public bool IsCreate { get; set; } = true;
-
+        public List<ComboboxModel>? ListCboBranch { get; set; } // cbo ds chi nhánh
         // nút quyền
         public bool IsAllowPost { get; set; }
         public bool IsAllowDelete { get; set; }
@@ -55,6 +55,8 @@ namespace HNOne.Web.Controllers
                         new BreadcrumbModel("Thông số phép năm", isActive: true)
                     };
                     await NotifyBreadcrumb.InvokeAsync(ListBreadcrumbs);
+                    var lstBranch = await _masterDataService.GetBranchAsync(UserId, Token, BranchId, $"{BranchIds}", supperAdmin: IsAdmin ? "Y" : "N");
+                    ListCboBranch = lstBranch?.Select(m => new ComboboxModel() { id = m.branchId, name = m.branchName })?.ToList();
                     await getLeaveConfig();
 
                 }
@@ -90,9 +92,20 @@ namespace HNOne.Web.Controllers
             RequestModel request = new RequestModel();
             request.userId = UserId;
             request.branchId = BranchId;
+            request.branchIds = $"{BranchIds}";
             request.process = ProcessConstants.GET_LEAVE_CONFIG;
             ListLeaveConfig = new List<LeaveConfigModel>();
             ListLeaveConfig = await _workforceService.GetMasterDataAsync<LeaveConfigModel>(request, isShowToast: true);
+        }
+
+        private void validateForSave(ref string errorMessage, ref string fieldName)
+        {
+            if (LeaveConfigUpdate.branchId < 1)
+            {
+                errorMessage = string.Format(MessageConstants.MESSAGE_COMBOBOX_REQUIRE, "Chi nhánh");
+                fieldName = "txtBranchId";
+                return;
+            }
         }
         #endregion
 
@@ -131,10 +144,12 @@ namespace HNOne.Web.Controllers
                     LeaveConfigUpdate.isActive = true;
                     LeaveConfigUpdate.accrualDate = 1;
                     LeaveConfigUpdate.numOfLeave = 12;
+                    LeaveConfigUpdate.branchId = BranchId;
                 }
                 else
                 {
                     LeaveConfigUpdate.id = pItemDetails!.id;
+                    LeaveConfigUpdate.branchId = pItemDetails!.branchId;
                     LeaveConfigUpdate.year = pItemDetails!.year;
                     LeaveConfigUpdate.fromDate = pItemDetails!.fromDate;
                     LeaveConfigUpdate.toDate = pItemDetails!.toDate;
@@ -170,13 +185,13 @@ namespace HNOne.Web.Controllers
                 }
                 string errorMessage = string.Empty;
                 string fieldName = string.Empty;
-                //validateForSave(ref errorMessage, ref fieldName);
-                //if (!string.IsNullOrEmpty(errorMessage))
-                //{
-                //    ShowWarning(errorMessage);
-                //    await _jsRuntime.InvokeVoidAsync("focusInput", fieldName);
-                //    return;
-                //}
+                validateForSave(ref errorMessage, ref fieldName);
+                if (!string.IsNullOrEmpty(errorMessage))
+                {
+                    ShowWarning(errorMessage);
+                    await _jsRuntime.InvokeVoidAsync("focusInput", fieldName);
+                    return;
+                }
                 errorMessage = IsCreate ? MessageConstants.MESSAGE_CONFIRM_ADD : MessageConstants.MESSAGE_CONFIRM_UPDATE;
                 bool isConfirm = await confirm.SetConfirm(MessageConstants.MESSAGE_TITLE, errorMessage);
                 if (!isConfirm) return;

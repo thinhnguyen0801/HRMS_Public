@@ -56,6 +56,7 @@
                                     }
                                 </CellDisplayTemplate>
                             </DxGridDataColumn>
+                            <DxGridDataColumn FieldName="@nameof(LeaveConfigModel.branchName)" Caption="Chi nhánh" MinWidth="160" />
                             <DxGridDataColumn FieldName="@nameof(LeaveConfigModel.fromDate)" Caption="Ngày bắt đầu" MinWidth="110" DisplayFormat="@GlobalContants.FORMAT_DATE" />
                             <DxGridDataColumn FieldName="@nameof(LeaveConfigModel.toDate)" Caption="Ngày kết thúc" MinWidth="110" DisplayFormat="@GlobalContants.FORMAT_DATE" />
                             <DxGridDataColumn FieldName="@nameof(LeaveConfigModel.numOfLeave)" Caption="Số phép năm" MinWidth="110" />
@@ -105,6 +106,21 @@
                             </DxCheckBox>
                         </div>
                     </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-sm-12">
+            <div class="d-flex ">
+                <W1Label Value="Chi nhánh" Styles="width: 230px" IsRequired="true" />
+                <div style="width: calc(100% - 230px)">
+                    <DxComboBox Data="@ListCboBranch"
+                                @bind-Value="@LeaveConfigUpdate.branchId"
+                                FilteringMode="DataGridFilteringMode.Contains"
+                                TextFieldName="@nameof(ComboboxModel.name)"
+                                Id="txtBranchId"
+                                CssClass="w1FontSize"
+                                ValueFieldName="@nameof(ComboboxModel.id)">
+                    </DxComboBox>
                 </div>
             </div>
         </div>

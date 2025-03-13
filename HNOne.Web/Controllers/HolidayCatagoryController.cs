@@ -131,6 +131,12 @@ namespace HNOne.Web.Controllers
                 fieldName = "txtName";
                 return;
             }
+            if (HolidayUpdate.branchId < 1)
+            {
+                errorMessage = string.Format(MessageConstants.MESSAGE_COMBOBOX_REQUIRE, "Chi nhánh");
+                fieldName = "txtBranchId";
+                return;
+            }
             if (HolidayUpdate.toDate.Date < HolidayUpdate.fromDate.Date)
             {
                 errorMessage = MessageConstants.MESSAGE_FROM_DATE_TO_DATE_INVALID;
