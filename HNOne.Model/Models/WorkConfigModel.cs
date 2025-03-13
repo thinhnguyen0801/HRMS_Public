@@ -6,6 +6,8 @@ namespace HNOne.Model.Models
         public int status { get; set; }
         public string? message { get; set; }
         public int id { get; set; }
+        public int branchId { get; set; }
+        public string? branchName { get; set; }
         public int startDate { get; set; } // ngày bắt đầu chấm công
         public int closingDate { get; set; } // ngày chốt kì công công
         public int closingDate1 { get; set; } // ngày kết thúc chấm công

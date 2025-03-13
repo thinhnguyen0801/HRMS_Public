@@ -34,6 +34,22 @@
                                 <div class="row row-gap-2">
                                     <div class="col-md-6 col-sm-12">
                                         <div class="d-flex ">
+                                            <W1Label Value="Chi nhánh" Styles="width: 140px" IsRequired="true" />
+                                            <div style="width: calc(100% - 140px)">
+                                                <DxComboBox Data="@ListCboBranch"
+                                                            @bind-Value="@WorkConfigUpdate.branchId"
+                                                            FilteringMode="DataGridFilteringMode.Contains"
+                                                            TextFieldName="@nameof(ComboboxModel.name)"
+                                                            Id="txtBranchId"
+                                                            CssClass="w1FontSize"
+                                                            ValueFieldName="@nameof(ComboboxModel.id)">
+                                                </DxComboBox>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6 col-sm-12"></div>
+                                    <div class="col-md-6 col-sm-12">
+                                        <div class="d-flex ">
                                             <W1Label Value="Ngày b/đ chấm công" Styles="width: 140px" IsRequired="true" />
                                             <div style="width: calc(100% - 140px)">
                                                 <div class="row row-gap-2">
@@ -261,6 +277,7 @@
                                         </DxToolbar>
                                     </ToolbarTemplate>
                                     <Columns>
+                                        <DxGridDataColumn FieldName="@nameof(WorkConfigModel.branchName)" Caption="Chi nhánh" MinWidth="160" />
                                         <DxGridDataColumn FieldName="@nameof(WorkConfigModel.month)" Caption="Tháng" MinWidth="70" Width="80px" />
                                         <DxGridDataColumn FieldName="@nameof(WorkConfigModel.totalWorkingDayOfMonthD)" Caption="Công tiêu chuẩn" Width="130px" MinWidth="110" DisplayFormat="@GlobalContants.FORMAT_NUMBER" />
                                         <DxGridDataColumn FieldName="@nameof(WorkConfigModel.isWorkingDayExcludeDayOff)" Caption="Loại trừ ngày nghỉ?" MinWidth="110" Width="120px" />
@@ -342,6 +359,7 @@
                 SelectionMode="GridSelectionMode.Single"
                 CssClass="h-full">
             <Columns>
+                <DxGridDataColumn FieldName="@nameof(WorkConfigModel.branchName)" Caption="Chi nhánh" MinWidth="160" />
                 <DxGridDataColumn FieldName="@nameof(WorkConfigModel.month)" Caption="Tháng" MinWidth="70" Width="80px" />
                 <DxGridDataColumn FieldName="@nameof(WorkConfigModel.totalWorkingDayOfMonthD)" Caption="Công tiêu chuẩn" Width="130px" MinWidth="110" DisplayFormat="@GlobalContants.FORMAT_NUMBER" />
                 <DxGridDataColumn FieldName="@nameof(WorkConfigModel.isWorkingDayExcludeDayOff)" Caption="Loại trừ ngày nghỉ?" MinWidth="110" Width="120px" />

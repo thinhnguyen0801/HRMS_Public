@@ -9,6 +9,7 @@ namespace HNOne.Model.Entities
         [Key]
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)] // Không tự tăng
         public int Id { get; set; }
+        public int BranchId { get; set; }
         public int StartDate { get; set; } // ngày bắt đầu chấm công
         public int ClosingDate { get; set; } // ngày chốt kì công công
         public int ClosingDate1 { get; set; } // ngày kết thúc chấm công

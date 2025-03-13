@@ -293,6 +293,7 @@ namespace HNOne.API.Repositories
                 if (year == 0) year = DateTime.Now.Year;
                 var parameters = new DynamicParameters();
                 parameters.Add("@UserId", request.userId);
+                parameters.Add("@BranchId", request.branchId);
                 parameters.Add("@Year", year);
                 parameters.Add("@Type", $"{request.type}");
                 var lstResult = await connection.QueryAsync<WorkConfigModel>(StoreConstants.STORE_H1_WORK_CONFIG_SELECT, param: parameters, commandTimeout: GlobalConstants.COMMAND_TIMEOUT, commandType: CommandType.StoredProcedure);
@@ -1449,7 +1450,9 @@ namespace HNOne.API.Repositories
                 var lstWorkConfigDefault = await _dbContext.WorkConfigs.Where(m => m.IsDelete == false && m.WorkConfigType == "DEFAULT").ToListAsync();
                 if(!lstWorkConfigDefault.IsNullOrEmpty())
                 {
-                    foreach(var itemUpdate in lstWorkConfigDefault)
+                    // nếu có của chi nhánh đấy thì lấy theo chi nhánh
+                    var lstWorkConfigByBranch = lstWorkConfigDefault.Where(m => m.BranchId == entity.BranchId).ToList();
+                    foreach (var itemUpdate in lstWorkConfigByBranch)
                     {
                         itemUpdate.IsDelete = true;
                         itemUpdate.DeleteReason = $"User: {entity.UserSign2} đã cập nhật thông tin cấu hình mới";

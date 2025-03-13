@@ -15,6 +15,7 @@ namespace HNOne.Web.Controllers
 {
     public class WorkConfigController : DocumentControllerBase
     {
+        [Inject] IMasterDataService _masterDataService { get; init; }
         [Inject] IWorkforceService _workforceService { get; init; }
         [Inject] IJSRuntime _jsRuntime { get; set; }
         public W1Confirm confirm { get; set; }
@@ -28,7 +29,7 @@ namespace HNOne.Web.Controllers
         public IGrid? GridWorkConfig { get; set; }
 
         public List<ComboboxModel>? ListCboYear { get; set; }
-
+        public List<ComboboxModel>? ListCboBranch { get; set; } // cbo ds chi nhánh
         public bool IsShowDialogPreview { get; set; }
         public List<WorkConfigModel>? ListWorkConfigPreView { get; set; }
         public IGrid? GridWorkConfigPreview { get; set; }
@@ -56,6 +57,8 @@ namespace HNOne.Web.Controllers
                     await NotifyBreadcrumb.InvokeAsync(ListBreadcrumbs);
                     //
                     initDataAsync();
+                    var lstBranch = await _masterDataService.GetBranchAsync(UserId, Token, BranchId, $"{BranchIds}", supperAdmin: IsAdmin ? "Y" : "N");
+                    ListCboBranch = lstBranch?.Select(m => new ComboboxModel() { id = m.branchId, name = m.branchName })?.ToList();
                     await getConfigAsync();
                 }
                 catch (Exception ex)
@@ -76,6 +79,7 @@ namespace HNOne.Web.Controllers
         private void initDataAsync()
         {
             WorkConfigUpdate.year = DateTime.Now.Year;
+            WorkConfigUpdate.branchId = BranchId;
             int defaultYear = 2024;
             ListCboYear = new List<ComboboxModel>();
             for (int i = defaultYear; i < DateTime.Now.AddYears(2).Year; i++)
@@ -89,7 +93,7 @@ namespace HNOne.Web.Controllers
             {
                 RequestModel request = new RequestModel();
                 request.userId = UserId;
-                request.branchId = BranchId;
+                request.branchId = WorkConfigUpdate.branchId;
                 request.token = Token;
                 request.process = ProcessConstants.GET_WORK_CONFIG;
                 request.opt = WorkConfigUpdate.year.ToString();
@@ -123,7 +127,13 @@ namespace HNOne.Web.Controllers
 
         private void validateForSave(ref string errorMessage, ref string fieldName)
         {
-            if(WorkConfigUpdate.startDate < 1)
+            if (WorkConfigUpdate.branchId < 1)
+            {
+                errorMessage = string.Format(MessageConstants.MESSAGE_COMBOBOX_REQUIRE, "Chi nhánh");
+                fieldName = "txtBranchId";
+                return;
+            }
+            if (WorkConfigUpdate.startDate < 1)
             {
                 errorMessage = string.Format(MessageConstants.MESSAGE_STRING_REQUIRE, "Ngày b/đ chấm công");
                 fieldName = "txtstartDate";
@@ -304,7 +314,7 @@ namespace HNOne.Web.Controllers
                 RequestModel request = new RequestModel();
                 request.process = ProcessConstants.POST_WORK_CONFIG;
                 request.userId = UserId;
-                request.branchId = BranchId;
+                request.branchId = WorkConfigUpdate.branchId;
                 request.token = Token;
                 request.opt = WorkConfigUpdate.year.ToString();
                 request.type = "INSERT";
@@ -340,7 +350,7 @@ namespace HNOne.Web.Controllers
                 RequestModel request = new RequestModel();
                 request.process = ProcessConstants.POST_WORK_CONFIG;
                 request.userId = UserId;
-                request.branchId = BranchId;
+                request.branchId = WorkConfigUpdate.branchId;
                 request.token = Token;
                 request.opt = WorkConfigUpdate.year.ToString();
                 request.type = "PREVIEW";
