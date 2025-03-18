@@ -84,7 +84,7 @@ namespace HNOne.API.Repositories
             modelBuilder.Entity<Users>().HasIndex(m => m.UserName).IsUnique();
             modelBuilder.Entity<SalaryCategories>().HasIndex(m => m.Code).IsUnique();
             modelBuilder.Entity<PermissionGroups>().HasIndex(m => m.Code).IsUnique();
-            modelBuilder.Entity<SalaryConfigurations>().HasIndex(m => new { m.SalaryCategoryId, m.BranchId }).IsUnique();
+            //modelBuilder.Entity<SalaryConfigurations>().HasIndex(m => new { m.SalaryCategoryId, m.BranchId }).IsUnique();
             modelBuilder.Entity<EventConfigurations>().HasIndex(m => m.ActionKey).IsUnique();
             modelBuilder.Entity<LeaveRequests>().HasIndex(m => m.VoucherNo).IsUnique();
             modelBuilder.Entity<LeaveWorkingHours>().HasIndex(m => m.VoucherNo).IsUnique();

@@ -16,7 +16,7 @@
                                            Alignment="@ToolbarItemAlignment.Right" Click="@(()=> OnOpenDialogHandler())" Visible="@(IsAllowPost)" />
 
                             <DxToolbarItem Text="Xóa" BeginGroup="true" IconCssClass="@($"{IconClassConstants.ICON_DELETE}")" CssClass="w1FontSize"
-                                           Alignment="@ToolbarItemAlignment.Right" Visible="@(IsAllowDelete)" />
+                                           Alignment="@ToolbarItemAlignment.Right" Visible="@(IsAllowDelete)" Click="@(()=> DeleteDataHandler())" />
                             <DxToolbarItem Text="Kết xuất" BeginGroup="true" IconCssClass="@($"{IconClassConstants.ICON_EXPORT_EXCEL}")" CssClass="w1FontSize"
                                            Alignment="@ToolbarItemAlignment.Right" Click="@(()=> ExportExcelHandler())" />
                         </Items>
