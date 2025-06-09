@@ -66,7 +66,6 @@ namespace HNOne.API.Controllers
                     response.status = StatusCodes.Status204NoContent;
                     response.message = "Không tìm thấy dữ liệu!!!";
                 }
-                int.Parse("A");
             }
             catch (Exception ex)
             {
