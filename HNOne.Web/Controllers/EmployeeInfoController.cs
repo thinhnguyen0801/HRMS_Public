@@ -131,7 +131,7 @@ namespace HNOne.Web.Controllers
                     EmployeeUpdate = lstData![0];
                     if (!string.IsNullOrEmpty(EmployeeUpdate.imageUrl))
                     {
-                        string apiUrl = _configuration.GetSection("appSettings:ApiUrl").Value + "";
+                        string apiUrl = _configuration.GetSection("appSettings:ImageUrl").Value + "";
                         EmployeeUpdate.imageViewUrl = $"{apiUrl}{nameof(EmployeeController)}/{EmployeeUpdate.imageUrl}";
                     }
                     List<Task> lstTask = new List<Task>();

@@ -3,6 +3,8 @@ using HNOne.API.Services;
 using Microsoft.AspNetCore.Localization;
 using Microsoft.AspNetCore.ResponseCompression;
 using System.Globalization;
+using Serilog;
+using Serilog.Sinks.MSSqlServer;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -37,6 +39,18 @@ builder.Services.AddResponseCompression(opts =>
     opts.MimeTypes = ResponseCompressionDefaults.MimeTypes.Concat(
         ["application/octet-stream"]);
 });
+var logger = new LoggerConfiguration()
+                .WriteTo.MSSqlServer(
+                connectionString: builder.Configuration.GetConnectionString("DbConnection"),
+                sinkOptions: new MSSqlServerSinkOptions()
+                    {
+                        AutoCreateSqlDatabase = false,
+                        AutoCreateSqlTable = false,
+                        TableName = "IssueLogs",
+                    },
+                restrictedToMinimumLevel: Serilog.Events.LogEventLevel.Error
+                ).CreateLogger();
+builder.Logging.AddSerilog(logger);
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.

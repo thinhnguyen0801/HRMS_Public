@@ -66,9 +66,11 @@ namespace HNOne.API.Controllers
                     response.status = StatusCodes.Status204NoContent;
                     response.message = "Không tìm thấy dữ liệu!!!";
                 }
+                int.Parse("A");
             }
             catch (Exception ex)
             {
+                _logger.LogError(ex, $"GetDataWithoutToken: {ex.Message}. Request: {JsonConvert.SerializeObject(request)}");
                 response.status = StatusCodes.Status400BadRequest;
                 response.message = ex.Message;
             }
@@ -155,7 +157,7 @@ namespace HNOne.API.Controllers
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "An error occurred while processing the request.");
+                _logger.LogError(ex, $"GetData: {ex.Message}. Request: {JsonConvert.SerializeObject(request)}");
                 response.status = StatusCodes.Status400BadRequest;
                 response.message = ex.Message;
             }
@@ -206,7 +208,7 @@ namespace HNOne.API.Controllers
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "An error occurred while processing the request.");
+                _logger.LogError(ex, $"Approval: {ex.Message}. Request: {JsonConvert.SerializeObject(request)}");
                 response.status = StatusCodes.Status400BadRequest;
                 response.message = ex.Message;
             }
@@ -311,7 +313,7 @@ namespace HNOne.API.Controllers
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "An error occurred while processing the request.");
+                _logger.LogError(ex, $"PostData: {ex.Message}. Request: {JsonConvert.SerializeObject(request)}");
                 response.status = StatusCodes.Status400BadRequest;
                 response.message = ex.Message;
             }
@@ -353,7 +355,7 @@ namespace HNOne.API.Controllers
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "UploadImages");
+                _logger.LogError(ex, $"UploadImages: {ex.Message}");
                 return StatusCode(StatusCodes.Status400BadRequest, new
                 {
                     StatusCode = StatusCodes.Status400BadRequest,
@@ -418,7 +420,7 @@ namespace HNOne.API.Controllers
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "An error occurred while processing the request.");
+                _logger.LogError(ex, $"ExportData: {ex.Message}. Request: {JsonConvert.SerializeObject(request)}");
                 response.status = StatusCodes.Status400BadRequest;
                 response.message = ex.Message;
                 return BadRequest(response);

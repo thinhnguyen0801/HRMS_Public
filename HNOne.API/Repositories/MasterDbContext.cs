@@ -65,6 +65,7 @@ namespace HNOne.API.Repositories
         public DbSet<DocumentHistories> DocumentHistories { get; set; }
         public DbSet<AnnualLeaveInformations> AnnualLeaveInformations { get; set; } // thông tin phép của nhân viên
         public DbSet<WorkingBranchs> WorkingBranchs { get; set; } // chi nhánh làm việc
+        public DbSet<IssueLogs> IssueLogs { get; set; } // log dữ liệu
 
         public MasterDbContext(DbContextOptions<MasterDbContext> options)
             : base(options)

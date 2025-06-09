@@ -98,7 +98,7 @@ namespace HNOne.API.Controllers
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "An error occurred while processing the request.");
+                _logger.LogError(ex, $"PostData: {ex.Message}. Request: {JsonConvert.SerializeObject(request)}");
                 response.status = StatusCodes.Status400BadRequest;
                 response.message = ex.Message;
             }
@@ -203,7 +203,7 @@ namespace HNOne.API.Controllers
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "An error occurred while processing the request.");
+                _logger.LogError(ex, $"PostData: {ex.Message}. Request: {JsonConvert.SerializeObject(request)}");
                 response.status = StatusCodes.Status400BadRequest;
                 response.message = ex.Message;
             }

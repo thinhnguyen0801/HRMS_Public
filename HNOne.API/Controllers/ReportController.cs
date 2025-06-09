@@ -4,6 +4,7 @@ using HNOne.Common;
 using HNOne.Model;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Newtonsoft.Json;
 using System.Collections.Concurrent;
 
 namespace HNOne.API.Controllers
@@ -43,7 +44,7 @@ namespace HNOne.API.Controllers
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "An error occurred while processing the request.");
+                _logger.LogError(ex, $"GetData: {ex.Message}. Request: {JsonConvert.SerializeObject(request)}");
                 response.status = StatusCodes.Status400BadRequest;
                 response.message = ex.Message;
             }
