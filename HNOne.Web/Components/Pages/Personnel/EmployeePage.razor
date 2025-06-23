@@ -157,7 +157,8 @@
                                                     <W1Label Value="Phòng ban" Styles="width: 120px" IsRequired="true" />
                                                     <div style="width: calc(100% - 120px)">
                                                         <DxComboBox Data="@ListCboDepartment"
-                                                                    @bind-Value="@EmployeeUpdate.departmentId"
+                                                                    Value="@EmployeeUpdate.departmentId"
+                                                                    ValueChanged="@((int departmentId) => ComboboxValueChangedHandler(departmentId, controlID: nameof(EmployeeUpdate.departmentId)))"
                                                                     FilteringMode="DataGridFilteringMode.Contains"
                                                                     TextFieldName="@nameof(ComboboxModel.name)"
                                                                     Id="@nameof(EmployeeUpdate.departmentId)"
@@ -172,6 +173,7 @@
                                                     <div style="width: calc(100% - 120px)">
                                                         <DxComboBox Data="@ListCboPosition"
                                                                     @bind-Value="@EmployeeUpdate.positionId"
+                                                                    Id="@nameof(EmployeeUpdate.positionId)"
                                                                     FilteringMode="DataGridFilteringMode.Contains"
                                                                     TextFieldName="@nameof(ComboboxModel.name)"
                                                                     ValueFieldName="@nameof(ComboboxModel.id)" CssClass="w1FontSize">
@@ -185,6 +187,7 @@
                                                     <div style="width: calc(100% - 120px)">
                                                         <DxComboBox Data="@ListCboTitle"
                                                                     @bind-Value="@EmployeeUpdate.titleId"
+                                                                    Id="@nameof(EmployeeUpdate.titleId)"
                                                                     FilteringMode="DataGridFilteringMode.Contains"
                                                                     TextFieldName="@nameof(ComboboxModel.name)"
                                                                     ValueFieldName="@nameof(ComboboxModel.id)" CssClass="w1FontSize">
@@ -192,7 +195,28 @@
                                                     </div>
                                                 </div>
                                             </div>
-
+                                            <div class="col-md-6 col-sm-12">
+                                                <div class="d-flex ">
+                                                    <W1Label Value="Bộ phận" Styles="width: 120px" IsRequired="true" />
+                                                    <div style="width: calc(100% - 120px)">
+                                                        <DxComboBox Data="@ListCboSubDepartment"
+                                                                    @bind-Value="@EmployeeUpdate.subDepartmentId"
+                                                                    Id="@nameof(EmployeeUpdate.subDepartmentId)"
+                                                                    FilteringMode="DataGridFilteringMode.Contains"
+                                                                    TextFieldName="@nameof(ComboboxModel.name)"
+                                                                    ValueFieldName="@nameof(ComboboxModel.id)" CssClass="w1FontSize">
+                                                        </DxComboBox>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="col-md-6 col-sm-12">
+                                                <div class="d-flex ">
+                                                    <W1Label Value="MST cá nhân" Styles="width: 120px" />
+                                                    <div style="width: calc(100% - 120px)">
+                                                        <DxTextBox @bind-Text="@EmployeeUpdate.taxNumber" CssClass="w1FontSize"></DxTextBox>
+                                                    </div>
+                                                </div>
+                                            </div>
                                             <div class="col-md-6 col-sm-12">
                                                 <div class="d-flex ">
                                                     <W1Label Value="Chi nhánh" Styles="width: 120px" />
@@ -297,14 +321,6 @@
                                                                     TextFieldName="@nameof(ComboboxModel.name)"
                                                                     ValueFieldName="@nameof(ComboboxModel.code)" CssClass="w1FontSize">
                                                         </DxComboBox>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                            <div class="col-md-6 col-sm-12">
-                                                <div class="d-flex ">
-                                                    <W1Label Value="MST cá nhân" Styles="width: 120px" />
-                                                    <div style="width: calc(100% - 120px)">
-                                                        <DxTextBox @bind-Text="@EmployeeUpdate.taxNumber" CssClass="w1FontSize"></DxTextBox>
                                                     </div>
                                                 </div>
                                             </div>

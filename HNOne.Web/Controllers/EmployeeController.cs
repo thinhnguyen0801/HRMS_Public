@@ -44,6 +44,7 @@ namespace HNOne.Web.Controllers
         public List<ComboboxModel>? ListCboDepartment { get; set; } // cbo ds phòng ban
         public List<ComboboxModel>? ListCboPosition { get; set; } // cbo ds chức vụ
         public List<ComboboxModel>? ListCboTitle { get; set; } // cbo ds chức danh
+        public List<ComboboxModel>? ListCboSubDepartment { get; set; } // cbo ds bộ phận
         public List<EnumCatagoryModel>? ListCboMaritalStatus { get; set; } // cbo ds tình trạng hộn nhân
         public List<EnumCatagoryModel>? ListCboRelationship { get; set; } // cbo ds quan hệ
         public List<EnumCatagoryModel>? ListCboEmployeeType { get; set; } // cbo ds loại nhân viên
@@ -142,7 +143,6 @@ namespace HNOne.Web.Controllers
                 request.process = ProcessConstants.GET_WORKING_BRANCH;
                 var getTask1 = _masterDataService.GetDepartmentAsync(UserId, Token, BranchId, opt: CommonConstants.ENUM_ACTIVE); // ds phòng ban
                 var getTask2 = _masterDataService.GetPositionAsync(UserId, Token, BranchId, opt: CommonConstants.ENUM_ACTIVE); // ds chức vụ
-                var getTask3 = _masterDataService.GetTitleAsync(UserId, Token, BranchId, opt: CommonConstants.ENUM_ACTIVE); // ds chức danh
                 var getTask4 = _masterDataService.GetEnumAsync(UserId, Token, nameof(EnumCatagory.TrangThaiNhanVien)); // ds trạng thái
                 var getTask5 = _masterDataService.GetEnumAsync(UserId, Token, nameof(EnumCatagory.TinhTrangHonNhan)); // ds tình trạng hôn nhân
                 var getTask6 = _masterDataService.GetLocationAsync(UserId, Token, nameof(EnumCatagory.County)); // ds trạng thái
@@ -155,7 +155,6 @@ namespace HNOne.Web.Controllers
                 await Task.WhenAll(
                     getTask1,
                     getTask2,
-                    getTask3,
                     getTask4,
                     getTask5,
                     getTask6,
@@ -169,7 +168,6 @@ namespace HNOne.Web.Controllers
                 ListCboBranch = (await getTask11)?.Select(m => new ComboboxModel() { id = m.branchId, name = m.branchName })?.ToList();
                 ListCboDepartment = (await getTask1)?.Select(m => new ComboboxModel() { id = m.id, name = m.name })?.ToList();
                 ListCboPosition = (await getTask2)?.Select(m => new ComboboxModel() { id = m.id, name = m.name })?.ToList();
-                ListCboTitle = (await getTask3)?.Select(m => new ComboboxModel() { id = m.id, name = m.name })?.ToList();
                 ListCboMaritalStatus = await getTask5;
                 ListCboStatus = (await getTask4)?.Where(m => m.rowOrder != 0).ToList();
                 if (!ListCboStatus.IsNullOrEmpty()) EmployeeUpdate.statusId = ListCboStatus![0].code;
@@ -184,6 +182,28 @@ namespace HNOne.Web.Controllers
             {
                 ShowError(ex.Message);
                 _logger.LogError(ex, "buildComboAsync");
+            }
+        }
+
+        /// <summary>
+        /// lấy danh sách theo phòng ban
+        /// </summary>
+        /// <param name="departmentId"></param>
+        /// <returns></returns>
+        private async Task buildComboByDepartmentAsync(int departmentId)
+        {
+            try
+            {
+                var getTask3 = _masterDataService.GetTitleAsync(UserId, Token, BranchId, opt: CommonConstants.ENUM_ACTIVE); // ds chức danh
+                var getTask13 = _masterDataService.GetSubDepartmentAsync(UserId, Token, BranchId, opt: CommonConstants.ENUM_ACTIVE); // ds bộ phận
+                await Task.WhenAll(getTask3, getTask13);
+                ListCboTitle = (await getTask3)?.Where(m=>m.departmentId == departmentId).Select(m => new ComboboxModel() { id = m.id, name = m.name })?.ToList();
+                ListCboSubDepartment = (await getTask13)?.Where(m => m.departmentId == departmentId)?.Select(m => new ComboboxModel() { id = m.id, name = m.name })?.ToList();
+            }
+            catch (Exception ex)
+            {
+                ShowError(ex.Message);
+                _logger.LogError(ex, "buildComboByDepartmentAsync");
             }
         }
 
@@ -229,7 +249,7 @@ namespace HNOne.Web.Controllers
                     // nếu có chọn quận huyện
                     if (!string.IsNullOrEmpty(EmployeeUpdate.districtCode2))
                         lstTask.Add(getWard($"{EmployeeUpdate.provinceCode2}", EmployeeUpdate.districtCode2).ContinueWith(t => ListCboWard2 = t.Result));
-
+                    lstTask.Add(buildComboByDepartmentAsync(EmployeeUpdate.departmentId));
                     lstTask.Add(geInsurance()); // danh sách hợp đồng
                     lstTask.Add(getFamilyRelationship()); // danh sách quan hệ gia đình
                     lstTask.Add(getEducation()); // danh sách trình độ đại học
@@ -285,15 +305,21 @@ namespace HNOne.Web.Controllers
                 fieldName = nameof(EmployeeUpdate.positionId);
                 return;
             }
-            if (EmployeeUpdate.titleId < 1)
+            if ((EmployeeUpdate.titleId ?? -1) < 1)
             {
                 errorMessage = string.Format(MessageConstants.MESSAGE_COMBOBOX_REQUIRE, "Chức danh");
                 fieldName = nameof(EmployeeUpdate.titleId);
                 return;
             }
+            if ((EmployeeUpdate.subDepartmentId ?? -1) < 1)
+            {
+                errorMessage = string.Format(MessageConstants.MESSAGE_COMBOBOX_REQUIRE, "Bộ phận");
+                fieldName = nameof(EmployeeUpdate.subDepartmentId);
+                return;
+            }
             if (EmployeeUpdate.workingBranchId < 1)
             {
-                errorMessage = string.Format(MessageConstants.MESSAGE_COMBOBOX_REQUIRE, "Chi nhánh sử dụng");
+                errorMessage = string.Format(MessageConstants.MESSAGE_COMBOBOX_REQUIRE, "Chi nhánh làm việc");
                 fieldName = nameof(EmployeeUpdate.workingBranchId);
                 return;
             }
@@ -675,6 +701,15 @@ namespace HNOne.Web.Controllers
                         EmployeeUpdate.districtCode2 = $"{value}";
                         EmployeeUpdate.wardCode2 = string.Empty;
                         EmployeeUpdate.temporaryAddress = string.Empty;
+                        break;
+                    case nameof(EmployeeUpdate.departmentId):
+                        await ShowLoading();
+                        await Task.Delay(75);
+                        int.TryParse($"{value}",out int departmentId);
+                        await buildComboByDepartmentAsync(departmentId);
+                        EmployeeUpdate.departmentId = departmentId;
+                        EmployeeUpdate.titleId = -1;
+                        EmployeeUpdate.subDepartmentId = -1;
                         break;
                     default:
                         break;

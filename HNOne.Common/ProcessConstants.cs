@@ -173,6 +173,10 @@
 
         public const string GET_RPT_PAYROLL_SUMMARY = "get-rpt-payroll-summary";
 
+        public const string GET_SUB_DEPARTMENT = "get-sub-department";
+        public const string POST_SUB_DEPARTMENT = "post-sub-department";
+        public const string PUT_SUB_DEPARTMENT = "put-sub-department";
+
         #region Loại dưới store
         public const string GET_COMBO_TYPE_CONTRACT_BY_EMPLOYEEID = "CONTRACT_BY_EMPLOYEEID";
         public const string GET_COMBO_TYPE_SALARY_ADJUSTMENT_BY_CONTRACT = "SALARY_ADJUSTMENT_BY_CONTRACT";

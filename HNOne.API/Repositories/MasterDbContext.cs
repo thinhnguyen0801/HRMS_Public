@@ -66,6 +66,7 @@ namespace HNOne.API.Repositories
         public DbSet<AnnualLeaveInformations> AnnualLeaveInformations { get; set; } // thông tin phép của nhân viên
         public DbSet<WorkingBranchs> WorkingBranchs { get; set; } // chi nhánh làm việc
         public DbSet<IssueLogs> IssueLogs { get; set; } // log dữ liệu
+        public DbSet<SubDepartments> SubDepartments { get; set; }
 
         public MasterDbContext(DbContextOptions<MasterDbContext> options)
             : base(options)
@@ -102,6 +103,7 @@ namespace HNOne.API.Repositories
             modelBuilder.Entity<SalaryExpenseAccountings>().HasIndex(m => m.VoucherNo).IsUnique();
             modelBuilder.Entity<DataPermissions>().HasIndex(m => new { m.GroupId, m.Type, m.Code }).IsUnique();
             modelBuilder.Entity<AnnualLeaveInformations>().HasIndex(m => new { m.EmployeeId, m.BranchId, m.Year }).IsUnique();
+            modelBuilder.Entity<SubDepartments>().HasIndex(m => m.Code).IsUnique();
         }
 
 

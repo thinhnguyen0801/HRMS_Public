@@ -23,6 +23,7 @@
         public const string TABLE_OVERTIME_REQUEST = "OvertimeRequests"; // đề nghị tăng ca
         public const string TABLE_TRAINING = "Trainings"; // đề nghị tăng ca
         public const string TABLE_SALARY_EXPENSE_ACCOUNTING = "SalaryExpenseAccountings"; // đề nghị tăng ca
+        public const string TABLE_SUB_DEPARTMENT = "SubDepartments"; // bảng bộ phận
         #endregion
         public const string FORMAT_DATE = "dd/MM/yyyy";
         public const string FORMAT_CURRENCY = "###,###,###,##0.##";//

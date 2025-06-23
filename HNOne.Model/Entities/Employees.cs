@@ -186,6 +186,7 @@ namespace HNOne.Model.Entities
         public string? AttendanceSheetCode { get; set; } // ID bảng công
         public int PositionId { get; set; } // chức vụ/vị trí
         public int? TitleId { get; set; } // chức danh
+        public int? SubDepartmentId { get; set; } // bộ phận
         [MaxLength(50)]
         public string? LevelCode { get; set; } // Cấp
         [MaxLength(50)]

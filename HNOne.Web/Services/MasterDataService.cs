@@ -1291,5 +1291,87 @@ namespace HNOne.Web.Services
             catch (Exception) { throw; }
         }
 
+        /// <summary>
+        /// lấy danh sách bộ phận
+        /// </summary>
+        /// <param name="request"></param>
+        /// <returns></returns>
+        public async Task<List<TitleModel>?> GetSubDepartmentAsync(int userId, string token, int branchId, string branchIds = "", string opt = "", bool isShowToast = false)
+        {
+
+            try
+            {
+                List<TitleModel>? data = null;
+                RequestModel request = new RequestModel();
+                request.process = ProcessConstants.GET_SUB_DEPARTMENT;
+                request.userId = userId;
+                request.token = token;
+                request.branchId = branchId;
+                request.branchIds = branchIds;
+                request.opt = opt;
+                HttpResponseMessage httpResponse = await PostAsync(EnpointConstants.MASTERDATA_GET_DATA, request);
+                var checkContent = ValidateJsonContent(httpResponse.Content);
+                if (!checkContent) _toastService.ShowInfo(MessageConstants.MESSAGE_JSON_INVALID);
+                else
+                {
+                    var response = await httpResponse.Content.ReadFromJsonAsync<ResCliModel<TitleModel>>();
+                    if (response == null || response.status != StatusCodes.Status200OK)
+                    {
+                        if (isShowToast) _toastService.ShowWarning(response?.message ?? MessageConstants.MESSAGE_IT_SUPPORT);
+                        return data;
+                    }
+                    data = response.data?.ToList();
+                }
+                return data;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "GetSubDepartmentAsync");
+                throw ex;
+            }
+        }
+
+        /// <summary>
+        /// cập nhật thông tin bộ phận
+        /// </summary>
+        /// <param name="userId"></param>
+        /// <param name="token"></param>
+        /// <param name="processKey"></param>
+        /// <param name="json"></param>
+        /// <returns></returns>
+        public async Task<bool> UpdateSubDepartmentAsync(string processKey, int userId, string token, string json)
+        {
+            try
+            {
+                RequestModel request = new RequestModel();
+                request.process = processKey;
+                request.userId = userId;
+                request.token = token;
+                request.json = json;
+                HttpResponseMessage httpResponse = await PostAsync(EnpointConstants.MASTERDATA_POST_DATA, request);
+                if (httpResponse.StatusCode == System.Net.HttpStatusCode.Unauthorized)
+                {
+                    _toastService.ShowInfo(MessageConstants.MESSAGE_LOGIN_EXPIRED);
+                    return false;
+                }
+                var checkContent = ValidateJsonContent(httpResponse.Content);
+                if (!checkContent) _toastService.ShowError(MessageConstants.MESSAGE_JSON_INVALID);
+                else
+                {
+                    var content = await httpResponse.Content.ReadAsStringAsync();
+                    ResponseModel response = JsonConvert.DeserializeObject<ResponseModel>(content)!;
+                    if (httpResponse.IsSuccessStatusCode
+                        && response?.status == StatusCodes.Status200OK)
+                    {
+                        _toastService.ShowSuccess(response.message);
+                        return true;
+                    }
+                    _toastService.ShowError(response?.message ?? MessageConstants.MESSAGE_IT_SUPPORT);
+                }
+                return false;
+            }
+            catch (Exception) { throw; }
+        }
+
     }
 }

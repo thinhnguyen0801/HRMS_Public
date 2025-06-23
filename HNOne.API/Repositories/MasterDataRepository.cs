@@ -606,6 +606,45 @@ namespace HNOne.API.Repositories
                 return results;
             }    
         }
+
+        /// <summary>
+        /// lấy danh sách bộ phận
+        /// </summary>
+        /// <param name="request"></param>
+        /// <returns></returns>
+        public async Task<IEnumerable<TitleModel>> GetSubDepartment(RequestModel request)
+        {
+            using (var connection = _dapperDbContext.CreateConnection())
+            {
+                DynamicParameters parameters = new DynamicParameters();
+                string strQuery = "select T0.*" +
+                    " ,T1.BranchCode as BranchCode, T1.BranchName as BranchName" +
+                    " ,T2.Code as DepartmentCode,T2.[Name] as DepartmentName" +
+                    " from SubDepartments as T0 with(nolock)" +
+                    " inner join Branchs as T1 with(nolock) on T0.BranchId = T1.BranchId" +
+                    " inner join Departments as T2 with(nolock) on T0.DepartmentId = T2.Id" +
+                    " where T0.IsDelete = 0";
+                // thêm điều kiện
+                if (request.opt == CommonConstants.ENUM_ACTIVE)
+                {
+                    // ở các chứng từ
+                    strQuery += " and T0.IsActive = '1'";
+                    strQuery += " and T0.BranchId = @BranchId";
+                    parameters.Add("@BranchId", request.branchId, DbType.Int32);
+                }
+                else
+                {
+                    // Ở page danh mục. Kiểm tra có quyền xem chi nhánh nào thì where thêm
+                    request.branchIds += $",{request.branchId}";
+                    request.branchIds = request.branchIds.Trim(',');
+                    strQuery += " and T0.BranchId in ((select [Value] from string_split(@BranchIds, ',')))";
+                    parameters.Add("@BranchIds", request.branchIds, DbType.String);
+                }
+                strQuery += " order by T0.BranchId";
+                var result = await connection.QueryAsync<TitleModel>(strQuery, parameters, commandTimeout: 500, commandType: CommandType.Text);
+                return result;
+            }
+        }
         #endregion
 
         #region Command
@@ -1536,6 +1575,25 @@ namespace HNOne.API.Repositories
                             await _dbContext.Database.CommitTransactionAsync();
                             response.message = MessageConstants.MESSAGE_ADD_SUCCESS;
                             break;
+                        case ProcessConstants.POST_SUB_DEPARTMENT:
+                            var lstSubDepartments = dtResult.Read<SubDepartments>();
+                            await _dbContext.Database.BeginTransactionAsync();
+                            isTrans = true;
+                            maxId = await _dbContext.SubDepartments.Select(m => m.Id).DefaultIfEmpty().MaxAsync() + 1;
+                            foreach (var entity in lstSubDepartments!)
+                            {
+                                entity.Id = maxId;
+                                entity.UserSign = userId;
+                                entity.DateTracking = dateTimeNow;
+                                entity.CreateDate = dateTimeNow;
+                                entity.DeleteReason = "Import dữ liệu";
+                                await _dbContext.SubDepartments.AddAsync(entity);
+                                maxId++;
+                            }
+                            await _dbContext.SaveChangesAsync();
+                            await _dbContext.Database.CommitTransactionAsync();
+                            response.message = MessageConstants.MESSAGE_ADD_SUCCESS;
+                            break;
                         case ProcessConstants.POST_CONTRACTTYPE:
                             var lstContractTypes = dtResult.Read<ContractTypes>();
                             await _dbContext.Database.BeginTransactionAsync();
@@ -1755,6 +1813,75 @@ namespace HNOne.API.Repositories
                 response.message = ex.Message;
             }
             return response;
+        }
+
+        /// <summary>
+        /// Thêm phòng ban
+        /// </summary>
+        /// <param name="process"></param>
+        /// <param name="entity"></param>
+        /// <returns></returns>
+        public async Task<ResponseModel> AddSubDepartment(SubDepartments entity)
+        {
+            ResponseModel response = new ResponseModel();
+            try
+            {
+                using (var connection = _dapperDbContext.CreateConnection())
+                {
+                    string commandText = @$"select {StoreConstants.FUNC_GET_VOUCHER}(@Type, @BranchId, '', '', '')";
+                    string? voucherNo = await connection.QueryFirstOrDefaultAsync<string>(commandText, param: new { Type = GlobalConstants.TABLE_SUB_DEPARTMENT, entity.BranchId }, commandTimeout: GlobalConstants.COMMAND_TIMEOUT, commandType: CommandType.Text);
+                    if (string.IsNullOrEmpty(voucherNo))
+                    {
+                        response.status = StatusCodes.Status204NoContent;
+                        response.message = MessageConstants.MESSAGE_VOUCHER_NO_MISSING;
+                        return response;
+                    }
+                    entity.Id = await _dbContext.SubDepartments.Select(m => m.Id).DefaultIfEmpty().MaxAsync() + 1;
+                    entity.Code = voucherNo;
+                    entity.DateTracking = _dateTimeHelper.GetCurrentVietnamTime();
+                    entity.CreateDate = _dateTimeHelper.GetCurrentVietnamTime();
+                    await _dbContext.SubDepartments.AddAsync(entity);
+                    await _dbContext.SaveChangesAsync();
+                    response.message = MessageConstants.MESSAGE_ADD_SUCCESS;
+                }
+                return response;
+            }
+            catch (Exception) { throw; }
+        }
+
+        /// <summary>
+        /// Thêm cập nhật phòng ban
+        /// </summary>
+        /// <param name="process"></param>
+        /// <param name="entity"></param>
+        /// <returns></returns>
+        public async Task<ResponseModel> UpdateSubDepartment(SubDepartments entity)
+        {
+            ResponseModel response = new ResponseModel();
+            try
+            {
+                var data = await _dbContext.SubDepartments.FirstOrDefaultAsync(m => m.Id == entity.Id);
+                if (data == null)
+                {
+                    response.status = StatusCodes.Status404NotFound;
+                    response.message = MessageConstants.MESSAGE_NOT_FOUNT;
+                    return response;
+                }
+                data.Name = entity.Name;
+                data.Remark = entity.Remark;
+                data.IsActive = entity.IsActive;
+                data.BranchId = entity.BranchId;
+                data.DepartmentId = entity.DepartmentId;
+                data.DateTracking = _dateTimeHelper.GetCurrentVietnamTime();
+                data.UpdateDate = _dateTimeHelper.GetCurrentVietnamTime();
+                data.UserSign2 = entity.UserSign2;
+                _dbContext.SubDepartments.Attach(data);
+                _dbContext.Entry(data).State = EntityState.Modified;
+                await _dbContext.SaveChangesAsync();
+                response.message = MessageConstants.MESSAGE_UPDATE_SUCCESS;
+                return response;
+            }
+            catch (Exception) { throw; }
         }
         #endregion
     }

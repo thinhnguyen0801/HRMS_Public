@@ -44,6 +44,9 @@ namespace HNOne.API.Services
         public async Task<IEnumerable<TitleModel>> GetTitle(RequestModel request)
             => await _masterRepository.GetTitle(request);
 
+        public async Task<IEnumerable<TitleModel>> GetSubDepartment(RequestModel request)
+            => await _masterRepository.GetSubDepartment(request);
+
         public async Task<IEnumerable<PositionModel>> GetPosition(RequestModel request)
                     => await _masterRepository.GetPosition(request);
 
@@ -465,6 +468,37 @@ namespace HNOne.API.Services
         /// <returns></returns>
         public async Task<ResponseModel> UpdateWorkingBranch(string actionType, WorkingBranchs entity)
             => await _masterRepository.UpdateWorkingBranch(actionType, entity);
+
+        /// <summary>
+        /// Thêm mới, cập nhật bộ phận
+        /// </summary>
+        /// <param name="actionType"></param>
+        /// <param name="branch"></param>
+        /// <returns></returns>
+        public async Task<ResponseModel> UpdateSubDepartment(string actionType, SubDepartments entity)
+        {
+            ResponseModel response = new ResponseModel();
+            try
+            {
+                switch (actionType)
+                {
+                    case ProcessConstants.POST_SUB_DEPARTMENT:
+                        response = await _masterRepository.AddSubDepartment(entity);
+                        break;
+                    case ProcessConstants.PUT_SUB_DEPARTMENT:
+                        response = await _masterRepository.UpdateSubDepartment(entity);
+                        break;
+                }
+                return response;
+            }
+            catch (Exception ex)
+            {
+                response.status = StatusCodes.Status400BadRequest;
+                response.message = ex.Message;
+            }
+            return response;
+
+        }
         #endregion
     }
 }

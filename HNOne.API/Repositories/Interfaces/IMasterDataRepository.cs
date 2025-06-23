@@ -10,6 +10,7 @@ namespace HNOne.API.Repositories.Interfaces
         Task<IEnumerable<Branchs>> GetBranch(RequestModel request);
         Task<IEnumerable<DepartmentModel>> GetDepartment(RequestModel request);
         Task<IEnumerable<TitleModel>> GetTitle(RequestModel request);
+        Task<IEnumerable<TitleModel>> GetSubDepartment(RequestModel request);
         Task<IEnumerable<PositionModel>> GetPosition(RequestModel request);
         Task<ResponseModel> AddBranch(Branchs entity);
         Task<ResponseModel> UpdateBranch(Branchs entity);
@@ -50,5 +51,7 @@ namespace HNOne.API.Repositories.Interfaces
         Task<ResponseModel> UpdateStatusNotification(RequestModel request);
         Task<IEnumerable<WorkingBranchModel>> GetWorkingBranch(RequestModel request);
         Task<ResponseModel> UpdateWorkingBranch(string actionType, WorkingBranchs entity);
+        Task<ResponseModel> AddSubDepartment(SubDepartments entity);
+        Task<ResponseModel> UpdateSubDepartment(SubDepartments entity);
     }
 }

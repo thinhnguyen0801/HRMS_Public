@@ -15,15 +15,15 @@ using Newtonsoft.Json;
 
 namespace HNOne.Web.Controllers
 {
-    public class TitleController : DocumentControllerBase
+    public class SubDepartmentController : DocumentControllerBase
     {
         [Inject] IMasterDataService _masterDataService { get; init; }
         [Inject] IJSRuntime _jsRuntime { get; set; }
         public W1Confirm confirm { get; set; }
 
-        const string STRING_KEY_EVENT_POST = "TITLE_CONTROLLER_POST";
-        const string STRING_KEY_EVENT_PUT = "TITLE_CONTROLLER_PUT";
-        const string STRING_KEY_EVENT_DELETE = "TITLE_CONTROLLER_DELETE";
+        const string STRING_KEY_EVENT_POST = "SUB_DEPARTMENT_CONTROLLER_POST";
+        const string STRING_KEY_EVENT_PUT = "SUB_DEPARTMENT_CONTROLLER_PUT";
+        const string STRING_KEY_EVENT_DELETE = "SUB_DEPARTMENT_CONTROLLER_DELETE";
         #region Properties
         public List<TitleModel>? ListTitle { get; set; }
         public IGrid? GridTitle { get; set; }
@@ -47,18 +47,18 @@ namespace HNOne.Web.Controllers
             {
                 try
                 {
-                    string errMessage = await CheckMenuPermissionAsync("chuc-danh");
+                    string errMessage = await CheckMenuPermissionAsync("bo-phan");
                     if (errMessage == "401") return; // kiểm quyền menu page danh sách
                     await ShowLoading();
                     await checkPermission(errMessage);
                     ListBreadcrumbs = new List<BreadcrumbModel>()
                     {
                         new BreadcrumbModel("Danh mục"),
-                        new BreadcrumbModel("Chức danh", isActive: true)
+                        new BreadcrumbModel("Bộ phận", isActive: true)
                     };
                     await NotifyBreadcrumb.InvokeAsync(ListBreadcrumbs);
                     await buildComboboxAsync();
-                    await getTitles();
+                    await getSubDepartments();
 
                 }
                 catch (Exception ex)
@@ -75,10 +75,10 @@ namespace HNOne.Web.Controllers
         }
 
         #region Private Functions
-        private async Task getTitles()
+        private async Task getSubDepartments()
         {
             ListTitle = new List<TitleModel>();
-            ListTitle = await _masterDataService.GetTitleAsync(UserId, Token, BranchId, $"{BranchIds}", isShowToast: true);
+            ListTitle = await _masterDataService.GetSubDepartmentAsync(UserId, Token, BranchId, $"{BranchIds}", isShowToast: true);
         }
         private async Task buildComboboxAsync()
         {
@@ -99,7 +99,7 @@ namespace HNOne.Web.Controllers
         {
             if (string.IsNullOrEmpty(TitleUpdate.name))
             {
-                errorMessage = string.Format(MessageConstants.MESSAGE_STRING_REQUIRE, "Tên chức danh");
+                errorMessage = string.Format(MessageConstants.MESSAGE_STRING_REQUIRE, "Tên bộ phận");
                 fieldName = "txtName";
                 return;
             }
@@ -148,7 +148,7 @@ namespace HNOne.Web.Controllers
             try
             {
                 await ShowLoading();
-                await getTitles();
+                await getSubDepartments();
             }
             catch (Exception ex)
             {
@@ -175,7 +175,7 @@ namespace HNOne.Web.Controllers
                     {
                         TitleUpdate.branchId = BranchId;
                         await ComboboxValueChangedHandler(TitleUpdate.branchId, controlID: nameof(TitleUpdate.branchId));
-                    }    
+                    }
                 }
                 else
                 {
@@ -221,14 +221,14 @@ namespace HNOne.Web.Controllers
                 bool isConfirm = await confirm.SetConfirm(MessageConstants.MESSAGE_TITLE, errorMessage);
                 if (!isConfirm) return;
                 await ShowLoading();
-                string processKey = IsCreate ? ProcessConstants.POST_TITLE : ProcessConstants.PUT_TITLE;
+                string processKey = IsCreate ? ProcessConstants.POST_SUB_DEPARTMENT : ProcessConstants.PUT_SUB_DEPARTMENT;
                 TitleUpdate.userSign = UserId;
                 TitleUpdate.userSign2 = UserId;
                 string content = JsonConvert.SerializeObject(TitleUpdate);
-                isConfirm = await _masterDataService.UpdateTitleAsync(processKey, UserId, Token, content);
+                isConfirm = await _masterDataService.UpdateSubDepartmentAsync(processKey, UserId, Token, content);
                 if (isConfirm)
                 {
-                    await getTitles();
+                    await getSubDepartments();
                     IsShowDialog = false;
                     SelectedTitles = null;
                 }
@@ -264,16 +264,16 @@ namespace HNOne.Web.Controllers
                 bool isConfirm = await confirm.SetConfirm(MessageConstants.MESSAGE_TITLE, $"{MessageConstants.MESSAGE_CONFIRM_DELETE} ");
                 if (!isConfirm) return;
                 await ShowLoading();
-                string tableName = _encryptHelper.Encrypt(nameof(EnumObjType.Titles));
+                string tableName = _encryptHelper.Encrypt(nameof(EnumObjType.SubDepartments));
                 string pKey = _encryptHelper.Encrypt(nameof(TitleModel.id));
-                string fKey = _encryptHelper.Encrypt(nameof(EmployeeModel.titleId));
+                string fKey = _encryptHelper.Encrypt(nameof(EmployeeModel.subDepartmentId));
                 string ids = string.Join(",", SelectedTitles!.Cast<TitleModel>().Select(m => m.id));
                 string reasonDelete = "";
                 string strResult = await _masterDataService.DeleteDynnamicAsync(UserId, Token, BranchId, tableName, pKey, fKey, ids, reasonDelete);
                 if (strResult == "-1") return;
                 if (strResult == StatusCodes.Status200OK.ToString())
                 {
-                    await getTitles();
+                    await getSubDepartments();
                     SelectedTitles = null;
                     return;
                 }
@@ -349,7 +349,7 @@ namespace HNOne.Web.Controllers
                     return;
                 }
                 await ShowLoading();
-                await GridTitle!.ExportToXlsxAsync("Chuc-danh", new GridXlExportOptions()
+                await GridTitle!.ExportToXlsxAsync("Bo-phan", new GridXlExportOptions()
                 {
                     ExportTotalSummaries = false,
                     ExportGroupSummaries = false

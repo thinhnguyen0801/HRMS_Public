@@ -1029,6 +1029,7 @@ namespace HNOne.API.Repositories
             data.DepartmentId = entity.DepartmentId;
             data.PositionId = entity.PositionId;
             data.TitleId = entity.TitleId;
+            data.SubDepartmentId = entity.SubDepartmentId;
             data.ManagerId = entity.ManagerId;
             data.AttendanceSheetId = entity.AttendanceSheetId;
             data.DateTracking = dateTimeNow;

@@ -62,6 +62,8 @@ namespace HNOne.Model.Models
         public string? positionName { get; set; }
         public string? titleCode { get; set; }
         public string? titleName { get; set; }
+        public string? subDepartmentCode { get; set; }
+        public string? subDepartmentName { get; set; }
         public string? link { get; set; }
         public string? statusName { get; set; } // trạng thái làm việc
 
@@ -138,6 +140,7 @@ namespace HNOne.Model.Models
         public int departmentId { get; set; } // phòng ban
         public int positionId { get; set; } // chức vụ
         public int? titleId { get; set; } // chức danh
+        public int? subDepartmentId { get; set; } // bộ phận
         public DateTime? traineeDate { get; set; } // Ngày tập sự
         public DateTime? probationStartDate { get; set; } // ngày thử việc
         public DateTime? probationEndDate { get; set; } // ngày kết thúc thử việcs

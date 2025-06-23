@@ -1,0 +1,153 @@
+﻿@page "/bo-phan"
+@inherits Controllers.SubDepartmentController
+
+<PageTitle>Bộ phận</PageTitle>
+
+<div class="h-content-filter">
+    <div class="row row-gap-2">
+        <div class="col-12">
+            <div class="card w1FontSize">
+                <div class="card-header p-1">
+                    <DxToolbar ItemRenderStyleMode="@ToolbarRenderStyleMode.Contained">
+                        <Items>
+                            <DxToolbarItem Text="Làm mới" BeginGroup="true" IconCssClass="@($"{IconClassConstants.ICON_REFRESH}")" CssClass="w1FontSize"
+                                           Alignment="@ToolbarItemAlignment.Right" Click="@(()=> RefreshHandler())" />
+
+                            <DxToolbarItem Text="Thêm mới" BeginGroup="true" IconCssClass="@($"{IconClassConstants.ICON_ADD}")" CssClass="w1FontSize"
+                                           Alignment="@ToolbarItemAlignment.Right" Click="@(()=> OnOpenDialogHandler())" Visible="@(IsAllowPost)" />
+
+                            <DxToolbarItem Text="Xóa" BeginGroup="true" IconCssClass="@($"{IconClassConstants.ICON_DELETE}")" CssClass="w1FontSize"
+                                           Alignment="@ToolbarItemAlignment.Right" Click="@(()=> DeleteDataHandler())" Visible="@(IsAllowDelete)" />
+                            <DxToolbarItem Text="Kết xuất" BeginGroup="true" IconCssClass="@($"{IconClassConstants.ICON_EXPORT_EXCEL}")" CssClass="w1FontSize"
+                                           Alignment="@ToolbarItemAlignment.Right" Click="@(()=> ExportExcelHandler())" />
+                        </Items>
+                    </DxToolbar>
+                </div>
+                <div class="card-body p-1" style="height: calc(100vh - 155px); min-height: 350px">
+                    <DxGrid Data="ListTitle" @ref="GridTitle"
+                            ShowFilterRow="true"
+                            ColumnResizeMode="GridColumnResizeMode.ColumnsContainer"
+                            PagerPosition="GridPagerPosition.Bottom"
+                            PageSizeSelectorVisible="true"
+                            PageSize="@GlobalContants.PageSize"
+                            PageSizeSelectorItems="@(GlobalContants.PageSizeList)"
+                            PageSizeSelectorAllRowsItemVisible="true"
+                            PagerSwitchToInputBoxButtonCount="10"
+                            PagerVisibleNumericButtonCount="10"
+                            TextWrapEnabled="false"
+                            FocusedRowEnabled="true"
+                            SelectionMode="@GridSelectionMode.Multiple"
+                            @bind-SelectedDataItems="@SelectedTitles"
+                            KeyFieldName="@nameof(TitleModel.code)"
+                            CssClass="h-full">
+                        <Columns>
+                            <DxGridSelectionColumn Width="45px" />
+                            <DxGridDataColumn FieldName="@nameof(TitleModel.code)" Caption="Mã bộ phận" MinWidth="150">
+                                <CellDisplayTemplate>
+                                    @{
+                                        if (IsAllowPut)
+                                        {
+                                            <a @onclick="@(() => OnOpenDialogHandler(EnumType.Update, (context.DataItem as TitleModel)))">@context.Value</a>
+                                        }
+                                        else
+                                        {
+                                            <span>@context.Value</span>
+                                        }
+                                    }
+                                </CellDisplayTemplate>
+                            </DxGridDataColumn>
+                            <DxGridDataColumn FieldName="@nameof(TitleModel.name)" Caption="Tên bộ phận" MinWidth="170" />
+                            <DxGridDataColumn FieldName="@nameof(TitleModel.branchName)" Caption="Chi nhánh" MinWidth="170" />
+                            <DxGridDataColumn FieldName="@nameof(TitleModel.isActive)" Caption="Hoạt động?" MinWidth="100" />
+                            <DxGridDataColumn FieldName="@nameof(TitleModel.departmentName)" Caption="Phòng ban" MinWidth="130" />
+                            <DxGridDataColumn FieldName="@nameof(TitleModel.remark)" Caption="Ghi chú" MinWidth="170" />
+                            <DxGridDataColumn FieldName="@nameof(TitleModel.dateTracking)" Caption="Ngày cập nhật" MinWidth="120" DisplayFormat="@GlobalContants.FORMAT_DATE_TIME" />
+                            <DxGridDataColumn FieldName="@nameof(TitleModel.userSignName)" Caption="Người tạo" MinWidth="120" />
+                            <DxGridDataColumn FieldName="@nameof(TitleModel.userSign2Name)" Caption="Người cập nhật" MinWidth="120" />
+                        </Columns>
+                        <TotalSummary>
+                            <DxGridSummaryItem DisplayText="@GlobalContants.FORMAT_GRID_DISPLAYTEXT_COUNT" SummaryType="GridSummaryItemType.Count"
+                                               FieldName="@nameof(TitleModel.code)" ValueDisplayFormat="@GlobalContants.FORMAT_CURRENCY"
+                                               FooterColumnName="@nameof(TitleModel.code)" />
+                        </TotalSummary>
+                    </DxGrid>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<W1Popup @bind-IsOpenModal="@IsShowDialog"
+         Width="65%" TextBtnAccept="Cập nhật"
+         HeaderText="@(IsCreate ? "Thêm mới bộ phận" : $"Cập nhật bộ phận [{TitleUpdate.code}]")"
+         HandleClickAccept="@SaveDataHandler">
+    <div class="row row-gap-2">
+        <div class="col-sm-12">
+            <div class="d-flex ">
+                <W1Label Value="Mã bộ phận" Id="bacLuong" Styles="width: 110px" />
+                <div style="width: calc(100% - 120px)">
+                    <div class="row row-gap-2">
+                        <div class="col-md-8 col-sm-12">
+                            <DxTextBox @bind-Text="@TitleUpdate.code" ReadOnly="true" CssClass="w1FontSize"></DxTextBox>
+                        </div>
+                        <div class="col-md-4 col-sm-12">
+                            <DxCheckBox CssClass="w-100 w1FontSize"
+                                        SizeMode="@SizeMode.Small"
+                                        @bind-Checked="@TitleUpdate.isActive"
+                                        LabelPosition="@LabelPosition.Right">
+                                Hoạt động?
+                            </DxCheckBox>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-sm-12">
+            <div class="d-flex ">
+                <W1Label Value="Tên bộ phận" Id="bacLuong" Styles="width: 110px" IsRequired="true" />
+                <div style="width: calc(100% - 110px)">
+                    <DxTextBox @bind-Text="@TitleUpdate.name" CssClass="w1FontSize" Id="txtName"></DxTextBox>
+                </div>
+            </div>
+        </div>
+        <div class="col-sm-12">
+            <div class="d-flex ">
+                <W1Label Value="Chi nhánh" Id="bacLuong" Styles="width: 110px" IsRequired="true" />
+                <div style="width: calc(100% - 110px)">
+                    <DxComboBox Data="@ListCboBranch"
+                                Value="@TitleUpdate.branchId"
+                                ValueChanged="@((int branchId) => ComboboxValueChangedHandler(branchId, controlID: nameof(TitleUpdate.branchId)))"
+                                FilteringMode="DataGridFilteringMode.Contains"
+                                Id="txtBranchId"
+                                TextFieldName="@nameof(ComboboxModel.name)"
+                                ValueFieldName="@nameof(ComboboxModel.id)" CssClass="w1FontSize">
+                    </DxComboBox>
+                </div>
+            </div>
+        </div>
+        <div class="col-sm-12">
+            <div class="d-flex ">
+                <W1Label Value="Phòng ban" Id="bacLuong" Styles="width: 110px" IsRequired="true" />
+                <div style="width: calc(100% - 110px)">
+                    <DxComboBox Data="@ListCboDepartment"
+                                @bind-Value="@TitleUpdate.departmentId"
+                                FilteringMode="DataGridFilteringMode.Contains"
+                                TextFieldName="@nameof(ComboboxModel.name)"
+                                Id="txtDepartmentId"
+                                ValueFieldName="@nameof(ComboboxModel.id)" CssClass="w1FontSize">
+                    </DxComboBox>
+                </div>
+            </div>
+        </div>
+        <div class="col-sm-12">
+            <div class="d-flex ">
+                <W1Label Value="Ghi chú" Id="bacLuong" Styles="width: 110px" />
+                <div style="width: calc(100% - 110px)">
+                    <DxMemo @bind-Text="@TitleUpdate.remark" CssClass="w1FontSize" BindValueMode="@BindValueMode.OnInput" Rows="2" />
+                </div>
+            </div>
+        </div>
+    </div>
+</W1Popup>
+
+<W1Confirm @ref="confirm" />

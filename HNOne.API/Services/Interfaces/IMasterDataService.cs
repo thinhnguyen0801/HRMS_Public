@@ -41,5 +41,7 @@ namespace HNOne.API.Services.Interfaces
         Task<ResponseModel> UpdateStatusNotification(RequestModel request);
         Task<ResponseModel> UpdateWorkingBranch(string actionType, WorkingBranchs entity);
         Task<IEnumerable<WorkingBranchModel>> GetWorkingBranch(RequestModel request);
+        Task<IEnumerable<TitleModel>> GetSubDepartment(RequestModel request);
+        Task<ResponseModel> UpdateSubDepartment(string actionType, SubDepartments entity);
     }
 }
