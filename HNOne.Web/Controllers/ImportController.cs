@@ -44,6 +44,8 @@ namespace HNOne.Web.Controllers
             {
                 try
                 {
+                    string errMessage = await CheckMenuPermissionAsync("import-data");
+                    if (errMessage == "401") return; // kiểm quyền menu page danh sách
                     await ShowLoading();
                     ListBreadcrumbs = new List<BreadcrumbModel>()
                     {
