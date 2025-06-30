@@ -6,6 +6,8 @@ using HNOne.Common;
 using Blazored.LocalStorage;
 using HNOne.Web.Services;
 using Microsoft.AspNetCore.WebUtilities;
+using Microsoft.JSInterop;
+using DevExpress.Blazor;
 
 namespace HNOne.Web.Controllers
 {
@@ -19,12 +21,14 @@ namespace HNOne.Web.Controllers
         [Inject] IMasterDataService _masterDataService { get; init; }
         [Inject] IProgressService _progressService { get; init; }
         [Inject] IUserService _userService { get; init; }
+        [Inject] IJSRuntime _jsRuntime { get; set; }
 
         #region Properties
         public bool IsShowLoading { get; set; } = false;
         public LoginRequestModel LoginRequest { get; set; } = new LoginRequestModel();
         public List<ComboboxModel>? ListBranch { get; set; }
         public bool IsShowPassword { get; set; } = false;
+        public DxTextBox? RefPasswordBox { get; set; }
         #endregion
 
         protected override async Task OnAfterRenderAsync(bool firstRender)
@@ -99,6 +103,23 @@ namespace HNOne.Web.Controllers
             {
                 IsShowLoading = false;
                 await InvokeAsync(StateHasChanged);
+            }
+        }
+
+        protected async Task TogglePasswordHandler()
+        {
+            try
+            {
+                IsShowPassword = !IsShowPassword;
+                if (RefPasswordBox != null)
+                {
+                    await _jsRuntime.InvokeVoidAsync("togglePasswordType", RefPasswordBox.Id, IsShowPassword);
+                }
+
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "TogglePasswordHandler");
             }
         }
         #endregion

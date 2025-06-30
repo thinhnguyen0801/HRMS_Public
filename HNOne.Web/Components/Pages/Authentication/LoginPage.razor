@@ -18,7 +18,7 @@
                 <h2 class="h3 text-center mb-3">
                     Thông tin đăng nhập
                 </h2>
-                <EditForm Model="LoginRequest" OnValidSubmit="(async() => await LoginHandler())" autocomplete="off">
+                <EditForm Model="LoginRequest" OnValidSubmit="(async() => await LoginHandler())" AdditionalAttributes="@(new Dictionary<string, object>() {{"autocomplete", "off"}})">
                     <DataAnnotationsValidator />
                     <div class="mb-3">
                         <label class="form-label" for="cboBranch">Chi nhánh</label>
@@ -43,11 +43,14 @@
                                 <a href="./forgot-password">Quên mật khẩu</a>
                             </span>
                         </label>
-                        <DxTextBox @bind-Text="@LoginRequest.password" Id="txtPassword"
-                                   SizeMode="SizeMode.Medium" Password="@(!IsShowPassword)">
+                        <DxTextBox @bind-Text="@LoginRequest.password" @ref="RefPasswordBox" 
+                                   Id="txtPassword"
+                                   SizeMode="SizeMode.Medium" 
+                                   Password="true"
+                                   Attributes="@(new Dictionary<string, object>() {{"autocomplete", "new-password"}})">
                             <Buttons>
                                 <DxEditorButton IconCssClass="@(IsShowPassword ? "fa-regular fa-eye" : "fa-regular fa-eye-slash")"
-                                                Tooltip="Hiển thị mật khẩu" Click="@(() => IsShowPassword = !IsShowPassword)" />
+                                                Tooltip="Hiển thị mật khẩu" Click="@TogglePasswordHandler" />
                             </Buttons>
                         </DxTextBox>
                     </div>

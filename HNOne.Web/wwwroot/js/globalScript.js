@@ -121,6 +121,16 @@ async function downloadFileFromStream(fileName, mimeType, contentStreamReference
     }
 }
 
+// toggle password type (show/hide)
+window.togglePasswordType = (elementId, isShow) => {
+    const el = document.getElementById(elementId);
+    if (!el) return;
+    const input = el.querySelector("input");
+    if (input) {
+        input.type = isShow ? "text" : "password";
+    }
+};
+
 
 // khởi tạo file để preview trước. người dùng muốn tải thì tải
 async function createUrlViewer(contentStreamReference, type) {
