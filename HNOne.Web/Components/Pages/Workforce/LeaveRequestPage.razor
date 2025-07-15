@@ -137,7 +137,7 @@
                                     </div>
                                     <div class="col-md-6 col-sm-12">
                                         <div class="d-flex">
-                                            <W1Label Value="Lý do nghỉ" Styles="width: 120px" IsRequired="true" />
+                                            <W1Label Value="Loại nghỉ" Styles="width: 120px" IsRequired="true" />
                                             <div style="width: calc(100% - 120px)">
                                                 <DxComboBox Data="@ListCboReason"
                                                             @bind-Value="@LeaveRequestDocument.reasonId"
@@ -175,10 +175,18 @@
                                     </div>
                                     <div class="col-md-6 col-sm-12">
                                         <div class="d-flex ">
-                                            <W1Label Value="Ghi chú" Styles="width: 120px" />
+                                            <W1Label Value="Lý do" Styles="width: 120px" IsRequired="true" />
                                             <div style="width: calc(100% - 120px)">
-                                                <DxMemo @bind-Text="@LeaveRequestDocument.remark" BindValueMode="@BindValueMode.OnInput" Rows="1" 
+                                                <DxMemo @bind-Text="@LeaveRequestDocument.remark" Id="txtRemark" BindValueMode="@BindValueMode.OnInput" Rows="1" 
                                                         InputId="txtghiChu" CssClass="w1FontSize" ReadOnly="@IsReadonlyControl" />
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6 col-sm-12">
+                                        <div class="d-flex ">
+                                            <W1Label Value="Tổng ngày nghỉ" Styles="width: 120px" />
+                                            <div style="width: calc(100% - 120px)">
+                                                <DxSpinEdit @bind-Value="@TotalLeaveDays" ReadOnly="true" InputCssClass="text-end" ShowSpinButtons="false" CssClass="w1FontSize" />
                                             </div>
                                         </div>
                                     </div>

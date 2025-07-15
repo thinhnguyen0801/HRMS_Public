@@ -46,6 +46,9 @@ namespace HNOne.Model.Entities
         [MaxLength(250)]
         public string? Remark { get; set; } // ghi chú
         public bool IsDayOff { get; set; } // là ngày nghỉ
+        public double TotalLeaveDays { get; set; } // Tổng số ngày nghỉ
+        public int MorDocRefId { get; set; } = -1; // id chứng từ tham chiếu nghỉ buổi sáng 
+        public int AftDocRefId { get; set; } = -1; // id chứng từ tham chiếu nghỉ buổi chiều 
         [MaxLength(250)]
         public string? BgColor { get; set; } // màu line
         [MaxLength(250)]

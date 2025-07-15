@@ -14,10 +14,10 @@ namespace HNOne.Model.Entities
         public DateTime ToDate { get; set; } // ngày kết thúc
         public DateTime ExpiryDate { get; set; } // ngày hết hạn sử dụng phép năm củ
         public int AccrualDate { get; set; } // ngày tích phép hàng tháng
-        public int NumOfLeave { get; set; } // số ngày phép trong năm
-        public int NumOfYearIncrease { get; set; } // số năm được tăng phép
-        public int NumOfLeaveIncrease { get; set; } // số phép được tăng
-        public int NumOfLeaveTransfer { get; set; } // số phép chuyển cho năm sau
+        public double NumOfLeave { get; set; } // số ngày phép trong năm
+        public double NumOfYearIncrease { get; set; } // số năm được tăng phép
+        public double NumOfLeaveIncrease { get; set; } // số phép được tăng
+        public double NumOfLeaveTransfer { get; set; } // số phép chuyển cho năm sau
         public bool IsOffSaturday { get; set; } // được nghỉ T7 không
         public bool IsOffSunday { get; set; } // được nghỉ chủ nhật không
         public bool IsActive { get; set; }

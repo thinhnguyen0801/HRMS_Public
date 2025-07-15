@@ -8,6 +8,9 @@ using System.Threading.Tasks;
 
 namespace HNOne.Model.Entities
 {
+    /// <summary>
+    /// Bảng thông tin phép năm của nhân viên
+    /// </summary>
     [Table("AnnualLeaveInformations")]
     public sealed class AnnualLeaveInformations : Auditable
     {
@@ -18,7 +21,8 @@ namespace HNOne.Model.Entities
         public int BranchId { get; set; } // chi nhánh 
         public int Year { get; set; }
         public int LeaveConfigId { get; set; } // Id cấu hình
-        public double NumOfLeaveDefault { get; set; }
+        public DateTime ExpiryDate { get; set; } // ngày hết hạn sử dụng phép năm củ
+        public double NumOfLeaveDefault { get; set; } // số ngày phép năm mặc định
         public double NumOfLeave { get; set; } // số ngày phép được sử dụng trong năm
         public double NumOfLeaveLevel { get; set; } // phép thâm niên
         public double NumOfLeaveUsed { get; set; } // phép đã sử dụng
@@ -26,8 +30,8 @@ namespace HNOne.Model.Entities
         public double NumOfLeavePaid { get; set; } // phép đã thanh toán
         public double NumOfLeaveOld { get; set; } // phép của năm củ
         public int AccrualDate { get; set; } // ngày tích phép hàng tháng
-        public int NumOfYearIncrease { get; set; } // số năm được tăng phép
-        public int NumOfLeaveIncrease { get; set; } // số phép được tăng
-        public int NumOfLeaveTransfer { get; set; } // số phép chuyển cho năm sau
+        public double NumOfYearIncrease { get; set; } // số năm được tăng phép
+        public double NumOfLeaveIncrease { get; set; } // số phép được tăng
+        public double NumOfLeaveTransfer { get; set; } // số phép chuyển cho năm sau
     }
 }

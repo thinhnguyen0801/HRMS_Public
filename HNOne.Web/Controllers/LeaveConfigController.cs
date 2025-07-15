@@ -141,6 +141,7 @@ namespace HNOne.Web.Controllers
                     LeaveConfigUpdate.year = DateTime.Now.Year;
                     LeaveConfigUpdate.fromDate = DateTime.Now;
                     LeaveConfigUpdate.toDate = DateTime.Now;
+                    LeaveConfigUpdate.expiryDate = DateTime.Now;
                     LeaveConfigUpdate.isActive = true;
                     LeaveConfigUpdate.accrualDate = 1;
                     LeaveConfigUpdate.numOfLeave = 12;

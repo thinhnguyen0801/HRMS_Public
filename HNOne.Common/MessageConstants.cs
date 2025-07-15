@@ -41,5 +41,6 @@ namespace HNOne.Common
         public const string MESSAGE_CONFIRM_ADD_FORMAT = "Bạn có chắc muốn tạo mới {0} không?";
         public const string MESSAGE_CONFIRM_CANCEL_DOCUMENT_FORMAT = "Bạn có chắc muốn hủy {0} không?";
         public const string MESSAGE_NO_PERMISSION_ADMIN = "Bạn không có quyền thao tác. Vui lòng liên hệ bộ phận IT để được hổ trợ!";
+        public const string MESSAGE_CONFIRM_ADD_OLD_DAY = "Bạn đang lập phiếu trễ so với thời gian trên phiếu đăng ký.<br />";
     }
 }

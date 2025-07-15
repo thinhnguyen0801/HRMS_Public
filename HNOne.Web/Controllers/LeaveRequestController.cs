@@ -42,8 +42,8 @@ namespace HNOne.Web.Controllers
         public bool IsShowDialogEmpSearch { get; set; }
         public string? StatusIds { get; set; } // Tình trạng nào
         public object? EmployeeSelected { get; set; } // Nhân viên được chọn
-        public bool firstRender = true;
-
+        public bool firstRender { get; set; } = true;
+        public double TotalLeaveDays { get; set; } // Tổng số ngày nghỉ
         public string? VoucherHistory { get; set; } = string.Empty; // lịch sử chứng từ
         // lock control lại
         public bool IsReadonlyControl { get; set; } = false;
@@ -166,12 +166,6 @@ namespace HNOne.Web.Controllers
         /// <param name="fieldName"></param>
         private void validateForSave(ref string errorMessage, ref string fieldName)
         {
-            if (ListOfVacationDays.IsNullOrEmpty())
-            {
-                errorMessage = "Không tìm thấy danh sách ngày nghỉ. Vui lòng làm mới danh sách ngày nghỉ!!!";
-                fieldName = "gridInfo";
-                return;
-            }
             if (LeaveRequestDocument.employeeId < 1)
             {
                 errorMessage = string.Format(MessageConstants.MESSAGE_COMBOBOX_REQUIRE, "Nhân viên");
@@ -192,11 +186,41 @@ namespace HNOne.Web.Controllers
             }
             if (LeaveRequestDocument.reasonId < 1)
             {
-                errorMessage = string.Format(MessageConstants.MESSAGE_COMBOBOX_REQUIRE, "Lý do nghỉ");
+                errorMessage = string.Format(MessageConstants.MESSAGE_COMBOBOX_REQUIRE, "Loại nghỉ");
                 fieldName = nameof(LeaveRequestDocument.reasonId);
                 return;
             }
+            if (string.IsNullOrWhiteSpace(LeaveRequestDocument.remark))
+            {
+                errorMessage = string.Format(MessageConstants.MESSAGE_STRING_REQUIRE, "Lý do");
+                fieldName = "txtRemark";
+                return;
+            }
             validateForCreateLeaveDate(ref errorMessage, ref fieldName);
+            if (!string.IsNullOrEmpty(errorMessage)) return;
+            if (ListOfVacationDays.IsNullOrEmpty())
+            {
+                errorMessage = "Không tìm thấy danh sách ngày nghỉ. Vui lòng làm mới danh sách ngày nghỉ!!!";
+                fieldName = "gridInfo";
+                return;
+            }
+            //nếu danh sách toàn ngày nghỉ thì chặn không cho lập phiếu
+            var countDayOff = ListOfVacationDays!.Where(m => m.isDayOff).Count();
+            if (countDayOff == ListOfVacationDays!.Count())
+            {
+                errorMessage = "Ngày nghỉ tuần, nghỉ lễ không thể lập phiếu đề nghị nghỉ phép!!!";
+                fieldName = "gridInfo";
+                return;
+            }
+            //nếu ngày làm việc đó check vô nghỉ buổi sáng = false & nghỉ buổi chiều = flase => không hợp lệ
+            var checkDayOffInvalid = ListOfVacationDays!.FirstOrDefault(m => !m.isDayOff && !m.isAfternoonBreak && !m.isMorningBreak);
+            if(checkDayOffInvalid != null)
+            {
+                errorMessage = $"Ngày [{checkDayOffInvalid.dateOff.ToString(GlobalContants.FORMAT_DATE)}] không hợp lệ. Vui lòng chọn nghỉ buổi hoặc nghỉ ngày";
+                fieldName = "gridInfo";
+                return;
+            }    
+
         }
 
         /// <summary>
@@ -206,15 +230,16 @@ namespace HNOne.Web.Controllers
         /// <param name="fieldName"></param>
         private void validateForCreateLeaveDate(ref string errorMessage, ref string fieldName)
         {
+            TotalLeaveDays = 0;
             if (LeaveRequestDocument.fromDate == null)
             {
-                errorMessage = string.Format(MessageConstants.MESSAGE_COMBOBOX_REQUIRE, "Từ ngày"); ;
+                errorMessage = string.Format(MessageConstants.MESSAGE_COMBOBOX_REQUIRE, "Từ ngày");
                 fieldName = "startDate";
                 return;
             }
             if (LeaveRequestDocument.toDate == null)
             {
-                errorMessage = string.Format(MessageConstants.MESSAGE_COMBOBOX_REQUIRE, "Đến ngày"); ;
+                errorMessage = string.Format(MessageConstants.MESSAGE_COMBOBOX_REQUIRE, "Đến ngày");
                 fieldName = "endDate";
                 return;
             }
@@ -224,6 +249,12 @@ namespace HNOne.Web.Controllers
                 fieldName = "startDate";
                 return;
             }
+            if(LeaveRequestDocument.fromDate.Value.Year != LeaveRequestDocument.toDate.Value.Year)
+            {
+                errorMessage = "Không được đăng ký nghỉ phép năm ở 2 năm khác nhau";
+                fieldName = "endDate";
+                return;
+            }    
         }
 
         /// <summary>
@@ -275,6 +306,7 @@ namespace HNOne.Web.Controllers
                     if (!string.IsNullOrEmpty(LeaveRequestDocument.jsonDetail))
                     {
                         ListOfVacationDays = JsonConvert.DeserializeObject<List<LeaveRequest1Model>>(LeaveRequestDocument.jsonDetail);
+                        calculateLeaveDays();
                         //GridOfVacationDays?.Reload();
                     }
                 }
@@ -348,6 +380,29 @@ namespace HNOne.Web.Controllers
             request.type = ProcessConstants.GET_COMBO_LIST_OF_VACATION_DAY;
             var result = await _workforceService.GetMasterDataAsync<LeaveRequest1Model>(request, isShowToast: true);
             ListOfVacationDays = result;
+            calculateLeaveDays();
+        }
+
+        /// <summary>
+        /// Tính tổng số ngày nghỉ
+        /// </summary>
+        private void calculateLeaveDays()
+        {
+            TotalLeaveDays = 0;
+            if (ListOfVacationDays.IsNullOrEmpty()) return;
+            // Tính tổng ngày nghỉ thực tế
+            double totalLeaveDays = 0;
+            foreach (var item in ListOfVacationDays!)
+            {
+                if (item.isDayOff) continue;
+                if (item.isAfternoonBreak && item.isMorningBreak)
+                {
+                    totalLeaveDays += 1;
+                    continue;
+                }    
+                totalLeaveDays += 0.5;
+            }
+            TotalLeaveDays = totalLeaveDays;
         }
         #endregion
 
@@ -478,6 +533,7 @@ namespace HNOne.Web.Controllers
                 itemFind.remark = itemEdit.remark;
                 itemFind.isMorningBreak = itemEdit.isMorningBreak;
                 itemFind.isAfternoonBreak = itemEdit.isAfternoonBreak;
+                calculateLeaveDays();
                 StateHasChanged();
             }
             catch(Exception ex)
@@ -530,7 +586,10 @@ namespace HNOne.Web.Controllers
                     return;
                 }
                 bool isConfirm = true;
-                errorMessage = pActionType == nameof(EnumType.Add) ? MessageConstants.MESSAGE_CONFIRM_ADD : MessageConstants.MESSAGE_CONFIRM_UPDATE;
+                // kiểm tra lập phiếu trễ
+                var checkOldDate = ListOfVacationDays!.FirstOrDefault(m => m.dateOff < DateTime.Now.Date && m.isDayOff == false);
+                if (checkOldDate != null) errorMessage = MessageConstants.MESSAGE_CONFIRM_ADD_OLD_DAY;
+                errorMessage += pActionType == nameof(EnumType.Add) ? MessageConstants.MESSAGE_CONFIRM_ADD : MessageConstants.MESSAGE_CONFIRM_UPDATE;
                 await Task.Yield();
                 isConfirm = await confirm.SetConfirm(MessageConstants.MESSAGE_TITLE, errorMessage);
                 if (!isConfirm) return;
@@ -640,9 +699,7 @@ namespace HNOne.Web.Controllers
                             && LeaveRequestDocument.toDate != null
                             && LeaveRequestDocument.toDate.Value.Date >= LeaveRequestDocument.fromDate.Value.Date)
                         {
-                            await ShowLoading();
-                            await generateListDays();
-                            await Task.Delay(100);
+                            await CreateLeaveDateHandler();
                         }
                         break;
                 }

@@ -23,12 +23,12 @@ namespace HNOne.Model.Models
         public DateTime? dateOfSigning { get; set; } // Ngày kí
         public string? remark { get; set; } // ghi chú
         public string? link { get; set; }
-        public int numOfLeave { get; set; } // số phép 
-        public int numOfLeaveOld { get; set; } // số phép năm củ
-        public int numOfLeaveTotal { get; set; } // 
-        public int numOfLeaveLevel { get; set; } // ố phép tăng theo thâm niên
-        public int numOfLeaveUsed { get; set; } // số phép sử dụng
-        public int numOfLeaveRemaining { get; set; } // số phép còn lại
+        public double numOfLeave { get; set; } // số phép 
+        public double numOfLeaveOld { get; set; } // số phép năm củ
+        public double numOfLeaveTotal { get; set; } // 
+        public double numOfLeaveLevel { get; set; } // ố phép tăng theo thâm niên
+        public double numOfLeaveUsed { get; set; } // số phép sử dụng
+        public double numOfLeaveRemaining { get; set; } // số phép còn lại
         public string? jsonDetail { get; set; } // danh sách chi tiết
         public double totalHours { get; set; } // tổng số giờ nghỉ
         #region dành cho xin nghỉ phép trong giờ
