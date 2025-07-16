@@ -8,6 +8,12 @@
         <div class="card p-1">
             <DxToolbar ItemRenderStyleMode="@ToolbarRenderStyleMode.Contained">
                 <Items>
+                    <DxToolbarItem Text="Duyệt" BeginGroup="true" IconCssClass="@($"{IconClassConstants.ICON_APPROVAL}")" CssClass="w1FontSize"
+                                   Alignment="@ToolbarItemAlignment.Right" Click="@ApprovalHandler"
+                                   Visible="@(IsAllowApproval)" />
+                    <DxToolbarItem Text="Từ chối" BeginGroup="true" IconCssClass="@($"{IconClassConstants.ICON_REJECT}")" CssClass="w1FontSize"
+                                   Alignment="@ToolbarItemAlignment.Right" Click="@(() => RejectHandler())"
+                                   Visible="@(IsAllowApproval)" />
 
                     <DxToolbarItem Text="Lưu" BeginGroup="true" IconCssClass="@($"{IconClassConstants.ICON_UPDATE}")" CssClass="w1FontSize"
                                    Alignment="@ToolbarItemAlignment.Right" Click="@SaveDataHandler"
@@ -182,14 +188,6 @@
                                             </div>
                                         </div>
                                     </div>
-                                    <div class="col-md-6 col-sm-12">
-                                        <div class="d-flex ">
-                                            <W1Label Value="Tổng ngày nghỉ" Styles="width: 120px" />
-                                            <div style="width: calc(100% - 120px)">
-                                                <DxSpinEdit @bind-Value="@TotalLeaveDays" ReadOnly="true" InputCssClass="text-end" ShowSpinButtons="false" CssClass="w1FontSize" />
-                                            </div>
-                                        </div>
-                                    </div>
                                 </div>
                                 
                             </div>
@@ -308,6 +306,7 @@
                                         EditMode="GridEditMode.EditCell"
                                         EditModelSaving="@GridLeaveDateEditSavingHandler"
                                         CustomizeElement="@GridLeaveDateCustomizeElement"
+                                        CustomSummary="@GridLeaveDateCustomSummary"
                                         KeyboardNavigationEnabled="true"
                                         AllowSelectRowByClick="true"
                                         FocusedRowEnabled="true"
@@ -341,6 +340,11 @@
                                             </HeaderCaptionTemplate>
                                         </DxGridDataColumn>
                                     </Columns>
+                                    <TotalSummary>
+                                        <DxGridSummaryItem DisplayText="@GlobalContants.FORMAT_GRID_DISPLAYTEXT_SUM_DAY" SummaryType="GridSummaryItemType.Custom"
+                                                           FieldName="@nameof(LeaveRequest1Model.totalLeaveDays)" ValueDisplayFormat="@GlobalContants.FORMAT_CURRENCY"
+                                                           FooterColumnName="@nameof(LeaveRequest1Model.isMorningBreak)" />
+                                    </TotalSummary>
                                 </DxGrid>
                             </div>
                             break;
@@ -371,6 +375,14 @@
 <W1Popup @bind-IsOpenModal="@IsShowPrompt" TextBtnAccept="Xác nhận"
          HeaderText="Xác nhận" Width="55%" HandleClickAccept="@(() => CancelDocumentHandler(isAccept: true))">
     <W1Label Value="Lý do hủy" Styles="width: 120px" IsRequired />
+    <div class="mt-1">
+        <DxMemo @bind-Text="@ReasonDelete" BindValueMode="@BindValueMode.OnInput" Rows="1" InputId="txtLyDoHuy" CssClass="w1FontSize" />
+    </div>
+</W1Popup>
+
+<W1Popup @bind-IsOpenModal="@IsShowPromptDeny" TextBtnAccept="Xác nhận"
+         HeaderText="Xác nhận" Width="55%" HandleClickAccept="@(() => RejectHandler(isAccept: true))">
+    <W1Label Value="Lý do từ chối" Styles="width: 120px" IsRequired />
     <div class="mt-1">
         <DxMemo @bind-Text="@ReasonDelete" BindValueMode="@BindValueMode.OnInput" Rows="1" InputId="txtLyDoHuy" CssClass="w1FontSize" />
     </div>

@@ -57,6 +57,7 @@ namespace HNOne.Model.Models
         public int holidayId { get; set; } // Rơi vô kì nghỉ lễ nào
         public DateTime? fromTime { get; set; } // Ngày bắt đầu
         public DateTime? toTime { get; set; } // Ngày kết thúc
+        public double totalLeaveDays { get; set; }
         public double totalHours { get; set; } // tổng số giờ làm việc
         public string? shiftCode { get; set; } // ca làm việc lấy từ bảng enum
         public string? shiftName { get; set; } // ca làm việc lấy từ bảng enum

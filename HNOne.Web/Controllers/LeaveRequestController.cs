@@ -26,6 +26,7 @@ namespace HNOne.Web.Controllers
         const string STRING_KEY_EVENT_POST = "LEAVE_REQUEST_CONTROLLER_POST";
         const string STRING_KEY_EVENT_PUT = "LEAVE_REQUEST_CONTROLLER_PUT";
         const string STRING_KEY_EVENT_DELETE = "LEAVE_REQUEST_CONTROLLER_DELETE";
+        const string STRING_KEY_EVENT_APPROVAL = "APPROVAL_CONTROLLER_PUT";
         #region Properties
         public string? pActionType { get; set; } = nameof(EnumType.Add);
         private int pDocEntry { get; set; } = 0;
@@ -54,6 +55,8 @@ namespace HNOne.Web.Controllers
         public bool IsAllowPost { get; set; }
         public bool IsAllowDelete { get; set; }
         public bool IsAllowPut { get; set; }
+        public bool IsAllowApproval { get; set; }
+        public bool IsShowPromptDeny { get; set; }
         #endregion
 
         protected override async Task OnAfterRenderAsync(bool firstRender)
@@ -100,6 +103,19 @@ namespace HNOne.Web.Controllers
         }
 
         #region Private Functions
+
+        /// <summary>
+        /// kiểm tra quyền nút duyệt/từ chối & phải là ông duyệt
+        /// </summary>
+        /// <returns></returns>
+        private async Task checkPermissionApproval()
+        {
+            string menuId = await GetMenuId("phe-duyet");
+            List<string> lstKey = await CheckEventPermission(menuId);
+            IsAllowApproval = lstKey.FirstOrDefault(m => m == STRING_KEY_EVENT_APPROVAL) != null
+                && LeaveRequestDocument.employeeSignatureId == EmployeeId
+                && LeaveRequestDocument.statusCode == CommonConstants.STATUS_CODE_APPROVAL_PENDING;
+        }
 
         /// <summary>
         /// kiểm tra quyền nút
@@ -257,26 +273,6 @@ namespace HNOne.Web.Controllers
             }    
         }
 
-        /// <summary>
-        /// kiểm tra dữ liệu trươc khi gửi phê duyệt
-        /// </summary>
-        /// <param name="errorMessage"></param>
-        /// <param name="fieldName"></param>
-        private void validateForSaveApproval(ref string errorMessage, ref string fieldName)
-        {
-            if (LeaveRequestDocument.id < 1)
-            {
-                errorMessage = "Vui lòng lưu thông tin chứng từ trước khi gửi phê duyệt";
-                fieldName = "zzzz";
-                return;
-            }
-            if (LeaveRequestDocument.employeeSignatureId < 1)
-            {
-                errorMessage = string.Format(MessageConstants.MESSAGE_COMBOBOX_REQUIRE, "Người ký");
-                fieldName = nameof(LeaveRequestDocument.employeeSignatureId);
-                return;
-            }
-        }
 
         /// <summary>
         /// Hiểm thị thông tin chi tiết
@@ -307,7 +303,9 @@ namespace HNOne.Web.Controllers
                     {
                         ListOfVacationDays = JsonConvert.DeserializeObject<List<LeaveRequest1Model>>(LeaveRequestDocument.jsonDetail);
                         calculateLeaveDays();
-                        //GridOfVacationDays?.Reload();
+                        // Kiểm tra quyền duyệt
+                        IsAllowApproval = false;
+                        await checkPermissionApproval();
                     }
                 }
             }
@@ -403,6 +401,82 @@ namespace HNOne.Web.Controllers
                 totalLeaveDays += 0.5;
             }
             TotalLeaveDays = totalLeaveDays;
+        }
+
+        /// <summary>
+        /// Lưu thông tin chứng từ
+        /// </summary>
+        /// <param name="isShowToast"></param>
+        /// <returns></returns>
+        private async Task<int> saveDocument(bool isShowToast = true)
+        {
+            try
+            {
+                string processKey = pActionType == nameof(EnumType.Add) ? ProcessConstants.POST_LEAVE_REQUEST : ProcessConstants.PUT_LEAVE_REQUEST;
+                LeaveRequestDocument.branchId = BranchId;
+                LeaveRequestDocument.userSign = UserId;
+                LeaveRequestDocument.userSign2 = UserId;
+                string json = JsonConvert.SerializeObject(LeaveRequestDocument);
+                string jsonDetail = JsonConvert.SerializeObject(ListOfVacationDays);
+                int result = await _workforceService.UpdateLeaveRequestAsync(processKey, UserId, Token, BranchId, json, jsonDetail, isShowToast: isShowToast);
+                return result;
+            }
+            catch { throw; }
+        }
+
+        /// <summary>
+        /// Lưu thông tin phê duyệt
+        /// </summary>
+        /// <param name="statusCode"></param>
+        /// <param name="messageConfirm"></param>
+        /// <returns></returns>
+        private async Task saveDataApproval(string statusCode)
+        {
+            try
+            {
+                await ShowLoading();
+                string approvalRemark = "";
+                if (statusCode == CommonConstants.STATUS_CODE_DENY
+                    || statusCode == CommonConstants.STATUS_CODE_CANCELED)
+                {
+                    // kiểm tra bắt nhập ghi chú phê duyệt
+                    approvalRemark = $"{ReasonDelete}";
+                }
+                List<ApprovalModel> lstApproval = new List<ApprovalModel>()
+                {
+                    new ApprovalModel()
+                    {
+                        id = -1,
+                        branchId = LeaveRequestDocument.branchId,
+                        docEntry = LeaveRequestDocument.id,
+                        statusCode = statusCode,
+                        objType = nameof(EnumObjType.LeaveRequests),
+                        approvalRemark = approvalRemark,
+                        remark = approvalRemark,
+                        employeeSignatureId = LeaveRequestDocument.employeeSignatureId,
+                        userSign2 = UserId,
+                        employeeId = EmployeeId,
+                        userSign = UserId
+                    }
+                };
+                string content = JsonConvert.SerializeObject(lstApproval);
+                var result = await _approvalService.UpdateApprovalAsync(ProcessConstants.PUT_APPROVAL, UserId, Token, content, approvalType: statusCode);
+                if (result)
+                {
+                    IsShowPromptDeny = false;
+                    await showVoucher();
+                }
+            }
+            catch (Exception ex)
+            {
+                _logger!.LogError(ex, "saveDataApproval");
+                ShowError(ex.Message);
+            }
+            finally
+            {
+                await ShowLoading(false);
+                await InvokeAsync(StateHasChanged);
+            }
         }
         #endregion
 
@@ -563,6 +637,27 @@ namespace HNOne.Web.Controllers
         }
 
         /// <summary>
+        /// Custom tổng số giờ nghỉ loại trừ các ngày nghỉ
+        /// </summary>
+        /// <param name="e"></param>
+        protected void GridLeaveDateCustomSummary(GridCustomSummaryEventArgs e)
+        {
+            try
+            {
+                switch (e.SummaryStage)
+                {
+                    case GridCustomSummaryStage.Start:
+                        e.TotalValue = 0m;
+                        break;
+                    case GridCustomSummaryStage.Calculate:
+                        e.TotalValue = TotalLeaveDays;
+                        break;
+                }
+            }
+            catch (Exception ex) { }
+        }
+
+        /// <summary>
         /// lưu thông tin chứng từ
         /// </summary>
         /// <returns></returns>
@@ -594,13 +689,7 @@ namespace HNOne.Web.Controllers
                 isConfirm = await confirm.SetConfirm(MessageConstants.MESSAGE_TITLE, errorMessage);
                 if (!isConfirm) return;
                 await ShowLoading();
-                string processKey = pActionType == nameof(EnumType.Add) ? ProcessConstants.POST_LEAVE_REQUEST : ProcessConstants.PUT_LEAVE_REQUEST;
-                LeaveRequestDocument.branchId = BranchId;
-                LeaveRequestDocument.userSign = UserId;
-                LeaveRequestDocument.userSign2 = UserId;
-                string json = JsonConvert.SerializeObject(LeaveRequestDocument);
-                string jsonDetail = JsonConvert.SerializeObject(ListOfVacationDays);
-                int result = await _workforceService.UpdateLeaveRequestAsync(processKey, UserId, Token, BranchId, json, jsonDetail);
+                int result = await saveDocument();
                 if (result > 0)
                 {
                     pActionType = nameof(EnumType.Update);
@@ -637,30 +726,48 @@ namespace HNOne.Web.Controllers
                 string errorMessage = string.Empty;
                 string fieldName = string.Empty; // trả ra trường nào cần validate
                 bool isConfirm = true;
-                validateForSaveApproval(ref errorMessage, ref fieldName);
+                validateForSave(ref errorMessage, ref fieldName);
                 if (!string.IsNullOrEmpty(errorMessage))
                 {
                     ShowWarning(errorMessage);
                     await _jsRuntime.InvokeVoidAsync("focusInput", fieldName);
                     return;
                 }
+                // Nếu là tạo với & kiểm tra lập phiếu trễ
+                if (pActionType == nameof(EnumType.Add))
+                {
+                    var checkOldDate = ListOfVacationDays!.FirstOrDefault(m => m.dateOff < DateTime.Now.Date && m.isDayOff == false);
+                    if (checkOldDate != null) errorMessage = MessageConstants.MESSAGE_CONFIRM_ADD_OLD_DAY;
+                }
+                errorMessage += string.Format(MessageConstants.MESSAGE_CONFIRM_SEND_APPROVAL_FORMAT, $"đến nhân viên {LeaveRequestDocument.employeeSignatureName}");
                 await Task.Yield();
-                errorMessage = string.Format(MessageConstants.MESSAGE_CONFIRM_SEND_APPROVAL_FORMAT, $"đến nhân viên {LeaveRequestDocument.employeeSignatureName}");
                 isConfirm = await confirm.SetConfirm(MessageConstants.MESSAGE_TITLE, $"{errorMessage}");
                 if (!isConfirm) return;
                 await ShowLoading();
-                string processKey = ProcessConstants.POST_APPROVAL;
-                ApprovalModel approval = new ApprovalModel();
-                approval.docEntry = LeaveRequestDocument.id;
-                approval.objType = nameof(EnumObjType.LeaveRequests);
-                approval.branchId = BranchId;
-                approval.statusCode = CommonConstants.STATUS_CODE_APPROVAL_PENDING;
-                approval.userSign = UserId;
-                approval.employeeId = EmployeeId;
-                approval.employeeSignatureId = LeaveRequestDocument.employeeSignatureId;
-                string content = JsonConvert.SerializeObject(approval);
-                isConfirm = await _approvalService.UpdateApprovalAsync(processKey, UserId, Token, json: content);
-                if (isConfirm) await showVoucher();
+                int result = await saveDocument(isShowToast: false);
+                if (result > 0)
+                {
+                    pActionType = nameof(EnumType.Update);
+                    pDocEntry = result;
+                    string processKey = ProcessConstants.POST_APPROVAL;
+                    ApprovalModel approval = new ApprovalModel();
+                    approval.docEntry = pDocEntry;
+                    approval.objType = nameof(EnumObjType.LeaveRequests);
+                    approval.branchId = BranchId;
+                    approval.statusCode = CommonConstants.STATUS_CODE_APPROVAL_PENDING;
+                    approval.userSign = UserId;
+                    approval.employeeId = EmployeeId;
+                    approval.employeeSignatureId = LeaveRequestDocument.employeeSignatureId;
+                    string content = JsonConvert.SerializeObject(approval);
+                    isConfirm = await _approvalService.UpdateApprovalAsync(processKey, UserId, Token, json: content);
+                    if (isConfirm)
+                    {
+                        await showVoucher();
+                        return;
+                    }
+                    await showVoucher();
+                }
+                
             }
             catch (Exception ex)
             {
@@ -810,6 +917,59 @@ namespace HNOne.Web.Controllers
                 await ShowLoading(false);
                 await InvokeAsync(StateHasChanged);
             }
+        }
+
+        /// <summary>
+        /// phê duyệt chứng từ
+        /// </summary>
+        /// <returns></returns>
+        protected async Task ApprovalHandler()
+        {
+            try
+            {
+                await checkPermissionApproval();
+                if (!IsAllowApproval)
+                {
+                    ShowInfo(MessageConstants.MESSAGE_NO_PERMISSION);
+                    return;
+                }
+                bool isConfirm = false;
+                isConfirm = await confirm.SetConfirm(MessageConstants.MESSAGE_TITLE, MessageConstants.MESSAGE_CONFIRM_APPROVAL_DOCUMENT);
+                if (!isConfirm) return;
+                await saveDataApproval(CommonConstants.STATUS_CODE_APPROVED);
+            }
+            catch { }
+
+        }
+
+        /// <summary>
+        /// từ chối chứng từ
+        /// </summary>
+        /// <returns></returns>
+        protected async Task RejectHandler(bool isAccept = false)
+        {
+            try
+            {
+                await checkPermissionApproval();
+                if (!IsAllowApproval)
+                {
+                    ShowInfo(MessageConstants.MESSAGE_NO_PERMISSION);
+                    return;
+                }
+                if (!isAccept)
+                {
+                    ReasonDelete = string.Empty;
+                    IsShowPromptDeny = true;
+                    return;
+                }
+                if (string.IsNullOrEmpty(ReasonDelete))
+                {
+                    ShowWarning(string.Format(MessageConstants.MESSAGE_STRING_REQUIRE, "Lý do từ chối"));
+                    return;
+                }
+                await saveDataApproval(CommonConstants.STATUS_CODE_DENY);
+            }
+            catch { }
         }
         #endregion
     }

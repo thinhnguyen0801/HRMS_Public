@@ -287,26 +287,6 @@ namespace HNOne.Web.Controllers
             }
         }
 
-        /// <summary>
-        /// kiểm tra dữ liệu trươc khi gửi phê duyệt
-        /// </summary>
-        /// <param name="errorMessage"></param>
-        /// <param name="fieldName"></param>
-        private void validateForSaveApproval(ref string errorMessage, ref string fieldName)
-        {
-            if (LeaveRequestDocument.id < 1)
-            {
-                errorMessage = "Vui lòng lưu thông tin chứng từ trước khi gửi phê duyệt";
-                fieldName = "zzzz";
-                return;
-            }
-            if (LeaveRequestDocument.employeeSignatureId < 1)
-            {
-                errorMessage = string.Format(MessageConstants.MESSAGE_COMBOBOX_REQUIRE, "Người ký");
-                fieldName = nameof(LeaveRequestDocument.employeeSignatureId);
-                return;
-            }
-        }
 
         /// <summary>
         /// Hiểm thị thông tin chi tiết
