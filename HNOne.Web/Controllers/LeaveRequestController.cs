@@ -251,7 +251,7 @@ namespace HNOne.Web.Controllers
             }
             if(LeaveRequestDocument.fromDate.Value.Year != LeaveRequestDocument.toDate.Value.Year)
             {
-                errorMessage = "Không được đăng ký nghỉ phép năm ở 2 năm khác nhau";
+                errorMessage = "Không được đăng ký nghỉ phép ở 2 năm khác nhau";
                 fieldName = "endDate";
                 return;
             }    

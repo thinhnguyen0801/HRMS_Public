@@ -23,6 +23,8 @@
         public const string ENUM_REASON_DNTC = "DNTC";
         public const string ENUM_YES = "Y";
         public const string ENUM_NO = "N";
+        public const string FORMAT_GRID_DISPLAYTEXT_SUM_HOUR = "Tổng: {0} giờ";
+        public const string FORMAT_GRID_DISPLAYTEXT_SUM_DAY = "Tổng: {0} ngày";
 
         public const string MIME_TYPE_WORD = "application/vnd.openxmlformats-officedocument.wordprocessingml.document";
     }

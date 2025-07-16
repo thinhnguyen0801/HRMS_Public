@@ -50,6 +50,12 @@ namespace HNOne.Model.Entities
         [MaxLength(250)]
         public string? Remark { get; set; } // ghi chú
         public bool IsDayOff { get; set; } // là ngày nghỉ
+        [MaxLength(50)]
+        public string? ShiftCode { get; set; } // ca làm việc
+        public DateTime? StartDate { get; set; } // giờ nghỉ bắt đầy
+        public DateTime? EndDate { get; set; } // Giờ nghỉ kết thúc
+        public DateTime? StartBreakTime { get; set; } // Giờ nghỉ kết thúc
+        public DateTime? EndBreakTime { get; set; } // Giờ nghỉ kết thúc
         [MaxLength(250)]
         public string? BgColor { get; set; } // màu line
         [MaxLength(250)]

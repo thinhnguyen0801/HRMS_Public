@@ -25,6 +25,7 @@ namespace HNOne.Web.Controllers
         const string STRING_KEY_EVENT_POST = "LEAVE_WORKING_HOUR_CONTROLLER_POST";
         const string STRING_KEY_EVENT_PUT = "LEAVE_WORKING_HOUR_CONTROLLER_PUT";
         const string STRING_KEY_EVENT_DELETE = "LEAVE_WORKING_HOUR_CONTROLLER_DELETE";
+        const string STRING_KEY_EVENT_APPROVAL = "APPROVAL_CONTROLLER_PUT";
         #region Properties
         public string? pActionType { get; set; } = nameof(EnumType.Add);
         private int pDocEntry { get; set; } = 0;
@@ -53,6 +54,8 @@ namespace HNOne.Web.Controllers
         public bool IsAllowPost { get; set; }
         public bool IsAllowDelete { get; set; }
         public bool IsAllowPut { get; set; }
+        public bool IsAllowApproval { get; set; }
+        public bool IsShowPromptDeny { get; set; }
         #endregion
 
         protected override async Task OnAfterRenderAsync(bool firstRender)
@@ -98,6 +101,19 @@ namespace HNOne.Web.Controllers
         }
 
         #region Private Functions
+
+        /// <summary>
+        /// kiểm tra quyền nút duyệt/từ chối & phải là ông duyệt
+        /// </summary>
+        /// <returns></returns>
+        private async Task checkPermissionApproval()
+        {
+            string menuId = await GetMenuId("phe-duyet");
+            List<string> lstKey = await CheckEventPermission(menuId);
+            IsAllowApproval = lstKey.FirstOrDefault(m => m == STRING_KEY_EVENT_APPROVAL) != null 
+                && LeaveRequestDocument.employeeSignatureId == EmployeeId 
+                && LeaveRequestDocument.statusCode == CommonConstants.STATUS_CODE_APPROVAL_PENDING;
+        }
 
         /// <summary>
         /// kiểm tra quyền nút
@@ -166,18 +182,10 @@ namespace HNOne.Web.Controllers
         /// <param name="fieldName"></param>
         private void validateForSave(ref string errorMessage, ref string fieldName)
         {
-            if (ListOfVacationDays.IsNullOrEmpty())
+            if (string.IsNullOrEmpty(LeaveRequestDocument.requestType))
             {
-                errorMessage = "Không tìm thấy danh sách ngày nghỉ. Vui lòng làm mới danh sách ngày nghỉ!!!";
-                fieldName = "gridInfo";
-                return;
-            }
-            // kiểm tra trong lưới dữ liệu hợp lệ chưa
-            LeaveRequest1Model? itemCheck = ListOfVacationDays!.FirstOrDefault(m => m.fromTime >= m.toTime);
-            if (itemCheck != null)
-            {
-                errorMessage = $"Ngày [{itemCheck.dateOff.ToString(GlobalContants.FORMAT_DATE)}] {MessageConstants.MESSAGE_FROM_TIME_TO_TIME_INVALID}";
-                fieldName = "gridInfo";
+                errorMessage = string.Format(MessageConstants.MESSAGE_COMBOBOX_REQUIRE, "Loại đăng ký");
+                fieldName = "requestType";
                 return;
             }
             if (LeaveRequestDocument.departmentId < 1)
@@ -192,34 +200,56 @@ namespace HNOne.Web.Controllers
                 fieldName = nameof(LeaveRequestDocument.employeeId);
                 return;
             }
-            if (string.IsNullOrEmpty(LeaveRequestDocument.requestType))
+            if (LeaveRequestDocument.employeeSignatureId < 1)
             {
-                errorMessage = string.Format(MessageConstants.MESSAGE_COMBOBOX_REQUIRE, "Loại đăng ký");
-                fieldName = "requestType";
+                errorMessage = string.Format(MessageConstants.MESSAGE_COMBOBOX_REQUIRE, "Người ký");
+                fieldName = nameof(LeaveRequestDocument.employeeSignatureId);
                 return;
             }
-            if (LeaveRequestDocument.fromDate == null)
-            {
-                errorMessage = string.Format(MessageConstants.MESSAGE_COMBOBOX_REQUIRE, "Từ ngày"); ;
-                fieldName = "startDate";
-                return;
-            }
-            if (LeaveRequestDocument.toDate == null)
-            {
-                errorMessage = string.Format(MessageConstants.MESSAGE_COMBOBOX_REQUIRE, "Đến ngày"); ;
-                fieldName = "endDate";
-                return;
-            }
-            if (LeaveRequestDocument.toDate.Value.Date < LeaveRequestDocument.fromDate.Value.Date)
-            {
-                errorMessage = MessageConstants.MESSAGE_FROM_DATE_TO_DATE_INVALID;
-                fieldName = "startDate";
-                return;
-            }
+            validateForCreateLeaveDate(ref errorMessage, ref fieldName);
+            if (!string.IsNullOrEmpty(errorMessage)) return;
             if (string.IsNullOrEmpty(LeaveRequestDocument.remark))
             {
                 errorMessage = string.Format(MessageConstants.MESSAGE_COMBOBOX_REQUIRE, "Lý do nghỉ");
                 fieldName = "txtRemark";
+                return;
+            }
+            if (ListOfVacationDays.IsNullOrEmpty())
+            {
+                errorMessage = "Không tìm thấy danh sách ngày nghỉ. Vui lòng làm mới danh sách ngày nghỉ!!!";
+                fieldName = "gridInfo";
+                return;
+            }
+            //nếu danh sách toàn ngày nghỉ thì chặn không cho lập phiếu
+            var countDayOff = ListOfVacationDays!.Where(m => m.isDayOff).Count();
+            if (countDayOff == ListOfVacationDays!.Count())
+            {
+                errorMessage = "Ngày nghỉ tuần, nghỉ lễ không thể lập phiếu xin đi muộn/về sớm!!!";
+                fieldName = "gridInfo";
+                return;
+            }
+            // kiểm tra dữ liệu bảng công đã có thông tin chưa
+            LeaveRequest1Model? itemCheck = ListOfVacationDays!.FirstOrDefault(m => string.IsNullOrEmpty(m.shiftCode));
+            if (itemCheck != null)
+            {
+                errorMessage = $"Vui lòng liên hệ quản trị viên phát sinh dữ liệu công làm việc tháng {itemCheck.dateOff.Month} năm {itemCheck.dateOff.Year}";
+                fieldName = "gridInfo";
+                return;
+            }
+            // kiểm tra trong lưới dữ liệu hợp lệ chưa
+            itemCheck = ListOfVacationDays!.FirstOrDefault(m => !m.isDayOff && m.fromTime >= m.toTime);
+            if (itemCheck != null)
+            {
+                errorMessage = $"Ngày [{itemCheck.dateOff.ToString(GlobalContants.FORMAT_DATE)}] {MessageConstants.MESSAGE_FROM_TIME_TO_TIME_INVALID}";
+                fieldName = "gridInfo";
+                return;
+            }
+            // Kiểm tra nhập Từ giờ và đến giờ phải thuộc trong ca làm việc
+            itemCheck = ListOfVacationDays!.FirstOrDefault(m => !m.isDayOff && ( m.fromTime < m.startDate || m.toTime > m.endDate ));
+            if (itemCheck != null)
+            {
+                errorMessage = $"Ngày [{itemCheck.dateOff.ToString(GlobalContants.FORMAT_DATE)}] Từ giờ & Đến giờ phải nằm trong ca làm việc";
+                fieldName = "gridInfo";
                 return;
             }
         }
@@ -233,13 +263,13 @@ namespace HNOne.Web.Controllers
         {
             if (LeaveRequestDocument.fromDate == null)
             {
-                errorMessage = string.Format(MessageConstants.MESSAGE_COMBOBOX_REQUIRE, "Từ ngày"); ;
+                errorMessage = string.Format(MessageConstants.MESSAGE_COMBOBOX_REQUIRE, "Từ ngày");
                 fieldName = "startDate";
                 return;
             }
             if (LeaveRequestDocument.toDate == null)
             {
-                errorMessage = string.Format(MessageConstants.MESSAGE_COMBOBOX_REQUIRE, "Đến ngày"); ;
+                errorMessage = string.Format(MessageConstants.MESSAGE_COMBOBOX_REQUIRE, "Đến ngày");
                 fieldName = "endDate";
                 return;
             }
@@ -247,6 +277,12 @@ namespace HNOne.Web.Controllers
             {
                 errorMessage = MessageConstants.MESSAGE_FROM_DATE_TO_DATE_INVALID;
                 fieldName = "startDate";
+                return;
+            }
+            if (LeaveRequestDocument.fromDate.Value.Year != LeaveRequestDocument.toDate.Value.Year)
+            {
+                errorMessage = "Không được đăng ký nghỉ trong giờ ở 2 năm khác nhau";
+                fieldName = "endDate";
                 return;
             }
         }
@@ -301,6 +337,9 @@ namespace HNOne.Web.Controllers
                         ListOfVacationDays = JsonConvert.DeserializeObject<List<LeaveRequest1Model>>(LeaveRequestDocument.jsonDetail);
                         GridOfVacationDays?.Reload();
                     }
+                    // Kiểm tra quyền duyệt
+                    IsAllowApproval = false;
+                    await checkPermissionApproval();
                 }
             }
             catch (Exception ex)
@@ -327,6 +366,7 @@ namespace HNOne.Web.Controllers
             request.userId = UserId;
             request.token = Token;
             request.branchId = BranchId;
+            request.employeeId = LeaveRequestDocument.employeeId;
             request.opt = LeaveRequestDocument.fromDate!.FormatDateTimeSql();
             request.opt1 = LeaveRequestDocument.toDate!.FormatDateTimeSql();
             request.type = ProcessConstants.GET_COMBO_LIST_OF_VACATION_DAY;
@@ -347,11 +387,102 @@ namespace HNOne.Web.Controllers
             {
                 item.fromTime = new DateTime(item.dateOff.Year, item.dateOff.Month, item.dateOff.Day, item.fromTime?.Hour ?? 0, item.fromTime?.Minute ?? 0, 0);
                 item.toTime = new DateTime(item.dateOff.Year, item.dateOff.Month, item.dateOff.Day, item.toTime?.Hour ?? 0, item.toTime?.Minute ?? 0, 0);
+                if (item.fromTime < item.startDate) item.fromTime = item.startDate;
+                if (item.toTime > item.endDate) item.toTime = item.endDate;
                 TimeSpan workBeforeBreak = item.toTime.Value - item.fromTime.Value;
-                item.totalHours = workBeforeBreak.TotalHours;
-                totalHours += workBeforeBreak.TotalHours;
+                //item.totalHours = workBeforeBreak.TotalHours;
+                //totalHours += workBeforeBreak.TotalHours;
+                // Tính thời gian giao nhau giữa (fromTime - toTime) và (startBreakTime - endBreakTime)
+                DateTime? overlapStart = item.fromTime > item.startBreakTime ? item.fromTime : item.startBreakTime;
+                DateTime? overlapEnd = item.toTime < item.endBreakTime ? item.toTime : item.endBreakTime;
+                TimeSpan overlap = TimeSpan.Zero;
+                if (overlapStart < overlapEnd)
+                {
+                    overlap = overlapEnd.Value - overlapStart.Value;
+                }
+                // Trừ thời gian nghỉ ra
+                TimeSpan actualWorkTime = workBeforeBreak - overlap;
+                item.totalHours = actualWorkTime.TotalHours;
+                if (item.isDayOff) continue;
+                totalHours += actualWorkTime.TotalHours;
             }
             LeaveRequestDocument.totalHours = totalHours;
+        }
+        
+        /// <summary>
+        /// Lưu thông tin chứng từ
+        /// </summary>
+        /// <returns></returns>
+        private async Task<int> saveDocument(bool isShowToast = true)
+        {
+            try
+            {
+                calcTotalHour();
+                string processKey = pActionType == nameof(EnumType.Add) ? ProcessConstants.POST_LEAVE_WORKING_HOUR : ProcessConstants.PUT_LEAVE_WORKING_HOUR;
+                LeaveRequestDocument.branchId = BranchId;
+                LeaveRequestDocument.userSign = UserId;
+                LeaveRequestDocument.userSign2 = UserId;
+                string json = JsonConvert.SerializeObject(LeaveRequestDocument);
+                string jsonDetail = JsonConvert.SerializeObject(ListOfVacationDays);
+                int result = await _workforceService.UpdateLeaveRequestAsync(processKey, UserId, Token, BranchId, json, jsonDetail, isShowToast: isShowToast);
+                return result;
+            }
+            catch { throw; }
+        }
+
+        /// <summary>
+        /// Lưu thông tin phê duyệt
+        /// </summary>
+        /// <param name="statusCode"></param>
+        /// <param name="messageConfirm"></param>
+        /// <returns></returns>
+        private async Task saveDataApproval(string statusCode)
+        {
+            try
+            {
+                await ShowLoading();
+                string approvalRemark = "";
+                if (statusCode == CommonConstants.STATUS_CODE_DENY
+                    || statusCode == CommonConstants.STATUS_CODE_CANCELED)
+                {
+                    // kiểm tra bắt nhập ghi chú phê duyệt
+                    approvalRemark = $"{ReasonDelete}";
+                }
+                List<ApprovalModel> lstApproval = new List<ApprovalModel>()
+                {
+                    new ApprovalModel()
+                    {
+                        id = -1,
+                        branchId = LeaveRequestDocument.branchId,
+                        docEntry = LeaveRequestDocument.id,
+                        statusCode = statusCode,
+                        objType = nameof(EnumObjType.LeaveWorkingHours),
+                        approvalRemark = approvalRemark,
+                        remark = approvalRemark,
+                        employeeSignatureId = LeaveRequestDocument.employeeSignatureId,
+                        userSign2 = UserId,
+                        employeeId = EmployeeId,
+                        userSign = UserId
+                    }
+                };
+                string content = JsonConvert.SerializeObject(lstApproval);
+                var result = await _approvalService.UpdateApprovalAsync(ProcessConstants.PUT_APPROVAL, UserId, Token, content, approvalType: statusCode);
+                if (result)
+                {
+                    IsShowPromptDeny = false;
+                    await showVoucher();
+                }
+            }
+            catch (Exception ex)
+            {
+                _logger!.LogError(ex, "saveDataApproval");
+                ShowError(ex.Message);
+            }
+            finally
+            {
+                await ShowLoading(false);
+                await InvokeAsync(StateHasChanged);
+            }
         }
         #endregion
 
@@ -446,13 +577,7 @@ namespace HNOne.Web.Controllers
                 itemFind.fromTime = itemEdit.fromTime;
                 itemFind.toTime = itemEdit.toTime;
                 // Tính tổng giờ làm việc
-                double totalHours = 0;
-                if (itemFind.fromTime != null && itemFind.toTime != null)
-                {
-                    TimeSpan workBeforeBreak = itemFind.toTime.Value - itemFind.fromTime.Value;
-                    totalHours = workBeforeBreak.TotalHours;
-                }
-                itemFind.totalHours = totalHours;
+                calcTotalHour();
                 StateHasChanged();
             }
             catch (Exception ex)
@@ -482,6 +607,27 @@ namespace HNOne.Web.Controllers
         }
 
         /// <summary>
+        /// Custom tổng số giờ nghỉ loại trừ các ngày nghỉ
+        /// </summary>
+        /// <param name="e"></param>
+        protected void GridLeaveDateCustomSummary(GridCustomSummaryEventArgs e)
+        {
+            try
+            {
+                switch (e.SummaryStage)
+                {
+                    case GridCustomSummaryStage.Start:
+                        e.TotalValue = 0m;
+                        break;
+                    case GridCustomSummaryStage.Calculate:
+                        e.TotalValue = LeaveRequestDocument.totalHours;
+                        break;
+                }
+            }
+            catch (Exception ex) { }
+        }
+
+        /// <summary>
         /// lưu thông tin chứng từ
         /// </summary>
         /// <returns></returns>
@@ -505,19 +651,15 @@ namespace HNOne.Web.Controllers
                     return;
                 }
                 bool isConfirm = true;
-                errorMessage = pActionType == nameof(EnumType.Add) ? MessageConstants.MESSAGE_CONFIRM_ADD : MessageConstants.MESSAGE_CONFIRM_UPDATE;
+                // kiểm tra lập phiếu trễ
+                var checkOldDate = ListOfVacationDays!.FirstOrDefault(m => m.dateOff < DateTime.Now.Date && m.isDayOff == false);
+                if (checkOldDate != null) errorMessage = MessageConstants.MESSAGE_CONFIRM_ADD_OLD_DAY;
+                errorMessage += pActionType == nameof(EnumType.Add) ? MessageConstants.MESSAGE_CONFIRM_ADD : MessageConstants.MESSAGE_CONFIRM_UPDATE;
                 await Task.Yield();
                 isConfirm = await confirm.SetConfirm(MessageConstants.MESSAGE_TITLE, errorMessage);
                 if (!isConfirm) return;
                 await ShowLoading();
-                calcTotalHour();
-                string processKey = pActionType == nameof(EnumType.Add) ? ProcessConstants.POST_LEAVE_WORKING_HOUR : ProcessConstants.PUT_LEAVE_WORKING_HOUR;
-                LeaveRequestDocument.branchId = BranchId;
-                LeaveRequestDocument.userSign = UserId;
-                LeaveRequestDocument.userSign2 = UserId;
-                string json = JsonConvert.SerializeObject(LeaveRequestDocument);
-                string jsonDetail = JsonConvert.SerializeObject(ListOfVacationDays);
-                int result = await _workforceService.UpdateLeaveRequestAsync(processKey, UserId, Token, BranchId, json, jsonDetail);
+                int result = await saveDocument();
                 if (result > 0)
                 {
                     pActionType = nameof(EnumType.Update);
@@ -554,30 +696,48 @@ namespace HNOne.Web.Controllers
                 string errorMessage = string.Empty;
                 string fieldName = string.Empty; // trả ra trường nào cần validate
                 bool isConfirm = true;
-                validateForSaveApproval(ref errorMessage, ref fieldName);
+                validateForSave(ref errorMessage, ref fieldName);
                 if (!string.IsNullOrEmpty(errorMessage))
                 {
                     ShowWarning(errorMessage);
                     await _jsRuntime.InvokeVoidAsync("focusInput", fieldName);
                     return;
                 }
+                // Nếu là tạo với & kiểm tra lập phiếu trễ
+                if(pActionType == nameof(EnumType.Add))
+                {
+                    var checkOldDate = ListOfVacationDays!.FirstOrDefault(m => m.dateOff < DateTime.Now.Date && m.isDayOff == false);
+                    if (checkOldDate != null) errorMessage = MessageConstants.MESSAGE_CONFIRM_ADD_OLD_DAY;
+                }    
+                errorMessage += string.Format(MessageConstants.MESSAGE_CONFIRM_SEND_APPROVAL_FORMAT, $"đến nhân viên {LeaveRequestDocument.employeeSignatureName}");
                 await Task.Yield();
-                errorMessage = string.Format(MessageConstants.MESSAGE_CONFIRM_SEND_APPROVAL_FORMAT, $"đến nhân viên {LeaveRequestDocument.employeeSignatureName}");
                 isConfirm = await confirm.SetConfirm(MessageConstants.MESSAGE_TITLE, $"{errorMessage}");
                 if (!isConfirm) return;
                 await ShowLoading();
-                string processKey = ProcessConstants.POST_APPROVAL;
-                ApprovalModel approval = new ApprovalModel();
-                approval.docEntry = LeaveRequestDocument.id;
-                approval.objType = nameof(EnumObjType.LeaveWorkingHours);
-                approval.branchId = BranchId;
-                approval.statusCode = CommonConstants.STATUS_CODE_APPROVAL_PENDING;
-                approval.userSign = UserId;
-                approval.employeeId = EmployeeId;
-                approval.employeeSignatureId = LeaveRequestDocument.employeeSignatureId;
-                string content = JsonConvert.SerializeObject(approval);
-                isConfirm = await _approvalService.UpdateApprovalAsync(processKey, UserId, Token, json: content);
-                if (isConfirm) await showVoucher();
+                int result = await saveDocument(isShowToast: false);
+                if (result > 0)
+                {
+                    pActionType = nameof(EnumType.Update);
+                    pDocEntry = result;
+                    // Gửi phê duyệt
+                    string processKey = ProcessConstants.POST_APPROVAL;
+                    ApprovalModel approval = new ApprovalModel();
+                    approval.docEntry = pDocEntry;
+                    approval.objType = nameof(EnumObjType.LeaveWorkingHours);
+                    approval.branchId = BranchId;
+                    approval.statusCode = CommonConstants.STATUS_CODE_APPROVAL_PENDING;
+                    approval.userSign = UserId;
+                    approval.employeeId = EmployeeId;
+                    approval.employeeSignatureId = LeaveRequestDocument.employeeSignatureId;
+                    string content = JsonConvert.SerializeObject(approval);
+                    isConfirm = await _approvalService.UpdateApprovalAsync(processKey, UserId, Token, json: content);
+                    if (isConfirm)
+                    {
+                        await showVoucher();
+                        return;
+                    }    
+                    await showVoucher();
+                }
             }
             catch (Exception ex)
             {
@@ -616,11 +776,8 @@ namespace HNOne.Web.Controllers
                             && LeaveRequestDocument.toDate != null
                             && LeaveRequestDocument.toDate.Value.Date >= LeaveRequestDocument.fromDate.Value.Date)
                         {
-                            await ShowLoading();
-                            await generateListDays();
-                            await Task.Delay(100);
+                            await CreateLeaveDateHandler();
                         }
-                        StateHasChanged();
                         break;
                 }
             }
@@ -763,6 +920,59 @@ namespace HNOne.Web.Controllers
                 await ShowLoading(false);
                 await InvokeAsync(StateHasChanged);
             }
+        }
+
+        /// <summary>
+        /// phê duyệt chứng từ
+        /// </summary>
+        /// <returns></returns>
+        protected async Task ApprovalHandler()
+        {
+            try
+            {
+                await checkPermissionApproval();
+                if (!IsAllowApproval)
+                {
+                    ShowInfo(MessageConstants.MESSAGE_NO_PERMISSION);
+                    return;
+                }
+                bool isConfirm = false;
+                isConfirm = await confirm.SetConfirm(MessageConstants.MESSAGE_TITLE, MessageConstants.MESSAGE_CONFIRM_APPROVAL_DOCUMENT);
+                if (!isConfirm) return;
+                await saveDataApproval(CommonConstants.STATUS_CODE_APPROVED);
+            }
+            catch { }
+            
+        }
+
+        /// <summary>
+        /// từ chối chứng từ
+        /// </summary>
+        /// <returns></returns>
+        protected async Task RejectHandler(bool isAccept = false)
+        {
+            try
+            {
+                await checkPermissionApproval();
+                if (!IsAllowApproval)
+                {
+                    ShowInfo(MessageConstants.MESSAGE_NO_PERMISSION);
+                    return;
+                }
+                if (!isAccept)
+                {
+                    ReasonDelete = string.Empty;
+                    IsShowPromptDeny = true;
+                    return;
+                }
+                if (string.IsNullOrEmpty(ReasonDelete))
+                {
+                    ShowWarning(string.Format(MessageConstants.MESSAGE_STRING_REQUIRE, "Lý do từ chối"));
+                    return;
+                }
+                await saveDataApproval(CommonConstants.STATUS_CODE_DENY);
+            }
+            catch { }
         }
         #endregion
     }

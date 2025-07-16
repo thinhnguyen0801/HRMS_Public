@@ -58,5 +58,11 @@ namespace HNOne.Model.Models
         public DateTime? fromTime { get; set; } // Ngày bắt đầu
         public DateTime? toTime { get; set; } // Ngày kết thúc
         public double totalHours { get; set; } // tổng số giờ làm việc
+        public string? shiftCode { get; set; } // ca làm việc lấy từ bảng enum
+        public string? shiftName { get; set; } // ca làm việc lấy từ bảng enum
+        public DateTime? startDate { get; set; } // thời gian bắt đầu
+        public DateTime? endDate { get; set; } // thời gian kết thúc
+        public DateTime? startBreakTime { get; set; } // thời gian nghỉ bắt đầu
+        public DateTime? endBreakTime { get; set; } // thời gian nghỉ kết thúc
     }
 }

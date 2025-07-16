@@ -656,6 +656,7 @@ namespace HNOne.API.Repositories
                         entity1.IsAfternoonBreak = item.IsAfternoonBreak;
                         entity1.Remark = item.Remark;
                         entity1.IsDayOff = item.IsDayOff;
+                        entity1.TotalLeaveDays = item.TotalLeaveDays;
                         entity1.BgColor = item.BgColor;
                         entity1.Symbol = item.Symbol;
                         entity1.HolidayId = item.HolidayId;
@@ -751,6 +752,7 @@ namespace HNOne.API.Repositories
                         entity1.IsAfternoonBreak = item.IsAfternoonBreak;
                         entity1.Remark = item.Remark;
                         entity1.IsDayOff = item.IsDayOff;
+                        entity1.TotalLeaveDays = item.TotalLeaveDays;
                         entity1.BgColor = item.BgColor;
                         entity1.Symbol = item.Symbol;
                         entity1.HolidayId = item.HolidayId;
@@ -789,27 +791,25 @@ namespace HNOne.API.Repositories
                 {
                     using (var connection = _dapperDbContext.CreateConnection())
                     {
-                        // kiểm tra dữ liệu công ông đây chốt chưa -> nếu chốt công không cho tạo
-                        var checkLocked = await _dbContext.AttendanceSummarys.FirstOrDefaultAsync(m => m.EmployeeId == entity.EmployeeId && m.IsDelete == false
-                                                && m.IsLocked == true && m.Month == entity.FromDate!.Value.Month
-                                                && m.Year == entity.FromDate!.Value.Year);
-                        if (checkLocked != null)
-                        {
-                            response.status = StatusCodes.Status409Conflict;
-                            response.message = $"Nhân viên {checkLocked.EmployeeCode} đã được khóa kỳ dữ liệu công tháng {checkLocked.Month} năm {checkLocked.Year}";
-                            return response;
-                        }
-
-                        var checkExists = await _dbContext.LeaveWorkingHours.FirstOrDefaultAsync(m => m.FromDate!.Value.Date == entity.FromDate!.Value.Date && m.EmployeeId == entity.EmployeeId
-                                            && m.StatusCode != CommonConstants.STATUS_CODE_CANCELED && m.StatusCode != CommonConstants.STATUS_CODE_DENY); // bỏ 2 tình trạng hủy
-                        if (checkExists != null)
-                        {
-                            response.status = StatusCodes.Status409Conflict;
-                            response.message = $"Ngày đăng ký đã tồn tại trong hệ thống. Số chứng từ [{checkExists.VoucherNo}]";
-                            return response;
-                        }
-
+                        // xuống store validate dữ liệu trước khi lưu
                         DynamicParameters parameters = new DynamicParameters();
+                        parameters.Add("@UserId", entity.UserSign, DbType.Int32);
+                        parameters.Add("@BranchId", entity.BranchId, DbType.Int32);
+                        parameters.Add("@EmployeeId", entity.EmployeeId, DbType.Int32);
+                        parameters.Add("@ProcessKey", ProcessConstants.POST_LEAVE_WORKING_HOUR, DbType.String);
+                        parameters.Add("@JHeader", JsonConvert.SerializeObject(entity), DbType.String);
+                        parameters.Add("@JLine", JsonConvert.SerializeObject(lstEntity1), DbType.String);
+                        var resultCheck = await connection.QueryFirstOrDefaultAsync<ResponseModel>(StoreConstants.STORE_H1_LEAVE_REQUEST_VALIDATE_CHECK, parameters
+                        , commandTimeout: GlobalConstants.COMMAND_TIMEOUT, commandType: CommandType.StoredProcedure);
+                        if (resultCheck == null || resultCheck.status != StatusCodes.Status200OK)
+                        {
+                            response.status = resultCheck?.status ?? StatusCodes.Status400BadRequest;
+                            response.message = resultCheck?.message ?? MessageConstants.MESSAGE_IT_SUPPORT;
+                            return response;
+                        }
+
+                        // Đánh mã chứng từ
+                        parameters = new DynamicParameters();
                         parameters.Add("@Type", GlobalConstants.TABLE_LEAVE_WORKING_HOURS, DbType.String);
                         parameters.Add("@BranchId", entity.BranchId, DbType.Int32);
                         string commandText = @$"select {StoreConstants.FUNC_GET_VOUCHER}(@Type, @BranchId, '', '', '')";
@@ -841,6 +841,11 @@ namespace HNOne.API.Repositories
                             entity1.BgColor = item.BgColor;
                             entity1.Symbol = item.Symbol;
                             entity1.HolidayId = item.HolidayId;
+                            entity1.ShiftCode = item.ShiftCode;
+                            entity1.StartDate = item.StartDate;
+                            entity1.EndDate = item.EndDate;
+                            entity1.StartBreakTime = item.StartBreakTime;
+                            entity1.EndBreakTime = item.EndBreakTime;
                             entity1.DateTracking = dateTimeNow;
                             entity1.UserSign = entity.UserSign;
                             await _dbContext.LeaveWorkingHour1s.AddAsync(entity1);
@@ -853,60 +858,84 @@ namespace HNOne.API.Repositories
                 }
                 else
                 {
-                    var data = await _dbContext.LeaveWorkingHours.FirstOrDefaultAsync(m => m.Id == entity.Id);
-                    if (data == null)
+                    using (var connection = _dapperDbContext.CreateConnection())
                     {
-                        response.status = StatusCodes.Status404NotFound;
-                        response.message = MessageConstants.MESSAGE_NOT_FOUNT;
-                        return response;
-                    }
-                    if (data.DateTracking != entity.DateTracking)
-                    {
-                        response.status = StatusCodes.Status409Conflict;
-                        response.message = MessageConstants.MESSAGE_DATA_CHECKING_MODIFIED;
-                        return response;
-                    }
-                    data.EmployeeId = entity.EmployeeId;
-                    data.EmployeeSignatureId = entity.EmployeeSignatureId;
-                    data.DepartmentId = entity.DepartmentId;
-                    data.StatusCode = entity.StatusCode;
-                    data.FromDate = entity.FromDate;
-                    data.ToDate = entity.ToDate;
-                    data.Remark = entity.Remark;
-                    data.RequestType = entity.RequestType;
-                    data.TotalHours = entity.TotalHours;
-                    data.DateTracking = dateTimeNow;
-                    data.UpdateDate = dateTimeNow;
-                    data.UserSign2 = entity.UserSign2;
-                    await _dbContext.Database.BeginTransactionAsync();
-                    isTrans = true;
-                    _dbContext.LeaveWorkingHours.Attach(data);
-                    _dbContext.Entry(data).State = EntityState.Modified;
-                    // thêm chi tiết đề nghị nghỉ phép
-                    // bỏ dữ liệu củ đi
-                    var lstLeaveRequest1s = await _dbContext.LeaveWorkingHour1s.Where(m => m.LeaveWorkingHourId == data.Id).ToListAsync();
-                    if (!lstLeaveRequest1s.IsNullOrEmpty()) _dbContext.LeaveWorkingHour1s.RemoveRange(lstLeaveRequest1s);
-                    foreach (var item in lstEntity1)
-                    {
-                        LeaveWorkingHour1s entity1 = new LeaveWorkingHour1s();
-                        entity1.LeaveWorkingHourId = entity.Id;
-                        entity1.DateOff = item.DateOff;
-                        entity1.FromTime = item.FromTime;
-                        entity1.ToTime = item.ToTime;
-                        entity1.TotalHours = item.TotalHours;
-                        entity1.Remark = item.Remark;
-                        entity1.IsDayOff = item.IsDayOff;
-                        entity1.BgColor = item.BgColor;
-                        entity1.Symbol = item.Symbol;
-                        entity1.HolidayId = item.HolidayId;
-                        entity1.DateTracking = dateTimeNow;
-                        entity1.UserSign = entity.UserSign;
-                        await _dbContext.LeaveWorkingHour1s.AddAsync(entity1);
-                    }
-                    await _dbContext.SaveChangesAsync();
-                    await _dbContext.Database.CommitTransactionAsync();
-                    response.message = MessageConstants.MESSAGE_UPDATE_SUCCESS;
-                    response.data = data.Id;
+                        var data = await _dbContext.LeaveWorkingHours.FirstOrDefaultAsync(m => m.Id == entity.Id);
+                        if (data == null)
+                        {
+                            response.status = StatusCodes.Status404NotFound;
+                            response.message = MessageConstants.MESSAGE_NOT_FOUNT;
+                            return response;
+                        }
+                        if (data.DateTracking != entity.DateTracking)
+                        {
+                            response.status = StatusCodes.Status409Conflict;
+                            response.message = MessageConstants.MESSAGE_DATA_CHECKING_MODIFIED;
+                            return response;
+                        }
+                        // xuống store validate dữ liệu trước khi lưu
+                        DynamicParameters parameters = new DynamicParameters();
+                        parameters.Add("@UserId", entity.UserSign, DbType.Int32);
+                        parameters.Add("@BranchId", entity.BranchId, DbType.Int32);
+                        parameters.Add("@EmployeeId", entity.EmployeeId, DbType.Int32);
+                        parameters.Add("@ProcessKey", ProcessConstants.POST_LEAVE_WORKING_HOUR, DbType.String);
+                        parameters.Add("@JHeader", JsonConvert.SerializeObject(entity), DbType.String);
+                        parameters.Add("@JLine", JsonConvert.SerializeObject(lstEntity1), DbType.String);
+                        var resultCheck = await connection.QueryFirstOrDefaultAsync<ResponseModel>(StoreConstants.STORE_H1_LEAVE_REQUEST_VALIDATE_CHECK, parameters
+                        , commandTimeout: GlobalConstants.COMMAND_TIMEOUT, commandType: CommandType.StoredProcedure);
+                        if (resultCheck == null || resultCheck.status != StatusCodes.Status200OK)
+                        {
+                            response.status = resultCheck?.status ?? StatusCodes.Status400BadRequest;
+                            response.message = resultCheck?.message ?? MessageConstants.MESSAGE_IT_SUPPORT;
+                            return response;
+                        }
+                        data.EmployeeId = entity.EmployeeId;
+                        data.EmployeeSignatureId = entity.EmployeeSignatureId;
+                        data.DepartmentId = entity.DepartmentId;
+                        data.StatusCode = entity.StatusCode;
+                        data.FromDate = entity.FromDate;
+                        data.ToDate = entity.ToDate;
+                        data.Remark = entity.Remark;
+                        data.RequestType = entity.RequestType;
+                        data.TotalHours = entity.TotalHours;
+                        data.DateTracking = dateTimeNow;
+                        data.UpdateDate = dateTimeNow;
+                        data.UserSign2 = entity.UserSign2;
+                        await _dbContext.Database.BeginTransactionAsync();
+                        isTrans = true;
+                        _dbContext.LeaveWorkingHours.Attach(data);
+                        _dbContext.Entry(data).State = EntityState.Modified;
+                        // thêm chi tiết đề nghị nghỉ phép
+                        // bỏ dữ liệu củ đi
+                        var lstLeaveRequest1s = await _dbContext.LeaveWorkingHour1s.Where(m => m.LeaveWorkingHourId == data.Id).ToListAsync();
+                        if (!lstLeaveRequest1s.IsNullOrEmpty()) _dbContext.LeaveWorkingHour1s.RemoveRange(lstLeaveRequest1s);
+                        foreach (var item in lstEntity1)
+                        {
+                            LeaveWorkingHour1s entity1 = new LeaveWorkingHour1s();
+                            entity1.LeaveWorkingHourId = entity.Id;
+                            entity1.DateOff = item.DateOff;
+                            entity1.FromTime = item.FromTime;
+                            entity1.ToTime = item.ToTime;
+                            entity1.TotalHours = item.TotalHours;
+                            entity1.Remark = item.Remark;
+                            entity1.IsDayOff = item.IsDayOff;
+                            entity1.BgColor = item.BgColor;
+                            entity1.Symbol = item.Symbol;
+                            entity1.HolidayId = item.HolidayId;
+                            entity1.ShiftCode = item.ShiftCode;
+                            entity1.StartDate = item.StartDate;
+                            entity1.EndDate = item.EndDate;
+                            entity1.StartBreakTime = item.StartBreakTime;
+                            entity1.EndBreakTime = item.EndBreakTime;
+                            entity1.DateTracking = dateTimeNow;
+                            entity1.UserSign = entity.UserSign;
+                            await _dbContext.LeaveWorkingHour1s.AddAsync(entity1);
+                        }
+                        await _dbContext.SaveChangesAsync();
+                        await _dbContext.Database.CommitTransactionAsync();
+                        response.message = MessageConstants.MESSAGE_UPDATE_SUCCESS;
+                        response.data = data.Id;
+                    }    
                 }
                 return response;
             }

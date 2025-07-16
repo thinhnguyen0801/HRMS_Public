@@ -204,7 +204,7 @@ namespace HNOne.API.Repositories
                 foreach (var entity in lstEntity)
                 {
                     // cập nhật
-                    var data = await _dbContext.Approvals.FirstOrDefaultAsync(m => m.Id == entity.id);
+                    var data = await _dbContext.Approvals.FirstOrDefaultAsync(m => (m.Id == entity.id) || (m.DocEntry == entity.docEntry && m.ObjType == entity.objType));
                     if (data == null)
                     {
                         response.status = StatusCodes.Status404NotFound;

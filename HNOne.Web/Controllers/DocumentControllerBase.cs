@@ -124,6 +124,26 @@ namespace HNOne.Web.Controllers
         }
 
         /// <summary>
+        /// Lấy ra thông tin menuid
+        /// </summary>
+        /// <param name="link"></param>
+        /// <returns></returns>
+        protected async Task<string> GetMenuId(string link)
+        {
+            try
+            {
+                await Task.Delay(10);
+                var checkSession = await _localStorageService.ContainKeyAsync("authMenu");
+                if (!checkSession) return "";
+                string? planText = await _localStorageService.GetItemAsync<string>("authMenu");
+                var lstItem = JsonConvert.DeserializeObject<List<MenuModel>>(_encryptHelper.Decrypt(planText));
+                var checkMenu = lstItem?.FirstOrDefault(m => m.link == link || m.link == $"/{link}");
+                return $"{checkMenu?.menuID}";
+            }
+            catch (Exception) { throw; }
+        }
+
+        /// <summary>
         /// lấy ra danh sách key để kiểm tra quyền
         /// </summary>
         /// <param name="menuId"></param>
