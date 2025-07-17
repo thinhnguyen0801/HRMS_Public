@@ -50,7 +50,7 @@ namespace HNOne.Web.Services
             }
         }
 
-        public async Task<int> UpdateTrainingAsync(string processKey, int userId, string token, int branchId, string json, string jsonDetail)
+        public async Task<int> UpdateTrainingAsync(string processKey, int userId, string token, int branchId, string json, string jsonDetail, bool isShowToast = true)
         {
             try
             {
@@ -76,7 +76,7 @@ namespace HNOne.Web.Services
                     if (httpResponse.IsSuccessStatusCode
                         && response?.status == StatusCodes.Status200OK)
                     {
-                        _toastService.ShowSuccess(response.message);
+                        if (isShowToast) _toastService.ShowSuccess(response.message);
                         int.TryParse(response.data?.ToString(), out int result);
                         return result;
                     }

@@ -9,6 +9,13 @@
             <DxToolbar ItemRenderStyleMode="@ToolbarRenderStyleMode.Contained">
                 <Items>
 
+                    <DxToolbarItem Text="Duyệt" BeginGroup="true" IconCssClass="@($"{IconClassConstants.ICON_APPROVAL}")" CssClass="w1FontSize"
+                                   Alignment="@ToolbarItemAlignment.Right" Click="@ApprovalHandler"
+                                   Visible="@(IsAllowApproval)" />
+                    <DxToolbarItem Text="Từ chối" BeginGroup="true" IconCssClass="@($"{IconClassConstants.ICON_REJECT}")" CssClass="w1FontSize"
+                                   Alignment="@ToolbarItemAlignment.Right" Click="@(() => RejectHandler())"
+                                   Visible="@(IsAllowApproval)" />
+
                     <DxToolbarItem Text="Lưu" BeginGroup="true" IconCssClass="@($"{IconClassConstants.ICON_UPDATE}")" CssClass="w1FontSize"
                                    Alignment="@ToolbarItemAlignment.Right" Click="@SaveDataHandler"
                                    Visible="@((pActionType == nameof(EnumType.Add) && IsAllowPost) || (pActionType != nameof(EnumType.Add) && IsAllowPut))" />
@@ -18,7 +25,7 @@
                                    Visible="@(TrainDocument.statusCode == CommonConstants.STATUS_CODE_ADD && IsAllowDelete)"/>
 
                     <DxToolbarItem Text="Hủy" BeginGroup="true" IconCssClass="@($"{IconClassConstants.ICON_DELETE}")" CssClass="w1FontSize"
-                                   Alignment="@ToolbarItemAlignment.Right"
+                                   Alignment="@ToolbarItemAlignment.Right" Click="@(() => CancelDocumentHandler())"
                                    Visible="@(pActionType != nameof(EnumType.Add) && TrainDocument.statusCode == CommonConstants.STATUS_CODE_ADD && IsAllowDelete)"/>
 
                     <DxToolbarItem Text="Làm mới" BeginGroup="true" IconCssClass="@($"{IconClassConstants.ICON_REFRESH}")" CssClass="w1FontSize"
@@ -314,6 +321,19 @@
                     SelectedDataItemChanged="@EventCallbackEmpChangedHandler" SelectedDataItemsChanged="@EventCallbackEmpListChangedHandler" />
     </div>
 </W1Popup>
-
+<W1Popup @bind-IsOpenModal="@IsShowPrompt" TextBtnAccept="Xác nhận"
+         HeaderText="Xác nhận" Width="55%" HandleClickAccept="@(() => CancelDocumentHandler(isAccept: true))">
+    <W1Label Value="Lý do hủy" Styles="width: 120px" IsRequired />
+    <div class="mt-1">
+        <DxMemo @bind-Text="@ReasonDelete" BindValueMode="@BindValueMode.OnInput" Rows="1" InputId="txtLyDoHuy" CssClass="w1FontSize" />
+    </div>
+</W1Popup>
+<W1Popup @bind-IsOpenModal="@IsShowPromptDeny" TextBtnAccept="Xác nhận"
+         HeaderText="Xác nhận" Width="55%" HandleClickAccept="@(() => RejectHandler(isAccept: true))">
+    <W1Label Value="Lý do từ chối" Styles="width: 120px" IsRequired />
+    <div class="mt-1">
+        <DxMemo @bind-Text="@ReasonDelete" BindValueMode="@BindValueMode.OnInput" Rows="1" InputId="txtLyDoHuy" CssClass="w1FontSize" />
+    </div>
+</W1Popup>
 <W1Confirm @ref="confirm" />
 

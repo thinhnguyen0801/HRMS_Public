@@ -26,6 +26,7 @@ namespace HNOne.Web.Controllers
         const string STRING_KEY_EVENT_PUT = "TRAINING_CONTROLLER_PUT";
         const string STRING_KEY_EVENT_PUT_EVALUETE = "TRAINING_CONTROLLER_PUT_EVALUETE";
         const string STRING_KEY_EVENT_DELETE = "TRAINING_CONTROLLER_DELETE";
+        const string STRING_KEY_EVENT_APPROVAL = "APPROVAL_CONTROLLER_PUT";
         #region Properties
         public string? pActionType { get; set; } = nameof(EnumType.Add);
         private int pDocEntry { get; set; } = 0;
@@ -47,11 +48,15 @@ namespace HNOne.Web.Controllers
         // lock control lại
         public bool IsReadonlyControl { get; set; } = false;
 
+        public bool IsShowPrompt { get; set; }
+        public string? ReasonDelete { get; set; } // lý do hủy
         // nút quyền
         public bool IsAllowPost { get; set; }
         public bool IsAllowDelete { get; set; }
         public bool IsAllowPut { get; set; }
         public bool IsAllowPutEvaluete { get; set; }
+        public bool IsAllowApproval { get; set; }
+        public bool IsShowPromptDeny { get; set; }
         #endregion
 
         protected override async Task OnAfterRenderAsync(bool firstRender)
@@ -97,6 +102,20 @@ namespace HNOne.Web.Controllers
         }
 
         #region Private Functions
+
+        /// <summary>
+        /// kiểm tra quyền nút duyệt/từ chối & phải là ông duyệt
+        /// </summary>
+        /// <returns></returns>
+        private async Task checkPermissionApproval()
+        {
+            string menuId = await GetMenuId("phe-duyet");
+            List<string> lstKey = await CheckEventPermission(menuId);
+            IsAllowApproval = lstKey.FirstOrDefault(m => m == STRING_KEY_EVENT_APPROVAL) != null
+                && TrainDocument.employeeSignatureId == EmployeeId
+                && TrainDocument.statusCode == CommonConstants.STATUS_CODE_APPROVAL_PENDING;
+        }
+
         /// <summary>
         /// kiểm tra quyền nút
         /// </summary>
@@ -169,6 +188,9 @@ namespace HNOne.Web.Controllers
                     {
                         ListOfTrainings = JsonConvert.DeserializeObject<List<Training1Model>>(TrainDocument.jsonDetail);
                     }
+                    // Kiểm tra quyền duyệt
+                    IsAllowApproval = false;
+                    await checkPermissionApproval();
                 }
             }
             catch (Exception ex)
@@ -237,23 +259,77 @@ namespace HNOne.Web.Controllers
         }
 
         /// <summary>
-        /// kiểm tra dữ liệu trươc khi gửi phê duyệt
+        /// Lưu thông tin chứng từ
         /// </summary>
-        /// <param name="errorMessage"></param>
-        /// <param name="fieldName"></param>
-        private void validateForSaveApproval(ref string errorMessage, ref string fieldName)
+        /// <returns></returns>
+        private async Task<int> saveDocument(bool isShowToast = true)
         {
-            if (TrainDocument.id < 1)
+            try
             {
-                errorMessage = "Vui lòng lưu thông tin chứng từ trước khi gửi phê duyệt";
-                fieldName = "zzzz";
-                return;
+                string processKey = pActionType == nameof(EnumType.Add) ? ProcessConstants.POST_TRAINING : ProcessConstants.PUT_TRAINING;
+                TrainDocument.branchId = BranchId;
+                TrainDocument.userSign = UserId;
+                TrainDocument.userSign2 = UserId;
+                string json = JsonConvert.SerializeObject(TrainDocument);
+                string jsonDetail = JsonConvert.SerializeObject(ListOfTrainings);
+                int result = await _trainingService.UpdateTrainingAsync(processKey, UserId, Token, BranchId, json, jsonDetail, isShowToast: isShowToast);
+                return result;
             }
-            if (TrainDocument.employeeSignatureId < 1)
+            catch { throw; }
+        }
+
+        /// <summary>
+        /// Lưu thông tin phê duyệt
+        /// </summary>
+        /// <param name="statusCode"></param>
+        /// <param name="messageConfirm"></param>
+        /// <returns></returns>
+        private async Task saveDataApproval(string statusCode)
+        {
+            try
             {
-                errorMessage = string.Format(MessageConstants.MESSAGE_COMBOBOX_REQUIRE, "Người ký");
-                fieldName = nameof(TrainDocument.employeeSignatureId);
-                return;
+                await ShowLoading();
+                string approvalRemark = "";
+                if (statusCode == CommonConstants.STATUS_CODE_DENY
+                    || statusCode == CommonConstants.STATUS_CODE_CANCELED)
+                {
+                    // kiểm tra bắt nhập ghi chú phê duyệt
+                    approvalRemark = $"{ReasonDelete}";
+                }
+                List<ApprovalModel> lstApproval = new List<ApprovalModel>()
+                {
+                    new ApprovalModel()
+                    {
+                        id = -1,
+                        branchId = TrainDocument.branchId,
+                        docEntry = TrainDocument.id,
+                        statusCode = statusCode,
+                        objType = nameof(EnumObjType.Trainings),
+                        approvalRemark = approvalRemark,
+                        remark = approvalRemark,
+                        employeeSignatureId = TrainDocument.employeeSignatureId,
+                        userSign2 = UserId,
+                        employeeId = EmployeeId,
+                        userSign = UserId
+                    }
+                };
+                string content = JsonConvert.SerializeObject(lstApproval);
+                var result = await _approvalService.UpdateApprovalAsync(ProcessConstants.PUT_APPROVAL, UserId, Token, content, approvalType: statusCode);
+                if (result)
+                {
+                    IsShowPromptDeny = false;
+                    await showVoucher();
+                }
+            }
+            catch (Exception ex)
+            {
+                _logger!.LogError(ex, "saveDataApproval");
+                ShowError(ex.Message);
+            }
+            finally
+            {
+                await ShowLoading(false);
+                await InvokeAsync(StateHasChanged);
             }
         }
         #endregion
@@ -376,13 +452,7 @@ namespace HNOne.Web.Controllers
                 isConfirm = await confirm.SetConfirm(MessageConstants.MESSAGE_TITLE, errorMessage);
                 if (!isConfirm) return;
                 await ShowLoading();
-                string processKey = pActionType == nameof(EnumType.Add) ? ProcessConstants.POST_TRAINING : ProcessConstants.PUT_TRAINING;
-                TrainDocument.branchId = BranchId;
-                TrainDocument.userSign = UserId;
-                TrainDocument.userSign2 = UserId;
-                string json = JsonConvert.SerializeObject(TrainDocument);
-                string jsonDetail = JsonConvert.SerializeObject(ListOfTrainings);
-                int result = await _trainingService.UpdateTrainingAsync(processKey, UserId, Token, BranchId, json, jsonDetail);
+                int result = await saveDocument();
                 if (result > 0)
                 {
                     pActionType = nameof(EnumType.Update);
@@ -460,30 +530,47 @@ namespace HNOne.Web.Controllers
                 string errorMessage = string.Empty;
                 string fieldName = string.Empty; // trả ra trường nào cần validate
                 bool isConfirm = true;
-                validateForSaveApproval(ref errorMessage, ref fieldName);
+                validateForSave(ref errorMessage, ref fieldName);
                 if (!string.IsNullOrEmpty(errorMessage))
                 {
                     ShowWarning(errorMessage);
                     await _jsRuntime.InvokeVoidAsync("focusInput", fieldName);
                     return;
                 }
+                // Nếu là tạo với & kiểm tra lập phiếu trễ
+                if (pActionType == nameof(EnumType.Add))
+                {
+                    if (TrainDocument.fromDate!.Value.Date < DateTime.Now.Date) errorMessage = MessageConstants.MESSAGE_CONFIRM_ADD_OLD_DAY;
+                }
                 await Task.Yield();
-                errorMessage = string.Format(MessageConstants.MESSAGE_CONFIRM_SEND_APPROVAL_FORMAT, $"đến nhân viên {TrainDocument.employeeSignatureName}");
+                errorMessage += string.Format(MessageConstants.MESSAGE_CONFIRM_SEND_APPROVAL_FORMAT, $"đến nhân viên {TrainDocument.employeeSignatureName}");
                 isConfirm = await confirm.SetConfirm(MessageConstants.MESSAGE_TITLE, $"{errorMessage}");
                 if (!isConfirm) return;
                 await ShowLoading();
-                string processKey = ProcessConstants.POST_APPROVAL;
-                ApprovalModel approval = new ApprovalModel();
-                approval.docEntry = TrainDocument.id;
-                approval.objType = nameof(EnumObjType.Trainings);
-                approval.branchId = BranchId;
-                approval.statusCode = CommonConstants.STATUS_CODE_APPROVAL_PENDING;
-                approval.userSign = UserId;
-                approval.employeeId = EmployeeId;
-                approval.employeeSignatureId = TrainDocument.employeeSignatureId;
-                string content = JsonConvert.SerializeObject(approval);
-                isConfirm = await _approvalService.UpdateApprovalAsync(processKey, UserId, Token, json: content);
-                if (isConfirm) await showVoucher();
+                int result = await saveDocument(isShowToast: false);
+                if (result > 0)
+                {
+                    pActionType = nameof(EnumType.Update);
+                    pDocEntry = result;
+                    string processKey = ProcessConstants.POST_APPROVAL;
+                    ApprovalModel approval = new ApprovalModel();
+                    approval.docEntry = pDocEntry;
+                    approval.objType = nameof(EnumObjType.Trainings);
+                    approval.branchId = BranchId;
+                    approval.statusCode = CommonConstants.STATUS_CODE_APPROVAL_PENDING;
+                    approval.userSign = UserId;
+                    approval.employeeId = EmployeeId;
+                    approval.employeeSignatureId = TrainDocument.employeeSignatureId;
+                    string content = JsonConvert.SerializeObject(approval);
+                    isConfirm = await _approvalService.UpdateApprovalAsync(processKey, UserId, Token, json: content);
+                    if (isConfirm)
+                    {
+                        await showVoucher();
+                        return;
+                    }
+                    await showVoucher();
+                }  
+                
             }
             catch (Exception ex)
             {
@@ -574,6 +661,119 @@ namespace HNOne.Web.Controllers
                 await ShowLoading(false);
                 await InvokeAsync(StateHasChanged);
             }
+        }
+
+        /// <summary>
+        /// Hủy chứng từ
+        /// </summary>
+        /// <returns></returns>
+        protected async Task CancelDocumentHandler(bool isAccept = false)
+        {
+            try
+            {
+                await checkPermission(MenuId);
+                if (!IsAllowDelete)
+                {
+                    ShowInfo(MessageConstants.MESSAGE_NO_PERMISSION);
+                    return;
+                }
+                if (!isAccept)
+                {
+                    ReasonDelete = string.Empty;
+                    IsShowPrompt = true;
+                    return;
+                }
+                if (string.IsNullOrEmpty(ReasonDelete))
+                {
+                    ShowWarning(string.Format(MessageConstants.MESSAGE_STRING_REQUIRE, "Lý do hủy"));
+                    return;
+                }
+                string errorMessage = string.Empty;
+                bool isConfirm = true;
+                //errorMessage = string.Format(MessageConstants.MESSAGE_CONFIRM_CANCEL_DOCUMENT_FORMAT, $"Phụ lục hợp đồng");
+                //isConfirm = await confirm.SetConfirm(MessageConstants.MESSAGE_TITLE, $"{errorMessage}");
+                //if (!isConfirm) return;
+                await ShowLoading();
+                string processKey = ProcessConstants.PUT_CANCEL_DOCUMENT;
+                ApprovalModel approval = new ApprovalModel();
+                approval.docEntry = TrainDocument.id;
+                approval.objType = nameof(EnumObjType.Trainings);
+                approval.employeeId = EmployeeId;
+                approval.statusCode = CommonConstants.STATUS_CODE_CANCELED;
+                approval.approvalRemark = ReasonDelete;
+                approval.userSign = UserId;
+                var lstApproval = new List<ApprovalModel>() { approval };
+                string content = JsonConvert.SerializeObject(lstApproval);
+                isConfirm = await _approvalService.UpdateApprovalAsync(processKey, UserId, Token, json: content);
+                if (isConfirm)
+                {
+                    IsShowPrompt = false;
+                    await showVoucher();
+                }
+            }
+            catch (Exception ex)
+            {
+                ShowError(ex.Message);
+                _logger.LogError(ex, "CancelDocumentHandler");
+            }
+            finally
+            {
+                await ShowLoading(false);
+                await InvokeAsync(StateHasChanged);
+            }
+        }
+
+        /// <summary>
+        /// phê duyệt chứng từ
+        /// </summary>
+        /// <returns></returns>
+        protected async Task ApprovalHandler()
+        {
+            try
+            {
+                await checkPermissionApproval();
+                if (!IsAllowApproval)
+                {
+                    ShowInfo(MessageConstants.MESSAGE_NO_PERMISSION);
+                    return;
+                }
+                bool isConfirm = false;
+                isConfirm = await confirm.SetConfirm(MessageConstants.MESSAGE_TITLE, MessageConstants.MESSAGE_CONFIRM_APPROVAL_DOCUMENT);
+                if (!isConfirm) return;
+                await saveDataApproval(CommonConstants.STATUS_CODE_APPROVED);
+            }
+            catch { }
+
+        }
+
+        /// <summary>
+        /// từ chối chứng từ
+        /// </summary>
+        /// <returns></returns>
+        protected async Task RejectHandler(bool isAccept = false)
+        {
+            try
+            {
+                await checkPermissionApproval();
+                if (!IsAllowApproval)
+                {
+                    ShowInfo(MessageConstants.MESSAGE_NO_PERMISSION);
+                    return;
+                }
+                if (!isAccept)
+                {
+                    ReasonDelete = string.Empty;
+                    IsShowPromptDeny = true;
+                    return;
+                }
+                if (string.IsNullOrEmpty(ReasonDelete))
+                {
+                    ShowWarning(string.Format(MessageConstants.MESSAGE_STRING_REQUIRE, "Lý do từ chối"));
+                    return;
+                }
+                await saveDataApproval(CommonConstants.STATUS_CODE_DENY);
+            }
+            catch { }
         }
         #endregion
     }
