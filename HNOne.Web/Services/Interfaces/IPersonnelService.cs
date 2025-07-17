@@ -7,7 +7,7 @@ namespace HNOne.Web.Services.Interfaces
     {
         Task<List<EmployeeModel>?> GetEmployeeAsync(RequestModel request);
         Task<int> UpdateEmployeeAsync(string processKey, int userId, string token, string json, bool isCreateAccount = false);
-        Task<int> UpdateContractAsync(string processKey, int userId, string token, int branchId, string json, string jsonDetail);
+        Task<int> UpdateContractAsync(string processKey, int userId, string token, int branchId, string json, string jsonDetail, bool isShowToast = true);
         Task<List<ContractModel>?> GetContractAsync(RequestModel request, bool isShowToast = false);
         Task<List<InsuranceModel>?> GetInsuranceAsync(RequestModel request, bool isShowToast = false);
         Task<bool> UpdateInsuranceAsync(string processKey, int userId, string token, string json);
