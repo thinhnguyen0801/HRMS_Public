@@ -27,6 +27,7 @@ namespace HNOne.Web.Controllers
         const string STRING_KEY_EVENT_POST = "CONTRACT_APPENDIX_CONTROLLER_POST";
         const string STRING_KEY_EVENT_PUT = "CONTRACT_APPENDIX_CONTROLLER_PUT";
         const string STRING_KEY_EVENT_DELETE = "CONTRACT_APPENDIX_CONTROLLER_DELETE";
+        const string STRING_KEY_EVENT_APPROVAL = "APPROVAL_CONTROLLER_PUT";
         #region Properties
         public string? pActionType { get; set; } = nameof(EnumType.Add);
         private int pDocEntry { get; set; } = 0;
@@ -59,6 +60,8 @@ namespace HNOne.Web.Controllers
         public bool IsAllowPost { get; set; }
         public bool IsAllowDelete { get; set; }
         public bool IsAllowPut { get; set; }
+        public bool IsAllowApproval { get; set; }
+        public bool IsShowPromptDeny { get; set; }
         #endregion
 
         protected override async Task OnAfterRenderAsync(bool firstRender)
@@ -103,6 +106,20 @@ namespace HNOne.Web.Controllers
         }
 
         #region Private Functions
+
+        /// <summary>
+        /// kiểm tra quyền nút duyệt/từ chối & phải là ông duyệt
+        /// </summary>
+        /// <returns></returns>
+        private async Task checkPermissionApproval()
+        {
+            string menuId = await GetMenuId("phe-duyet");
+            List<string> lstKey = await CheckEventPermission(menuId);
+            IsAllowApproval = lstKey.FirstOrDefault(m => m == STRING_KEY_EVENT_APPROVAL) != null
+                && ContractDocument.employeeSignatureId == EmployeeId
+                && ContractDocument.statusCode == CommonConstants.STATUS_CODE_APPROVAL_PENDING;
+        }
+
         /// <summary>
         /// kiểm tra quyền nút
         /// </summary>
@@ -218,6 +235,9 @@ namespace HNOne.Web.Controllers
                     {
                         ListSalaryInfoConfig = JsonConvert.DeserializeObject<List<SalaryConfigurationModel>>(ContractDocument.jsonDetail);
                     }
+                    // Kiểm tra quyền duyệt
+                    IsAllowApproval = false;
+                    await checkPermissionApproval();
                 }
             }
             catch (Exception ex)
@@ -350,28 +370,91 @@ namespace HNOne.Web.Controllers
         }
 
         /// <summary>
-        /// kiểm tra dữ liệu trươc khi gửi phê duyệt
+        /// LẤY MÃ số hợp đồng
         /// </summary>
-        /// <param name="errorMessage"></param>
-        /// <param name="fieldName"></param>
-        private void validateForSaveApproval(ref string errorMessage, ref string fieldName)
-        {
-            if (ContractDocument.id < 1)
-            {
-                errorMessage = "Vui lòng lưu thông tin chứng từ trước khi gửi phê duyệt";
-                fieldName = "zzzz";
-                return;
-            }
-            if (ContractDocument.employeeSignatureId < 1)
-            {
-                errorMessage = string.Format(MessageConstants.MESSAGE_COMBOBOX_REQUIRE, "Người ký");
-                fieldName = nameof(ContractDocument.employeeSignatureCode);
-                return;
-            }
-        }
-
+        /// <returns></returns>
         private async Task<string?> getDocumentNo()
             => await _masterDataService.GetDocumentNo(UserId, Token, BranchId, GlobalContants.CONTRACT_APPENDIX_NO, "", ContractDocument.effectiveDate.FormatDateTimeSql());
+
+        /// <summary>
+        /// Lưu thông tin chứng từ
+        /// </summary>
+        /// <returns></returns>
+        private async Task<int> saveDocument(bool isShowToast = true)
+        {
+            try
+            {
+                string processKey = pActionType == nameof(EnumType.Add) ? ProcessConstants.POST_CONTRACT_APPENDIX : ProcessConstants.PUT_CONTRACT_APPENDIX;
+                int contractId = ListCboContract?.FirstOrDefault(m => m.code == ContractDocument.contractCode)?.id ?? -1;
+                calcTotalSalary();
+                ContractDocument.contractId = contractId;
+                ContractDocument.branchId = BranchId;
+                ContractDocument.userSign = UserId;
+                ContractDocument.userSign2 = UserId;
+                string json = JsonConvert.SerializeObject(ContractDocument);
+                string jsonDetail = string.Empty;
+                if (ContractDocument.isSalaryAdjustment) jsonDetail = JsonConvert.SerializeObject(ListSalaryInfoConfig);
+                int result = await _personnelService.UpdateContractAsync(processKey, UserId, Token, BranchId, json, jsonDetail, isShowToast: isShowToast);
+                return result;
+            }
+            catch { throw; }
+        }
+
+
+        /// <summary>
+        /// Lưu thông tin phê duyệt
+        /// </summary>
+        /// <param name="statusCode"></param>
+        /// <param name="messageConfirm"></param>
+        /// <returns></returns>
+        private async Task saveDataApproval(string statusCode)
+        {
+            try
+            {
+                await ShowLoading();
+                string approvalRemark = "";
+                if (statusCode == CommonConstants.STATUS_CODE_DENY
+                    || statusCode == CommonConstants.STATUS_CODE_CANCELED)
+                {
+                    // kiểm tra bắt nhập ghi chú phê duyệt
+                    approvalRemark = $"{ReasonDelete}";
+                }
+                List<ApprovalModel> lstApproval = new List<ApprovalModel>()
+                {
+                    new ApprovalModel()
+                    {
+                        id = -1,
+                        branchId = ContractDocument.branchId,
+                        docEntry = ContractDocument.id,
+                        statusCode = statusCode,
+                        objType = nameof(EnumObjType.ContractAppendices),
+                        approvalRemark = approvalRemark,
+                        remark = approvalRemark,
+                        employeeSignatureId = ContractDocument.employeeSignatureId,
+                        userSign2 = UserId,
+                        employeeId = EmployeeId,
+                        userSign = UserId
+                    }
+                };
+                string content = JsonConvert.SerializeObject(lstApproval);
+                var result = await _approvalService.UpdateApprovalAsync(ProcessConstants.PUT_APPROVAL, UserId, Token, content, approvalType: statusCode);
+                if (result)
+                {
+                    IsShowPromptDeny = false;
+                    await showVoucher();
+                }
+            }
+            catch (Exception ex)
+            {
+                _logger!.LogError(ex, "saveDataApproval");
+                ShowError(ex.Message);
+            }
+            finally
+            {
+                await ShowLoading(false);
+                await InvokeAsync(StateHasChanged);
+            }
+        }
         #endregion
 
         #region Protected Functions
@@ -497,22 +580,12 @@ namespace HNOne.Web.Controllers
                 isConfirm = await confirm.SetConfirm(MessageConstants.MESSAGE_TITLE, errorMessage);
                 if (!isConfirm) return;
                 await ShowLoading();
-                string processKey = pActionType == nameof(EnumType.Add) ? ProcessConstants.POST_CONTRACT_APPENDIX : ProcessConstants.PUT_CONTRACT_APPENDIX;
-                int contractId = ListCboContract?.FirstOrDefault(m => m.code == ContractDocument.contractCode)?.id ?? -1;
-                calcTotalSalary();
-                ContractDocument.contractId = contractId;
-                ContractDocument.branchId = BranchId;
-                ContractDocument.userSign = UserId;
-                ContractDocument.userSign2 = UserId;
-                string json = JsonConvert.SerializeObject(ContractDocument);
-                string jsonDetail = string.Empty;
-                if (ContractDocument.isSalaryAdjustment) jsonDetail = JsonConvert.SerializeObject(ListSalaryInfoConfig);
-                int result = await _personnelService.UpdateContractAsync(processKey, UserId, Token, BranchId, json, jsonDetail);
+                int result = await saveDocument();
                 if (result > 0)
                 {
                     pActionType = nameof(EnumType.Update);
                     pDocEntry = result;
-                    pContractId = contractId;
+                    pContractId = ContractDocument.contractId;
                     await showVoucher();
                 }
             }
@@ -646,7 +719,7 @@ namespace HNOne.Web.Controllers
                 string errorMessage = string.Empty;
                 string fieldName = string.Empty; // trả ra trường nào cần validate
                 bool isConfirm = true;
-                validateForSaveApproval(ref errorMessage, ref fieldName);
+                validateForSave(ref errorMessage, ref fieldName);
                 if (!string.IsNullOrEmpty(errorMessage))
                 {
                     ShowWarning(errorMessage);
@@ -658,18 +731,32 @@ namespace HNOne.Web.Controllers
                 isConfirm = await confirm.SetConfirm(MessageConstants.MESSAGE_TITLE, $"{errorMessage}");
                 if (!isConfirm) return;
                 await ShowLoading();
-                string processKey = ProcessConstants.POST_APPROVAL;
-                ApprovalModel approval = new ApprovalModel();
-                approval.docEntry = ContractDocument.id;
-                approval.objType = nameof(EnumObjType.ContractAppendices);
-                approval.branchId = BranchId;
-                approval.statusCode = CommonConstants.STATUS_CODE_APPROVAL_PENDING;
-                approval.userSign = UserId;
-                approval.employeeId = EmployeeId;
-                approval.employeeSignatureId = ContractDocument.employeeSignatureId;
-                string content = JsonConvert.SerializeObject(approval);
-                isConfirm = await _approvalService.UpdateApprovalAsync(processKey, UserId, Token, json: content);
-                if (isConfirm) await showVoucher();
+                int result = await saveDocument(isShowToast: false);
+                if (result > 0)
+                {
+                    pActionType = nameof(EnumType.Update);
+                    pDocEntry = result;
+                    pContractId = ContractDocument.contractId;
+                    // Gửi phê duyệt
+                    string processKey = ProcessConstants.POST_APPROVAL;
+                    ApprovalModel approval = new ApprovalModel();
+                    approval.docEntry = pDocEntry;
+                    approval.objType = nameof(EnumObjType.ContractAppendices);
+                    approval.branchId = BranchId;
+                    approval.statusCode = CommonConstants.STATUS_CODE_APPROVAL_PENDING;
+                    approval.userSign = UserId;
+                    approval.employeeId = EmployeeId;
+                    approval.employeeSignatureId = ContractDocument.employeeSignatureId;
+                    string content = JsonConvert.SerializeObject(approval);
+                    isConfirm = await _approvalService.UpdateApprovalAsync(processKey, UserId, Token, json: content);
+                    if (isConfirm)
+                    {
+                        await showVoucher();
+                        return;
+                    }
+                    await showVoucher();
+                }
+                
             }
             catch (Exception ex)
             {
@@ -828,6 +915,59 @@ namespace HNOne.Web.Controllers
                 await ShowLoading(false);
                 await InvokeAsync(StateHasChanged);
             }
+        }
+
+        /// <summary>
+        /// phê duyệt chứng từ
+        /// </summary>
+        /// <returns></returns>
+        protected async Task ApprovalHandler()
+        {
+            try
+            {
+                await checkPermissionApproval();
+                if (!IsAllowApproval)
+                {
+                    ShowInfo(MessageConstants.MESSAGE_NO_PERMISSION);
+                    return;
+                }
+                bool isConfirm = false;
+                isConfirm = await confirm.SetConfirm(MessageConstants.MESSAGE_TITLE, MessageConstants.MESSAGE_CONFIRM_APPROVAL_DOCUMENT);
+                if (!isConfirm) return;
+                await saveDataApproval(CommonConstants.STATUS_CODE_APPROVED);
+            }
+            catch { }
+
+        }
+
+        /// <summary>
+        /// từ chối chứng từ
+        /// </summary>
+        /// <returns></returns>
+        protected async Task RejectHandler(bool isAccept = false)
+        {
+            try
+            {
+                await checkPermissionApproval();
+                if (!IsAllowApproval)
+                {
+                    ShowInfo(MessageConstants.MESSAGE_NO_PERMISSION);
+                    return;
+                }
+                if (!isAccept)
+                {
+                    ReasonDelete = string.Empty;
+                    IsShowPromptDeny = true;
+                    return;
+                }
+                if (string.IsNullOrEmpty(ReasonDelete))
+                {
+                    ShowWarning(string.Format(MessageConstants.MESSAGE_STRING_REQUIRE, "Lý do từ chối"));
+                    return;
+                }
+                await saveDataApproval(CommonConstants.STATUS_CODE_DENY);
+            }
+            catch { }
         }
         #endregion
     }
