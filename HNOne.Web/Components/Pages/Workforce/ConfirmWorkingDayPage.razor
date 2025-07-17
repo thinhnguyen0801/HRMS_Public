@@ -9,6 +9,13 @@
             <DxToolbar ItemRenderStyleMode="@ToolbarRenderStyleMode.Contained">
                 <Items>
 
+                    <DxToolbarItem Text="Duyệt" BeginGroup="true" IconCssClass="@($"{IconClassConstants.ICON_APPROVAL}")" CssClass="w1FontSize"
+                                   Alignment="@ToolbarItemAlignment.Right" Click="@ApprovalHandler"
+                                   Visible="@(IsAllowApproval)" />
+                    <DxToolbarItem Text="Từ chối" BeginGroup="true" IconCssClass="@($"{IconClassConstants.ICON_REJECT}")" CssClass="w1FontSize"
+                                   Alignment="@ToolbarItemAlignment.Right" Click="@(() => RejectHandler())"
+                                   Visible="@(IsAllowApproval)" />
+
                     <DxToolbarItem Text="Lưu" BeginGroup="true" IconCssClass="@($"{IconClassConstants.ICON_UPDATE}")" CssClass="w1FontSize"
                                    Alignment="@ToolbarItemAlignment.Right" Click="@SaveDataHandler"
                                    Visible="@((pActionType == nameof(EnumType.Add) && IsAllowPost) || (pActionType != nameof(EnumType.Add) && IsAllowPut))" />
@@ -369,6 +376,14 @@
                 <DxGridDataColumn FieldName="@nameof(ShiftAssignmentModel.employeeCode)" Caption="Mã nhân viên" Width="110px" MinWidth="100" FixedPosition="@GridColumnFixedPosition.Left" />
                 <DxGridDataColumn FieldName="@nameof(ShiftAssignmentModel.shiftCode)" Caption="Ca làm việc" Width="90px" MinWidth="70" TextAlignment="@GridTextAlignment.Center" CaptionAlignment="@GridTextAlignment.Center" />
                 <DxGridDataColumn FieldName="@nameof(ShiftAssignmentModel.symbol)" Caption="Ký hiệu" Width="90px" MinWidth="70" TextAlignment="@GridTextAlignment.Center" CaptionAlignment="@GridTextAlignment.Center" />
+                <DxGridDataColumn FieldName="@nameof(ShiftAssignmentModel.voucherNo)" Caption="Chứng từ liên quan" Width="130px" MinWidth="120"
+                                  TextAlignment="@GridTextAlignment.Center" CaptionAlignment="@GridTextAlignment.Center">
+                    <CellDisplayTemplate>
+                        @{
+                            <a href="@($"{(context.DataItem as ShiftAssignmentModel)!.link}")">@context.Value</a>
+                        }
+                    </CellDisplayTemplate>
+                </DxGridDataColumn>
                 <DxGridDataColumn FieldName="@nameof(ShiftAssignmentModel.workingDate)" Caption="Ngày làm việc" Width="100px" MinWidth="90" DisplayFormat="@GlobalContants.FORMAT_DATE" TextAlignment="@GridTextAlignment.Center" CaptionAlignment="@GridTextAlignment.Center"  />
                 
                 <DxGridDataColumn FieldName="@nameof(ShiftAssignmentModel.startDate)" Caption="Giờ bắt đầu" Width="90px" MinWidth="80" DisplayFormat="@GlobalContants.FORMAT_TIME"
@@ -421,6 +436,20 @@
                         <div>Thực tế</div>
                     </HeaderCaptionTemplate>
                 </DxGridDataColumn>
+                <DxGridDataColumn FieldName="@nameof(ShiftAssignmentModel.startDateConfirmActual)" Caption="Giờ b/đ xác nhận" Width="90px" MinWidth="80" DisplayFormat="@GlobalContants.FORMAT_TIME"
+                                  TextAlignment="@GridTextAlignment.Center" CaptionAlignment="@GridTextAlignment.Center">
+                    <HeaderCaptionTemplate>
+                        <div>Giờ b/đ</div>
+                        <div>Xác nhận</div>
+                    </HeaderCaptionTemplate>
+                </DxGridDataColumn>
+                <DxGridDataColumn FieldName="@nameof(ShiftAssignmentModel.endDateConfirmActual)" Caption="Giờ k/t xác nhận" Width="90px" MinWidth="80" DisplayFormat="@GlobalContants.FORMAT_TIME"
+                                  TextAlignment="@GridTextAlignment.Center" CaptionAlignment="@GridTextAlignment.Center">
+                    <HeaderCaptionTemplate>
+                        <div>Giờ k/t</div>
+                        <div>Xác nhận</div>
+                    </HeaderCaptionTemplate>
+                </DxGridDataColumn>
                 <DxGridDataColumn FieldName="@nameof(ShiftAssignmentModel.startBreakTimeActual)" Caption="Giờ nghỉ b/đ thực tế" Width="100px" MinWidth="90" DisplayFormat="@GlobalContants.FORMAT_TIME"
                                   TextAlignment="@GridTextAlignment.Center" CaptionAlignment="@GridTextAlignment.Center" DataRowEditorVisible="false">
                     <HeaderCaptionTemplate>
@@ -467,6 +496,13 @@
 <W1Popup @bind-IsOpenModal="@IsShowPrompt" TextBtnAccept="Xác nhận"
          HeaderText="Xác nhận" Width="55%" HandleClickAccept="@(() => CancelDocumentHandler(isAccept: true))">
     <W1Label Value="Lý do hủy" Styles="width: 120px" IsRequired />
+    <div class="mt-1">
+        <DxMemo @bind-Text="@ReasonDelete" BindValueMode="@BindValueMode.OnInput" Rows="1" InputId="txtLyDoHuy" CssClass="w1FontSize" />
+    </div>
+</W1Popup>
+<W1Popup @bind-IsOpenModal="@IsShowPromptDeny" TextBtnAccept="Xác nhận"
+         HeaderText="Xác nhận" Width="55%" HandleClickAccept="@(() => RejectHandler(isAccept: true))">
+    <W1Label Value="Lý do từ chối" Styles="width: 120px" IsRequired />
     <div class="mt-1">
         <DxMemo @bind-Text="@ReasonDelete" BindValueMode="@BindValueMode.OnInput" Rows="1" InputId="txtLyDoHuy" CssClass="w1FontSize" />
     </div>

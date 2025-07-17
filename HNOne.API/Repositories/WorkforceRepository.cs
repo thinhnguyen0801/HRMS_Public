@@ -1820,8 +1820,25 @@ namespace HNOne.API.Repositories
             {
                 using (var connection = _dapperDbContext.CreateConnection())
                 {
-                    DateTime dateTimeNow = _dateTimeHelper.GetCurrentVietnamTime();
+                    // xuống store validate dữ liệu trước khi lưu
                     DynamicParameters parameters = new DynamicParameters();
+                    parameters.Add("@UserId", entity.UserSign, DbType.Int32);
+                    parameters.Add("@BranchId", entity.BranchId, DbType.Int32);
+                    parameters.Add("@EmployeeId", entity.EmployeeId, DbType.Int32);
+                    parameters.Add("@ProcessKey", ProcessConstants.POST_CONFIRM_WORKING_HOUR_REQUEST, DbType.String);
+                    parameters.Add("@JHeader", JsonConvert.SerializeObject(entity), DbType.String);
+                    parameters.Add("@JLine", JsonConvert.SerializeObject(lstEntity1), DbType.String);
+                    var resultCheck = await connection.QueryFirstOrDefaultAsync<ResponseModel>(StoreConstants.STORE_H1_CONFIRM_WORKING_DAY_VALIDATE_CHECK, parameters
+                    , commandTimeout: GlobalConstants.COMMAND_TIMEOUT, commandType: CommandType.StoredProcedure);
+                    if (resultCheck == null || resultCheck.status != StatusCodes.Status200OK)
+                    {
+                        response.status = resultCheck?.status ?? StatusCodes.Status400BadRequest;
+                        response.message = resultCheck?.message ?? MessageConstants.MESSAGE_IT_SUPPORT;
+                        return response;
+                    }
+                    //đánh mã chứng từ
+                    DateTime dateTimeNow = _dateTimeHelper.GetCurrentVietnamTime();
+                    parameters = new DynamicParameters();
                     parameters.Add("@Type", GlobalConstants.TABLE_CONFIRM_WORKING_DAY, DbType.String);
                     parameters.Add("@BranchId", entity.BranchId, DbType.Int32);
                     string commandText = @$"select {StoreConstants.FUNC_GET_VOUCHER}(@Type, @BranchId, '', '', '')";
@@ -1902,67 +1919,87 @@ namespace HNOne.API.Repositories
             ResponseModel response = new ResponseModel();
             try
             {
-                var data = await _dbContext.ConfirmWorkingDays.FirstOrDefaultAsync(m => m.Id == entity.Id);
-                if (data == null)
+                using (var connection = _dapperDbContext.CreateConnection())
                 {
-                    response.status = StatusCodes.Status404NotFound;
-                    response.message = MessageConstants.MESSAGE_NOT_FOUNT;
+                    var data = await _dbContext.ConfirmWorkingDays.FirstOrDefaultAsync(m => m.Id == entity.Id);
+                    if (data == null)
+                    {
+                        response.status = StatusCodes.Status404NotFound;
+                        response.message = MessageConstants.MESSAGE_NOT_FOUNT;
+                        return response;
+                    }
+                    if (data.DateTracking != entity.DateTracking)
+                    {
+                        response.status = StatusCodes.Status409Conflict;
+                        response.message = MessageConstants.MESSAGE_DATA_CHECKING_MODIFIED;
+                        return response;
+                    }
+                    // xuống store validate dữ liệu trước khi lưu
+                    DynamicParameters parameters = new DynamicParameters();
+                    parameters.Add("@UserId", entity.UserSign, DbType.Int32);
+                    parameters.Add("@BranchId", entity.BranchId, DbType.Int32);
+                    parameters.Add("@EmployeeId", entity.EmployeeId, DbType.Int32);
+                    parameters.Add("@ProcessKey", ProcessConstants.POST_CONFIRM_WORKING_HOUR_REQUEST, DbType.String);
+                    parameters.Add("@JHeader", JsonConvert.SerializeObject(entity), DbType.String);
+                    parameters.Add("@JLine", JsonConvert.SerializeObject(lstEntity1), DbType.String);
+                    var resultCheck = await connection.QueryFirstOrDefaultAsync<ResponseModel>(StoreConstants.STORE_H1_CONFIRM_WORKING_DAY_VALIDATE_CHECK, parameters
+                    , commandTimeout: GlobalConstants.COMMAND_TIMEOUT, commandType: CommandType.StoredProcedure);
+                    if (resultCheck == null || resultCheck.status != StatusCodes.Status200OK)
+                    {
+                        response.status = resultCheck?.status ?? StatusCodes.Status400BadRequest;
+                        response.message = resultCheck?.message ?? MessageConstants.MESSAGE_IT_SUPPORT;
+                        return response;
+                    }
+                    DateTime dateTimeNow = _dateTimeHelper.GetCurrentVietnamTime();
+                    data.EmployeeId = entity.EmployeeId;
+                    data.EmployeeSignatureId = entity.EmployeeSignatureId;
+                    data.WorkingDate = entity.WorkingDate;
+                    data.DepartmentId = entity.DepartmentId;
+                    data.Remark = entity.Remark;
+                    data.Remark = entity.Remark;
+                    data.DateTracking = dateTimeNow;
+                    data.UpdateDate = dateTimeNow;
+                    data.UserSign2 = entity.UserSign2;
+                    await _dbContext.Database.BeginTransactionAsync();
+                    isTrans = true;
+                    _dbContext.ConfirmWorkingDays.Attach(data);
+                    _dbContext.Entry(data).State = EntityState.Modified;
+                    // thêm chi tiết đề nghị nghỉ phép
+                    // bỏ dữ liệu củ đi
+                    var lstLeaveRequest1s = await _dbContext.ConfirmWorkingDay1s.Where(m => m.ConfirmWorkingDayId == data.Id).ToListAsync();
+                    if (!lstLeaveRequest1s.IsNullOrEmpty()) _dbContext.ConfirmWorkingDay1s.RemoveRange(lstLeaveRequest1s);
+                    foreach (var item in lstEntity1)
+                    {
+                        ConfirmWorkingDay1s entity1 = new ConfirmWorkingDay1s();
+                        entity1.ConfirmWorkingDayId = entity.Id;
+                        entity1.EmployeeId = entity.EmployeeId;
+                        entity1.WorkingDate = item.WorkingDate;
+                        entity1.FromTime = item.FromTime;
+                        entity1.ToTime = item.ToTime;
+                        entity1.Remark = item.Remark;
+                        entity1.ShiftCode = item.ShiftCode;
+                        entity1.StartTime = item.StartTime;
+                        entity1.EndTime = item.EndTime;
+                        entity1.StartBreakTime = item.StartBreakTime;
+                        entity1.EndBreakTime = item.EndBreakTime;
+                        entity1.TotalWorkingHours = item.TotalWorkingHours;
+                        entity1.StartTimeActual = item.StartTimeActual;
+                        entity1.EndTimeActual = item.EndTimeActual;
+                        entity1.StartBreakTimeActual = item.StartBreakTimeActual;
+                        entity1.EndBreakTimeActual = item.EndBreakTimeActual;
+                        entity1.TotalWorkingHoursActual = item.TotalWorkingHoursActual;
+                        entity1.TotalMissingHours = item.TotalMissingHours;
+                        entity1.DateTracking = dateTimeNow;
+                        entity1.UserSign = entity.UserSign;
+                        await _dbContext.ConfirmWorkingDay1s.AddAsync(entity1);
+                    }
+                    await _dbContext.SaveChangesAsync();
+                    await _dbContext.Database.CommitTransactionAsync();
+                    response.message = MessageConstants.MESSAGE_UPDATE_SUCCESS;
+                    response.data = data.Id;
                     return response;
-                }
-                if (data.DateTracking != entity.DateTracking)
-                {
-                    response.status = StatusCodes.Status409Conflict;
-                    response.message = MessageConstants.MESSAGE_DATA_CHECKING_MODIFIED;
-                    return response;
-                }
-                DateTime dateTimeNow = _dateTimeHelper.GetCurrentVietnamTime();
-                data.EmployeeId = entity.EmployeeId;
-                data.EmployeeSignatureId = entity.EmployeeSignatureId;
-                data.WorkingDate = entity.WorkingDate;
-                data.DepartmentId = entity.DepartmentId;
-                data.Remark = entity.Remark;
-                data.Remark = entity.Remark;
-                data.DateTracking = dateTimeNow;
-                data.UpdateDate = dateTimeNow;
-                data.UserSign2 = entity.UserSign2;
-                await _dbContext.Database.BeginTransactionAsync();
-                isTrans = true;
-                _dbContext.ConfirmWorkingDays.Attach(data);
-                _dbContext.Entry(data).State = EntityState.Modified;
-                // thêm chi tiết đề nghị nghỉ phép
-                // bỏ dữ liệu củ đi
-                var lstLeaveRequest1s = await _dbContext.ConfirmWorkingDay1s.Where(m => m.ConfirmWorkingDayId == data.Id).ToListAsync();
-                if (!lstLeaveRequest1s.IsNullOrEmpty()) _dbContext.ConfirmWorkingDay1s.RemoveRange(lstLeaveRequest1s);
-                foreach (var item in lstEntity1)
-                {
-                    ConfirmWorkingDay1s entity1 = new ConfirmWorkingDay1s();
-                    entity1.ConfirmWorkingDayId = entity.Id;
-                    entity1.EmployeeId = entity.EmployeeId;
-                    entity1.WorkingDate = item.WorkingDate;
-                    entity1.FromTime = item.FromTime;
-                    entity1.ToTime = item.ToTime;
-                    entity1.Remark = item.Remark;
-                    entity1.ShiftCode = item.ShiftCode;
-                    entity1.StartTime = item.StartTime;
-                    entity1.EndTime = item.EndTime;
-                    entity1.StartBreakTime = item.StartBreakTime;
-                    entity1.EndBreakTime = item.EndBreakTime;
-                    entity1.TotalWorkingHours = item.TotalWorkingHours;
-                    entity1.StartTimeActual = item.StartTimeActual;
-                    entity1.EndTimeActual = item.EndTimeActual;
-                    entity1.StartBreakTimeActual = item.StartBreakTimeActual;
-                    entity1.EndBreakTimeActual = item.EndBreakTimeActual;
-                    entity1.TotalWorkingHoursActual = item.TotalWorkingHoursActual;
-                    entity1.TotalMissingHours = item.TotalMissingHours;
-                    entity1.DateTracking = dateTimeNow;
-                    entity1.UserSign = entity.UserSign;
-                    await _dbContext.ConfirmWorkingDay1s.AddAsync(entity1);
-                }
-                await _dbContext.SaveChangesAsync();
-                await _dbContext.Database.CommitTransactionAsync();
-                response.message = MessageConstants.MESSAGE_UPDATE_SUCCESS;
-                response.data = data.Id;
-                return response;
+                }    
+                
             }
             catch (Exception)
             {
