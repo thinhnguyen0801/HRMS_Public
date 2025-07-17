@@ -24,6 +24,7 @@ namespace HNOne.Web.Controllers
         const string STRING_KEY_EVENT_POST = "OVERTIME_REQUEST_CONTROLLER_POST";
         const string STRING_KEY_EVENT_PUT = "OVERTIME_REQUEST_CONTROLLER_PUT";
         const string STRING_KEY_EVENT_DELETE = "OVERTIME_REQUEST_CONTROLLER_DELETE";
+        const string STRING_KEY_EVENT_APPROVAL = "APPROVAL_CONTROLLER_PUT";
         #region Properties
         public string? pActionType { get; set; } = nameof(EnumType.Add);
         private int pDocEntry { get; set; } = 0;
@@ -53,6 +54,8 @@ namespace HNOne.Web.Controllers
         public bool IsAllowPost { get; set; }
         public bool IsAllowDelete { get; set; }
         public bool IsAllowPut { get; set; }
+        public bool IsAllowApproval { get; set; }
+        public bool IsShowPromptDeny { get; set; }
         #endregion
 
         protected override async Task OnAfterRenderAsync(bool firstRender)
@@ -98,6 +101,20 @@ namespace HNOne.Web.Controllers
         }
 
         #region Private Functions
+
+        /// <summary>
+        /// kiểm tra quyền nút duyệt/từ chối & phải là ông duyệt
+        /// </summary>
+        /// <returns></returns>
+        private async Task checkPermissionApproval()
+        {
+            string menuId = await GetMenuId("phe-duyet");
+            List<string> lstKey = await CheckEventPermission(menuId);
+            IsAllowApproval = lstKey.FirstOrDefault(m => m == STRING_KEY_EVENT_APPROVAL) != null
+                && OvertimeRequestDocument.employeeSignatureId == EmployeeId
+                && OvertimeRequestDocument.statusCode == CommonConstants.STATUS_CODE_APPROVAL_PENDING;
+        }
+
         /// <summary>
         /// kiểm tra quyền nút
         /// </summary>
@@ -182,6 +199,9 @@ namespace HNOne.Web.Controllers
                     {
                         ListOvertimeDays = JsonConvert.DeserializeObject<List<OvertimeRequest1Model>>(OvertimeRequestDocument.jsonDetail);
                     }
+                    // Kiểm tra quyền duyệt
+                    IsAllowApproval = false;
+                    await checkPermissionApproval();
                 }
             }
             catch (Exception ex)
@@ -205,36 +225,6 @@ namespace HNOne.Web.Controllers
         /// <param name="fieldName"></param>
         private void validateForSave(ref string errorMessage, ref string fieldName)
         {
-            if (ListOvertimeDays.IsNullOrEmpty())
-            {
-                errorMessage = "Không tìm thấy danh sách tăng ca. Vui lòng làm mới danh sách tăng ca!!!";
-                fieldName = "gridInfo";
-                return;
-            }
-            // kiểm tra trong lưới dữ liệu hợp lệ chưa
-            OvertimeRequest1Model? itemCheck = ListOvertimeDays!.FirstOrDefault(m => m.startTime >= m.endTime);
-            if(itemCheck != null)
-            {
-                errorMessage = $"Ngày [{itemCheck.overtimeDate.ToString(GlobalContants.FORMAT_DATE)}] {MessageConstants.MESSAGE_FROM_TIME_TO_TIME_INVALID}";
-                fieldName = "gridInfo";
-                return;
-            }
-            itemCheck = ListOvertimeDays!.FirstOrDefault(m => m.startBreakTime!.Value < m.startTime || m.endBreakTime!.Value > m.endTime);
-            if (itemCheck != null)
-            {
-                errorMessage = $"Ngày [{itemCheck.overtimeDate.ToString(GlobalContants.FORMAT_DATE)}] " +
-                    $"Thời gian nghỉ phải nằm trong khoản [{itemCheck.startTime.ToString(GlobalContants.FORMAT_TIME)}] & [{itemCheck.endTime.ToString(GlobalContants.FORMAT_TIME)}]";
-                fieldName = "gridInfo";
-                return;
-            }
-            // kiểm tra trong lưới dữ liệu hợp lệ chưa
-            itemCheck = ListOvertimeDays!.FirstOrDefault(m => m.endBreakTime < m.startBreakTime);
-            if (itemCheck != null)
-            {
-                errorMessage = $"Ngày [{itemCheck.overtimeDate.ToString(GlobalContants.FORMAT_DATE)}] Giờ nghỉ KT không hợp lệ. [Giờ nghỉ BĐ] phải nhỏ hơn [Giờ nghỉ KT]";
-                fieldName = "gridInfo";
-                return;
-            }
             if (OvertimeRequestDocument.employeeId < 1)
             {
                 errorMessage = string.Format(MessageConstants.MESSAGE_COMBOBOX_REQUIRE, "Nhân viên");
@@ -259,28 +249,57 @@ namespace HNOne.Web.Controllers
                 fieldName = "requestType";
                 return;
             }
-            if (OvertimeRequestDocument.fromDate == null)
-            {
-                errorMessage = string.Format(MessageConstants.MESSAGE_COMBOBOX_REQUIRE, "Từ ngày");
-                fieldName = "startDate";
-                return;
-            }
-            if (OvertimeRequestDocument.toDate == null)
-            {
-                errorMessage = string.Format(MessageConstants.MESSAGE_COMBOBOX_REQUIRE, "Đến ngày");
-                fieldName = "endDate";
-                return;
-            }
-            if (OvertimeRequestDocument.toDate.Value.Date < OvertimeRequestDocument.fromDate.Value.Date)
-            {
-                errorMessage = MessageConstants.MESSAGE_FROM_DATE_TO_DATE_INVALID;
-                fieldName = "startDate";
-                return;
-            }
+            validateForCreateOvertimeDate(ref errorMessage, ref fieldName);
+            if (!string.IsNullOrEmpty(errorMessage)) return;
             if (string.IsNullOrWhiteSpace(OvertimeRequestDocument.reason))
             {
                 errorMessage = string.Format(MessageConstants.MESSAGE_STRING_REQUIRE, "Lý do tăng ca");
                 fieldName = nameof(OvertimeRequestDocument.reason);
+                return;
+            }
+            if (ListOvertimeDays.IsNullOrEmpty())
+            {
+                errorMessage = "Không tìm thấy danh sách tăng ca. Vui lòng làm mới danh sách tăng ca!!!";
+                fieldName = "gridInfo";
+                return;
+            }
+            // kiểm tra dữ liệu bảng công đã có thông tin chưa
+            OvertimeRequest1Model? itemCheck = ListOvertimeDays!.FirstOrDefault(m => string.IsNullOrEmpty(m.shiftCode1));
+            if (itemCheck != null)
+            {
+                errorMessage = $"Vui lòng liên hệ quản trị viên phát sinh dữ liệu công làm việc tháng {itemCheck.overtimeDate.Month} năm {itemCheck.overtimeDate.Year}";
+                fieldName = "gridInfo";
+                return;
+            }
+            itemCheck = ListOvertimeDays!.FirstOrDefault(m => m.startTime >= m.endTime);
+            if (itemCheck != null)
+            {
+                errorMessage = $"Ngày [{itemCheck.overtimeDate.ToString(GlobalContants.FORMAT_DATE)}] {MessageConstants.MESSAGE_FROM_TIME_TO_TIME_INVALID}";
+                fieldName = "gridInfo";
+                return;
+            }
+            // Kiểm tra nhập Từ giờ và đến giờ phải ở ngoài ca làm việc mặc định loại trừ ngày nghỉ
+            // Giao nhau xảy ra nếu khoảng tăng ca cắt vào khoảng ca làm việc
+            itemCheck = ListOvertimeDays!.FirstOrDefault(m => !m.isDayOff && (m.startTime < m.endDate1 && m.endTime > m.startDate1));
+            if (itemCheck != null)
+            {
+                errorMessage = $"Ngày [{itemCheck.overtimeDate.ToString(GlobalContants.FORMAT_DATE)}] Từ giờ & Đến giờ không được phép nằm trong ca làm việc mặc định";
+                fieldName = "gridInfo";
+                return;
+            }    
+            itemCheck = ListOvertimeDays!.FirstOrDefault(m => m.startBreakTime!.Value < m.startTime || m.endBreakTime!.Value > m.endTime);
+            if (itemCheck != null)
+            {
+                errorMessage = $"Ngày [{itemCheck.overtimeDate.ToString(GlobalContants.FORMAT_DATE)}] " +
+                    $"Thời gian nghỉ phải nằm trong khoản [{itemCheck.startTime.ToString(GlobalContants.FORMAT_TIME)}] & [{itemCheck.endTime.ToString(GlobalContants.FORMAT_TIME)}]";
+                fieldName = "gridInfo";
+                return;
+            }
+            itemCheck = ListOvertimeDays!.FirstOrDefault(m => m.endBreakTime < m.startBreakTime);
+            if (itemCheck != null)
+            {
+                errorMessage = $"Ngày [{itemCheck.overtimeDate.ToString(GlobalContants.FORMAT_DATE)}] Giờ nghỉ KT không hợp lệ. [Giờ nghỉ BĐ] phải nhỏ hơn [Giờ nghỉ KT]";
+                fieldName = "gridInfo";
                 return;
             }
         }
@@ -310,31 +329,10 @@ namespace HNOne.Web.Controllers
                 fieldName = "startDate";
                 return;
             }
-            //if (string.IsNullOrEmpty(OvertimeRequestDocument.shiftCode))
-            //{
-            //    errorMessage = string.Format(MessageConstants.MESSAGE_COMBOBOX_REQUIRE, "Ca làm việc");
-            //    fieldName = "shiftCode";
-            //    return;
-            //}
-        }
-
-        /// <summary>
-        /// kiểm tra dữ liệu trươc khi gửi phê duyệt
-        /// </summary>
-        /// <param name="errorMessage"></param>
-        /// <param name="fieldName"></param>
-        private void validateForSaveApproval(ref string errorMessage, ref string fieldName)
-        {
-            if (OvertimeRequestDocument.id < 1)
+            if (OvertimeRequestDocument.fromDate.Value.Year != OvertimeRequestDocument.toDate.Value.Year)
             {
-                errorMessage = "Vui lòng lưu thông tin chứng từ trước khi gửi phê duyệt";
-                fieldName = "zzzz";
-                return;
-            }
-            if (OvertimeRequestDocument.employeeSignatureId < 1)
-            {
-                errorMessage = string.Format(MessageConstants.MESSAGE_COMBOBOX_REQUIRE, "Người ký");
-                fieldName = nameof(OvertimeRequestDocument.employeeSignatureId);
+                errorMessage = "Không được đăng ký nghỉ trong giờ ở 2 năm khác nhau";
+                fieldName = "endDate";
                 return;
             }
         }
@@ -371,6 +369,7 @@ namespace HNOne.Web.Controllers
             request.userId = UserId;
             request.token = Token;
             request.branchId = BranchId;
+            request.employeeId = EmployeeId;
             request.opt = OvertimeRequestDocument.fromDate!.FormatDateTimeSql();
             request.opt1 = OvertimeRequestDocument.toDate!.FormatDateTimeSql();
             request.opt2 = OvertimeRequestDocument.shiftCode;
@@ -378,6 +377,82 @@ namespace HNOne.Web.Controllers
             var result = await _workforceService.GetMasterDataAsync<OvertimeRequest1Model>(request, isShowToast: true);
             ListOvertimeDays = result;
             calcTotalWorkingHour();
+        }
+
+        /// <summary>
+        /// Lưu thông tin chứng từ
+        /// </summary>
+        /// <returns></returns>
+        private async Task<int> saveDocument(bool isShowToast = true)
+        {
+            try
+            {
+                calcTotalWorkingHour();
+                string processKey = pActionType == nameof(EnumType.Add) ? ProcessConstants.POST_OVERTIME_REQUEST : ProcessConstants.PUT_OVERTIME_REQUEST;
+                OvertimeRequestDocument.branchId = BranchId;
+                OvertimeRequestDocument.userSign = UserId;
+                OvertimeRequestDocument.userSign2 = UserId;
+                string json = JsonConvert.SerializeObject(OvertimeRequestDocument);
+                string jsonDetail = JsonConvert.SerializeObject(ListOvertimeDays);
+                int result = await _workforceService.UpdateLeaveRequestAsync(processKey, UserId, Token, BranchId, json, jsonDetail, isShowToast: isShowToast);
+                return result;
+            }
+            catch { throw; }
+        }
+
+        /// <summary>
+        /// Lưu thông tin phê duyệt
+        /// </summary>
+        /// <param name="statusCode"></param>
+        /// <param name="messageConfirm"></param>
+        /// <returns></returns>
+        private async Task saveDataApproval(string statusCode)
+        {
+            try
+            {
+                await ShowLoading();
+                string approvalRemark = "";
+                if (statusCode == CommonConstants.STATUS_CODE_DENY
+                    || statusCode == CommonConstants.STATUS_CODE_CANCELED)
+                {
+                    // kiểm tra bắt nhập ghi chú phê duyệt
+                    approvalRemark = $"{ReasonDelete}";
+                }
+                List<ApprovalModel> lstApproval = new List<ApprovalModel>()
+                {
+                    new ApprovalModel()
+                    {
+                        id = -1,
+                        branchId = OvertimeRequestDocument.branchId,
+                        docEntry = OvertimeRequestDocument.id,
+                        statusCode = statusCode,
+                        objType = nameof(EnumObjType.OvertimeRequests),
+                        approvalRemark = approvalRemark,
+                        remark = approvalRemark,
+                        employeeSignatureId = OvertimeRequestDocument.employeeSignatureId,
+                        userSign2 = UserId,
+                        employeeId = EmployeeId,
+                        userSign = UserId
+                    }
+                };
+                string content = JsonConvert.SerializeObject(lstApproval);
+                var result = await _approvalService.UpdateApprovalAsync(ProcessConstants.PUT_APPROVAL, UserId, Token, content, approvalType: statusCode);
+                if (result)
+                {
+                    IsShowPromptDeny = false;
+                    await showVoucher();
+                }
+            }
+            catch (Exception ex)
+            {
+                _logger!.LogError(ex, "saveDataApproval");
+                ShowError(ex.Message);
+            }
+            finally
+            {
+                await ShowLoading(false);
+                await InvokeAsync(StateHasChanged);
+            }
         }
         #endregion
 
@@ -489,14 +564,7 @@ namespace HNOne.Web.Controllers
                 isConfirm = await confirm.SetConfirm(MessageConstants.MESSAGE_TITLE, errorMessage);
                 if (!isConfirm) return;
                 await ShowLoading();
-                calcTotalWorkingHour();
-                string processKey = pActionType == nameof(EnumType.Add) ? ProcessConstants.POST_OVERTIME_REQUEST : ProcessConstants.PUT_OVERTIME_REQUEST;
-                OvertimeRequestDocument.branchId = BranchId;
-                OvertimeRequestDocument.userSign = UserId;
-                OvertimeRequestDocument.userSign2 = UserId;
-                string json = JsonConvert.SerializeObject(OvertimeRequestDocument);
-                string jsonDetail = JsonConvert.SerializeObject(ListOvertimeDays);
-                int result = await _workforceService.UpdateLeaveRequestAsync(processKey, UserId, Token, BranchId, json, jsonDetail);
+                int result = await saveDocument();
                 if (result > 0)
                 {
                     pActionType = nameof(EnumType.Update);
@@ -533,30 +601,48 @@ namespace HNOne.Web.Controllers
                 string errorMessage = string.Empty;
                 string fieldName = string.Empty; // trả ra trường nào cần validate
                 bool isConfirm = true;
-                validateForSaveApproval(ref errorMessage, ref fieldName);
+                validateForSave(ref errorMessage, ref fieldName);
                 if (!string.IsNullOrEmpty(errorMessage))
                 {
                     ShowWarning(errorMessage);
                     await _jsRuntime.InvokeVoidAsync("focusInput", fieldName);
                     return;
                 }
+                // Nếu là tạo với & kiểm tra lập phiếu trễ
+                if (pActionType == nameof(EnumType.Add))
+                {
+                    var checkOldDate = ListOvertimeDays!.FirstOrDefault(m => m.overtimeDate < DateTime.Now.Date && m.isDayOff == false);
+                    if (checkOldDate != null) errorMessage = MessageConstants.MESSAGE_CONFIRM_ADD_OLD_DAY;
+                }
+                errorMessage += string.Format(MessageConstants.MESSAGE_CONFIRM_SEND_APPROVAL_FORMAT, $"đến nhân viên {OvertimeRequestDocument.employeeSignatureName}");
                 await Task.Yield();
-                errorMessage = string.Format(MessageConstants.MESSAGE_CONFIRM_SEND_APPROVAL_FORMAT, $"đến nhân viên {OvertimeRequestDocument.employeeSignatureName}");
                 isConfirm = await confirm.SetConfirm(MessageConstants.MESSAGE_TITLE, $"{errorMessage}");
                 if (!isConfirm) return;
                 await ShowLoading();
-                string processKey = ProcessConstants.POST_APPROVAL;
-                ApprovalModel approval = new ApprovalModel();
-                approval.docEntry = OvertimeRequestDocument.id;
-                approval.objType = nameof(EnumObjType.OvertimeRequests);
-                approval.branchId = BranchId;
-                approval.statusCode = CommonConstants.STATUS_CODE_APPROVAL_PENDING;
-                approval.userSign = UserId;
-                approval.employeeId = EmployeeId;
-                approval.employeeSignatureId = OvertimeRequestDocument.employeeSignatureId;
-                string content = JsonConvert.SerializeObject(approval);
-                isConfirm = await _approvalService.UpdateApprovalAsync(processKey, UserId, Token, json: content);
-                if (isConfirm) await showVoucher();
+                int result = await saveDocument(isShowToast: false);
+                if(result > 0)
+                {
+                    pActionType = nameof(EnumType.Update);
+                    pDocEntry = result;
+                    string processKey = ProcessConstants.POST_APPROVAL;
+                    ApprovalModel approval = new ApprovalModel();
+                    approval.docEntry = pDocEntry;
+                    approval.objType = nameof(EnumObjType.OvertimeRequests);
+                    approval.branchId = BranchId;
+                    approval.statusCode = CommonConstants.STATUS_CODE_APPROVAL_PENDING;
+                    approval.userSign = UserId;
+                    approval.employeeId = EmployeeId;
+                    approval.employeeSignatureId = OvertimeRequestDocument.employeeSignatureId;
+                    string content = JsonConvert.SerializeObject(approval);
+                    isConfirm = await _approvalService.UpdateApprovalAsync(processKey, UserId, Token, json: content);
+                    if (isConfirm)
+                    {
+                        await showVoucher();
+                        return;
+                    }
+                    await showVoucher();
+                }
+                
             }
             catch (Exception ex)
             {
@@ -711,7 +797,7 @@ namespace HNOne.Web.Controllers
                     { "pDocEntry", $"{-1}" },
                 };
                 string key = _encryptHelper.Encrypt(JsonConvert.SerializeObject(pParams)); // mã hóa key
-                _navigationManager.NavigateTo($"/dang-ky-doi-ca?key={key}");
+                _navigationManager.NavigateTo($"/de-nghi-lam-them?key={key}");
                 OvertimeRequestDocument = new OvertimeRequestModel();
                 ListOvertimeDays = new List<OvertimeRequest1Model>();
                 pActionType = nameof(EnumType.Add);
@@ -790,6 +876,59 @@ namespace HNOne.Web.Controllers
                 await ShowLoading(false);
                 await InvokeAsync(StateHasChanged);
             }
+        }
+
+        /// <summary>
+        /// phê duyệt chứng từ
+        /// </summary>
+        /// <returns></returns>
+        protected async Task ApprovalHandler()
+        {
+            try
+            {
+                await checkPermissionApproval();
+                if (!IsAllowApproval)
+                {
+                    ShowInfo(MessageConstants.MESSAGE_NO_PERMISSION);
+                    return;
+                }
+                bool isConfirm = false;
+                isConfirm = await confirm.SetConfirm(MessageConstants.MESSAGE_TITLE, MessageConstants.MESSAGE_CONFIRM_APPROVAL_DOCUMENT);
+                if (!isConfirm) return;
+                await saveDataApproval(CommonConstants.STATUS_CODE_APPROVED);
+            }
+            catch { }
+
+        }
+
+        /// <summary>
+        /// từ chối chứng từ
+        /// </summary>
+        /// <returns></returns>
+        protected async Task RejectHandler(bool isAccept = false)
+        {
+            try
+            {
+                await checkPermissionApproval();
+                if (!IsAllowApproval)
+                {
+                    ShowInfo(MessageConstants.MESSAGE_NO_PERMISSION);
+                    return;
+                }
+                if (!isAccept)
+                {
+                    ReasonDelete = string.Empty;
+                    IsShowPromptDeny = true;
+                    return;
+                }
+                if (string.IsNullOrEmpty(ReasonDelete))
+                {
+                    ShowWarning(string.Format(MessageConstants.MESSAGE_STRING_REQUIRE, "Lý do từ chối"));
+                    return;
+                }
+                await saveDataApproval(CommonConstants.STATUS_CODE_DENY);
+            }
+            catch { }
         }
         #endregion
 

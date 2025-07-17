@@ -47,5 +47,14 @@ namespace HNOne.Model.Models
         public bool isDayOff { get; set; } // là ngày nghỉ
         public int holidayId { get; set; } // Rơi vô kì nghỉ lễ nào
         public double totalWorkingHours { get; set; } // tổng số giờ làm việc
+
+        #region Thông tin ca làm việc mặc định
+        public string? shiftCode1 { get; set; } // ca làm việc lấy từ bảng enum
+        public string? shiftName1 { get; set; } // ca làm việc lấy từ bảng enum
+        public DateTime? startDate1 { get; set; } // thời gian bắt đầu
+        public DateTime? endDate1 { get; set; } // thời gian kết thúc
+        public DateTime? startBreakTime1 { get; set; } // thời gian nghỉ bắt đầu
+        public DateTime? endBreakTime1 { get; set; } // thời gian nghỉ kết thúc
+        #endregion
     }
 }

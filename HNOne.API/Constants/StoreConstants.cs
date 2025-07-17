@@ -41,5 +41,6 @@
         public const string STORE_H1_USER_SELECT = "[dbo].[H1_USER_SELECT]";
         public const string STORE_H1_RPT_PAYROLL_SUMMARY_SELECT = "[dbo].[H1_RPT_PAYROLL_SUMMARY_SELECT]";
         public const string STORE_H1_LEAVE_REQUEST_VALIDATE_CHECK = "[dbo].[H1_LEAVE_REQUEST_VALIDATE_CHECK]";
+        public const string STORE_H1_OVERTIME_REQUEST_VALIDATE_CHECK = "[dbo].[H1_OVERTIME_REQUEST_VALIDATE_CHECK]";
     }
 }

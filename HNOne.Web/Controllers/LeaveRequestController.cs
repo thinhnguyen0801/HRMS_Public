@@ -396,8 +396,10 @@ namespace HNOne.Web.Controllers
                 if (item.isAfternoonBreak && item.isMorningBreak)
                 {
                     totalLeaveDays += 1;
+                    item.totalLeaveDays = 1;
                     continue;
-                }    
+                }
+                item.totalLeaveDays = 0.5;
                 totalLeaveDays += 0.5;
             }
             TotalLeaveDays = totalLeaveDays;

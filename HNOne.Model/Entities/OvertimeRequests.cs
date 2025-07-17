@@ -60,6 +60,12 @@ namespace HNOne.Model.Entities
         public string? Symbol { get; set; } // ký hiệu
         public int HolidayId { get; set; } // Rơi vô kì nghỉ lễ nào bảng HolidayCatagories
         public double TotalWorkingHours { get; set; } // tổng số giờ làm việc
+        [MaxLength(50)]
+        public string? ShiftCode1 { get; set; } // ca làm việc
+        public DateTime? StartDate1 { get; set; } // giờ nghỉ bắt đầy
+        public DateTime? EndDate1 { get; set; } // Giờ nghỉ kết thúc
+        public DateTime? StartBreakTime1 { get; set; } // Giờ nghỉ kết thúc
+        public DateTime? EndBreakTime1 { get; set; } // Giờ nghỉ kết thúc
         public DateTime? DateTracking { get; set; }
         public int? UserSign { get; set; }
     }
