@@ -26,6 +26,7 @@
         public const string POST_EMPLOYEE = "post-employee";
         public const string PUT_EMPLOYEE = "put-employee";
         public const string PUT_EMPLOYEE_INFO = "put-employee-info";
+        public const string GET_EMPLOYEE_SALARY_HISTORY = "get-employee-salary-history";
         public const string GET_ENUM = "get-enum";
         public const string POST_ENUM_CATA = "post-enum-cata";
         public const string PUT_ENUM_CATA = "put-enum-cata";
@@ -182,6 +183,7 @@
         public const string GET_COMBO_TYPE_SALARY_ADJUSTMENT_BY_CONTRACT = "SALARY_ADJUSTMENT_BY_CONTRACT";
         public const string GET_COMBO_TYPE_NOTIFICATION_BY_EMPLOYEE_MAIN = "NOTIFICATION_BY_EMPLOYEE_MAIN";
         public const string GET_COMBO_TYPE_NOTIFICATION_BY_EMPLOYEE = "NOTIFICATION_BY_EMPLOYEE";
+        public const string GET_COMBO_TYPE_MAX_CONTRACT_NUMBER_BY_EMPLOYEE = "MAX_CONTRACT_NUMBER_BY_EMPLOYEE"; // LẤY max lần ký thứ để gán lên hợp đồng
         public const string GET_MENU_TYPE_AUTHENTICATION = "AUTHENTICATION";
         public const string GET_MENU_TYPE_CHECK_PERMISSION = "CHECK_PERMISSION";
         public const string GET_MENU_TYPE_MENU = "MENU";

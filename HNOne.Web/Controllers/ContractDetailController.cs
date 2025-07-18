@@ -12,6 +12,7 @@ using Microsoft.AspNetCore.WebUtilities;
 using Newtonsoft.Json;
 using HNOne.Web.Services;
 using System;
+using HNOne.Model.Entities;
 
 namespace HNOne.Web.Controllers
 {
@@ -48,7 +49,6 @@ namespace HNOne.Web.Controllers
 
         private string? pPopupType { get; set; } = string.Empty; // mở popup nào
         public bool IsShowDialogEmpSearch { get; set; }
-        public string? DepartmentIds { get; set; }
         public string? StatusIds { get; set; } // Tình trạng nào
         public object? EmployeeSelected { get; set; } // Nhân viên được chọn
         public bool firstRender = true;
@@ -458,6 +458,31 @@ namespace HNOne.Web.Controllers
                 await InvokeAsync(StateHasChanged);
             }
         }
+        
+        /// <summary>
+        /// Lấy max số lần ký thứ
+        /// </summary>
+        /// <param name="employeeId"></param>
+        /// <returns></returns>
+        private async Task<int> getMaxContractNumber(int employeeId)
+        {
+            int contractNumber = 1;
+            try
+            {
+                // lấy lần ký thứ của nhân viên
+                RequestModel request = new RequestModel();
+                request.userId = UserId;
+                request.token = Token;
+                request.branchId = BranchId;
+                request.type = ProcessConstants.GET_COMBO_TYPE_MAX_CONTRACT_NUMBER_BY_EMPLOYEE;
+                request.opt = employeeId.ToString();
+                var result = await _masterDataService.GetMasterDataAsync<ComboboxModel>(request);
+                contractNumber = (result?.FirstOrDefault()?.id ?? 0) + 1;
+            }
+            catch {}
+            return contractNumber;
+            
+        }
         #endregion
 
         #region Protected Functions
@@ -521,12 +546,16 @@ namespace HNOne.Web.Controllers
                 switch (pPopupType)
                 {
                     case nameof(ContractDocument.employeeCode):
+                        await ShowLoading();
+                        int contractNumber = await getMaxContractNumber(employee.id);
                         ContractDocument.employeeId = employee.id;
                         ContractDocument.employeeCode = employee.code;
                         ContractDocument.employeeName = employee.name;
                         ContractDocument.departmentId = employee.departmentId;
                         ContractDocument.positionId = employee.positionId;
                         ContractDocument.titleId = employee.titleId ?? -1;
+                        ContractDocument.contractNumber = contractNumber;
+                        await Task.Delay(100);
                         IsShowDialogEmpSearch = false;
                         break;
                     case nameof(ContractDocument.employeeSignatureCode):
@@ -569,7 +598,7 @@ namespace HNOne.Web.Controllers
                         {
                             await ShowLoading();
                             ContractDocument.contractTypeId = contractType.id;
-                            ContractDocument.contractNumber = 1;
+                            ContractDocument.contractNumber = ContractDocument.contractNumber < 1 ? 1 : ContractDocument.contractNumber;
                             ContractDocument.numberOfMonths = contractType.duration;
                             ContractDocument.numberOfDaysReduced = contractType.numberOfDaysReduced > 0 ? contractType.numberOfDaysReduced : 1;
                             ContractDocument.contractCode = await getDocumentNo(contractType.code); // gọi API lấy mã hợp đồng
