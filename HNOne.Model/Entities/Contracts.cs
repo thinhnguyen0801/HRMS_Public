@@ -51,6 +51,8 @@ namespace HNOne.Model.Entities
         public bool IsCompanyDeduction { get; set; } // công ty đóng trích nộp thay
         public bool IsCompanyIncomeTax { get; set; } // công ty đóng thuế thay
 
-
+        [MaxLength(2000)]
+        public string? NoteForAll { get; set; } // ghi chú cho tất cả
+        public int ContractRefId { get; set; } = -1; // Khi thay thế hợp đồng bằng hợp đồng hiện tại thì lưu vào đây
     }
 }

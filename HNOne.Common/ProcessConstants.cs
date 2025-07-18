@@ -55,6 +55,7 @@
 
         public const string GET_CONTRACT = "get-contract";
         public const string POST_CONTRACT = "post-contract";
+        public const string POST_CHECK_EXISTS_CONTRACT = "check-exists-and-replace-contract";
         public const string PUT_CONTRACT = "put-contract";
         public const string EXPORT_CONTRACT_WORD = "export-contract-word";
 

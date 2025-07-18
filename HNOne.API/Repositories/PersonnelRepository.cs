@@ -1,5 +1,6 @@
 ﻿using Azure.Core;
 using Dapper;
+using DocumentFormat.OpenXml.Vml.Office;
 using HNOne.API.Constants;
 using HNOne.API.Repositories.Interfaces;
 using HNOne.Common;
@@ -187,6 +188,24 @@ namespace HNOne.API.Repositories
                 var results = await connection.QueryAsync<LevelOfEducationModel>(query, parameters, commandTimeout: GlobalConstants.COMMAND_TIMEOUT, commandType: CommandType.Text);
                 return results;
             }
+        }
+        
+        /// <summary>
+        /// Lấy lịch sử lương của nhân viên
+        /// </summary>
+        /// <param name="request"></param>
+        /// <returns></returns>
+        public async Task<IEnumerable<EmployeeSalaryHistoryModel>> GetSalaryHistory(RequestModel request)
+        {
+            using (var connection = _dapperDbContext.CreateConnection())
+            {
+                var parameters = new DynamicParameters();
+                parameters.Add("@UserId", request.userId, DbType.Int32);
+                parameters.Add("@BranchId", request.branchId, DbType.Int32);
+                parameters.Add("@EmployeeId", request.employeeId, DbType.Int32);
+                var lstResult = await connection.QueryAsync<EmployeeSalaryHistoryModel>(StoreConstants.STORE_H1_EMPLOYEE_SALARY_HISTORY_SELECT, param: parameters, commandTimeout: GlobalConstants.COMMAND_TIMEOUT, commandType: CommandType.StoredProcedure);
+                return lstResult;
+            };
         }
         #endregion
 
@@ -424,32 +443,20 @@ namespace HNOne.API.Repositories
             {
                 using (var connection = _dapperDbContext.CreateConnection())
                 {
-                    DateTime dateTimeNow = _dateTimeHelper.GetCurrentVietnamTime();
-                    bool isResult = true;   
-                    isResult = await _dbContext.Contracts.AnyAsync(m => m.ContractCode == entity.ContractCode);
-                    if (isResult)
-                    {
-                        response.status = StatusCodes.Status409Conflict;
-                        response.message = "Số hợp đồng đã tồn tại!";
-                        return response;
-                    }
-                    // kiểm tra có hợp đồng nào dỡ dang không
-                    // nếu có thì không cho lưu
                     DynamicParameters parameters = new DynamicParameters();
-                    string strQuery = string.Empty;
-                    parameters.Add("@EmployeeId", entity.EmployeeId);
-                    parameters.Add("@ContractTypeId", entity.ContractTypeId);
-                    strQuery = "select top 1 T0.ContractCode as Code, T1.Name from Contracts as T0 with(nolock)" +
-                        " inner join Employees as T1 with(nolock) on T0.EmployeeId = T1.Id" +
-                        " where T0.IsDelete = 0 and T0.StatusCode in ('A', 'Y')" +
-                        " and T0.EmployeeId = @EmployeeId and T0.ContractTypeId = @ContractTypeId";
-                    var contractPending = await connection.QueryFirstOrDefaultAsync<ComboboxModel>(strQuery, parameters, commandTimeout: GlobalConstants.COMMAND_TIMEOUT, commandType: CommandType.Text);
-                    if (contractPending != null)
+                    parameters.Add("@UserId", entity.UserSign, DbType.Int32);
+                    parameters.Add("@BranchId", entity.BranchId, DbType.Int32);
+                    parameters.Add("@ProcessKey", ProcessConstants.POST_CONTRACT, DbType.String);
+                    parameters.Add("@JHeader", JsonConvert.SerializeObject(entity), DbType.String);
+                    var resultCheck = await connection.QueryFirstOrDefaultAsync<ResponseModel>(StoreConstants.STORE_H1_CONTRACT_VALIDATE_CHECK, parameters
+                    , commandTimeout: GlobalConstants.COMMAND_TIMEOUT, commandType: CommandType.StoredProcedure);
+                    if (resultCheck == null || resultCheck.status != StatusCodes.Status200OK)
                     {
-                        response.message = $"Nhân viên [{contractPending.name}] đang có hợp đồng số [{contractPending.code}] đang chờ xử lý.";
-                        response.status = StatusCodes.Status409Conflict;
+                        response.status = resultCheck?.status ?? StatusCodes.Status400BadRequest;
+                        response.message = resultCheck?.message ?? MessageConstants.MESSAGE_IT_SUPPORT;
                         return response;
                     }
+                    DateTime dateTimeNow = _dateTimeHelper.GetCurrentVietnamTime();
                     entity.Id = await _dbContext.Contracts.Select(m => m.Id).DefaultIfEmpty().MaxAsync() + 1;
                     entity.DateTracking = dateTimeNow;
                     entity.CreateDate = dateTimeNow;
@@ -930,45 +937,31 @@ namespace HNOne.API.Repositories
         }
         
         /// <summary>
-        /// kiểm tra dữ liệu trước khi lưu
+        /// Kiểm tra dữ liệu hợp đồng
         /// </summary>
         /// <param name="request"></param>
         /// <returns></returns>
-        public async Task<ResponseModel> CheckExistsData(RequestModel request)
+        public async Task<ResponseModel> CheckContract(RequestModel request)
         {
             using (var connection = _dapperDbContext.CreateConnection())
             {
                 ResponseModel response = new ResponseModel();
-                var parameters = new DynamicParameters();
-                string query = "";
-                switch(request.process)
+                DynamicParameters parameters = new DynamicParameters();
+                parameters.Add("@UserId", request.userId, DbType.Int32);
+                parameters.Add("@BranchId", request.branchId, DbType.Int32);
+                parameters.Add("@ProcessKey", request.process, DbType.String);
+                parameters.Add("@JHeader", request.json, DbType.String);
+                var resultCheck = await connection.QueryFirstOrDefaultAsync<ResponseModel>(StoreConstants.STORE_H1_CONTRACT_VALIDATE_CHECK, parameters
+                , commandTimeout: GlobalConstants.COMMAND_TIMEOUT, commandType: CommandType.StoredProcedure);
+                if (resultCheck == null || resultCheck.status != StatusCodes.Status200OK)
                 {
-                    case ProcessConstants.POST_CONTRACT:
-                        parameters.Add("@EmployeeId", request.employeeId);
-                        parameters.Add("@ContractTypeId", request.type);
-                        parameters.Add("@StatusCode", CommonConstants.STATUS_CODE_APPROVED); // kiểm tra đã duyệt chưa
-                        parameters.Add("@FromDate", request.fromDate); // kiểm tra đã duyệt chưa
-                        query = "select top 1 T0.ContractCode as Code, T1.Name from Contracts as T0 with(nolock) " +
-                            " inner join Employees as T1 with(nolock) on T0.EmployeeId = T1.Id" +
-                            " where T0.IsDelete = 0 and T0.StatusCode = @StatusCode" + // tình trạng là đã duyệt
-                            " and cast(@FromDate as date) <= cast(T0.EndDate as date)" + // ngày bắt đầu nhỏ hơn ngày kết thúc
-                            " and T0.EmployeeId = @EmployeeId and T0.ContractTypeId = @ContractTypeId";
-                        var contract = await connection.QueryFirstOrDefaultAsync<ComboboxModel>(query, parameters, commandTimeout: GlobalConstants.COMMAND_TIMEOUT, commandType: CommandType.Text);
-                        if(contract != null)
-                        {
-                            response.message = $"Nhân viên [ {contract.name} ] đang áp dụng hợp đồng số [ {contract.code} ]. <br />" +
-                                $"Bạn có muốn thay thế bằng hợp đồng hiện tại?";
-                            response.status = StatusCodes.Status409Conflict;
-                        }    
-                        break;
-                    default:
-                        response.status = StatusCodes.Status404NotFound;
-                        response.message = $"Process Key {request.process} was not provider!!!";
-                        break;
-
+                    response.status = resultCheck?.status ?? StatusCodes.Status400BadRequest;
+                    response.message = resultCheck?.message ?? MessageConstants.MESSAGE_IT_SUPPORT;
+                    response.returnValue = resultCheck?.returnValue ?? -1; // lấy mã chỗ chứng từ tham chiếu
+                    return response;
                 }
                 return response;
-            }    
+            }
         }
         #endregion
 

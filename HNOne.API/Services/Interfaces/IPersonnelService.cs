@@ -18,6 +18,7 @@ namespace HNOne.API.Services.Interfaces
         Task<IEnumerable<ContractAppendixModel>> GetContractAppendix(RequestModel request);
         Task<ResponseModel> UpdateEducation(string actionType, LevelOfEducations entity);
         Task<IEnumerable<LevelOfEducationModel>> GetEducation(int employeeId);
-        Task<ResponseModel> CheckExistsData(RequestModel request);
+        Task<IEnumerable<EmployeeSalaryHistoryModel>> GetSalaryHistory(RequestModel request);
+        Task<ResponseModel> CheckContract(RequestModel request);
     }
 }

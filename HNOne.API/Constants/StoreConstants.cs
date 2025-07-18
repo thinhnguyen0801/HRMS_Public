@@ -7,6 +7,7 @@
         public const string FUNC_GET_DOCUMENT_HISTORY = "[dbo].[HRM_FN_GET_DOCUMENT_HISTORY]";
 
         public const string STORE_H1_EMPLOYEE_SELECT = "[dbo].[H1_EMPLOYEE_SELECT]";
+        public const string STORE_H1_EMPLOYEE_SALARY_HISTORY_SELECT = "[dbo].[H1_EMPLOYEE_SALARY_HISTORY_SELECT]";
         public const string STORE_H1_CONTRACT_SELECT = "[dbo].[H1_CONTRACT_SELECT]";
         public const string STORE_H1_MENU_SELECT = "[dbo].[H1_MENU_SELECT]";
         public const string STORE_H1_LOCATIONDATA_SELECT = "[dbo].[H1_LOCATIONDATA_SELECT]";
@@ -44,5 +45,6 @@
         public const string STORE_H1_OVERTIME_REQUEST_VALIDATE_CHECK = "[dbo].[H1_OVERTIME_REQUEST_VALIDATE_CHECK]";
         public const string STORE_H1_CONFIRM_WORKING_DAY_VALIDATE_CHECK = "[dbo].[H1_CONFIRM_WORKING_DAY_VALIDATE_CHECK]";
         public const string STORE_H1_SHIFT_CHANGE_REQUEST_VALIDATE_CHECK = "[dbo].[H1_SHIFT_CHANGE_REQUEST_VALIDATE_CHECK]";
+        public const string STORE_H1_CONTRACT_VALIDATE_CHECK = "[dbo].[H1_CONTRACT_VALIDATE_CHECK]";
     }
 }

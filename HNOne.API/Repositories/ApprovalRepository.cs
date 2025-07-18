@@ -239,6 +239,11 @@ namespace HNOne.API.Repositories
                     _dbContext.Attach(dynamicRecord);
                     _dbContext.Entry(dynamicRecord).State = EntityState.Modified;
 
+                    if(entity.objType == GlobalConstants.TABLE_CONTRACT && actionType == CommonConstants.STATUS_CODE_APPROVED)
+                    {
+                        // Nếu phê duyệt hợp đồng thì vô hiệu hóa hợp đồng còn hiệu lực
+                        await deactivateOldContract(dynamicRecord, entity, dateTimeNow);
+                    }    
                     // cập nhật tình trạng phê duyệt
                     data.StatusCode = entity.statusCode;
                     data.ApprovalRemark = entity.approvalRemark?.Trim();
@@ -449,6 +454,35 @@ namespace HNOne.API.Repositories
             catch (Exception) { throw; }
         }
 
+        /// <summary>
+        /// Vô hiệu hóa hợp đồng củ
+        /// Hợp đồng cũ (đang hiệu lực) phải được cập nhật trạng thái "Không hoạt động"
+        /// Ngày kết thúc của hợp đồng cũ phải được cập nhật = ngày bắt đầu của hợp đồng mới - 1 ngày
+        /// ghi nhận "Lý do kết thúc hợp đồng"
+        /// </summary>
+        /// <returns></returns>
+        private async Task deactivateOldContract(Contracts pContract, ApprovalModel entity, DateTime dateTimeNow)
+        {
+            try
+            {
+                if (pContract.ContractRefId < 1) return;
+                var contractOld = await _dbContext.Contracts.FirstOrDefaultAsync(m => m.Id == pContract.ContractRefId);
+                if(contractOld != null)
+                {
+                    DateTime? endDate = contractOld.EndDate;
+                    contractOld.NoteForAll = $"Hợp đồng được thay thế sang hợp đồng mới với số hợp đồng tham chiếu [{pContract.ContractCode}]. Ngày hết hiệu lực trước đó {endDate?.ToString("dd/MM/yyyy")}";
+                    contractOld.EndDate = pContract.StartDate!.Value.Date.AddDays(-1);
+                    contractOld.StatusCode = CommonConstants.STATUS_CODE_EXPIRED;
+                    _dbContext.Contracts.Attach(contractOld);
+                    _dbContext.Entry(contractOld).State = EntityState.Modified;
+
+                    // Thêm vào lịch sử
+                    await addDocumentHistory(pContract.BranchId, entity.employeeId, contractOld.Id, entity.objType
+                        , contractOld.StatusCode, pContract.StatusCode, contractOld.NoteForAll, entity.userSign ?? -1, dateTimeNow);
+                }
+            }
+            catch (Exception) { throw; }
+        }
         #endregion Private Function
     }
 }

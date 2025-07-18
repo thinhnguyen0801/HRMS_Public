@@ -34,6 +34,9 @@ namespace HNOne.Web.Controllers
         public List<ContractModel>? ListContract { get; set; } // danh sách hợp đồng
         public IGrid? GridContract { get; set; }
 
+        public List<EmployeeSalaryHistoryModel>? ListSalaryHistory { get; set; } // Lịch sử lương lấy theo hợp đồng
+        public IGrid? GridSalaryHistory { get; set; }
+
         public List<EnumCatagoryModel>? ListCboInsuranceType { get; set; } // loại bảo hiểm
         public List<EnumCatagoryModel>? ListCboRank { get; set; } // cbo xếp loại
         #endregion
@@ -174,6 +177,16 @@ namespace HNOne.Web.Controllers
                 m.link = _encryptHelper.Encrypt(JsonConvert.SerializeObject(pParams));
             })?.ToList();
             ListContract = lstContract;
+        }
+
+        /// <summary>
+        /// Lấy danh sách lịch sử lương của nhân viên
+        /// </summary>
+        /// <returns></returns>
+        private async Task getSalaryHistoryList()
+        {
+            var lstSalary = await _personnelService.GetSalaryHistoryAsync(UserId, Token, EmployeeUpdate.id, isShowToast: false);
+            ListSalaryHistory = lstSalary;
         }
         #endregion
 
@@ -339,6 +352,9 @@ namespace HNOne.Web.Controllers
                         break;
                     case nameof(EnumObjType.Contracts):
                         await getContractList();
+                        break;
+                    case nameof(EmployeeSalaryHistoryModel):
+                        await getSalaryHistoryList();
                         break;
                 }
             }

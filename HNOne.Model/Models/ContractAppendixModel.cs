@@ -52,6 +52,7 @@ namespace HNOne.Model.Models
         public string? placeOfResidence { get; set; } // địa chỉ thường trú
         public string? titleName { get; set; }
         public string? branchName { get; set; }
+        public string? gender { get; set; }
         #endregion
     }
 }

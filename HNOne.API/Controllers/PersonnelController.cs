@@ -58,6 +58,9 @@ namespace HNOne.API.Controllers
                     case ProcessConstants.GET_EDUCATION:
                         response.data = await _personnelService.GetEducation(request.employeeId);
                         break;
+                    case ProcessConstants.GET_EMPLOYEE_SALARY_HISTORY:
+                        response.data = await _personnelService.GetSalaryHistory(request);
+                        break;
                     default:
                         response.status = StatusCodes.Status404NotFound;
                         response.message = $"Process Key {processKey} was not provider!!!";
@@ -145,7 +148,20 @@ namespace HNOne.API.Controllers
             ResponseModel response = new ResponseModel();
             try
             {
-                response = await _personnelService.CheckExistsData(request);
+                string? processKey = request.process?.Trim();
+                switch (processKey)
+                {
+                    case ProcessConstants.POST_CHECK_EXISTS_CONTRACT:
+                    case ProcessConstants.POST_CONTRACT:
+                        // gán lại dữ liệu vì dưới store đang parse chữ hoa cho đồng nhất với page lưu
+                        request.json = JsonConvert.SerializeObject(JsonConvert.DeserializeObject<Contracts>($"{request.json}"));
+                        response = await _personnelService.CheckContract(request);
+                        break;
+                    default:
+                        response.status = StatusCodes.Status404NotFound;
+                        response.message = $"Process Key {processKey} was not provider!!!";
+                        return Ok(response);
+                }
             }
             catch (Exception ex)
             {

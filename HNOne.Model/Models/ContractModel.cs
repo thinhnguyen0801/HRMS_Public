@@ -38,7 +38,8 @@
         public string? departmentName { get; set; } // tên phòng ban
         public string? link { get; set; }
         public string? jsonDetail { get; set; } // danh sách cấu hình tính lương
-
+        public string? notForAll { get; set; }
+        public int contractRefId { get; set; } // ID Hợp đồng được thay thế
         #region
         public DateTime? dateOfBirth { get; set; } // ngày sinh
         public string? cIC { get; set; } // số căn cước
@@ -47,6 +48,7 @@
         public string? placeOfResidence { get; set; } // địa chỉ thường trú
         public string? titleName { get; set; }
         public string? branchName { get; set; }
+        public string? gender { get; set; } // giới tính
         #endregion
     }
 }

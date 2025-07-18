@@ -21,7 +21,7 @@
                     <DxTabPage Text="Thông tin bảo hiểm" CssClass="w1FontSize" Click="@(() => ScrollToSection("section-accordion-10"))"></DxTabPage>
                     <DxTabPage Text="Danh sách hợp đồng" CssClass="w1FontSize" Click="@(() => ScrollToSection("section-accordion-11"))"></DxTabPage>
                     @* <DxTabPage Text="Danh sách quyết định" CssClass="w1FontSize" Click="@(() => ScrollToSection("section-accordion-12"))"></DxTabPage> *@
-                    <DxTabPage Text="Lịch sử lương" CssClass="w1FontSize" Click="@(() => ScrollToSection("section-accordion-13"))"></DxTabPage>                    
+                    <DxTabPage Text="Lịch sử lương" CssClass="w1FontSize" Click="@(() => ScrollToSection("section-accordion-12"))"></DxTabPage>                    
                 }
             </DxTabs>
         </div>
@@ -38,6 +38,10 @@
 
                 <DxToolbarItem Text="Phát sinh công" BeginGroup="true" IconCssClass="@($"{IconClassConstants.ICON_CALENDAR_CHECK}")" CssClass="w1FontSize"
                                Alignment="@ToolbarItemAlignment.Right" Click="@(() => GenerateWorkHandler())" 
+                               Visible="@(pActionType == nameof(EnumType.Update))" />
+
+                <DxToolbarItem Text="Tạo hợp đồng" BeginGroup="true" IconCssClass="@($"{IconClassConstants.ICON_ADD}")" CssClass="w1FontSize"
+                               Alignment="@ToolbarItemAlignment.Right" Click="@(() => CreateContractHandler())" 
                                Visible="@(pActionType == nameof(EnumType.Update))" />
 
                 <DxToolbarItem Text="Làm mới" BeginGroup="true" IconCssClass="@($"{IconClassConstants.ICON_REFRESH}")" CssClass="w1FontSize"
@@ -1282,8 +1286,8 @@
             </div>
         </div>
 
-        @* Danh sách quyết định  *@
-        @* <div class="card card-lg mt-1" style="padding: 5px" id="section-accordion-12">
+        @* Danh sách lịch sử lương  *@
+        <div class="card card-lg mt-1" style="padding: 5px" id="section-accordion-12">
             <div class="row row-gap-2">
                 <div class="col-12">
                     <div class="accordion" id="accordion-12">
@@ -1291,13 +1295,64 @@
                             <span class="accordion-header" id="heading-1">
                                 <button class="accordion-button " style="padding-top: 1px; padding-bottom: 1px;padding-left: 5px;"
                                         type="button" data-bs-toggle="collapse" data-bs-target="#collapse-12" aria-expanded="true">
-                                    <h4 class="mb-0 w1FontSize">Danh sách quyết định</h4>
+                                    <h4 class="mb-0 w1FontSize">Lịch sử lương</h4>
                                 </button>
                             </span>
                             <div style="border-bottom: 1px solid var(--tblr-border-color); margin-top: 2px"></div>
                             <div id="collapse-12" class="accordion-collapse collapse show" data-bs-parent="#accordion-12">
                                 <div class="accordion-body p-1">
                                     <div class="row row-gap-2">
+                                        <div class="col-md-12 col-sm-12">
+                                            <DxGrid Data="ListSalaryHistory" @ref="GridSalaryHistory"
+                                                    ShowFilterRow="false"
+                                                    PageSize="500"
+                                                    ColumnResizeMode="GridColumnResizeMode.ColumnsContainer"
+                                                    PagerPosition="GridPagerPosition.Bottom"
+                                                    PageSizeSelectorVisible="false"
+                                                    PageSizeSelectorAllRowsItemVisible="false"
+                                                    PagerSwitchToInputBoxButtonCount="10"
+                                                    PagerVisibleNumericButtonCount="10"
+                                                    TextWrapEnabled="false"
+                                                    ValidationEnabled="true"
+                                                    AllowSelectRowByClick="true"
+                                                    FocusedRowEnabled="true"
+                                                    SelectionMode="GridSelectionMode.Single"
+                                                    CssClass="h-full">
+                                                <ToolbarTemplate>
+                                                    <DxToolbar ItemRenderStyleMode="@ToolbarRenderStyleMode.Plain">
+                                                        <Items>
+                                                            <DxToolbarItem IconCssClass="@IconClassConstants.ICON_REFRESH" BeginGroup="true" Alignment="@ToolbarItemAlignment.Right"
+                                                                           Click="@(async () => await RefreshHandler(nameof(EmployeeSalaryHistoryModel)))" />
+                                                        </Items>
+                                                    </DxToolbar>
+                                                </ToolbarTemplate>
+                                                <Columns>
+                                                    <DxGridDataColumn FieldName="@nameof(EmployeeSalaryHistoryModel.dateOfSigning)" Caption="Ngày quyết định" Width="130px" MinWidth="120" DisplayFormat="@GlobalContants.FORMAT_DATE"  />
+                                                    <DxGridDataColumn FieldName="@nameof(EmployeeSalaryHistoryModel.employeeTypeName)" Caption="Loại nhân viên" MinWidth="120" Width="130px" />
+                                                    <DxGridDataColumn FieldName="@nameof(EmployeeSalaryHistoryModel.employeeSignatureName)" Caption="Người ký" MinWidth="120" Width="150px" />
+                                                    <DxGridDataColumn FieldName="@nameof(EmployeeSalaryHistoryModel.totalSalary)" Caption="Mức lương" Width="140px" MinWidth="120" DisplayFormat="@GlobalContants.FORMAT_CURRENCY"  />
+                                                    <DxGridDataColumn FieldName="@nameof(EmployeeSalaryHistoryModel.salaryCoefficient)" Caption="Hệ số lương" Width="110px" MinWidth="100" DisplayFormat="@GlobalContants.FORMAT_NUMBER_DOUBLE_2PLACE"  />
+                                                    <DxGridDataColumn FieldName="@nameof(EmployeeSalaryHistoryModel.netSalary)" Caption="Tổng thực nhận" Width="140px" MinWidth="120" DisplayFormat="@GlobalContants.FORMAT_CURRENCY"  />
+                                                    <DxGridDataColumn FieldName="@nameof(EmployeeSalaryHistoryModel.contractCode)" Caption="Mã hợp đồng" MinWidth="120" Width="140px">
+                                                        <CellDisplayTemplate>
+                                                            @{
+                                                                <a href="@($"chi-tiet-hop-dong?key={(context.DataItem as EmployeeSalaryHistoryModel)!.linkContract}")">@context.Value</a>
+                                                            }
+                                                        </CellDisplayTemplate>
+                                                    </DxGridDataColumn>
+                                                    <DxGridDataColumn FieldName="@nameof(EmployeeSalaryHistoryModel.contractTypeName)" Caption="Loại hợp đồng"  MinWidth="120" Width="160px"  />
+                                                    <DxGridDataColumn FieldName="@nameof(EmployeeSalaryHistoryModel.contractAppendixCode)" Caption="Mã phụ lục" MinWidth="120" Width="140px">
+                                                        <CellDisplayTemplate>
+                                                            @{
+                                                                <a href="@($"chi-tiet-hop-dong?key={(context.DataItem as EmployeeSalaryHistoryModel)!.linkContractAppendix}")">@context.Value</a>
+                                                            }
+                                                        </CellDisplayTemplate>
+                                                    </DxGridDataColumn>
+                                                    <DxGridDataColumn FieldName="@nameof(EmployeeSalaryHistoryModel.contractNumber)" Caption="Phụ lục số"  MinWidth="120" Width="140px"  />
+                                                    
+                                                </Columns>
+                                            </DxGrid>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
@@ -1305,7 +1360,7 @@
                     </div>
                 </div>
             </div>
-        </div> *@
+        </div>
 
 
         @* Thêm thông tin bảo hiểm *@

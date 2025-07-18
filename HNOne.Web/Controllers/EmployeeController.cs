@@ -254,6 +254,7 @@ namespace HNOne.Web.Controllers
                     lstTask.Add(getFamilyRelationship()); // danh sách quan hệ gia đình
                     lstTask.Add(getEducation()); // danh sách trình độ đại học
                     lstTask.Add(getContractList()); // danh sách hợp đồng
+                    lstTask.Add(getSalaryHistoryList()); // lịch sử lương
 
                     await Task.WhenAll(lstTask);
                 }
@@ -895,6 +896,28 @@ namespace HNOne.Web.Controllers
             {
                 ShowError(ex.Message);
                 _logger.LogError(ex, "RefreshDataHandler");
+            }
+            finally
+            {
+                await ShowLoading(false);
+                await InvokeAsync(StateHasChanged);
+            }
+        }
+        
+        /// <summary>
+        /// Tạo hợp đồng cho nhân viên
+        /// </summary>
+        /// <returns></returns>
+        protected async Task CreateContractHandler()
+        {
+            try
+            {
+                _navigationManager.NavigateTo("/chi-tiet-hop-dong");
+            }
+            catch (Exception ex)
+            {
+                ShowError(ex.Message);
+                _logger.LogError(ex, "CreateContractHandler");
             }
             finally
             {

@@ -16,5 +16,6 @@ namespace HNOne.Web.Services.Interfaces
         Task<List<ContractAppendixModel>?> GetContractAppendixAsync(RequestModel request, bool isShowToast = false);
         Task<List<LevelOfEducationModel>?> GetEducationAsync(RequestModel request, bool isShowToast = false);
         Task<ResponseModel?> CheckDataAsync(RequestModel request);
+        Task<List<EmployeeSalaryHistoryModel>?> GetSalaryHistoryAsync(int userId, string token, int employeeId, bool isShowToast = false);
     }
 }

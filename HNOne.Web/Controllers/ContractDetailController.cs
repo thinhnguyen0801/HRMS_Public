@@ -483,6 +483,7 @@ namespace HNOne.Web.Controllers
             return contractNumber;
             
         }
+        
         #endregion
 
         #region Protected Functions
@@ -759,20 +760,23 @@ namespace HNOne.Web.Controllers
                 bool isConfirm = true;
                 if(pActionType == nameof(EnumType.Add))
                 {
+                    // kiểm tra ông này có hợp đồng nào nữa không nếu có hỏi để thay thế hợp đồng hiện tại
                     RequestModel request = new RequestModel();
                     request.userId = UserId;
                     request.token = Token;
-                    request.process = ProcessConstants.POST_CONTRACT;
+                    request.process = ProcessConstants.POST_CHECK_EXISTS_CONTRACT;
                     request.employeeId = ContractDocument.employeeId;
-                    request.type = ContractDocument.contractTypeId.ToString();
-                    request.fromDate = ContractDocument.startDate;
-                    var checkContract = await _personnelService.CheckDataAsync(request); // kiểm tra ông này có hợp đồng nào nữa không
+                    request.branchId = ContractDocument.branchId;
+                    request.json = JsonConvert.SerializeObject(ContractDocument);
+                    var checkContract = await _personnelService.CheckDataAsync(request);
                     if (checkContract?.status == StatusCodes.Status409Conflict)
                     {
                         errorMessage = checkContract.message;
                         await Task.Yield();
                         isConfirm = await confirm.SetConfirm(MessageConstants.MESSAGE_TITLE, errorMessage);
                         if (!isConfirm) return;
+                        int.TryParse(checkContract.returnValue?.ToString(), out int contractRefId);
+                        ContractDocument.contractRefId = contractRefId;
                         check = 1;
                     }
                 }    
@@ -834,10 +838,10 @@ namespace HNOne.Web.Controllers
                     RequestModel request = new RequestModel();
                     request.userId = UserId;
                     request.token = Token;
-                    request.process = ProcessConstants.POST_CONTRACT;
+                    request.process = ProcessConstants.POST_CHECK_EXISTS_CONTRACT;
                     request.employeeId = ContractDocument.employeeId;
-                    request.type = ContractDocument.contractTypeId.ToString();
-                    request.fromDate = ContractDocument.startDate;
+                    request.branchId = ContractDocument.branchId;
+                    request.json = JsonConvert.SerializeObject(ContractDocument);
                     var checkContract = await _personnelService.CheckDataAsync(request); // kiểm tra ông này có hợp đồng nào nữa không
                     if (checkContract?.status == StatusCodes.Status409Conflict)
                     {
@@ -846,6 +850,8 @@ namespace HNOne.Web.Controllers
                         await Task.Yield();
                         isConfirm = await confirm.SetConfirm(MessageConstants.MESSAGE_TITLE, errorMessage);
                         if (!isConfirm) return;
+                        int.TryParse(checkContract.returnValue?.ToString(), out int contractRefId);
+                        ContractDocument.contractRefId = contractRefId;
                         check = 1;
                     }
                 }

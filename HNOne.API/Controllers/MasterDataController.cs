@@ -15,6 +15,9 @@ using System.Collections.Generic;
 using System.Diagnostics.Contracts;
 using HNOne.API.Constants;
 using System.Data;
+using DocumentFormat.OpenXml;
+using System.Text.RegularExpressions;
+using System.Text;
 
 namespace HNOne.API.Controllers
 {
@@ -489,7 +492,7 @@ namespace HNOne.API.Controllers
                 if (text.Text.Contains("##IdentifyNumberIssuedDate##")) text.Text = text.Text.Replace("##IdentifyNumberIssuedDate##", contract.issuanceDateCIC?.ToString(GlobalConstants.FORMAT_DATE));      
                 if (text.Text.Contains("##IdentifyNumberIssuedPlace##")) text.Text = text.Text.Replace("##IdentifyNumberIssuedPlace##", contract.placeOfIssuanceCIC);
                 if (text.Text.Contains("##PermanentAddress##")) text.Text = text.Text.Replace("##PermanentAddress##", contract.placeOfResidence);
-                if (text.Text.Contains("##PermanentAddress##")) text.Text = text.Text.Replace("##PermanentAddress##", contract.placeOfResidence);
+                if (text.Text.Contains("##Gender##")) text.Text = text.Text.Replace("##Gender##", contract.gender);
                 if (text.Text.Contains("##ContractType##")) text.Text = text.Text.Replace("##ContractType##", contract.contractTypeName);
                 if (text.Text.Contains("##ContractPeriod##")) text.Text = text.Text.Replace("##ContractPeriod##", $"{contract.numberOfMonths} tháng");
                 if (text.Text.Contains("##StartDate##")) text.Text = text.Text.Replace("##StartDate##", contract.startDate?.ToString(GlobalConstants.FORMAT_DATE));
@@ -538,15 +541,15 @@ namespace HNOne.API.Controllers
             }
             foreach (var text in body.Descendants<Text>())
             {
-                if (text.Text.Contains("ContractApendixCode")) text.Text = text.Text.Replace("ContractApendixCode", contract.contractAppendixCode);
+                if (text.Text.Contains("#ContractAppendix#")) text.Text = text.Text.Replace("#ContractAppendix#", contract.contractAppendixCode);
                 if (text.Text.Contains("##FullName##")) text.Text = text.Text.Replace("##FullName##", contract.employeeName);
                 if (text.Text.Contains("##BirthDate##")) text.Text = text.Text.Replace("##BirthDate##", contract.dateOfBirth?.ToString(GlobalConstants.FORMAT_DATE));
                 if (text.Text.Contains("##IdentifyNumber##")) text.Text = text.Text.Replace("##IdentifyNumber##", contract.cIC);
                 if (text.Text.Contains("##IdentifyNumberIssuedDate##")) text.Text = text.Text.Replace("##IdentifyNumberIssuedDate##", contract.issuanceDateCIC?.ToString(GlobalConstants.FORMAT_DATE));
                 if (text.Text.Contains("##IdentifyNumberIssuedPlace##")) text.Text = text.Text.Replace("##IdentifyNumberIssuedPlace##", contract.placeOfIssuanceCIC);
                 if (text.Text.Contains("##PermanentAddress##")) text.Text = text.Text.Replace("##PermanentAddress##", contract.placeOfResidence);
-                if (text.Text.Contains("##PermanentAddress##")) text.Text = text.Text.Replace("##PermanentAddress##", contract.placeOfResidence);
-                if (text.Text.Contains("##ContractCode##")) text.Text = text.Text.Replace("##ContractCode##", $"{contract.contractCode}");
+                if (text.Text.Contains("##Gender##")) text.Text = text.Text.Replace("##Gender##", contract.gender);
+                if (text.Text.Contains("ContractCode")) text.Text = text.Text.Replace("ContractCode", $"{contract.contractCode}");
                 if (text.Text.Contains("##StartDate##")) text.Text = text.Text.Replace("##StartDate##", contract.dateOfSigning?.ToString(GlobalConstants.FORMAT_DATE));
                 if (text.Text.Contains("##SALARY_DECIDES##")) text.Text = text.Text.Replace("##SALARY_DECIDES##", (lstSalaryConfig.FirstOrDefault(m => m.isPrintSalary)?.amount ?? 0).ToString(GlobalConstants.FORMAT_CURRENCY));
             }

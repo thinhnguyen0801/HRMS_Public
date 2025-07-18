@@ -9,6 +9,7 @@ namespace HNOne.Common
         public const string STATUS_CODE_APPROVAL_PENDING = "Y"; // ĐÃ GỬI YÊU CẦU PHÊ DUYỆT
         public const string STATUS_CODE_DENY = "T"; // ĐÃ TỪ CHỐI
         public const string STATUS_CODE_CANCELED = "C"; // ĐÃ HỦY
+        public const string STATUS_CODE_EXPIRED = "E"; // HẾT HẠN/HẾT HIỆU LỰC
         #endregion
 
         #region Cấu hình thông tin

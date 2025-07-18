@@ -384,5 +384,41 @@ namespace HNOne.Web.Services
             }
             catch (Exception) { throw; }
         }
+    
+        /// <summary>
+        /// Lấy lịch sử lương của nhân viên, lấy theo hợp đồng & phụ lục có điều chỉnh lương
+        /// </summary>
+        /// <param name="userId"></param>
+        /// <param name="token"></param>
+        /// <param name="employeeId"></param>
+        /// <param name="isShowToast"></param>
+        /// <returns></returns>
+        public async Task<List<EmployeeSalaryHistoryModel>?> GetSalaryHistoryAsync(int userId, string token, int employeeId, bool isShowToast = false)
+        {
+            try
+            {
+                List<EmployeeSalaryHistoryModel>? data = null;
+                RequestModel request = new RequestModel();
+                request.userId = userId;
+                request.token = token;
+                request.employeeId = employeeId;
+                request.process = ProcessConstants.GET_EMPLOYEE_SALARY_HISTORY;
+                HttpResponseMessage httpResponse = await PostAsync(EnpointConstants.PERSONNEL_GET_DATA, request);
+                var checkContent = ValidateJsonContent(httpResponse.Content);
+                if (!checkContent) _toastService.ShowInfo(MessageConstants.MESSAGE_JSON_INVALID);
+                else
+                {
+                    var response = await httpResponse.Content.ReadFromJsonAsync<ResCliModel<EmployeeSalaryHistoryModel>>();
+                    if (response == null || response.status != StatusCodes.Status200OK)
+                    {
+                        if (isShowToast) _toastService.ShowWarning(response?.message ?? MessageConstants.MESSAGE_IT_SUPPORT);
+                        return data;
+                    }
+                    data = response.data?.ToList();
+                }
+                return data;
+            }
+            catch (Exception) { throw; }
+        }
     }
 }
