@@ -360,6 +360,7 @@ namespace HNOne.API.Repositories
                         account.BranchId = data.BranchId;
                         account.Password = branch.DefaultPassword;
                         account.DefaultPassword = branch.DefaultPassword;
+                        account.PerGroupId = branch.DefaultPerGroupId;
                         account.IsActive = true;
                         account.DepartmentIds = data.DepartmentId > 0 ? data.DepartmentId.ToString() : "";
                         account.BranchIds = data.BranchId.ToString();
