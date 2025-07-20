@@ -52,6 +52,7 @@
         Trainings,
         ConfirmWorkingDays, // xin nghỉ trong giờ
         SalaryExpenseAccountings, // hạch toán chi phí lương
+        AdjustedAnnualLeaveRequests,
 
         // danh mục bảng
         Branchs,

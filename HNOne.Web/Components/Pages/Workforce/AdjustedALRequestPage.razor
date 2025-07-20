@@ -1,0 +1,260 @@
+﻿@page "/dieu-chinh-phep-nam"
+@inherits Controllers.AdjustedALRequestController
+<PageTitle>Điều chỉnh phép năm</PageTitle>
+
+<div class="h-content-filter">
+    @if (!IsReadonlyControl)
+    {
+        <div class="card p-1">
+            <DxToolbar ItemRenderStyleMode="@ToolbarRenderStyleMode.Contained">
+                <Items>
+                    <DxToolbarItem Text="Duyệt" BeginGroup="true" IconCssClass="@($"{IconClassConstants.ICON_APPROVAL}")" CssClass="w1FontSize"
+                                   Alignment="@ToolbarItemAlignment.Right" Click="@ApprovalHandler"
+                                   Visible="@(IsAllowApproval)" />
+                    <DxToolbarItem Text="Từ chối" BeginGroup="true" IconCssClass="@($"{IconClassConstants.ICON_REJECT}")" CssClass="w1FontSize"
+                                   Alignment="@ToolbarItemAlignment.Right" Click="@(() => RejectHandler())"
+                                   Visible="@(IsAllowApproval)" />
+
+                    <DxToolbarItem Text="Lưu" BeginGroup="true" IconCssClass="@($"{IconClassConstants.ICON_UPDATE}")" CssClass="w1FontSize"
+                                   Alignment="@ToolbarItemAlignment.Right" Click="@SaveDataHandler"
+                                   Visible="@((pActionType == nameof(EnumType.Add) && IsAllowPost) || (pActionType != nameof(EnumType.Add) && IsAllowPut))" />
+
+                    <DxToolbarItem Text="Gửi phê duyệt" BeginGroup="true" IconCssClass="@($"{IconClassConstants.ICON_SHARE}")" CssClass="w1FontSize"
+                                   Alignment="@ToolbarItemAlignment.Right" Click="@(()=> SubmitForApprovalHandler())"
+                                   Visible="@(RequestDocument.statusCode == CommonConstants.STATUS_CODE_ADD && IsAllowDelete)" />
+
+                    <DxToolbarItem Text="Hủy" BeginGroup="true" IconCssClass="@($"{IconClassConstants.ICON_DELETE}")" CssClass="w1FontSize"
+                                   Alignment="@ToolbarItemAlignment.Right" Click="@(() => CancelDocumentHandler())"
+                                   Visible="@(pActionType != nameof(EnumType.Add) && RequestDocument.statusCode == CommonConstants.STATUS_CODE_ADD && IsAllowDelete)" />
+
+                    <DxToolbarItem Text="Làm mới" BeginGroup="true" IconCssClass="@($"{IconClassConstants.ICON_REFRESH}")" CssClass="w1FontSize"
+                                   Alignment="@ToolbarItemAlignment.Right" Click="@RefreshDataHandler" />
+                </Items>
+            </DxToolbar>
+        </div>
+    }
+    <div class="card card-lg mt-1" style="padding: 5px">
+        <div class="row row-gap-2">
+            <div class="col-12">
+                <div class="accordion" id="accordion-info">
+                    <div class="accordion-item" style="border: none">
+                        <span class="accordion-header" id="heading-1">
+                            <button class="accordion-button " style="padding-top: 1px; padding-bottom: 1px;padding-left: 5px;"
+                                    type="button" data-bs-toggle="collapse" data-bs-target="#collapse-info" aria-expanded="true">
+                                <h4 class="mb-0 w1FontSize">Thông tin chung</h4>
+                            </button>
+                        </span>
+                        <div style="border-bottom: 1px solid var(--tblr-border-color); margin-top: 2px"></div>
+                        <div id="collapse-info" class="accordion-collapse collapse show" data-bs-parent="#accordion-info">
+                            <div class="accordion-body p-2">
+                                <div class="row row-gap-2">
+                                    <div class="col-md-6 col-sm-12">
+                                        <div class="d-flex ">
+                                            <W1Label Value="Số chứng từ" Styles="width: 120px" />
+                                            <div style="width: calc(100% - 120px)">
+                                                <DxTextBox @bind-Text="@RequestDocument.voucherNo" ReadOnly="true" CssClass="w1FontSize" />
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6 col-sm-12">
+                                        <div class="d-flex">
+                                            <W1Label Value="Tình trạng" Styles="width: 120px" />
+                                            <div style="width: calc(100% - 120px)">
+                                                <DxComboBox Data="@ListCboStatus"
+                                                            @bind-Value="@RequestDocument.statusCode"
+                                                            FilteringMode="DataGridFilteringMode.Contains"
+                                                            TextFieldName="@nameof(ComboboxModel.name)"
+                                                            ValueFieldName="@nameof(ComboboxModel.code)"
+                                                            ReadOnly="true"
+                                                            CssClass="w1FontSize">
+                                                </DxComboBox>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6 col-sm-12">
+                                        <div class="d-flex ">
+                                            <W1Label Value="Người ký" Styles="width: 120px" IsRequired="true" />
+                                            <div style="width: calc(100% - 120px)">
+                                                <div class="grid gap-1 row-gap-2">
+                                                    <div class="g-col-md-4 g-col-sm-12 g-col-12">
+                                                        <DxTextBox @bind-Text="@RequestDocument.employeeSignatureCode" ReadOnly="true" CssClass="w1FontSize" Id="employeeSignatureId" />
+                                                    </div>
+                                                    <div class="g-col-md-8 g-col-sm-12 g-col-12">
+                                                        <DxTextBox @bind-Text="@RequestDocument.employeeSignatureName" CssClass="w1FontSize" ReadOnly="true">
+                                                            <Buttons>
+                                                                <DxEditorButton style="width: 29px" CssClass="w1FontSize" IconCssClass="fas fa-search" Tooltip="Tìm kiếm nhân viên"
+                                                                                Visible="@(!IsReadonlyControl)"
+                                                                                Click="@(async () => await OpenPopupHandler(nameof(EmployeeSelected), nameof(RequestDocument.employeeSignatureCode)))" />
+                                                            </Buttons>
+                                                        </DxTextBox>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6 col-sm-12">
+                                        <div class="d-flex ">
+                                            <W1Label Value="Ngày ký" Styles="width: 120px" />
+                                            <div style="width: calc(100% - 120px)">
+                                                <DxDateEdit @bind-Date="@RequestDocument.dateOfSigning"
+                                                            CssClass="w1FontSize"
+                                                            Mask="@GlobalContants.FORMAT_DATE" Format="@GlobalContants.FORMAT_DATE"
+                                                            DisplayFormat="@GlobalContants.FORMAT_DATE" ReadOnly="true" />
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6 col-sm-12">
+                                        <div class="d-flex ">
+                                            <W1Label Value="Năm điều chỉnh" Styles="width: 120px" IsRequired="true" />
+                                            <div style="width: calc(100% - 120px)">
+                                                <DxComboBox Data="@ListCboYear"
+                                                            @bind-Value="@RequestDocument.year"
+                                                            FilteringMode="DataGridFilteringMode.Contains"
+                                                            TextFieldName="@nameof(ComboboxModel.name)"
+                                                            ValueFieldName="@nameof(ComboboxModel.id)"
+                                                            CssClass="w1FontSize" ReadOnly="@IsReadonlyControl">
+                                                </DxComboBox>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6 col-sm-12">
+                                        <div class="d-flex ">
+                                            <W1Label Value="Lý do" Styles="width: 120px" IsRequired="true" />
+                                            <div style="width: calc(100% - 120px)">
+                                                <DxMemo @bind-Text="@RequestDocument.remark" Id="txtRemark" BindValueMode="@BindValueMode.OnInput" Rows="1"
+                                                        InputId="txtghiChu" CssClass="w1FontSize" ReadOnly="@IsReadonlyControl" />
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="row row-gap-2 mt-1 mb-3">
+        <div class="col-12">
+            <div class="card w1FontSize">
+                <div class="card-header p-0 border-bottom-0">
+                    <DxTabs @bind-ActiveTabIndex="@ActiveTabIndex" Id="tabActive" CssClass="w-full w1FontSize">
+                        <DxTabPage Text="Danh sách nhân viên" Id="tabTTL" CssClass="w1FontSize"></DxTabPage>
+                        <DxTabPage Text="Lịch sử chứng từ" Id="tabPLHD" CssClass="w1FontSize"></DxTabPage>
+                    </DxTabs>
+                </div>
+                <div class="card-body p-1">
+                    @switch (ActiveTabIndex)
+                    {
+                        case 0:
+                            <div style="height: 450px; min-height: 350px">
+                                <DxGrid Data="ListEmployeeAdjusted" @ref="GridEmployeeAdjusted"
+                                        ShowFilterRow="false"
+                                        PageSize="2000"
+                                        ColumnResizeMode="GridColumnResizeMode.ColumnsContainer"
+                                        PagerPosition="GridPagerPosition.Bottom"
+                                        PageSizeSelectorVisible="false"
+                                        PageSizeSelectorAllRowsItemVisible="false"
+                                        PagerSwitchToInputBoxButtonCount="10"
+                                        PagerVisibleNumericButtonCount="10"
+                                        TextWrapEnabled="false"
+                                        KeyFieldNames="@(new [] {nameof(AdjustedAnnualLeaveRequest1Model.employeeId),nameof(AdjustedAnnualLeaveRequest1Model.id)})"
+                                        ValidationEnabled="true"
+                                        EditMode="GridEditMode.EditCell"
+                                        EditModelSaving="@GridAdjustedEditSavingHandler"
+                                        KeyboardNavigationEnabled="true"
+                                        AllowSelectRowByClick="true"
+                                        FocusedRowEnabled="true"
+                                        SelectionMode="GridSelectionMode.Multiple"
+                                        SelectAllCheckboxMode="GridSelectAllCheckboxMode.AllPages"
+                                        CssClass="h-full">
+                                    <ToolbarTemplate>
+                                        <DxToolbar ItemRenderStyleMode="@ToolbarRenderStyleMode.Plain">
+                                            <Items>
+                                                <DxToolbarItem IconCssClass="@IconClassConstants.ICON_ADD" BeginGroup="true"
+                                                               Alignment="@ToolbarItemAlignment.Right" Tooltip="Thêm nhân viên"
+                                                               Visible="@(!IsReadonlyControl)"
+                                                               Click="@(async () => await OpenPopupHandler(nameof(ListEmpSelected), nameof(ListEmpSelected)))" />
+                                                <DxToolbarItem IconCssClass="@IconClassConstants.ICON_DELETE" BeginGroup="true"
+                                                               Alignment="@ToolbarItemAlignment.Right" Tooltip="Xóa nhân viên"
+                                                               Visible="@(!IsReadonlyControl)"
+                                                               Click="@DeleteDataHandler" />
+                                            </Items>
+                                        </DxToolbar>
+                                    </ToolbarTemplate>
+                                    <Columns>
+                                        <DxGridSelectionColumn Width="35px" />
+                                        <DxGridDataColumn FieldName="@nameof(AdjustedAnnualLeaveRequest1Model.employeeCode)" Caption="Mã nhân viên" MinWidth="120" Width="120px" DataRowEditorVisible="false" />
+                                        <DxGridDataColumn FieldName="@nameof(AdjustedAnnualLeaveRequest1Model.employeeName)" Caption="Tên nhân viên" MinWidth="160" Width="160px" DataRowEditorVisible="false" />
+                                        <DxGridDataColumn FieldName="@nameof(AdjustedAnnualLeaveRequest1Model.numOfAdjustedLeave)" Caption="Số phép điều chỉnh" MinWidth="160" Width="160px"
+                                                          DisplayFormat="@GlobalContants.FORMAT_NUMBER_DOUBLE_1PLACE" DataRowEditorVisible="@(!IsReadonlyControl)">
+                                            <HeaderCaptionTemplate>
+                                                <span>Số phép điều chỉnh +/- <span style="color: red;">&nbsp;(*)</span></span>
+                                            </HeaderCaptionTemplate>
+                                            <EditSettings>
+                                                <DxSpinEditSettings DisplayFormat="@GlobalContants.FORMAT_NUMBER_DOUBLE_1PLACE" InputCssClass="text-end"
+                                                                    Mask="@GlobalContants.FORMAT_NUMBER_DOUBLE_1PLACE" ReadOnly="@IsReadonlyControl" />
+                                            </EditSettings>
+                                        </DxGridDataColumn>
+                                        <DxGridDataColumn FieldName="@nameof(AdjustedAnnualLeaveRequest1Model.startDate)" Caption="Ngày áp dụng" MinWidth="140" Width="140px" DisplayFormat="@GlobalContants.FORMAT_DATE" 
+                                                          DataRowEditorVisible="@(!IsReadonlyControl)">
+                                            <EditSettings>
+                                                <DxDateEditSettings CssClass="w1FontSize"
+                                                                    Mask="@GlobalContants.FORMAT_DATE" Format="@GlobalContants.FORMAT_DATE"
+                                                                    DisplayFormat="@GlobalContants.FORMAT_DATE" ReadOnly="@IsReadonlyControl" />
+                                            </EditSettings>
+                                        </DxGridDataColumn>
+                                        <DxGridDataColumn FieldName="@nameof(AdjustedAnnualLeaveRequest1Model.remark)" Caption="Ghi chú" MinWidth="170" DataRowEditorVisible="@(!IsReadonlyControl)">
+                                            <HeaderCaptionTemplate>
+                                                <span>Ghi chú <span style="color: red;">&nbsp;(*)</span></span>
+                                            </HeaderCaptionTemplate>
+                                        </DxGridDataColumn>
+                                    </Columns>
+                                    <TotalSummary>
+                                        <DxGridSummaryItem DisplayText="@GlobalContants.FORMAT_GRID_DISPLAYTEXT_SUM" SummaryType="GridSummaryItemType.Custom"
+                                                           FieldName="@nameof(AdjustedAnnualLeaveRequest1Model.numOfAdjustedLeave)" ValueDisplayFormat="@GlobalContants.FORMAT_NUMBER_DOUBLE_1PLACE"
+                                                           FooterColumnName="@nameof(AdjustedAnnualLeaveRequest1Model.numOfAdjustedLeave)" />
+                                    </TotalSummary>
+                                </DxGrid>
+                            </div>
+                            break;
+                        case 1:
+                            <div style="height: 350px; min-height: 350px; line-height: 20px" class="w1FontSize px-2 py-1 text-truncate">
+                                @((MarkupString)$"{VoucherHistory}")
+                            </div>
+                            break;
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<W1Popup @bind-IsOpenModal="@IsShowDialogEmpSearch" Width="70%"
+         HandleClickAccept="@(()=> SelectEmployeeHandler())"
+         TextBtnAccept="Chọn"
+         HeaderText="Danh sách nhân viên">
+    <div style="height: 400px; min-height: 350px">
+        <W1Employee UserId="@UserId" Token="@Token" BranchId="@BranchId" DepartmentIds="@DepartmentIds" StatusIds="@StatusIds"
+                    SelectionMode="@DxGridEmployeeSelectionMode" EnumType="@CommonConstants.ENUM_EMPLOYEE_SIGNATURE"
+                    SelectedDataItemChanged="@EventCallbackEmpChangedHandler" SelectedDataItemsChanged="@EventCallbackEmpListChangedHandler" />
+    </div>
+</W1Popup>
+
+<W1Popup @bind-IsOpenModal="@IsShowPrompt" TextBtnAccept="Xác nhận"
+         HeaderText="Xác nhận" Width="55%" HandleClickAccept="@(() => CancelDocumentHandler(isAccept: true))">
+    <W1Label Value="Lý do hủy" Styles="width: 120px" IsRequired />
+    <div class="mt-1">
+        <DxMemo @bind-Text="@ReasonDelete" BindValueMode="@BindValueMode.OnInput" Rows="1" InputId="txtLyDoHuy" CssClass="w1FontSize" />
+    </div>
+</W1Popup>
+
+<W1Popup @bind-IsOpenModal="@IsShowPromptDeny" TextBtnAccept="Xác nhận"
+         HeaderText="Xác nhận" Width="55%" HandleClickAccept="@(() => RejectHandler(isAccept: true))">
+    <W1Label Value="Lý do từ chối" Styles="width: 120px" IsRequired />
+    <div class="mt-1">
+        <DxMemo @bind-Text="@ReasonDelete" BindValueMode="@BindValueMode.OnInput" Rows="1" InputId="txtLyDoHuy" CssClass="w1FontSize" />
+    </div>
+</W1Popup>
+<W1Confirm @ref="confirm" />

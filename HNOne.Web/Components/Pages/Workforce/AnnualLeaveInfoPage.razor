@@ -127,10 +127,12 @@
                                 <Items>
                                     <DxToolbarItem Text="Làm mới" BeginGroup="true" IconCssClass="@($"{IconClassConstants.ICON_REFRESH}")" CssClass="w1FontSize"
                                                    Alignment="@ToolbarItemAlignment.Right" Click="@RefreshHandler" />
+                                    <DxToolbarItem Text="Điều chỉnh phép" BeginGroup="true" IconCssClass="@($"{IconClassConstants.ICON_ADD}")" CssClass="w1FontSize"
+                                                   Alignment="@ToolbarItemAlignment.Right" Click="@RefreshHandler" />
                                 </Items>
                             </DxToolbar>
                         </div>
-                        <div class="card-body p-1" style="height: calc(100vh - 165px); min-height: 450px">
+                        <div class="card-body p-1" style="height: calc(100vh - 165px); min-height: 400px">
                             <DxGrid Data="ListAnnualLeaveInfo" @ref="GridAnnualLeaveInfo"
                                     ShowFilterRow="true"
                                     ColumnResizeMode="GridColumnResizeMode.ColumnsContainer"
@@ -147,18 +149,87 @@
                                     KeyboardNavigationEnabled="true"
                                     CssClass="h-full">
                                 <Columns>
-                                    <DxGridDataColumn FieldName="@nameof(AnnualLeaveInfoModel.employeeCode)" Caption="Mã nhân viên" MinWidth="120" Width="110px" />
+                                    <DxGridDataColumn FieldName="@nameof(AnnualLeaveInfoModel.employeeCode)" Caption="Mã nhân viên" MinWidth="120" Width="110px">
+                                        <CellDisplayTemplate>
+                                            @{
+                                                <a @onclick="@(()=> OpenPopupDetailHandler((context.DataItem as AnnualLeaveInfoModel)))">@context.Value</a>
+                                            }
+                                        </CellDisplayTemplate>
+                                    </DxGridDataColumn>
                                     <DxGridDataColumn FieldName="@nameof(AnnualLeaveInfoModel.employeeName)" Caption="Tên nhân viên" MinWidth="140" />
                                     <DxGridDataColumn FieldName="@nameof(AnnualLeaveInfoModel.probationStartDate)" Caption="Ngày vào làm" MinWidth="100" Width="110px" DisplayFormat="@GlobalContants.FORMAT_DATE" />
-                                    <DxGridDataColumn FieldName="@nameof(AnnualLeaveInfoModel.expiryDate)" Caption="Ngày hết hạn phép năm củ" MinWidth="165" DisplayFormat="@GlobalContants.FORMAT_DATE" />
                                     <DxGridDataColumn FieldName="@nameof(AnnualLeaveInfoModel.year)" DisplayFormat="d" Caption="Năm" MinWidth="80" Width="80px" />
-                                    <DxGridDataColumn FieldName="@nameof(AnnualLeaveInfoModel.numOfLeaveDefault)" DisplayFormat="@GlobalContants.FORMAT_NUMBER_DOUBLE_1PLACE" Caption="Phép mặc định" MinWidth="110" Width="110px" />
-                                    <DxGridDataColumn FieldName="@nameof(AnnualLeaveInfoModel.numOfLeave)" DisplayFormat="@GlobalContants.FORMAT_NUMBER_DOUBLE_1PLACE" Caption="Phép trong năm" MinWidth="110" Width="110px" />
-                                    <DxGridDataColumn FieldName="@nameof(AnnualLeaveInfoModel.numOfLeaveLevel)" DisplayFormat="@GlobalContants.FORMAT_NUMBER_DOUBLE_1PLACE" Caption="Phép thâm niên" MinWidth="110" Width="110px" />
-                                    <DxGridDataColumn FieldName="@nameof(AnnualLeaveInfoModel.numOfLeaveUsed)" DisplayFormat="@GlobalContants.FORMAT_NUMBER_DOUBLE_1PLACE" Caption="Phép đã sử dụng" MinWidth="110" Width="110px" />
-                                    <DxGridDataColumn FieldName="@nameof(AnnualLeaveInfoModel.numOfLeavePaid)" DisplayFormat="@GlobalContants.FORMAT_NUMBER_DOUBLE_1PLACE" Caption="Phép đã thanh toán" MinWidth="130" Width="140px" />
-                                    <DxGridDataColumn FieldName="@nameof(AnnualLeaveInfoModel.numOfLeaveRemaining)" DisplayFormat="@GlobalContants.FORMAT_NUMBER_DOUBLE_1PLACE" Caption="Phép còn lại" MinWidth="110" Width="110px" />
-                                    <DxGridDataColumn FieldName="@nameof(AnnualLeaveInfoModel.numOfLeaveOld)" DisplayFormat="@GlobalContants.FORMAT_NUMBER_DOUBLE_1PLACE" Caption="Phép năm củ" MinWidth="110" Width="110px" />
+                                    <DxGridDataColumn FieldName="@nameof(AnnualLeaveInfoModel.numOfLeaveDefault)" DisplayFormat="@GlobalContants.FORMAT_NUMBER_DOUBLE_1PLACE"
+                                                      Caption="Phép mặc định" MinWidth="90" Width="100px" TextAlignment="@GridTextAlignment.Center" CaptionAlignment="@GridTextAlignment.Center">
+                                        <HeaderCaptionTemplate>
+                                            <div>Phép</div>
+                                            <div>mặc định</div>
+                                        </HeaderCaptionTemplate>
+                                    </DxGridDataColumn>
+                                    <DxGridDataColumn FieldName="@nameof(AnnualLeaveInfoModel.numOfLeave)" DisplayFormat="@GlobalContants.FORMAT_NUMBER_DOUBLE_1PLACE"
+                                                      Caption="Phép trong năm" MinWidth="90" Width="100px" TextAlignment="@GridTextAlignment.Center" CaptionAlignment="@GridTextAlignment.Center">
+                                        <HeaderCaptionTemplate>
+                                            <div>Phép</div>
+                                            <div>trong năm</div>
+                                        </HeaderCaptionTemplate>
+                                    </DxGridDataColumn>
+                                    <DxGridDataColumn FieldName="@nameof(AnnualLeaveInfoModel.numOfLeaveLevel)" DisplayFormat="@GlobalContants.FORMAT_NUMBER_DOUBLE_1PLACE"
+                                                      Caption="Phép thâm niên" MinWidth="90" Width="100px" TextAlignment="@GridTextAlignment.Center" CaptionAlignment="@GridTextAlignment.Center">
+                                        <HeaderCaptionTemplate>
+                                            <div>Phép</div>
+                                            <div>thâm niên</div>
+                                        </HeaderCaptionTemplate>
+                                    </DxGridDataColumn>
+                                    <DxGridDataColumn FieldName="@nameof(AnnualLeaveInfoModel.numOfLeaveUsed)" DisplayFormat="@GlobalContants.FORMAT_NUMBER_DOUBLE_1PLACE"
+                                                      Caption="Phép đã sử dụng" MinWidth="110" Width="110px" TextAlignment="@GridTextAlignment.Center" CaptionAlignment="@GridTextAlignment.Center">
+                                        <HeaderCaptionTemplate>
+                                            <div>Phép trong năm</div>
+                                            <div>đã sử dụng</div>
+                                        </HeaderCaptionTemplate>
+                                    </DxGridDataColumn>
+                                    <DxGridDataColumn FieldName="@nameof(AnnualLeaveInfoModel.numOfAdjustedLeave)" DisplayFormat="@GlobalContants.FORMAT_NUMBER_DOUBLE_1PLACE"
+                                                      Caption="Phép đã điều chỉnh" MinWidth="110" Width="110px" TextAlignment="@GridTextAlignment.Center" CaptionAlignment="@GridTextAlignment.Center">
+                                        <HeaderCaptionTemplate>
+                                            <div>Phép năm</div>
+                                            <div>đã điều chỉnh</div>
+                                        </HeaderCaptionTemplate>
+                                    </DxGridDataColumn>
+                                    <DxGridDataColumn FieldName="@nameof(AnnualLeaveInfoModel.numOfLeavePaid)" DisplayFormat="@GlobalContants.FORMAT_NUMBER_DOUBLE_1PLACE"
+                                                      Caption="Phép đã thanh toán" MinWidth="110" Width="110px" TextAlignment="@GridTextAlignment.Center" CaptionAlignment="@GridTextAlignment.Center">
+                                        <HeaderCaptionTemplate>
+                                            <div>Phép năm</div>
+                                            <div>đã thanh toán</div>
+                                        </HeaderCaptionTemplate>
+                                    </DxGridDataColumn>
+                                    <DxGridDataColumn FieldName="@nameof(AnnualLeaveInfoModel.numOfLeaveOld)" DisplayFormat="@GlobalContants.FORMAT_NUMBER_DOUBLE_1PLACE"
+                                                      Caption="Phép năm củ" MinWidth="90" Width="100px" TextAlignment="@GridTextAlignment.Center" CaptionAlignment="@GridTextAlignment.Center">
+                                        <HeaderCaptionTemplate>
+                                            <div>Phép</div>
+                                            <div>năm củ</div>
+                                        </HeaderCaptionTemplate>
+                                    </DxGridDataColumn>
+                                    <DxGridDataColumn FieldName="@nameof(AnnualLeaveInfoModel.expiryDate)" Caption="Ngày hết hạn phép năm củ" DisplayFormat="@GlobalContants.FORMAT_DATE"
+                                                      MinWidth="100" Width="110px" TextAlignment="@GridTextAlignment.Center" CaptionAlignment="@GridTextAlignment.Center">
+                                        <HeaderCaptionTemplate>
+                                            <div>Ngày hết hạn</div>
+                                            <div>phép năm củ</div>
+                                        </HeaderCaptionTemplate>
+                                    </DxGridDataColumn>
+                                    <DxGridDataColumn FieldName="@nameof(AnnualLeaveInfoModel.numOfLeaveOldPaid)" DisplayFormat="@GlobalContants.FORMAT_NUMBER_DOUBLE_1PLACE"
+                                                      Caption="Phép củ đã thanh toán" MinWidth="110" Width="110px" TextAlignment="@GridTextAlignment.Center" CaptionAlignment="@GridTextAlignment.Center">
+                                        <HeaderCaptionTemplate>
+                                            <div>Phép năm củ</div>
+                                            <div>đã thanh toán</div>
+                                        </HeaderCaptionTemplate>
+                                    </DxGridDataColumn>
+                                    <DxGridDataColumn FieldName="@nameof(AnnualLeaveInfoModel.numOfLeaveRemaining)" DisplayFormat="@GlobalContants.FORMAT_NUMBER_DOUBLE_1PLACE"
+                                                      Caption="Phép còn lại" MinWidth="90" Width="100px" TextAlignment="@GridTextAlignment.Center" CaptionAlignment="@GridTextAlignment.Center">
+                                        <HeaderCaptionTemplate>
+                                            <div>Phép</div>
+                                            <div>còn lại</div>
+                                        </HeaderCaptionTemplate>
+                                    </DxGridDataColumn>
+
                                 </Columns>
                                 <TotalSummary>
                                     <DxGridSummaryItem DisplayText="@GlobalContants.FORMAT_GRID_DISPLAYTEXT_COUNT" SummaryType="GridSummaryItemType.Count"
@@ -172,66 +243,47 @@
             </div>
         </div>
     </div>
-
-    @* <div class="row row-gap-2 mt-1 mb-3">
-        <div class="col-12">
-            <div class="card w1FontSize">
-                <div class="card-header p-1">
-                    <DxToolbar ItemRenderStyleMode="@ToolbarRenderStyleMode.Contained">
-                        <Items>
-                            <DxToolbarItem Text="Làm mới" BeginGroup="true" IconCssClass="@($"{IconClassConstants.ICON_REFRESH}")" CssClass="w1FontSize"
-                                           Alignment="@ToolbarItemAlignment.Right" Click="@RefreshHandler" />
-                        </Items>
-                    </DxToolbar>
-                </div>
-                <div class="card-header p-0 border-bottom-0">
-                    <DxTabs @bind-ActiveTabIndex="@ActiveTabIndex" Id="tabActive" CssClass="w-full w1FontSize">
-                        <DxTabPage Text="Chi tiết phép năm" Id="tabTTL" CssClass="w1FontSize"></DxTabPage>
-                        <DxTabPage Text="Danh sách điều chỉnh phép" Id="tabPLHD" CssClass="w1FontSize"></DxTabPage>
-                    </DxTabs>
-                </div>
-                <div class="card-body p-1" style="height: calc(100vh - 230px); min-height: 350px">
-                    @switch (ActiveTabIndex)
-                    {
-                        case 0:
-                            <DxGrid Data="ListAnnualLeaveInfo" @ref="GridAnnualLeaveInfo"
-                                    ShowFilterRow="true"
-                                    ColumnResizeMode="GridColumnResizeMode.ColumnsContainer"
-                                    PagerPosition="GridPagerPosition.Bottom"
-                                    PageSizeSelectorVisible="true"
-                                    PageSize="@GlobalContants.PageSize"
-                                    PageSizeSelectorItems="@(GlobalContants.PageSizeList)"
-                                    PageSizeSelectorAllRowsItemVisible="true"
-                                    PagerSwitchToInputBoxButtonCount="10"
-                                    PagerVisibleNumericButtonCount="10"
-                                    TextWrapEnabled="false"
-                                    FocusedRowEnabled="true"
-                                    AutoExpandAllGroupRows="true"
-                                    KeyboardNavigationEnabled="true"
-                                    CssClass="h-full">
-                                <Columns>
-                                    <DxGridDataColumn FieldName="@nameof(AnnualLeaveInfoModel.employeeCode)" Caption="Mã nhân viên" MinWidth="120" Width="110px" />
-                                    <DxGridDataColumn FieldName="@nameof(AnnualLeaveInfoModel.employeeName)" Caption="Tên nhân viên" MinWidth="140" />
-                                    <DxGridDataColumn FieldName="@nameof(AnnualLeaveInfoModel.probationStartDate)" Caption="Ngày vào làm" MinWidth="100" Width="110px" DisplayFormat="@GlobalContants.FORMAT_DATE" />
-                                    <DxGridDataColumn FieldName="@nameof(AnnualLeaveInfoModel.year)" DisplayFormat="d" Caption="Năm" MinWidth="80" Width="80px" />
-                                    <DxGridDataColumn FieldName="@nameof(AnnualLeaveInfoModel.numOfLeaveDefault)" DisplayFormat="d" Caption="Phép mặc định" MinWidth="110" Width="110px" />
-                                    <DxGridDataColumn FieldName="@nameof(AnnualLeaveInfoModel.numOfLeave)" DisplayFormat="d" Caption="Phép trong năm" MinWidth="110" Width="110px" />
-                                    <DxGridDataColumn FieldName="@nameof(AnnualLeaveInfoModel.numOfLeaveLevel)" DisplayFormat="d" Caption="Phép thâm niên" MinWidth="110" Width="110px" />
-                                    <DxGridDataColumn FieldName="@nameof(AnnualLeaveInfoModel.numOfLeaveUsed)" DisplayFormat="d" Caption="Phép đã sử dụng" MinWidth="110" Width="110px" />
-                                    <DxGridDataColumn FieldName="@nameof(AnnualLeaveInfoModel.numOfLeaveRemaining)" DisplayFormat="d" Caption="Phép còn lại" MinWidth="110" Width="110px" />
-                                    <DxGridDataColumn FieldName="@nameof(AnnualLeaveInfoModel.numOfLeavePaid)" DisplayFormat="d" Caption="Phép đã thanh toán" MinWidth="130" Width="140px" />
-                                    <DxGridDataColumn FieldName="@nameof(AnnualLeaveInfoModel.numOfLeaveOld)" DisplayFormat="d" Caption="Phép năm củ" MinWidth="110" Width="110px" />
-                                </Columns>
-                                <TotalSummary>
-                                    <DxGridSummaryItem DisplayText="@GlobalContants.FORMAT_GRID_DISPLAYTEXT_COUNT" SummaryType="GridSummaryItemType.Count"
-                                                       FieldName="@nameof(AnnualLeaveInfoModel.employeeCode)" ValueDisplayFormat="@GlobalContants.FORMAT_CURRENCY"
-                                                       FooterColumnName="@nameof(AnnualLeaveInfoModel.employeeCode)" />
-                                </TotalSummary>
-                            </DxGrid>
-                            break;
-                    }
-                </div>
-            </div>
-        </div>
-    </div> *@
 </div>
+
+<W1Popup @bind-IsOpenModal="@IsShowDetail" Width="85%"
+         TextBtnAccept="Chọn"
+         IsShowFooter="false"
+         HeaderText="@HeaderTextDetail">
+    <div style="height: 400px; min-height: 350px">
+        <DxGrid Data="ListAdjustedALRequest" @ref="GridAdjustedALRequest"
+                ShowFilterRow="true"
+                ColumnResizeMode="GridColumnResizeMode.ColumnsContainer"
+                PagerPosition="GridPagerPosition.Bottom"
+                PageSizeSelectorVisible="true"
+                PageSize="@GlobalContants.PageSize"
+                PageSizeSelectorItems="@(GlobalContants.PageSizeList)"
+                PageSizeSelectorAllRowsItemVisible="true"
+                PagerSwitchToInputBoxButtonCount="10"
+                PagerVisibleNumericButtonCount="10"
+                TextWrapEnabled="false"
+                FocusedRowEnabled="true"
+                AutoExpandAllGroupRows="true"
+                KeyboardNavigationEnabled="true"
+                CssClass="h-full">
+            <Columns>
+                <DxGridDataColumn FieldName="@nameof(AdjustedAnnualLeaveRequestModel.voucherNo)" Caption="Mã chứng từ" MinWidth="140">
+                    <CellDisplayTemplate>
+                        @{
+                            <a href="@($"{(context.DataItem as AdjustedAnnualLeaveRequestModel)!.link}")">@context.Value</a>
+                        }
+                    </CellDisplayTemplate>
+                </DxGridDataColumn>
+                <DxGridDataColumn FieldName="@nameof(AdjustedAnnualLeaveRequestModel.createDate)" Caption="Ngày chứng từ" DisplayFormat="@GlobalContants.FORMAT_DATE" MinWidth="120" />
+                <DxGridDataColumn FieldName="@nameof(AdjustedAnnualLeaveRequestModel.statusName)" Caption="Trạng thái" MinWidth="130" />
+                <DxGridDataColumn FieldName="@nameof(AdjustedAnnualLeaveRequestModel.year)" Caption="Năm điều chỉnh" MinWidth="110" DisplayFormat="d" />
+                <DxGridDataColumn FieldName="@nameof(AdjustedAnnualLeaveRequestModel.remark)" Caption="Lý do" MinWidth="170" />
+                <DxGridDataColumn FieldName="@nameof(AdjustedAnnualLeaveRequestModel.dateTracking)" Caption="Ngày cập nhật" MinWidth="120" DisplayFormat="@GlobalContants.FORMAT_DATE_TIME" />
+            </Columns>
+            <TotalSummary>
+                <DxGridSummaryItem DisplayText="@GlobalContants.FORMAT_GRID_DISPLAYTEXT_COUNT" SummaryType="GridSummaryItemType.Count"
+                                   FieldName="@nameof(AdjustedAnnualLeaveRequestModel.voucherNo)" ValueDisplayFormat="@GlobalContants.FORMAT_CURRENCY"
+                                   FooterColumnName="@nameof(AdjustedAnnualLeaveRequestModel.voucherNo)" />
+            </TotalSummary>
+        </DxGrid>
+    </div>
+</W1Popup>

@@ -25,9 +25,13 @@ namespace HNOne.Model.Models
         public string? link { get; set; }
         public double numOfLeave { get; set; } // số phép 
         public double numOfLeaveOld { get; set; } // số phép năm củ
+        public double numOfLeaveOldPaid { get; set; } // phép của năm củ đã thanh toán
+        public DateTime expiryALOldDate { get; set; } // Ngày hết hạn sử dụng phép năm củ
         public double numOfLeaveTotal { get; set; } // 
-        public double numOfLeaveLevel { get; set; } // ố phép tăng theo thâm niên
+        public double numOfLeaveLevel { get; set; } // số phép tăng theo thâm niên
         public double numOfLeaveUsed { get; set; } // số phép sử dụng
+        public double numOfLeavePending { get; set; } // phép tạo mới/chờ duyệt
+        public double numOfAdjustedLeave { get; set; } // số phép đã điều chỉnh
         public double numOfLeaveRemaining { get; set; } // số phép còn lại
         public string? jsonDetail { get; set; } // danh sách chi tiết
         public double totalHours { get; set; } // tổng số giờ nghỉ

@@ -85,6 +85,9 @@ namespace HNOne.API.Controllers
                     case ProcessConstants.GET_ATTENDANCE_SUMMARY:
                         response.data = await _workforceRepository.GetAttendanceSummary(request);
                         break;
+                    case ProcessConstants.GET_ADJUSTED_ANNUAL_LEAVE_REQUEST:
+                        response.data = await _workforceRepository.GetAdjustedALRequest(request);
+                        break;
                     default:
                         response.status = StatusCodes.Status404NotFound;
                         response.message = $"Process Key {processKey} was not provider!!!";
@@ -194,6 +197,12 @@ namespace HNOne.API.Controllers
                     case ProcessConstants.PUT_UNLOCK_ATTENDENCE_SUMMARY:
                         var lstAttendencePutUnlock = DeserializeJson<List<AttendanceSummarys>>($"{request.json}");
                         response = await _workforceRepository.UnLockAttendanceSummary(request.userId, lstAttendencePutUnlock!);
+                        break;
+                    case ProcessConstants.POST_ADJUSTED_ANNUAL_LEAVE_REQUEST:
+                    case ProcessConstants.PUT_ADJUSTED_ANNUAL_LEAVE_REQUEST:
+                        var adjALRequest = DeserializeJson<AdjustedAnnualLeaveRequests>($"{request.json}");
+                        var lstadjALRequest1s = DeserializeJson<List<AdjustedAnnualLeaveRequest1s>>($"{request.jsonDetail}");
+                        response = await _workforceRepository.UpdateAdjustedAnnualLeave(processKey, adjALRequest!, lstadjALRequest1s!);
                         break;
                     default:
                         response.status = StatusCodes.Status404NotFound;

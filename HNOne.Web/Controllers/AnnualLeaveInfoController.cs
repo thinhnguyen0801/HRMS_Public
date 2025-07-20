@@ -8,6 +8,7 @@ using DevExpress.Blazor;
 using HNOne.Model;
 using HNOne.Common;
 using HNOne.Web.Commons;
+using Newtonsoft.Json;
 
 namespace HNOne.Web.Controllers
 {
@@ -21,6 +22,8 @@ namespace HNOne.Web.Controllers
         public SearchModel SearchUpdate { get; set; } = new SearchModel();
         public List<AnnualLeaveInfoModel>? ListAnnualLeaveInfo { get; set; }
         public IGrid? GridAnnualLeaveInfo { get; set; }
+        public List<AdjustedAnnualLeaveRequestModel>? ListAdjustedALRequest { get; set; }
+        public IGrid? GridAdjustedALRequest { get; set; }
 
         public List<ComboboxModel>? ListCboYear { get; set; }
         public List<ComboboxModel>? ListCboBranch { get; set; } // cbo ds chi nhánh
@@ -36,10 +39,9 @@ namespace HNOne.Web.Controllers
         private string? pPopupType { get; set; } = string.Empty; // mở popup nào
         public bool IsShowDialogEmpSearch { get; set; }
         public string? StatusIds { get; set; } // Tình trạng nào
-        public string? DepartmentIds { get; set; }
         public object? EmployeeSelected { get; set; } // Nhân viên được chọn
-
-        
+        public bool IsShowDetail { get; set; } // show popup chi tiết ngày công
+        public string HeaderTextDetail = "";
         #endregion
 
         protected override async Task OnAfterRenderAsync(bool firstRender)
@@ -83,28 +85,31 @@ namespace HNOne.Web.Controllers
         {
             SearchUpdate.year = DateTime.Now.Year;
             SearchUpdate.branchId = BranchId;
-            int defaultYear = 2025;
-            ListCboYear = new List<ComboboxModel>();
-            for (int i = defaultYear; i < DateTime.Now.AddYears(1).Year; i++)
-            {
-                ListCboYear.Add(new ComboboxModel() { id = i, name = $"Năm {i}" });
-            }
         }
 
         private async Task buildComboAsync()
         {
             try
             {
+                RequestModel request = new RequestModel();
+                request.process = ProcessConstants.GET_WORKFORCE_MASTER_DATA;
+                request.userId = UserId;
+                request.branchId = BranchId;
+                request.token = Token;
+                request.type = ProcessConstants.GET_COMBO_ANNUAL_LEAVE_YEAR;
                 var getTask1 = _masterDataService.GetDepartmentAsync(UserId, Token, BranchId, opt: CommonConstants.ENUM_ACTIVE); // ds phòng ban
                 var getTask2 = _masterDataService.GetEnumAsync(UserId, Token, nameof(EnumCatagory.TrangThaiPhatSinhCong)); // ds trạng thái cho phép phát sinh công
                 var getTask3 = _masterDataService.GetEnumAsync(UserId, Token, nameof(EnumCatagory.TrangThaiNhanVien)); // ds trạng thái
                 var getTask4 = _masterDataService.GetBranchAsync(UserId, Token, BranchId, $"{BranchIds}", supperAdmin: IsAdmin ? "Y" : "N");
+                var getTask5 = _workforceService.GetMasterDataAsync<ComboboxModel>(request, isShowToast: true);
                 await Task.WhenAll(
                     getTask1,
                     getTask2,
                     getTask3,
-                    getTask4
+                    getTask4,
+                    getTask5
                 );
+                ListCboYear = await getTask5;
                 ListCboDepartment = (await getTask1)?.Select(m => new ComboboxModel() { id = m.id, code = m.code, name = m.name })?.ToList();
                 ListCboStatus = (await getTask3)?.Where(m => m.rowOrder != 0).Select(m => new ComboboxModel() { code = m.code, name = m.name })?.ToList();
                 ListCboBranch = (await getTask4)?.Select(m => new ComboboxModel() { id = m.branchId, name = m.branchName })?.ToList();
@@ -208,6 +213,55 @@ namespace HNOne.Web.Controllers
         /// Mở rộng & thu gọn vùng tìm kiếm
         /// </summary>
         protected void ShowFilterHandler() => IsShowFilter = !IsShowFilter;
+
+        /// <summary>
+        /// lấy thông tin điều chỉnh phéps
+        /// </summary>
+        /// <param name="itemSelected"></param>
+        /// <returns></returns>
+        protected async Task OpenPopupDetailHandler(AnnualLeaveInfoModel? itemSelected)
+        {
+            try
+            {
+                if (itemSelected == null) return;
+                // lấy danh sách điều chỉnh phép của nhân viên
+                await ShowLoading();
+                ListAdjustedALRequest = new List<AdjustedAnnualLeaveRequestModel>();
+                RequestModel request = new RequestModel();
+                request.userId = UserId;
+                request.branchId = BranchId;
+                request.token = Token;
+                request.year = itemSelected.year;
+                request.opt = ActiveTabIndex == 0 ? "ACTIVE" : ""; // tình trạng
+                request.process = ProcessConstants.GET_ADJUSTED_ANNUAL_LEAVE_REQUEST;
+                request.employeeId = itemSelected.employeeId;
+                request.branchIds = BranchIds;
+                request.type = CommonConstants.ENUM_BY_EMPLOYEE;
+                var listResult = await _workforceService.GetAdjustedALRequestAsync(request, isShowToast: true);
+                listResult = listResult?.Update(m =>
+                {
+                    Dictionary<string, string> pParams = new Dictionary<string, string>
+                    {
+                        { "pActionType", nameof(EnumType.Update) },
+                        { "pDocEntry", $"{m.id}" }
+                    };
+                    m.link = "dieu-chinh-phep-nam?key=" + _encryptHelper.Encrypt(JsonConvert.SerializeObject(pParams));
+                })?.ToList();
+                HeaderTextDetail = $"Thông tin điều chỉnh phép của nhân viên {itemSelected.employeeCode}";
+                ListAdjustedALRequest = listResult;
+                IsShowDetail = true;
+            }
+            catch (Exception ex)
+            {
+                ShowError(ex.Message);
+                _logger.LogError(ex, "OpenPopupDetailHandler");
+            }
+            finally
+            {
+                await ShowLoading(false);
+                await InvokeAsync(StateHasChanged);
+            }
+        }
         #endregion
     }
 }

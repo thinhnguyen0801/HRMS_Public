@@ -1,4 +1,5 @@
-﻿using Dapper;
+﻿using Azure.Core;
+using Dapper;
 using HNOne.API.Constants;
 using HNOne.API.Repositories.Interfaces;
 using HNOne.API.Services;
@@ -113,7 +114,8 @@ namespace HNOne.API.Repositories
                     { GlobalConstants.TABLE_OVERTIME_REQUEST, async id => { var overtime = await _dbContext.OvertimeRequests.FirstOrDefaultAsync(m => m.Id == id);return (overtime, overtime?.VoucherNo);} },
                     { GlobalConstants.TABLE_TRAINING, async id => { var training = await _dbContext.Trainings.FirstOrDefaultAsync(m => m.Id == id); return (training, training?.VoucherNo); } },
                     { GlobalConstants.TABLE_CONFIRM_WORKING_DAY, async id => { var confirm = await _dbContext.ConfirmWorkingDays.FirstOrDefaultAsync(m => m.Id == id); return (confirm, confirm?.VoucherNo); } },
-                    { GlobalConstants.TABLE_SALARY_EXPENSE_ACCOUNTING, async id => { var salary = await _dbContext.SalaryExpenseAccountings.FirstOrDefaultAsync(m => m.Id == id); return (salary, salary?.VoucherNo); } }
+                    { GlobalConstants.TABLE_SALARY_EXPENSE_ACCOUNTING, async id => { var salary = await _dbContext.SalaryExpenseAccountings.FirstOrDefaultAsync(m => m.Id == id); return (salary, salary?.VoucherNo); } },
+                    { GlobalConstants.TABLE_ADJUSTED_ANNUAL_LEAVE_REQUEST, async id => { var salary = await _dbContext.AdjustedAnnualLeaveRequests.FirstOrDefaultAsync(m => m.Id == id); return (salary, salary?.VoucherNo); } }
                 };
                 if (!entityHandlers.TryGetValue($"{entityModel.objType}", out var handler))
                 {
@@ -196,7 +198,8 @@ namespace HNOne.API.Repositories
                     { GlobalConstants.TABLE_OVERTIME_REQUEST, async id => { var overtime = await _dbContext.OvertimeRequests.FirstOrDefaultAsync(m => m.Id == id);return (overtime, overtime?.VoucherNo, overtime?.EmployeeId);} },
                     { GlobalConstants.TABLE_TRAINING, async id => { var training = await _dbContext.Trainings.FirstOrDefaultAsync(m => m.Id == id); return (training, training?.VoucherNo, -1); } },
                     { GlobalConstants.TABLE_CONFIRM_WORKING_DAY, async id => { var confirm = await _dbContext.ConfirmWorkingDays.FirstOrDefaultAsync(m => m.Id == id); return (confirm, confirm?.VoucherNo, confirm?.EmployeeId); } },
-                    { GlobalConstants.TABLE_SALARY_EXPENSE_ACCOUNTING, async id => { var salary = await _dbContext.SalaryExpenseAccountings.FirstOrDefaultAsync(m => m.Id == id); return (salary, salary?.VoucherNo, -1); } }
+                    { GlobalConstants.TABLE_SALARY_EXPENSE_ACCOUNTING, async id => { var salary = await _dbContext.SalaryExpenseAccountings.FirstOrDefaultAsync(m => m.Id == id); return (salary, salary?.VoucherNo, -1); } },
+                    { GlobalConstants.TABLE_ADJUSTED_ANNUAL_LEAVE_REQUEST, async id => { var salary = await _dbContext.AdjustedAnnualLeaveRequests.FirstOrDefaultAsync(m => m.Id == id); return (salary, salary?.VoucherNo, -1); } }
                 };
                 await _dbContext.Database.BeginTransactionAsync();
                 isTran = true;
@@ -238,12 +241,18 @@ namespace HNOne.API.Repositories
                     dynamicRecord.DateTracking = dateTimeNow;
                     _dbContext.Attach(dynamicRecord);
                     _dbContext.Entry(dynamicRecord).State = EntityState.Modified;
-
-                    if(entity.objType == GlobalConstants.TABLE_CONTRACT && actionType == CommonConstants.STATUS_CODE_APPROVED)
+                    await _dbContext.SaveChangesAsync(); // để trạng thái được thay đổi tạm thời => tính toán các phiếu không bị lệch
+                    if (entity.objType == GlobalConstants.TABLE_CONTRACT && actionType == CommonConstants.STATUS_CODE_APPROVED)
                     {
                         // Nếu phê duyệt hợp đồng thì vô hiệu hóa hợp đồng còn hiệu lực
                         await deactivateOldContract(dynamicRecord, entity, dateTimeNow);
-                    }    
+                    }
+                    else if (entity.objType == GlobalConstants.TABLE_LEAVE_REQUEST && actionType == CommonConstants.STATUS_CODE_APPROVED)
+                    {
+                        // nếu phê duyệt phiếu nghỉ phép thì tính toán lại thông tin phép năm của tháng đó
+                        await calculateAnnualLeaveInfo(dynamicRecord, entity);
+                    }
+                    
                     // cập nhật tình trạng phê duyệt
                     data.StatusCode = entity.statusCode;
                     data.ApprovalRemark = entity.approvalRemark?.Trim();
@@ -302,7 +311,8 @@ namespace HNOne.API.Repositories
                     { GlobalConstants.TABLE_SHIFT_CHANGE_REQUEST, async id => await _dbContext.ShiftChanges.FirstOrDefaultAsync(m => m.Id == id) },
                     { GlobalConstants.TABLE_OVERTIME_REQUEST, async id => await _dbContext.OvertimeRequests.FirstOrDefaultAsync(m => m.Id == id) },
                     { GlobalConstants.TABLE_TRAINING, async id => await _dbContext.Trainings.FirstOrDefaultAsync(m => m.Id == id) },
-                    { GlobalConstants.TABLE_CONFIRM_WORKING_DAY, async id => await _dbContext.ConfirmWorkingDays.FirstOrDefaultAsync(m => m.Id == id) }
+                    { GlobalConstants.TABLE_CONFIRM_WORKING_DAY, async id => await _dbContext.ConfirmWorkingDays.FirstOrDefaultAsync(m => m.Id == id) },
+                    { GlobalConstants.TABLE_ADJUSTED_ANNUAL_LEAVE_REQUEST, async id => await _dbContext.AdjustedAnnualLeaveRequests.FirstOrDefaultAsync(m => m.Id == id) }
                 };
                 foreach (var entity in lstEntity)
                 {
@@ -480,6 +490,26 @@ namespace HNOne.API.Repositories
                     await addDocumentHistory(pContract.BranchId, entity.employeeId, contractOld.Id, entity.objType
                         , contractOld.StatusCode, pContract.StatusCode, contractOld.NoteForAll, entity.userSign ?? -1, dateTimeNow);
                 }
+            }
+            catch (Exception) { throw; }
+        }
+        
+        /// <summary>
+        /// Cập nhật thông tin phép năm của nhân viên
+        /// </summary>
+        /// <param name="pLeaveRequest"></param>
+        /// <returns></returns>
+        private async Task calculateAnnualLeaveInfo(LeaveRequests pLeaveRequest, ApprovalModel entity)
+        {
+            try
+            {
+                //var parameters = new DynamicParameters();
+                //parameters.Add("@UserId", entity.userSign ?? -1, DbType.Int32);
+                //parameters.Add("@BranchId", entity.branchId, DbType.Int32);
+                //parameters.Add("@LeaveRequestId", pLeaveRequest.Id, DbType.Int32);
+                //parameters.Add("@StatusIds", $"{pLeaveRequest.EmployeeId}", DbType.String);
+                await _dbContext.Database.ExecuteSqlRawAsync($"exec {StoreConstants.STORE_H1_CALCULATE_ANNUAL_LEAVE_UPDATE} @p0, @p1, @p2, @p3"
+                    , entity.userSign ?? -1, entity.branchId, pLeaveRequest.Id, pLeaveRequest.EmployeeId);
             }
             catch (Exception) { throw; }
         }

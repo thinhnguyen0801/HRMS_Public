@@ -11,40 +11,36 @@ using HNOne.Web.Models;
 using Microsoft.AspNetCore.WebUtilities;
 using Newtonsoft.Json;
 using HNOne.Web.Services;
-using HNOne.Model.Entities;
-
 namespace HNOne.Web.Controllers
 {
-    public class LeaveRequestController : DocumentControllerBase
+    public class AdjustedALRequestController : DocumentControllerBase
     {
         [Inject] IMasterDataService _masterDataService { get; init; }
         [Inject] IWorkforceService _workforceService { get; init; }
         [Inject] IApprovalService _approvalService { get; init; }
         [Inject] IJSRuntime _jsRuntime { get; set; }
         public W1Confirm confirm { get; set; }
-
-        const string STRING_KEY_EVENT_POST = "LEAVE_REQUEST_CONTROLLER_POST";
-        const string STRING_KEY_EVENT_PUT = "LEAVE_REQUEST_CONTROLLER_PUT";
-        const string STRING_KEY_EVENT_DELETE = "LEAVE_REQUEST_CONTROLLER_DELETE";
+        const string STRING_KEY_EVENT_POST = "ADJUSTED_AL_REQUEST_CONTROLLER_POST";
+        const string STRING_KEY_EVENT_PUT = "ADJUSTED_AL_REQUEST_CONTROLLER_PUT";
+        const string STRING_KEY_EVENT_DELETE = "ADJUSTED_AL_REQUEST_CONTROLLER_DELETE";
         const string STRING_KEY_EVENT_APPROVAL = "APPROVAL_CONTROLLER_PUT";
+
         #region Properties
         public string? pActionType { get; set; } = nameof(EnumType.Add);
         private int pDocEntry { get; set; } = 0;
         public int ActiveTabIndex { get; set; } = 0;
-        public LeaveRequestModel LeaveRequestDocument { get; set; } = new LeaveRequestModel();
-        public List<LeaveRequest1Model>? ListOfVacationDays { get; set; } // danh sách thông tin lương
-        public IGrid? GridOfVacationDays { get; set; }
-        public List<ComboboxModel>? ListCboDepartment { get; set; } // cbo ds phòng ban
-        public List<ComboboxModel>? ListCboReason { get; set; } // cbo ds phòng ban
+        public AdjustedAnnualLeaveRequestModel RequestDocument { get; set; } = new AdjustedAnnualLeaveRequestModel();
+        public List<AdjustedAnnualLeaveRequest1Model>? ListEmployeeAdjusted { get; set; } // danh sách nhân viên điều chỉnh
+        public IGrid? GridEmployeeAdjusted { get; set; }
+        public List<ComboboxModel>? ListCboYear { get; set; }
         public List<EnumCatagoryModel>? ListCboStatus { get; set; } // cbo ds tình trạng
-
         private string? pPopupType { get; set; } = string.Empty; // mở popup nào
         public string EnumEmployeeType { get; set; } = string.Empty; // Hiện có nhân viên lập & nhân viên ký
         public bool IsShowDialogEmpSearch { get; set; }
         public string? StatusIds { get; set; } // Tình trạng nào
+        public GridSelectionMode DxGridEmployeeSelectionMode { get; set; } = GridSelectionMode.Single; // chọn môt/nhiều
         public object? EmployeeSelected { get; set; } // Nhân viên được chọn
-        public bool firstRender { get; set; } = true;
-        public double TotalLeaveDays { get; set; } // Tổng số ngày nghỉ
+        public IReadOnlyList<object>? ListEmpSelected { get; set; } // danh sách nhân viên được chọn
         public string? VoucherHistory { get; set; } = string.Empty; // lịch sử chứng từ
         // lock control lại
         public bool IsReadonlyControl { get; set; } = false;
@@ -66,27 +62,26 @@ namespace HNOne.Web.Controllers
             {
                 try
                 {
-                    string errMessage = await CheckMenuPermissionAsync("danh-sach-de-nghi-nghi-phep");
+                    string errMessage = await CheckMenuPermissionAsync("danh-sach-dieu-chinh-phep-nam");
                     if (errMessage == "401") return; // kiểm quyền menu page danh sách
-                    this.firstRender = firstRender;
                     await ShowLoading();
                     await checkPermission(errMessage);
                     ListBreadcrumbs = new List<BreadcrumbModel>()
                     {
                         new BreadcrumbModel("Công - Phép"),
-                        new BreadcrumbModel("Chứng từ đề nghị"),
-                        new BreadcrumbModel("Đề nghị nghỉ phép", "danh-sach-de-nghi-nghi-phep"),
-                        new BreadcrumbModel("Chi tiết đề nghị nghỉ phép", isActive: true),
+                        new BreadcrumbModel("Tính công"),
+                        new BreadcrumbModel("Điều chỉnh phép", "danh-sach-dieu-chinh-phep-nam"),
+                        new BreadcrumbModel("Chi tiết điều chỉnh phép", isActive: true),
                     };
                     await NotifyBreadcrumb.InvokeAsync(ListBreadcrumbs);
+
                     //
                     initDataAsync();
                     await buildComboAsync();
-                    await getAnnualLeaveInfo(EmployeeId);
                     if (pDocEntry > 0)
                     {
                         await showVoucher();
-                    }    
+                    }
                 }
                 catch (Exception ex)
                 {
@@ -95,11 +90,10 @@ namespace HNOne.Web.Controllers
                 }
                 finally
                 {
-                    this.firstRender = false;
                     await ShowLoading(false);
                     await InvokeAsync(StateHasChanged);
                 }
-            }
+            }    
         }
 
         #region Private Functions
@@ -113,8 +107,8 @@ namespace HNOne.Web.Controllers
             string menuId = await GetMenuId("phe-duyet");
             List<string> lstKey = await CheckEventPermission(menuId);
             IsAllowApproval = lstKey.FirstOrDefault(m => m == STRING_KEY_EVENT_APPROVAL) != null
-                && LeaveRequestDocument.employeeSignatureId == EmployeeId
-                && LeaveRequestDocument.statusCode == CommonConstants.STATUS_CODE_APPROVAL_PENDING;
+                && RequestDocument.employeeSignatureId == EmployeeId
+                && RequestDocument.statusCode == CommonConstants.STATUS_CODE_APPROVAL_PENDING;
         }
 
         /// <summary>
@@ -132,11 +126,8 @@ namespace HNOne.Web.Controllers
         private void initDataAsync(bool isRefresh = false)
         {
             // GÁN DỮ LIỆU MẶC ĐỊNH
-            LeaveRequestDocument.statusCode = CommonConstants.STATUS_CODE_ADD; // mặc định là chờ xử lý
-            LeaveRequestDocument.employeeId = EmployeeId;
-            LeaveRequestDocument.employeeCode = EmployeeCode;
-            LeaveRequestDocument.employeeName = EmployeeName;
-            LeaveRequestDocument.departmentId = DepartmentId;
+            RequestDocument.statusCode = CommonConstants.STATUS_CODE_ADD; // mặc định là chờ xử lý
+            RequestDocument.year = DateTime.Now.Year;
             var uri = _navigationManager?.ToAbsoluteUri(_navigationManager.Uri);
             if (!isRefresh && uri != null && QueryHelpers.ParseQuery(uri.Query).Count > 0)
             {
@@ -159,18 +150,20 @@ namespace HNOne.Web.Controllers
         {
             try
             {
-                var getTask1 = _masterDataService.GetDepartmentAsync(UserId, Token, BranchId, opt: CommonConstants.ENUM_ACTIVE); // ds phòng ban
-                var getTask2 = _masterDataService.GetReasonCategoryAsync(UserId, Token, branchId: BranchId, reasonType: GlobalContants.ENUM_REASON_DNNP, opt: CommonConstants.ENUM_ACTIVE);
-                var getTask5 = _masterDataService.GetFunEnumAsync(UserId, Token, nameof(EnumCatagory.TrangThaiHopDong)); // ds trạng thái
+                RequestModel request = new RequestModel();
+                request.process = ProcessConstants.GET_WORKFORCE_MASTER_DATA;
+                request.userId = UserId;
+                request.branchId = BranchId;
+                request.token = Token;
+                request.type = ProcessConstants.GET_COMBO_ANNUAL_LEAVE_YEAR;
+                var getTask1 = _masterDataService.GetFunEnumAsync(UserId, Token, nameof(EnumCatagory.TrangThaiHopDong)); // ds trạng thái
+                var getTask3 = _workforceService.GetMasterDataAsync<ComboboxModel>(request, isShowToast: true);
                 await Task.WhenAll(
                     getTask1,
-                    getTask2,
-                    getTask5
+                    getTask3
                 );
-
-                ListCboDepartment = (await getTask1)?.Select(m => new ComboboxModel() { id = m.id, name = m.name })?.ToList();
-                ListCboReason = (await getTask2)?.Select(m => new ComboboxModel() { id = m.id, name = m.name, value = m.value2?.ToString() })?.ToList();
-                ListCboStatus = await getTask5;
+                ListCboYear = await getTask3;
+                ListCboStatus = await getTask1;
             }
             catch (Exception) { throw; }
         }
@@ -182,96 +175,40 @@ namespace HNOne.Web.Controllers
         /// <param name="fieldName"></param>
         private void validateForSave(ref string errorMessage, ref string fieldName)
         {
-            if (LeaveRequestDocument.employeeId < 1)
-            {
-                errorMessage = string.Format(MessageConstants.MESSAGE_COMBOBOX_REQUIRE, "Nhân viên");
-                fieldName = nameof(LeaveRequestDocument.employeeId);
-                return;
-            }
-            if (LeaveRequestDocument.departmentId < 1)
-            {
-                errorMessage = string.Format(MessageConstants.MESSAGE_COMBOBOX_REQUIRE, "Phòng ban");
-                fieldName = nameof(LeaveRequestDocument.departmentId);
-                return;
-            }
-            if (LeaveRequestDocument.employeeSignatureId < 1)
+            if (RequestDocument.employeeSignatureId < 1)
             {
                 errorMessage = string.Format(MessageConstants.MESSAGE_COMBOBOX_REQUIRE, "Người ký");
-                fieldName = nameof(LeaveRequestDocument.employeeSignatureId);
+                fieldName = nameof(RequestDocument.employeeSignatureId);
                 return;
             }
-            if (LeaveRequestDocument.reasonId < 1)
-            {
-                errorMessage = string.Format(MessageConstants.MESSAGE_COMBOBOX_REQUIRE, "Loại nghỉ");
-                fieldName = nameof(LeaveRequestDocument.reasonId);
-                return;
-            }
-            if (string.IsNullOrWhiteSpace(LeaveRequestDocument.remark))
+            if (string.IsNullOrWhiteSpace(RequestDocument.remark))
             {
                 errorMessage = string.Format(MessageConstants.MESSAGE_STRING_REQUIRE, "Lý do");
                 fieldName = "txtRemark";
                 return;
             }
-            validateForCreateLeaveDate(ref errorMessage, ref fieldName);
-            if (!string.IsNullOrEmpty(errorMessage)) return;
-            if (ListOfVacationDays.IsNullOrEmpty())
+            if (ListEmployeeAdjusted.IsNullOrEmpty())
             {
-                errorMessage = "Không tìm thấy danh sách ngày nghỉ. Vui lòng làm mới danh sách ngày nghỉ!!!";
+                errorMessage = "Không tìm thấy danh sách nhân viên điều chỉnh phép!!!";
                 fieldName = "gridInfo";
                 return;
             }
-            //nếu danh sách toàn ngày nghỉ thì chặn không cho lập phiếu
-            var countDayOff = ListOfVacationDays!.Where(m => m.isDayOff).Count();
-            if (countDayOff == ListOfVacationDays!.Count())
+            // Kiễm tra dữ liệu lưới
+            AdjustedAnnualLeaveRequest1Model? itemCheck = ListEmployeeAdjusted!.FirstOrDefault(m => m.numOfAdjustedLeave == 0);
+            if(itemCheck != null)
             {
-                errorMessage = "Ngày nghỉ tuần, nghỉ lễ không thể lập phiếu đề nghị nghỉ phép!!!";
+                errorMessage = $"Nhân viên [{itemCheck.employeeCode}]. Vui lòng điền số phép cần điều chỉnh +/-";
                 fieldName = "gridInfo";
                 return;
             }
-            //nếu ngày làm việc đó check vô nghỉ buổi sáng = false & nghỉ buổi chiều = flase => không hợp lệ
-            LeaveRequest1Model? checkDayOffInvalid = ListOfVacationDays!.FirstOrDefault(m => !m.isDayOff && !m.isAfternoonBreak && !m.isMorningBreak);
-            if(checkDayOffInvalid != null)
+            itemCheck = ListEmployeeAdjusted!.FirstOrDefault(m => m.startDate.Year != RequestDocument.year);
+            if (itemCheck != null)
             {
-                errorMessage = $"Ngày [{checkDayOffInvalid.dateOff.ToString(GlobalContants.FORMAT_DATE)}] không hợp lệ. Vui lòng chọn nghỉ buổi hoặc nghỉ ngày";
+                errorMessage = $"Nhân viên [{itemCheck.employeeCode}]. Ngày áp dụng phải nằm trong năm {RequestDocument.year}";
                 fieldName = "gridInfo";
                 return;
             }
         }
-
-        /// <summary>
-        /// kiểm tra từ ngày đến ngày
-        /// </summary>
-        /// <param name="errorMessage"></param>
-        /// <param name="fieldName"></param>
-        private void validateForCreateLeaveDate(ref string errorMessage, ref string fieldName)
-        {
-            TotalLeaveDays = 0;
-            if (LeaveRequestDocument.fromDate == null)
-            {
-                errorMessage = string.Format(MessageConstants.MESSAGE_COMBOBOX_REQUIRE, "Từ ngày");
-                fieldName = "startDate";
-                return;
-            }
-            if (LeaveRequestDocument.toDate == null)
-            {
-                errorMessage = string.Format(MessageConstants.MESSAGE_COMBOBOX_REQUIRE, "Đến ngày");
-                fieldName = "endDate";
-                return;
-            }
-            if (LeaveRequestDocument.toDate.Value.Date < LeaveRequestDocument.fromDate.Value.Date)
-            {
-                errorMessage = MessageConstants.MESSAGE_FROM_DATE_TO_DATE_INVALID;
-                fieldName = "startDate";
-                return;
-            }
-            if(LeaveRequestDocument.fromDate.Value.Year != LeaveRequestDocument.toDate.Value.Year)
-            {
-                errorMessage = "Không được đăng ký nghỉ phép ở 2 năm khác nhau";
-                fieldName = "endDate";
-                return;
-            }    
-        }
-
 
         /// <summary>
         /// Hiểm thị thông tin chi tiết
@@ -286,22 +223,20 @@ namespace HNOne.Web.Controllers
                 request.userId = UserId;
                 request.branchId = BranchId;
                 request.token = Token;
-                request.process = ProcessConstants.GET_LEAVE_REQUEST;
-                var task1 = _workforceService.GetLeaveRequestAsync(request);
+                request.process = ProcessConstants.GET_ADJUSTED_ANNUAL_LEAVE_REQUEST;
+                var task1 = _workforceService.GetAdjustedALRequestAsync(request);
                 var task2 = getDocumentHistory();
                 await Task.WhenAll(task1, task2);
-                List<LeaveRequestModel>? lstData = await task1;
+                List<AdjustedAnnualLeaveRequestModel>? lstData = await task1;
                 if (!lstData.IsNullOrEmpty())
                 {
-                    LeaveRequestDocument = lstData![0];
-                    await getAnnualLeaveInfo(LeaveRequestDocument.employeeId); // lấy thông tin ngày nghỉ
+                    RequestDocument = lstData![0];
                     //cho phép chỉnh sữa khi tình trạng là: A (Tạo mới), Y (Đã gửi yêu cầu phê duyệt)
-                    IsReadonlyControl = LeaveRequestDocument.statusCode != CommonConstants.STATUS_CODE_ADD
-                        && LeaveRequestDocument.statusCode != CommonConstants.STATUS_CODE_APPROVAL_PENDING;
-                    if (!string.IsNullOrEmpty(LeaveRequestDocument.jsonDetail))
+                    IsReadonlyControl = RequestDocument.statusCode != CommonConstants.STATUS_CODE_ADD
+                        && RequestDocument.statusCode != CommonConstants.STATUS_CODE_APPROVAL_PENDING;
+                    if (!string.IsNullOrEmpty(RequestDocument.jsonDetail))
                     {
-                        ListOfVacationDays = JsonConvert.DeserializeObject<List<LeaveRequest1Model>>(LeaveRequestDocument.jsonDetail);
-                        calculateLeaveDays();
+                        ListEmployeeAdjusted = JsonConvert.DeserializeObject<List<AdjustedAnnualLeaveRequest1Model>>(RequestDocument.jsonDetail);
                         // Kiểm tra quyền duyệt
                         IsAllowApproval = false;
                         await checkPermissionApproval();
@@ -319,93 +254,7 @@ namespace HNOne.Web.Controllers
         /// </summary>
         /// <returns></returns>
         private async Task getDocumentHistory()
-            => VoucherHistory = await _approvalService.GetFunDocumentHistoryAsync(UserId, BranchId, Token, nameof(EnumObjType.LeaveRequests), pDocEntry);
-        
-        /// <summary>
-        /// lấy thông tin phép năm
-        /// </summary>
-        /// <param name="employeeId"></param>
-        /// <returns></returns>
-        private async Task getAnnualLeaveInfo(int employeeId)
-        {
-            try
-            {
-                LeaveRequestDocument.numOfLeave = 0;
-                LeaveRequestDocument.numOfLeaveLevel = 0;
-                LeaveRequestDocument.numOfLeaveOld = 0;
-                LeaveRequestDocument.numOfLeaveUsed = 0;
-                LeaveRequestDocument.numOfLeaveRemaining = 0;
-                LeaveRequestDocument.numOfAdjustedLeave = 0;
-                LeaveRequestDocument.numOfLeavePending = 0;
-                RequestModel request = new RequestModel();
-                request.process = ProcessConstants.GET_ANNUAL_LEAVE_INFO;
-                request.userId = UserId;
-                request.branchId = BranchId;
-                request.token = Token;
-                request.opt = DateTime.Now.Year.ToString(); // lấy năm hiện tại
-                request.departmentIds = "";
-                request.opt1 = ""; // phòng ban
-                request.opt2 = ""; 
-                request.opt3 = employeeId.ToString(); // nhân viên
-                var result = await _workforceService.GetMasterDataAsync<AnnualLeaveInfoModel>(request);
-                if(!result.IsNullOrEmpty())
-                {
-                    var header = result![0];
-                    LeaveRequestDocument.numOfLeave = header.numOfLeave; // Phép trong năm
-                    LeaveRequestDocument.numOfLeaveLevel = header.numOfLeaveLevel; // Phép thâm niên
-                    LeaveRequestDocument.numOfLeaveOld = header.numOfLeaveOld; // Phép năm củ
-                    LeaveRequestDocument.expiryALOldDate = header.expiryDate; // Ngày hết hạn phép năm củ
-                    LeaveRequestDocument.numOfAdjustedLeave = header.numOfAdjustedLeave; // Phép năm được điều chỉnh
-                    LeaveRequestDocument.numOfLeaveUsed = header.numOfLeaveUsed; // phép đã dùng
-                    LeaveRequestDocument.numOfLeavePending = header.numOfLeavePending; // Phép tạo mới chờ duyệt
-                    LeaveRequestDocument.numOfLeaveRemaining = header.numOfLeaveRemaining - header.numOfLeavePending; // Phép năm còn lại có thể sử dụng
-                }    
-            }
-            catch(Exception){ throw; }
-        }
-        
-        /// <summary>
-        /// tạo ra danh sách ngày chi tiết
-        /// </summary>
-        /// <returns></returns>
-        private async Task generateListDays()
-        {
-            RequestModel request = new RequestModel();
-            request.process = ProcessConstants.GET_WORKFORCE_MASTER_DATA;
-            request.userId = UserId;
-            request.token = Token;
-            request.branchId = BranchId;
-            request.opt = LeaveRequestDocument.fromDate!.FormatDateTimeSql();
-            request.opt1 = LeaveRequestDocument.toDate!.FormatDateTimeSql();
-            request.type = ProcessConstants.GET_COMBO_LIST_OF_VACATION_DAY;
-            var result = await _workforceService.GetMasterDataAsync<LeaveRequest1Model>(request, isShowToast: true);
-            ListOfVacationDays = result;
-            calculateLeaveDays();
-        }
-
-        /// <summary>
-        /// Tính tổng số ngày nghỉ
-        /// </summary>
-        private void calculateLeaveDays()
-        {
-            TotalLeaveDays = 0;
-            if (ListOfVacationDays.IsNullOrEmpty()) return;
-            // Tính tổng ngày nghỉ thực tế
-            double totalLeaveDays = 0;
-            foreach (var item in ListOfVacationDays!)
-            {
-                if (item.isDayOff) continue;
-                if (item.isAfternoonBreak && item.isMorningBreak)
-                {
-                    totalLeaveDays += 1;
-                    item.totalLeaveDays = 1;
-                    continue;
-                }
-                item.totalLeaveDays = 0.5;
-                totalLeaveDays += 0.5;
-            }
-            TotalLeaveDays = totalLeaveDays;
-        }
+            => VoucherHistory = await _approvalService.GetFunDocumentHistoryAsync(UserId, BranchId, Token, nameof(EnumObjType.AdjustedAnnualLeaveRequests), pDocEntry);
 
         /// <summary>
         /// Lưu thông tin chứng từ
@@ -416,12 +265,12 @@ namespace HNOne.Web.Controllers
         {
             try
             {
-                string processKey = pActionType == nameof(EnumType.Add) ? ProcessConstants.POST_LEAVE_REQUEST : ProcessConstants.PUT_LEAVE_REQUEST;
-                LeaveRequestDocument.branchId = BranchId;
-                LeaveRequestDocument.userSign = UserId;
-                LeaveRequestDocument.userSign2 = UserId;
-                string json = JsonConvert.SerializeObject(LeaveRequestDocument);
-                string jsonDetail = JsonConvert.SerializeObject(ListOfVacationDays);
+                string processKey = pActionType == nameof(EnumType.Add) ? ProcessConstants.POST_ADJUSTED_ANNUAL_LEAVE_REQUEST : ProcessConstants.PUT_ADJUSTED_ANNUAL_LEAVE_REQUEST;
+                RequestDocument.branchId = BranchId;
+                RequestDocument.userSign = UserId;
+                RequestDocument.userSign2 = UserId;
+                string json = JsonConvert.SerializeObject(RequestDocument);
+                string jsonDetail = JsonConvert.SerializeObject(ListEmployeeAdjusted);
                 int result = await _workforceService.UpdateLeaveRequestAsync(processKey, UserId, Token, BranchId, json, jsonDetail, isShowToast: isShowToast);
                 return result;
             }
@@ -451,13 +300,13 @@ namespace HNOne.Web.Controllers
                     new ApprovalModel()
                     {
                         id = -1,
-                        branchId = LeaveRequestDocument.branchId,
-                        docEntry = LeaveRequestDocument.id,
+                        branchId = RequestDocument.branchId,
+                        docEntry = RequestDocument.id,
                         statusCode = statusCode,
-                        objType = nameof(EnumObjType.LeaveRequests),
+                        objType = nameof(EnumObjType.AdjustedAnnualLeaveRequests),
                         approvalRemark = approvalRemark,
                         remark = approvalRemark,
-                        employeeSignatureId = LeaveRequestDocument.employeeSignatureId,
+                        employeeSignatureId = RequestDocument.employeeSignatureId,
                         userSign2 = UserId,
                         employeeId = EmployeeId,
                         userSign = UserId
@@ -484,10 +333,9 @@ namespace HNOne.Web.Controllers
         }
         #endregion
 
-
         #region Protected Functions
-        protected async Task OpenPopupHandler(string type = nameof(EmployeeSelected), 
-            string popupType = nameof(LeaveRequestDocument.employeeCode))
+        protected async Task OpenPopupHandler(string type = nameof(EmployeeSelected),
+            string popupType = nameof(RequestDocument.employeeSignatureCode))
         {
             try
             {
@@ -495,9 +343,13 @@ namespace HNOne.Web.Controllers
                 switch (type)
                 {
                     case nameof(EmployeeSelected):
-                        //ListCboDepartment ??= new();
-                        //DepartmentIds = string.Join(",", ListCboDepartment.Select(m => m.id));
-                        EnumEmployeeType = popupType == nameof(LeaveRequestDocument.employeeSignatureCode) ? CommonConstants.ENUM_EMPLOYEE_SIGNATURE : "";
+                        EnumEmployeeType = popupType == nameof(RequestDocument.employeeSignatureCode) ? CommonConstants.ENUM_EMPLOYEE_SIGNATURE : "";
+                        DxGridEmployeeSelectionMode = GridSelectionMode.Single;
+                        IsShowDialogEmpSearch = true;
+                        break;
+                    case nameof(ListEmpSelected):
+                        EnumEmployeeType = "";
+                        DxGridEmployeeSelectionMode = GridSelectionMode.Multiple;
                         IsShowDialogEmpSearch = true;
                         break;
                 }
@@ -528,23 +380,30 @@ namespace HNOne.Web.Controllers
                     ShowWarning(string.Format(MessageConstants.MESSAGE_COMBOBOX_REQUIRE, "Nhân viên"));
                     return;
                 }
-                EmployeeModel employee = (EmployeeModel)EmployeeSelected;
                 switch (pPopupType)
                 {
-                    case nameof(LeaveRequestDocument.employeeCode):
-                        await ShowLoading();
-                        await getAnnualLeaveInfo(employee.id);
-                        LeaveRequestDocument.employeeId = employee.id;
-                        LeaveRequestDocument.employeeCode = employee.code;
-                        LeaveRequestDocument.employeeName = employee.name;
-                        LeaveRequestDocument.departmentId = employee.departmentId;
+                    case nameof(RequestDocument.employeeSignatureCode):
+                        EmployeeModel employee = (EmployeeModel)EmployeeSelected;
+                        RequestDocument.employeeSignatureId = employee.id;
+                        RequestDocument.employeeSignatureCode = employee.code;
+                        RequestDocument.employeeSignatureName = employee.name;
                         IsShowDialogEmpSearch = false;
-                        await Task.Delay(75);
                         break;
-                    case nameof(LeaveRequestDocument.employeeSignatureCode):
-                        LeaveRequestDocument.employeeSignatureId = employee.id;
-                        LeaveRequestDocument.employeeSignatureCode = employee.code;
-                        LeaveRequestDocument.employeeSignatureName = employee.name;
+                    case nameof(ListEmpSelected):
+                        if (ListEmpSelected.IsNullOrEmpty()) break;
+                        ListEmployeeAdjusted ??= new List<AdjustedAnnualLeaveRequest1Model>();
+                        foreach (var item in ListEmpSelected!.Cast<EmployeeModel>())
+                        {
+                            if (ListEmployeeAdjusted.Any(m => m.employeeCode == item.code)) continue;
+                            var otraining1 = new AdjustedAnnualLeaveRequest1Model();
+                            otraining1.employeeId = item.id;
+                            otraining1.employeeCode = item.code;
+                            otraining1.employeeName = item.name;
+                            otraining1.startDate = DateTime.Now.Date;
+                            otraining1.numOfAdjustedLeave = 0;
+                            ListEmployeeAdjusted.Add(otraining1);
+                        }
+                        GridEmployeeAdjusted?.Reload();
                         IsShowDialogEmpSearch = false;
                         break;
                 }
@@ -566,99 +425,52 @@ namespace HNOne.Web.Controllers
         /// </summary>
         /// <param name="lstEmp"></param>
         protected void EventCallbackEmpChangedHandler(object? lstEmp) => EmployeeSelected = lstEmp;
-        
-        /// <summary>
-        /// tạo danh sách ngày nghỉ
-        /// </summary>
-        /// <returns></returns>
-        protected async Task CreateLeaveDateHandler()
-        {
-            try
-            {
-                string errorMessage = string.Empty;
-                string fieldName = string.Empty; // trả ra trường nào cần validate
-                validateForCreateLeaveDate(ref errorMessage, ref fieldName);
-                if (!string.IsNullOrEmpty(errorMessage))
-                {
-                    ShowWarning(errorMessage);
-                    await _jsRuntime.InvokeVoidAsync("focusInput", fieldName);
-                    return;
-                }
-                await ShowLoading();
-                await generateListDays();
-            }
-            catch (Exception ex)
-            {
-                ShowError(ex.Message);
-                _logger.LogError(ex, "CreateLeaveDateHandler");
-            }
-            finally
-            {
-                await Task.Delay(100);
-                await ShowLoading(false);
-                await InvokeAsync(StateHasChanged);
-            }
-        }
 
-        protected void GridLeaveDateEditSavingHandler(GridEditModelSavingEventArgs e)
+        protected void EventCallbackEmpListChangedHandler(IReadOnlyList<object>? lstEmp) => ListEmpSelected = lstEmp;
+
+        protected void GridAdjustedEditSavingHandler(GridEditModelSavingEventArgs e)
         {
             try
             {
                 if (IsReadonlyControl) return;
-                var itemEdit = (LeaveRequest1Model)e.EditModel;
-                var itemFind = ListOfVacationDays?.FirstOrDefault(m => m.dateOff == itemEdit.dateOff && m.id == itemEdit.id);
+                var itemEdit = (AdjustedAnnualLeaveRequest1Model)e.EditModel;
+                var itemFind = ListEmployeeAdjusted?.FirstOrDefault(m => m.adjustedALId == itemEdit.adjustedALId && m.employeeId == itemEdit.employeeId);
                 if (itemFind == null) return;
                 itemFind.remark = itemEdit.remark;
-                itemFind.isMorningBreak = itemEdit.isMorningBreak;
-                itemFind.isAfternoonBreak = itemEdit.isAfternoonBreak;
-                calculateLeaveDays();
+                itemFind.startDate = itemEdit.startDate;
+                itemFind.numOfAdjustedLeave = itemEdit.numOfAdjustedLeave;
                 StateHasChanged();
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
-                _logger.LogError(ex, "GridLeaveDateEditSavingHandler");
+                _logger.LogError(ex, "GridAdjustedEditSavingHandler");
             }
         }
 
-        /// <summary>
-        /// custom tô line lưới
-        /// </summary>
-        /// <param name="e"></param>
-        protected void GridLeaveDateCustomizeElement(GridCustomizeElementEventArgs e)
+        protected void DeleteDataHandler()
         {
             try
             {
-                if(e.ElementType == GridElementType.DataRow && GridOfVacationDays != null)
+                if (ListEmployeeAdjusted.IsNullOrEmpty())
                 {
-                    var employee = (LeaveRequest1Model)GridOfVacationDays.GetDataItem(e.VisibleIndex);
-                    if(!string.IsNullOrEmpty(employee?.bgColor))
-                    {
-                        e.Style = $"background-color: {employee.bgColor}";
-                    }    
-                }    
-            }
-            catch (Exception ex) { }
-        }
-
-        /// <summary>
-        /// Custom tổng số giờ nghỉ loại trừ các ngày nghỉ
-        /// </summary>
-        /// <param name="e"></param>
-        protected void GridLeaveDateCustomSummary(GridCustomSummaryEventArgs e)
-        {
-            try
-            {
-                switch (e.SummaryStage)
-                {
-                    case GridCustomSummaryStage.Start:
-                        e.TotalValue = 0m;
-                        break;
-                    case GridCustomSummaryStage.Calculate:
-                        e.TotalValue = TotalLeaveDays;
-                        break;
+                    ShowWarning(MessageConstants.MESSAGE_NOT_FOUNT);
+                    return;
                 }
+                var lstSelected = GridEmployeeAdjusted!.SelectedDataItems;
+                if (lstSelected.IsNullOrEmpty())
+                {
+                    ShowWarning(MessageConstants.MESSAGE_NO_CHOSE_DATA);
+                    return;
+                }
+                foreach (AdjustedAnnualLeaveRequest1Model item in lstSelected) ListEmployeeAdjusted!.Remove(item);
+                GridEmployeeAdjusted?.Reload();
+                InvokeAsync(StateHasChanged);
             }
-            catch (Exception ex) { }
+            catch (Exception ex)
+            {
+                _logger!.LogError(ex, "DeleteDataHandler");
+                ShowError(ex.Message);
+            }
         }
 
         /// <summary>
@@ -685,9 +497,6 @@ namespace HNOne.Web.Controllers
                     return;
                 }
                 bool isConfirm = true;
-                // kiểm tra lập phiếu trễ
-                var checkOldDate = ListOfVacationDays!.FirstOrDefault(m => m.dateOff < DateTime.Now.Date && m.isDayOff == false);
-                if (checkOldDate != null) errorMessage = MessageConstants.MESSAGE_CONFIRM_ADD_OLD_DAY;
                 errorMessage += pActionType == nameof(EnumType.Add) ? MessageConstants.MESSAGE_CONFIRM_ADD : MessageConstants.MESSAGE_CONFIRM_UPDATE;
                 await Task.Yield();
                 isConfirm = await confirm.SetConfirm(MessageConstants.MESSAGE_TITLE, errorMessage);
@@ -737,13 +546,7 @@ namespace HNOne.Web.Controllers
                     await _jsRuntime.InvokeVoidAsync("focusInput", fieldName);
                     return;
                 }
-                // Nếu là tạo với & kiểm tra lập phiếu trễ
-                if (pActionType == nameof(EnumType.Add))
-                {
-                    var checkOldDate = ListOfVacationDays!.FirstOrDefault(m => m.dateOff < DateTime.Now.Date && m.isDayOff == false);
-                    if (checkOldDate != null) errorMessage = MessageConstants.MESSAGE_CONFIRM_ADD_OLD_DAY;
-                }
-                errorMessage += string.Format(MessageConstants.MESSAGE_CONFIRM_SEND_APPROVAL_FORMAT, $"đến nhân viên {LeaveRequestDocument.employeeSignatureName}");
+                errorMessage += string.Format(MessageConstants.MESSAGE_CONFIRM_SEND_APPROVAL_FORMAT, $"đến nhân viên {RequestDocument.employeeSignatureName}");
                 await Task.Yield();
                 isConfirm = await confirm.SetConfirm(MessageConstants.MESSAGE_TITLE, $"{errorMessage}");
                 if (!isConfirm) return;
@@ -756,12 +559,12 @@ namespace HNOne.Web.Controllers
                     string processKey = ProcessConstants.POST_APPROVAL;
                     ApprovalModel approval = new ApprovalModel();
                     approval.docEntry = pDocEntry;
-                    approval.objType = nameof(EnumObjType.LeaveRequests);
+                    approval.objType = nameof(EnumObjType.AdjustedAnnualLeaveRequests);
                     approval.branchId = BranchId;
                     approval.statusCode = CommonConstants.STATUS_CODE_APPROVAL_PENDING;
                     approval.userSign = UserId;
                     approval.employeeId = EmployeeId;
-                    approval.employeeSignatureId = LeaveRequestDocument.employeeSignatureId;
+                    approval.employeeSignatureId = RequestDocument.employeeSignatureId;
                     string content = JsonConvert.SerializeObject(approval);
                     isConfirm = await _approvalService.UpdateApprovalAsync(processKey, UserId, Token, json: content);
                     if (isConfirm)
@@ -771,54 +574,12 @@ namespace HNOne.Web.Controllers
                     }
                     await showVoucher();
                 }
-                
+
             }
             catch (Exception ex)
             {
                 ShowError(ex.Message);
                 _logger.LogError(ex, "SubmitForApprovalHandler");
-            }
-            finally
-            {
-                await ShowLoading(false);
-                await InvokeAsync(StateHasChanged);
-            }
-        }
-
-        /// <summary>
-        /// thay đổi thông tin DateEdit
-        /// </summary>
-        /// <param name="value"></param>
-        /// <param name="controlID"></param>
-        protected async void DateEditValueChangedHandler(object? value
-            , string controlID = nameof(LeaveRequestDocument.fromDate))
-        {
-            try
-            {
-                if (firstRender) return;
-                switch (controlID)
-                {
-                    case nameof(LeaveRequestDocument.fromDate):
-                        LeaveRequestDocument.fromDate = (DateTime?)value;
-                        LeaveRequestDocument.toDate = null;
-                        ListOfVacationDays = new List<LeaveRequest1Model>();
-                        break;
-                    case nameof(LeaveRequestDocument.toDate):
-                        LeaveRequestDocument.toDate = (DateTime?)value;
-                        ListOfVacationDays = new List<LeaveRequest1Model>();
-                        if (LeaveRequestDocument.fromDate != null 
-                            && LeaveRequestDocument.toDate != null
-                            && LeaveRequestDocument.toDate.Value.Date >= LeaveRequestDocument.fromDate.Value.Date)
-                        {
-                            await CreateLeaveDateHandler();
-                        }
-                        break;
-                }
-            }
-            catch (Exception ex)
-            {
-                ShowError(ex.Message);
-                _logger.LogError(ex, "SpinEditValueChangeHandler");
             }
             finally
             {
@@ -842,9 +603,9 @@ namespace HNOne.Web.Controllers
                     { "pDocEntry", $"{-1}" },
                 };
                 string key = _encryptHelper.Encrypt(JsonConvert.SerializeObject(pParams)); // mã hóa key
-                _navigationManager.NavigateTo($"/de-nghi-nghi-phep?key={key}");
-                LeaveRequestDocument = new LeaveRequestModel();
-                ListOfVacationDays = new List<LeaveRequest1Model>();
+                _navigationManager.NavigateTo($"/dieu-chinh-phep-nam?key={key}");
+                RequestDocument = new AdjustedAnnualLeaveRequestModel();
+                ListEmployeeAdjusted = new List<AdjustedAnnualLeaveRequest1Model>();
                 pActionType = nameof(EnumType.Add);
                 pDocEntry = -1;
                 VoucherHistory = string.Empty;
@@ -890,14 +651,11 @@ namespace HNOne.Web.Controllers
                 }
                 string errorMessage = string.Empty;
                 bool isConfirm = true;
-                //errorMessage = string.Format(MessageConstants.MESSAGE_CONFIRM_CANCEL_DOCUMENT_FORMAT, $"Phụ lục hợp đồng");
-                //isConfirm = await confirm.SetConfirm(MessageConstants.MESSAGE_TITLE, $"{errorMessage}");
-                //if (!isConfirm) return;
                 await ShowLoading();
                 string processKey = ProcessConstants.PUT_CANCEL_DOCUMENT;
                 ApprovalModel approval = new ApprovalModel();
-                approval.docEntry = LeaveRequestDocument.id;
-                approval.objType = nameof(EnumObjType.LeaveRequests);
+                approval.docEntry = RequestDocument.id;
+                approval.objType = nameof(EnumObjType.AdjustedAnnualLeaveRequests);
                 approval.employeeId = EmployeeId;
                 approval.statusCode = CommonConstants.STATUS_CODE_CANCELED;
                 approval.approvalRemark = ReasonDelete;
@@ -976,5 +734,6 @@ namespace HNOne.Web.Controllers
             catch { }
         }
         #endregion
+
     }
 }

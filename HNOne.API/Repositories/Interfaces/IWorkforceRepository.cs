@@ -39,5 +39,7 @@ namespace HNOne.API.Repositories.Interfaces
         Task<IEnumerable<ConfirmWorkingDayModel>> GetConfirmWorkingDay(RequestModel request);
         Task<ResponseModel> UnLockAttendanceSummary(int userId, IEnumerable<AttendanceSummarys> lstEntity);
         Task<IEnumerable<ShiftAssignmentModel>> GetAttendanceSummary(RequestModel request);
+        Task<IEnumerable<AdjustedAnnualLeaveRequestModel>> GetAdjustedALRequest(RequestModel request);
+        Task<ResponseModel> UpdateAdjustedAnnualLeave(string actionType, AdjustedAnnualLeaveRequests entity, IEnumerable<AdjustedAnnualLeaveRequest1s> lstEntity1);
     }
 }

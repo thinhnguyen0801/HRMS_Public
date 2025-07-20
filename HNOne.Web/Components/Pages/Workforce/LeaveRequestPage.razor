@@ -212,59 +212,62 @@
                         <div style="border-bottom: 1px solid var(--tblr-border-color); margin-top: 2px"></div>
                         <div id="collapse-12" class="accordion-collapse collapse show" data-bs-parent="#accordion-12">
                             <div class="accordion-body p-2">
-                                <div class="row row-gap-2">
-                                    <div class="col-md-4 col-sm-12">
-                                        <div class="d-flex ">
-                                            <W1Label Value="Phép trong năm" Styles="width: 120px" />
-                                            <div style="width: calc(100% - 120px)">
-                                                <DxSpinEdit @bind-Value="@LeaveRequestDocument.numOfLeave" ReadOnly="true"
-                                                            InputCssClass="text-end" ShowSpinButtons="false" CssClass="w1FontSize" />
+                                <div class="row row-gap-2 gap-3">
+                                    <div class="col-lg-2 col-md-3 col-sm-12">
+                                        <div class="d-flex align-items-center justify-content-between">
+                                            <W1Label Value="Phép năm trước" />
+                                            <div>
+                                                @if (LeaveRequestDocument.expiryALOldDate.Date < DateTime.Now.Date)
+                                                {
+                                                    <h3 class="mb-0 text-red">Đã hết hạn</h3>
+                                                }
+                                                else
+                                                {
+                                                    <h3 class="mb-0">@LeaveRequestDocument.numOfLeaveOld.ToString(GlobalContants.FORMAT_NUMBER_DOUBLE_1PLACE)</h3>
+                                                }
+                                            </div>
+                                        </div>
+                                        <div class="d-flex mt-2 align-items-center justify-content-between">
+                                            <W1Label Value="Phép trong năm" />
+                                            <div>
+                                                <h3 class="mb-0">@LeaveRequestDocument.numOfLeave.ToString(GlobalContants.FORMAT_NUMBER_DOUBLE_1PLACE)</h3>
                                             </div>
                                         </div>
                                     </div>
-                                    <div class="col-md-4 col-sm-12">
-                                        <div class="d-flex ">
-                                            <W1Label Value="Phép năm củ" Styles="width: 120px" />
-                                            <div style="width: calc(100% - 120px)">
-                                                <DxSpinEdit @bind-Value="@LeaveRequestDocument.numOfLeaveOld" ReadOnly="true"
-                                                            InputCssClass="text-end" ShowSpinButtons="false" CssClass="w1FontSize" />
+                                    <div class="col-lg-2 col-md-3 col-sm-12">
+                                        <div class="d-flex align-items-center justify-content-between">
+                                            <W1Label Value="Phép thâm niên"/>
+                                            <div>
+                                                <h3 class="mb-0">@LeaveRequestDocument.numOfLeaveLevel.ToString(GlobalContants.FORMAT_NUMBER_DOUBLE_1PLACE)</h3>
+                                            </div>
+                                        </div>
+                                        <div class="d-flex mt-2 align-items-center justify-content-between">
+                                            <W1Label Value="Phép điều chỉnh" />
+                                            <div>
+                                                <h3 class="mb-0">@LeaveRequestDocument.numOfAdjustedLeave.ToString(GlobalContants.FORMAT_NUMBER_DOUBLE_1PLACE)</h3>
+                                            </div>
+                                        </div>
+
+                                    </div>
+                                    <div class="col-lg-2 col-md-3 col-sm-12">
+                                        <div class="d-flex align-items-center justify-content-between">
+                                            <W1Label Value="Đã sử dụng" />
+                                            <div>
+                                                <h3 class="mb-0">@LeaveRequestDocument.numOfLeaveUsed.ToString(GlobalContants.FORMAT_NUMBER_DOUBLE_1PLACE)</h3>
+                                            </div>
+                                        </div>
+                                        <div class="d-flex mt-2 align-items-center justify-content-between">
+                                            <W1Label Value="Phép tạo mới/chờ duyệt" />
+                                            <div>
+                                                <h3 class="mb-0 text-red">@LeaveRequestDocument.numOfLeavePending.ToString(GlobalContants.FORMAT_NUMBER_DOUBLE_1PLACE)</h3>
                                             </div>
                                         </div>
                                     </div>
-                                    
-                                    <div class="col-md-4 col-sm-12">
-                                        <div class="d-flex ">
-                                            <W1Label Value="Phép thâm niên" Styles="width: 120px" />
-                                            <div style="width: calc(100% - 120px)">
-                                                <DxSpinEdit @bind-Value="@LeaveRequestDocument.numOfLeaveLevel" ReadOnly="true"
-                                                            InputCssClass="text-end" ShowSpinButtons="false" CssClass="w1FontSize" />
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <div class="col-md-4 col-sm-12">
-                                        <div class="d-flex ">
-                                            <W1Label Value="Tổng phép năm" Styles="width: 120px" />
-                                            <div style="width: calc(100% - 120px)">
-                                                <DxSpinEdit @bind-Value="@LeaveRequestDocument.numOfLeaveTotal" ReadOnly="true"
-                                                            InputCssClass="text-end" ShowSpinButtons="false" CssClass="w1FontSize" />
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <div class="col-md-4 col-sm-12">
-                                        <div class="d-flex ">
-                                            <W1Label Value="Phép năm đã dùng" Styles="width: 120px" />
-                                            <div style="width: calc(100% - 120px)">
-                                                <DxSpinEdit @bind-Value="@LeaveRequestDocument.numOfLeaveUsed" ReadOnly="true"
-                                                            InputCssClass="text-end" ShowSpinButtons="false" CssClass="w1FontSize" />
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <div class="col-md-4 col-sm-12">
-                                        <div class="d-flex ">
-                                            <W1Label Value="Phép năm còn lại" Styles="width: 120px" />
-                                            <div style="width: calc(100% - 120px)">
-                                                <DxSpinEdit @bind-Value="@LeaveRequestDocument.numOfLeaveRemaining" ReadOnly="true"
-                                                            InputCssClass="text-end" ShowSpinButtons="false" CssClass="w1FontSize" />
+                                    <div class="col-lg-2 col-md-3 col-sm-12">
+                                        <div class="d-flex align-items-center justify-content-between">
+                                            <W1Label Value="Còn lại có thể sử dụng" />
+                                            <div>
+                                                <h3 class="mb-0 text-green">@LeaveRequestDocument.numOfLeaveRemaining.ToString(GlobalContants.FORMAT_NUMBER_DOUBLE_1PLACE)</h3>
                                             </div>
                                         </div>
                                     </div>

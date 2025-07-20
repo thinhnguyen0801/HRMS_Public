@@ -179,6 +179,10 @@
         public const string POST_SUB_DEPARTMENT = "post-sub-department";
         public const string PUT_SUB_DEPARTMENT = "put-sub-department";
 
+        public const string GET_ADJUSTED_ANNUAL_LEAVE_REQUEST = "get-adjusted_annual_leave_request";
+        public const string POST_ADJUSTED_ANNUAL_LEAVE_REQUEST = "post-adjusted_annual_leave_request";
+        public const string PUT_ADJUSTED_ANNUAL_LEAVE_REQUEST = "put-adjusted_annual_leave_request";
+
         #region Loại dưới store
         public const string GET_COMBO_TYPE_CONTRACT_BY_EMPLOYEEID = "CONTRACT_BY_EMPLOYEEID";
         public const string GET_COMBO_TYPE_SALARY_ADJUSTMENT_BY_CONTRACT = "SALARY_ADJUSTMENT_BY_CONTRACT";
@@ -192,6 +196,7 @@
         public const string GET_COMBO_LIST_OF_SHIFT_CHANGE_DAY = "SC_LIST_OF_SHIFT_CHANGE_DAY";
         public const string GET_COMBO_LIST_OVERTIME_REQUEST_DAY = "OTR_LIST_OVERTIME_REQUEST_DAY";
         public const string GET_COMBO_LIST_SHIFT_PREIOD = "SA_LIST_SHIFT_PREIOD"; // danh sách kỳ công năm
+        public const string GET_COMBO_ANNUAL_LEAVE_YEAR = "ANNUAL_LEAVE_YEAR"; // danh sách năm đã phát sinh dữ liệu công ở bảng công nhân viên
         public const string GET_ITEM_DETAIL = "ITEM_DETAIL"; //
         public const string GET_ITEM_HEADER = "ITEM_HEADER"; //
         public const string GET_COMBO_LIST_SALARY_PREIOD = "SA_LIST_SALARY_PREIOD"; // danh sách kỳ lương năm

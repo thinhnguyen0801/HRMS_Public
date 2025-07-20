@@ -513,6 +513,44 @@ namespace HNOne.API.Repositories
                 return lstResult;
             }
         }
+
+        /// <summary>
+        /// lấy danh sách điều chỉnh phép
+        /// </summary>
+        /// <param name="request"></param>
+        /// <returns></returns>
+        public async Task<IEnumerable<AdjustedAnnualLeaveRequestModel>> GetAdjustedALRequest(RequestModel request)
+        {
+            using (var connection = _dapperDbContext.CreateConnection())
+            {
+                request.fromDate ??= new DateTime(2000, 01, 01);
+                request.toDate ??= DateTime.Now.AddMonths(1);
+                var parameters = new DynamicParameters();
+                parameters.Add("@AdjustedALId", request.documentId, DbType.Int32);
+                parameters.Add("@UserId", request.userId, DbType.Int32);
+                parameters.Add("@BranchId", request.branchId, DbType.Int32);
+                parameters.Add("@StatusIds", request.opt, DbType.String);
+                parameters.Add("@Year", request.year, DbType.Int32);
+                parameters.Add("@EmployeeId", request.employeeId, DbType.Int32);
+                parameters.Add("@BranchIds", $"{request.branchIds}", DbType.String);
+                parameters.Add("@DepartmentIds", $"{request.departmentIds}", DbType.String);
+                parameters.Add("@Type", $"{request.type}", DbType.String);
+                IEnumerable<AdjustedAnnualLeaveRequestModel>? lstResult = null;
+                var dtResult = await connection.QueryMultipleAsync(StoreConstants.STORE_H1_ADJUSTED_AL_REQUEST_SELECT, param: parameters
+                    , commandTimeout: GlobalConstants.COMMAND_TIMEOUT, commandType: CommandType.StoredProcedure);
+                if (dtResult != null)
+                {
+                    lstResult = dtResult.Read<AdjustedAnnualLeaveRequestModel>();
+                    if (request.documentId > 0)
+                    {
+                        var lstDetail = dtResult.Read<AdjustedAnnualLeaveRequest1Model>();
+                        string jsonDetail = JsonConvert.SerializeObject(lstDetail);
+                        lstResult = lstResult.Update(m => m.jsonDetail = jsonDetail);
+                    }
+                }
+                return lstResult ?? new List<AdjustedAnnualLeaveRequestModel>();
+            }
+        }
         #endregion
 
         #region Command
@@ -2017,6 +2055,123 @@ namespace HNOne.API.Repositories
                     return response;
                 }    
                 
+            }
+            catch (Exception)
+            {
+                if (isTrans) await _dbContext.Database.RollbackTransactionAsync();
+                throw;
+            }
+        }
+        
+        /// <summary>
+        /// Lưu & cập nhập thông tin điều chỉnh phép
+        /// </summary>
+        /// <param name="actionType"></param>
+        /// <param name="entity"></param>
+        /// <param name="lstEntity1"></param>
+        /// <returns></returns>
+        public async Task<ResponseModel> UpdateAdjustedAnnualLeave(string actionType, AdjustedAnnualLeaveRequests entity, IEnumerable<AdjustedAnnualLeaveRequest1s> lstEntity1)
+        {
+            bool isTrans = false;
+            ResponseModel response = new ResponseModel();
+            try
+            {
+                DateTime dateTimeNow = _dateTimeHelper.GetCurrentVietnamTime();
+                if (actionType == ProcessConstants.POST_ADJUSTED_ANNUAL_LEAVE_REQUEST)
+                {
+                    using (var connection = _dapperDbContext.CreateConnection())
+                    {
+                        // đánh mã chứng từ
+                        DynamicParameters parameters = new DynamicParameters();
+                        parameters.Add("@Type", GlobalConstants.TABLE_ADJUSTED_ANNUAL_LEAVE_REQUEST, DbType.String);
+                        parameters.Add("@BranchId", entity.BranchId, DbType.Int32);
+                        string commandText = @$"select {StoreConstants.FUNC_GET_VOUCHER}(@Type, @BranchId, '', '', '')";
+                        string? voucherNo = await connection.QueryFirstOrDefaultAsync<string>(commandText, param: parameters, commandTimeout: GlobalConstants.COMMAND_TIMEOUT, commandType: CommandType.Text);
+                        if (string.IsNullOrEmpty(voucherNo))
+                        {
+                            response.status = StatusCodes.Status204NoContent;
+                            response.message = MessageConstants.MESSAGE_VOUCHER_NO_MISSING;
+                            return response;
+                        }
+                        await _dbContext.Database.BeginTransactionAsync();
+                        isTrans = true;
+                        entity.Id = await _dbContext.AdjustedAnnualLeaveRequests.Select(m => m.Id).DefaultIfEmpty().MaxAsync() + 1;
+                        entity.VoucherNo = voucherNo;
+                        entity.DateTracking = dateTimeNow;
+                        entity.CreateDate = dateTimeNow;
+                        await _dbContext.AdjustedAnnualLeaveRequests.AddAsync(entity);
+                        // thêm chi tiết
+                        foreach (var item in lstEntity1)
+                        {
+                            AdjustedAnnualLeaveRequest1s entity1 = new AdjustedAnnualLeaveRequest1s();
+                            entity1.AdjustedALId = entity.Id;
+                            entity1.EmployeeId = item.EmployeeId;
+                            entity1.StartDate = item.StartDate;
+                            entity1.NumOfAdjustedLeave = item.NumOfAdjustedLeave;
+                            entity1.Remark = item.Remark;
+                            entity1.DateTracking = dateTimeNow;
+                            entity1.UserSign = entity.UserSign;
+                            await _dbContext.AdjustedAnnualLeaveRequest1s.AddAsync(entity1);
+                        }
+                        await _dbContext.SaveChangesAsync();
+                        await _dbContext.Database.CommitTransactionAsync();
+                        response.message = MessageConstants.MESSAGE_ADD_SUCCESS;
+                        response.data = entity.Id;
+                    }
+
+                }
+                else
+                {
+                    using (var connection = _dapperDbContext.CreateConnection())
+                    {
+                        var data = await _dbContext.AdjustedAnnualLeaveRequests.FirstOrDefaultAsync(m => m.Id == entity.Id);
+                        if (data == null)
+                        {
+                            response.status = StatusCodes.Status404NotFound;
+                            response.message = MessageConstants.MESSAGE_NOT_FOUNT;
+                            return response;
+                        }
+                        if (data.DateTracking != entity.DateTracking)
+                        {
+                            response.status = StatusCodes.Status409Conflict;
+                            response.message = MessageConstants.MESSAGE_DATA_CHECKING_MODIFIED;
+                            return response;
+                        }
+                        data.EmployeeSignatureId = entity.EmployeeSignatureId;
+                        data.StatusCode = entity.StatusCode;
+                        data.Year = entity.Year;
+                        data.Remark = entity.Remark;
+                        data.DateTracking = dateTimeNow;
+                        data.UpdateDate = dateTimeNow;
+                        data.UserSign2 = entity.UserSign2;
+                        await _dbContext.Database.BeginTransactionAsync();
+                        isTrans = true;
+                        _dbContext.AdjustedAnnualLeaveRequests.Attach(data);
+                        _dbContext.Entry(data).State = EntityState.Modified;
+                        // thêm chi tiết đề nghị nghỉ phép
+                        // bỏ dữ liệu củ đi
+                        var lstAdjustedAnnualLeave1s = await _dbContext.AdjustedAnnualLeaveRequest1s.Where(m => m.AdjustedALId == data.Id).ToListAsync();
+                        if (!lstAdjustedAnnualLeave1s.IsNullOrEmpty()) _dbContext.AdjustedAnnualLeaveRequest1s.RemoveRange(lstAdjustedAnnualLeave1s);
+                        // thêm chi tiết
+                        foreach (var item in lstEntity1)
+                        {
+                            AdjustedAnnualLeaveRequest1s entity1 = new AdjustedAnnualLeaveRequest1s();
+                            entity1.AdjustedALId = entity.Id;
+                            entity1.EmployeeId = item.EmployeeId;
+                            entity1.StartDate = item.StartDate;
+                            entity1.NumOfAdjustedLeave = item.NumOfAdjustedLeave;
+                            entity1.Remark = item.Remark;
+                            entity1.DateTracking = dateTimeNow;
+                            entity1.UserSign = entity.UserSign;
+                            await _dbContext.AdjustedAnnualLeaveRequest1s.AddAsync(entity1);
+                        }
+                        await _dbContext.SaveChangesAsync();
+                        await _dbContext.Database.CommitTransactionAsync();
+                        response.message = MessageConstants.MESSAGE_UPDATE_SUCCESS;
+                        response.data = data.Id;
+                    }    
+                }
+                return response;
             }
             catch (Exception)
             {
