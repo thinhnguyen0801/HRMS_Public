@@ -166,6 +166,21 @@ namespace HNOne.Web.Controllers
             }
         }
 
+        protected void CreateAdjustedALRequestHandler()
+        {
+            try
+            {
+                Dictionary<string, string> pParams = new Dictionary<string, string>
+                {
+                    { "pActionType", nameof(EnumType.Add) },
+                    { "pDocEntry", "-1" },
+                };
+                string key = _encryptHelper.Encrypt(JsonConvert.SerializeObject(pParams)); // mã hóa key
+                _navigationManager.NavigateTo($"/dieu-chinh-phep-nam?key={key}");
+            }
+            catch { }
+        }
+
         /// <summary>
         /// làm mới danh sách nhân viên
         /// </summary>

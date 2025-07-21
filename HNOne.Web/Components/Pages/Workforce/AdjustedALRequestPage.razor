@@ -211,11 +211,11 @@
                                             </HeaderCaptionTemplate>
                                         </DxGridDataColumn>
                                     </Columns>
-                                    <TotalSummary>
+                                    @* <TotalSummary>
                                         <DxGridSummaryItem DisplayText="@GlobalContants.FORMAT_GRID_DISPLAYTEXT_SUM" SummaryType="GridSummaryItemType.Custom"
                                                            FieldName="@nameof(AdjustedAnnualLeaveRequest1Model.numOfAdjustedLeave)" ValueDisplayFormat="@GlobalContants.FORMAT_NUMBER_DOUBLE_1PLACE"
                                                            FooterColumnName="@nameof(AdjustedAnnualLeaveRequest1Model.numOfAdjustedLeave)" />
-                                    </TotalSummary>
+                                    </TotalSummary> *@
                                 </DxGrid>
                             </div>
                             break;
