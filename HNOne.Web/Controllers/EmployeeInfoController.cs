@@ -32,6 +32,7 @@ namespace HNOne.Web.Controllers
         public EmployeeModel EmployeeRefUpdate { get; set; } = new EmployeeModel(); // employee này gán dữ liệu để đi cập nhật
         public List<InsuranceModel>? ListInsurance { get; set; } // danh sách thông tin bảo hiểm
         public List<ContractModel>? ListContract { get; set; } // danh sách hợp đồng
+        public List<ContractAppendixModel>? ListContractAppendix { get; set; } // ds phụ lục theo hợp đồng
         public List<FamilyRelationshipModel>? ListFamilyRelationship { get; set; } // danh sách quan hệ gia đình
         public IGrid? GridFamilyRelationship { get; set; }
         public FamilyRelationshipModel FamilyRelationshipUpdate { get; set; } = new FamilyRelationshipModel();
@@ -53,6 +54,7 @@ namespace HNOne.Web.Controllers
         public bool IsShowPopupFamily { get; set; } // popup thêm mới Thông tin quan hệ gia đình
         public bool IsShowPopupChangePass { get; set; } // popup đổi mật khẩu
         public bool IsShowPopupUpdateEmployee { get; set; } // popup thay đổi thông tin nhân viên
+        public bool IsShowPopupContractAppendix { get; set; } // show popup thông tin phụ lục hợp đồng
         public string? PopupTypeUpdateEmployee { get; set; }
         public string? HeaderTextUpdateEmployee { get; set; }
 
@@ -234,6 +236,33 @@ namespace HNOne.Web.Controllers
         }
 
         /// <summary>
+        /// lấy danh sách phụ lục hợp đồng theo hợp đồng
+        /// </summary>
+        /// <returns></returns>
+        private async Task getContractAppendixList(ContractModel? contract)
+        {
+            if (contract == null) return;
+            RequestModel request = new RequestModel();
+            request.userId = UserId;
+            request.branchId = BranchId;
+            request.token = Token;
+            request.opt = "";
+            request.opt1 = contract.id.ToString();
+            var lstContract = await _personnelService.GetContractAppendixAsync(request, isShowToast: false);
+            lstContract = lstContract?.Update(m =>
+            {
+                Dictionary<string, string> pParams = new Dictionary<string, string>
+                {
+                    { "pActionType", nameof(EnumType.Update) },
+                    { "pDocEntry", $"{m.id}" },
+                    { "pContractId", $"{m.contractId}" },
+                };
+                m.link = "chi-tiet-phu-luc-hop-dong?key=" + _encryptHelper.Encrypt(JsonConvert.SerializeObject(pParams));
+            })?.ToList();
+            ListContractAppendix = lstContract;
+        }
+
+        /// <summary>
         /// lấy danh sách bảo hiểm
         /// </summary>
         /// <returns></returns>
@@ -350,6 +379,15 @@ namespace HNOne.Web.Controllers
                         if (employee == null) return;
                         EmployeeRefUpdate = employee;
                         IsShowPopupUpdateEmployee = true;
+                        break;
+                    case nameof(IsShowPopupContractAppendix):
+                        await ShowLoading();
+                        ListContractAppendix = new List<ContractAppendixModel>();
+                        ContractModel? contract = JsonConvert.DeserializeObject<ContractModel>
+                                    (JsonConvert.SerializeObject(pItemDetails));
+                        await getContractAppendixList(contract);
+                        await Task.Delay(200);
+                        IsShowPopupContractAppendix = true;
                         break;
                 }
             }

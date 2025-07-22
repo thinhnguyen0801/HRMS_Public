@@ -139,7 +139,10 @@
                                         <div class="col-sm-12">
                                             <div class="d-flex justify-content-between">
                                                 <h3 class="m-0 mb-1">Thông tin căn cước & hộ chiếu</h3>
-                                                <div>
+                                                <div class="row">
+                                                    <DxButton Text="Đổi mật khẩu" IconCssClass="@($"{IconClassConstants.ICON_EDIT}")" CssClass="w1FontSize"
+                                                              RenderStyleMode="@ButtonRenderStyleMode.Outline"
+                                                              Click="@(async () => await OpenPopupHandler(nameof(IsShowPopupChangePass)))" />
                                                     <DxButton Text="Chỉnh sửa" IconCssClass="@IconClassConstants.ICON_EDIT" CssClass="w1FontSize"
                                                               RenderStyleMode="@ButtonRenderStyleMode.Outline" Visible="@(IsAllowPut)"
                                                               Click="@(async () => await OpenPopupHandler(nameof(IsShowPopupUpdateEmployee), popupType: nameof(EmployeeUpdate.cIC), headerText: "Thay đổi thông tin căn cước & hộ chiếu"))" />
@@ -544,7 +547,7 @@
                                                                             <div class="fw-medium text-truncate" style="width: calc(100% - 150px)">
                                                                                 @if (IsAllowPut)
                                                                                 {
-                                                                                    <a class="a" @onclick="@(() => OpenPopupHandler(nameof(IsShowPopupFamily), "", EnumType.Update, item))">@item.name</a>
+                                                                                    <a class="a cursor-pointer" @onclick="@(() => OpenPopupHandler(nameof(IsShowPopupFamily), "", EnumType.Update, item))">@item.name</a>
                                                                                 }
                                                                                 else
                                                                                 {
@@ -759,7 +762,7 @@
                                                                                 Mã hợp đồng
                                                                             </div>
                                                                             <div class="fw-medium text-truncate" style="width: calc(100% - 150px)">
-                                                                                <a class="a" @onclick="@(() => OpenPopupHandler(nameof(IsShowPopupFamily), "", EnumType.Update, item))">@item.contractCode</a>
+                                                                                <a class="a cursor-pointer" @onclick="@(() => OpenPopupHandler(nameof(IsShowPopupContractAppendix), "", EnumType.Update, item))">@item.contractCode</a>
                                                                             </div>
                                                                         </div>
                                                                         <div class="d-flex mt-2">
@@ -824,7 +827,7 @@
                                                                                 Số bảo hiểm
                                                                             </div>
                                                                             <div class="fw-medium text-truncate" style="width: calc(100% - 150px)">
-                                                                                <a class="a">@item.insuranceNo</a>
+                                                                                <a class="a cursor-pointer">@item.insuranceNo</a>
                                                                             </div>
                                                                         </div>
                                                                         <div class="d-flex mt-2">
@@ -1449,6 +1452,84 @@
                     <DxTextBox @bind-Text="@UserUpdate.rePassword" CssClass="w1FontSize" Password="true"></DxTextBox>
                 </div>
             </div>
+        </div>
+    </div>
+</W1Popup>
+
+<W1Popup @bind-IsOpenModal="@IsShowPopupContractAppendix"
+         Width="60%" IsShowFooter="false"
+         HeaderText="Thông tin phụ lục hợp đồng" >
+    <div class="row row-gap-2">
+        <div class="col-sm-12">
+            @if (ListContractAppendix != null && ListContractAppendix.Any())
+            {
+                <div class="table-responsive">
+                    <table class="table table-vcenter card-table table-striped">
+                        <tbody>
+                            @foreach (var item in ListContractAppendix)
+                            {
+                                <tr class="text-truncate">
+                                    <td class="px-0 py-2">
+                                        <div class="d-flex ">
+                                            <div class="text-secondary" style="width: 150px">
+                                                Mã hợp đồng
+                                            </div>
+                                            <div class="fw-medium text-truncate" style="width: calc(100% - 150px)">
+                                                <a class="a">@item.contractCode</a>
+                                            </div>
+                                        </div>
+                                        <div class="d-flex ">
+                                            <div class="text-secondary" style="width: 150px">
+                                                Mã phụ lục
+                                            </div>
+                                            <div class="fw-medium text-truncate" style="width: calc(100% - 150px)">
+                                                <a class="a">@item.contractAppendixCode</a>
+                                            </div>
+                                        </div>
+                                        <div class="d-flex mt-2">
+                                            <div class="text-secondary" style="width: 150px">
+                                                Phụ lục số
+                                            </div>
+                                            <div class="fw-medium text-truncate" style="width: calc(100% - 150px)">
+                                                @item.contractNumber
+                                            </div>
+                                        </div>
+                                        <div class="d-flex mt-2">
+                                            <div class="text-secondary" style="width: 150px">
+                                                Trạng thái
+                                            </div>
+                                            <div class="fw-medium text-truncate" style="width: calc(100% - 150px)">
+                                                @(string.IsNullOrEmpty(item.statusName) ? "--" : item.statusName)
+                                            </div>
+                                        </div>
+                                        <div class="d-flex mt-2">
+                                            <div class="text-secondary" style="width: 150px">
+                                                Ngày ký
+                                            </div>
+                                            <div class="fw-medium text-truncate" style="width: calc(100% - 150px)">
+                                                @(item.dateOfSigning?.ToString(GlobalContants.FORMAT_DATE) ?? "--")
+                                            </div>
+                                        </div>
+                                        <div class="d-flex mt-2">
+                                            <div class="text-secondary" style="width: 150px">
+                                                Ngày áp dụng
+                                            </div>
+                                            <div class="fw-medium text-truncate" style="width: calc(100% - 150px)">
+                                                @(item.effectiveDate?.ToString(GlobalContants.FORMAT_DATE) ?? "--")
+                                            </div>
+                                        </div>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            }
+            else
+            {
+                <W1NoData />
+            }
+
         </div>
     </div>
 </W1Popup>
