@@ -124,6 +124,7 @@ namespace HNOne.Model.Models
         #region Liên hệ khẩn cấp
         public string? fullName1 { get; set; } // Tên nhân viên
         public string? relationship { get; set; }
+        public string? relationshipName { get; set; }
         public string? phone5 { get; set; } // ĐT di động
         public string? phone6 { get; set; } // ĐT nhà riêng
         public string? email4 { get; set; } // Email khác
