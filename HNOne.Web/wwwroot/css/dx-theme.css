@@ -28774,7 +28774,8 @@ svg.dxbl-image {
     border-bottom: 0
 }
 
-    .dxbl-grid .dxbl-grid-empty-data-area span.dxbl-grid-empty-data-not-found {
+    .dxbl-grid .dxbl-grid-empty-data-area span.dxbl-grid-empty-data-not-found,
+    .m-h1-block-no-data.dxbl-grid-empty-data-area span.dxbl-grid-empty-data-not-found {
         display: block;
         color: #a1a1a1;
         font-weight: 400
@@ -28793,7 +28794,8 @@ svg.dxbl-image {
         height: 2rem
     }
 
-    .dxbl-grid .dxbl-grid-empty-data-area .dxbl-image {
+    .dxbl-grid .dxbl-grid-empty-data-area .dxbl-image,
+    .m-h1-block-no-data.dxbl-grid-empty-data-area .dxbl-image {
         width: 3rem;
         height: 3rem;
         color: #a1a1a1

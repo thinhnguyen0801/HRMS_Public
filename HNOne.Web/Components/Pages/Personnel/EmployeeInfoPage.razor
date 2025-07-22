@@ -2,241 +2,118 @@
 @inherits Controllers.EmployeeInfoController
 
 <div class="h-content-filter">
-    <div class="w1FontSize sticky-top" style="z-index: 1010">
-        <div class="border-bottom-0">
-            <DxTabs @bind-ActiveTabIndex="@ActiveTabIndex" Id="tabActive" CssClass="w-full w1FontSize h1-tab-scroll">
-                <DxTabPage Text="CMND/CCCD/Hộ chiếu" CssClass="w1FontSize" Click="@(() => ScrollToSection("section-accordion-2"))"></DxTabPage>
-                <DxTabPage Text="Thông tin liên hệ" CssClass="w1FontSize" Click="@(() => ScrollToSection("section-accordion-3"))"></DxTabPage>
-                <DxTabPage Text="Hộ khẩu thường trú" CssClass="w1FontSize" Click="@(() => ScrollToSection("section-accordion-4"))"></DxTabPage>
-                <DxTabPage Text="Chỗ ở hiện nay" CssClass="w1FontSize" Click="@(() => ScrollToSection("section-accordion-5"))"></DxTabPage>
-                <DxTabPage Text="Liên hệ khẩn cấp" CssClass="w1FontSize" Click="@(() => ScrollToSection("section-accordion-6"))"></DxTabPage>
-                <DxTabPage Text="Quan hệ gia đình" CssClass="w1FontSize" Click="@(() => ScrollToSection("section-accordion-7"))"></DxTabPage>
-            </DxTabs>
-        </div>
-    </div>
-    <div class="card p-1 mt-1">
-        <DxToolbar ItemRenderStyleMode="@ToolbarRenderStyleMode.Contained">
-            <Items>
-                <DxToolbarItem Text="Đổi mật khẩu" BeginGroup="true" IconCssClass="@($"{IconClassConstants.ICON_EDIT}")" CssClass="w1FontSize"
-                               Alignment="@ToolbarItemAlignment.Right" Click="@(async () => await OpenPopupHandler(nameof(IsShowPopupChangePass)))" />
-
-                <DxToolbarItem Text="Lưu" BeginGroup="true" IconCssClass="@($"{IconClassConstants.ICON_UPDATE}")" CssClass="w1FontSize"
-                               Visible="@(IsAllowPut)"
-                               Alignment="@ToolbarItemAlignment.Right" Click="@(() => SaveDataHandler())" />
-            </Items>
-        </DxToolbar>
-    </div>
-
-    @* Thông tin CMMD/CCCD/Passport  *@
-    <div class="card card-lg mt-1" style="padding: 5px" id="section-accordion-2">
-        <div class="row row-gap-2">
-            <div class="col-12">
-                <div class="accordion" id="accordion-2">
-                    <div class="accordion-item" style="border: none">
-                        <span class="accordion-header" id="heading-1">
-                            <button class="accordion-button " style="padding-top: 1px; padding-bottom: 1px;padding-left: 5px;"
-                                    type="button" data-bs-toggle="collapse" data-bs-target="#collapse-2" aria-expanded="true">
-                                <h4 class="mb-0 w1FontSize">CMMD/Thẻ căn cước/Hộ chiếu</h4>
-                            </button>
-                        </span>
-                        <div style="border-bottom: 1px solid var(--tblr-border-color); margin-top: 2px"></div>
-                        <div id="collapse-2" class="accordion-collapse collapse show" data-bs-parent="#accordion-2">
-                            <div class="accordion-body p-2">
-                                <div class="row row-gap-2">
-                                    <div class="col-md-6 col-sm-12">
-                                        <div class="row row-gap-2">
-                                            <div class="col-md-12 col-sm-12">
-                                                <div class="d-flex ">
-                                                    <W1Label Value="CCCD/CMND" Styles="width: 120px" IsRequired="true" />
-                                                    <div style="width: calc(100% - 120px)">
-                                                        <DxTextBox @bind-Text="@EmployeeUpdate.cIC" CssClass="w1FontSize" Id="@nameof(EmployeeUpdate.cIC)"></DxTextBox>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                            <div class="col-md-12 col-sm-12">
-                                                <div class="d-flex ">
-                                                    <W1Label Value="Ngày cấp" Styles="width: 120px" />
-                                                    <div style="width: calc(100% - 120px)">
-                                                        <DxDateEdit @bind-Date="@EmployeeUpdate.issuanceDateCIC" DisplayFormat="@GlobalContants.FORMAT_DATE"
-                                                                    Mask="@GlobalContants.FORMAT_DATE" Format="@GlobalContants.FORMAT_DATE" CssClass="w1FontSize"
-                                                                    ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto" />
-                                                    </div>
-                                                </div>
-                                            </div>
-                                            <div class="col-md-12 col-sm-12">
-                                                <div class="d-flex ">
-                                                    <W1Label Value="Nơi cấp" Styles="width: 120px" />
-                                                    <div style="width: calc(100% - 120px)">
-                                                        <DxTextBox @bind-Text="@EmployeeUpdate.placeOfIssuanceCIC" CssClass="w1FontSize"></DxTextBox>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                            <div class="col-md-12 col-sm-12">
-                                                <div class="d-flex ">
-                                                    <W1Label Value="Ngày hết hạn" Styles="width: 120px" />
-                                                    <div style="width: calc(100% - 120px)">
-                                                        <DxDateEdit @bind-Date="@EmployeeUpdate.expiryDateCIC" DisplayFormat="@GlobalContants.FORMAT_DATE"
-                                                                    Mask="@GlobalContants.FORMAT_DATE" Format="@GlobalContants.FORMAT_DATE" CssClass="w1FontSize"
-                                                                    ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto" />
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div>
-
-                                    </div>
-                                    <div class="col-md-6 col-sm-12">
-                                        <div class="row row-gap-2">
-                                            <div class="col-md-12 col-sm-12">
-                                                <div class="d-flex ">
-                                                    <W1Label Value="Hộ chiếu" Styles="width: 120px" />
-                                                    <div style="width: calc(100% - 120px)">
-                                                        <DxTextBox @bind-Text="@EmployeeUpdate.passportNumber" CssClass="w1FontSize" Id="@nameof(EmployeeUpdate.cIC)"></DxTextBox>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                            <div class="col-md-12 col-sm-12">
-                                                <div class="d-flex ">
-                                                    <W1Label Value="Ngày cấp" Styles="width: 120px" />
-                                                    <div style="width: calc(100% - 120px)">
-                                                        <DxDateEdit @bind-Date="@EmployeeUpdate.issueDatePassport" DisplayFormat="@GlobalContants.FORMAT_DATE"
-                                                                    Mask="@GlobalContants.FORMAT_DATE" Format="@GlobalContants.FORMAT_DATE" CssClass="w1FontSize"
-                                                                    ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto" />
-                                                    </div>
-                                                </div>
-                                            </div>
-                                            <div class="col-md-12 col-sm-12">
-                                                <div class="d-flex ">
-                                                    <W1Label Value="Nơi cấp" Styles="width: 120px" />
-                                                    <div style="width: calc(100% - 120px)">
-                                                        <DxTextBox @bind-Text="@EmployeeUpdate.placeOfIssuePassport" CssClass="w1FontSize"></DxTextBox>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                            <div class="col-md-12 col-sm-12">
-                                                <div class="d-flex ">
-                                                    <W1Label Value="Ngày hết hạn" Styles="width: 120px" />
-                                                    <div style="width: calc(100% - 120px)">
-                                                        <DxDateEdit @bind-Date="@EmployeeUpdate.expiryDatePassport" DisplayFormat="@GlobalContants.FORMAT_DATE"
-                                                                    Mask="@GlobalContants.FORMAT_DATE" Format="@GlobalContants.FORMAT_DATE" CssClass="w1FontSize"
-                                                                    ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto" />
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-
-                                </div>
-                            </div>
+    <div class="card mb-3">
+        <div class="row g-0">
+            <div class="col-12 col-md-4 col-lg-3 border-end">
+                <div class="card-body py-2 px-3">
+                    <div class="row row-gap-2">
+                        <div class="col-sm-12 text-center">
+                            <span class="avatar avatar-2xl avatar-2xl mb-3 mt-2 rounded-circle" style="background-image: url(@EmployeeUpdate.imageViewUrl)"></span>
+                            <h3 class="m-0 mb-1">@EmployeeUpdate.code - @EmployeeUpdate.name</h3>
+                            <div class="text-secondary mb-1">@EmployeeUpdate.titleName</div>
                         </div>
                     </div>
                 </div>
-            </div>
-        </div>
-    </div>
-
-    @* Thông tin liên hệ  *@
-    <div class="card card-lg mt-1" style="padding: 5px" id="section-accordion-3">
-        <div class="row row-gap-2">
-            <div class="col-12">
-                <div class="accordion" id="accordion-3">
-                    <div class="accordion-item" style="border: none">
-                        <span class="accordion-header" id="heading-1">
-                            <button class="accordion-button " style="padding-top: 1px; padding-bottom: 1px;padding-left: 5px;"
-                                    type="button" data-bs-toggle="collapse" data-bs-target="#collapse-3" aria-expanded="true">
-                                <h4 class="mb-0 w1FontSize">Thông tin liên hệ</h4>
-                            </button>
-                        </span>
-                        <div style="border-bottom: 1px solid var(--tblr-border-color); margin-top: 2px"></div>
-                        <div id="collapse-3" class="accordion-collapse collapse show" data-bs-parent="#accordion-3">
-                            <div class="accordion-body p-2">
-                                <div class="row row-gap-2">
-                                    <div class="col-md-6 col-sm-12">
-                                        <div class="d-flex ">
-                                            <W1Label Value="ĐT di động" Styles="width: 120px" />
-                                            <div style="width: calc(100% - 120px)">
-                                                <DxTextBox @bind-Text="@EmployeeUpdate.phone1" CssClass="w1FontSize"></DxTextBox>
-                                            </div>
-                                        </div>
+                <div class="card-body py-3 px-3">
+                    <div class="row row-gap-2">
+                        <div class="col-sm-12">
+                            <div class="row align-items-center">
+                                <div class="col-auto">
+                                    <span class="bg-transparent avatar avatar-sm">
+                                        <i class="fa-solid fa-cake-candles fs-3"></i>
+                                    </span>
+                                </div>
+                                <div class="col">
+                                    <div class="text-secondary text-truncate">
+                                        Ngày sinh
                                     </div>
-                                    <div class="col-md-6 col-sm-12">
-                                        <div class="d-flex ">
-                                            <W1Label Value="ĐT cơ quan" Styles="width: 120px" />
-                                            <div style="width: calc(100% - 120px)">
-                                                <DxTextBox @bind-Text="@EmployeeUpdate.phone2" CssClass="w1FontSize"></DxTextBox>
-                                            </div>
-                                        </div>
+                                    <div class="fw-medium">
+                                        @(EmployeeUpdate.dateOfBirth?.ToString(GlobalContants.FORMAT_DATE) ?? "--")
                                     </div>
-                                    <div class="col-md-6 col-sm-12">
-                                        <div class="d-flex ">
-                                            <W1Label Value="ĐT nhà riêng" Styles="width: 120px" />
-                                            <div style="width: calc(100% - 120px)">
-                                                <DxTextBox @bind-Text="@EmployeeUpdate.phone3" CssClass="w1FontSize"></DxTextBox>
-                                            </div>
-                                        </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-sm-12">
+                            <div class="row align-items-center">
+                                <div class="col-auto">
+                                    <span class="bg-transparent avatar avatar-sm">
+                                        <i class="fa-solid fa-venus-mars fs-3"></i>
+                                    </span>
+                                </div>
+                                <div class="col">
+                                    <div class="text-secondary">
+                                        Giới tính
                                     </div>
-                                    <div class="col-md-6 col-sm-12">
-                                        <div class="d-flex ">
-                                            <W1Label Value="ĐT khác" Styles="width: 120px" />
-                                            <div style="width: calc(100% - 120px)">
-                                                <DxTextBox @bind-Text="@EmployeeUpdate.phone4" CssClass="w1FontSize"></DxTextBox>
-                                            </div>
-                                        </div>
+                                    <div class="fw-medium text-truncate">
+                                        @(string.IsNullOrEmpty(EmployeeUpdate.gender) ? "--" : EmployeeUpdate.gender)
                                     </div>
-                                    <div class="col-md-6 col-sm-12">
-                                        <div class="d-flex ">
-                                            <W1Label Value="Email cá nhân" Styles="width: 120px" />
-                                            <div style="width: calc(100% - 120px)">
-                                                <DxTextBox @bind-Text="@EmployeeUpdate.email1" CssClass="w1FontSize"></DxTextBox>
-                                            </div>
-                                        </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-sm-12">
+                            <div class="row align-items-center">
+                                <div class="col-auto">
+                                    <span class="bg-transparent avatar avatar-sm">
+                                        <i class="fa-solid fa-heart fs-3"></i>
+                                    </span>
+                                </div>
+                                <div class="col">
+                                    <div class="text-secondary">
+                                        Tình trạng hôm nhân
                                     </div>
-                                    <div class="col-md-6 col-sm-12">
-                                        <div class="d-flex ">
-                                            <W1Label Value="Email cơ quan" Styles="width: 120px" />
-                                            <div style="width: calc(100% - 120px)">
-                                                <DxTextBox @bind-Text="@EmployeeUpdate.email2" CssClass="w1FontSize"></DxTextBox>
-                                            </div>
-                                        </div>
+                                    <div class="fw-medium text-truncate">
+                                        @(string.IsNullOrEmpty(EmployeeUpdate.maritalStatusName) ? "--" : EmployeeUpdate.maritalStatusName)
                                     </div>
-                                    <div class="col-md-6 col-sm-12">
-                                        <div class="d-flex ">
-                                            <W1Label Value="Email khác" Styles="width: 120px" />
-                                            <div style="width: calc(100% - 120px)">
-                                                <DxTextBox @bind-Text="@EmployeeUpdate.email3" CssClass="w1FontSize"></DxTextBox>
-                                            </div>
-                                        </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-sm-12">
+                            <div class="row align-items-center">
+                                <div class="col-auto">
+                                    <span class="bg-transparent avatar avatar-sm">
+                                        <i class="fa-solid fa-calendar-days fs-3"></i>
+                                    </span>
+                                </div>
+                                <div class="col">
+                                    <div class="text-secondary text-truncate">
+                                        Ca làm việc
                                     </div>
-
-                                    <div class="col-md-6 col-sm-12">
-                                        <div class="d-flex ">
-                                            <W1Label Value="Nguyên quán" Styles="width: 120px" />
-                                            <div style="width: calc(100% - 120px)">
-                                                <DxTextBox @bind-Text="@EmployeeUpdate.placeOfOrigin" CssClass="w1FontSize"></DxTextBox>
-                                            </div>
-                                        </div>
+                                    <div class="fw-medium">
+                                        @(string.IsNullOrEmpty(EmployeeUpdate.shiftName) ? "--" : EmployeeUpdate.shiftName)
                                     </div>
-
-                                    <div class="col-md-6 col-sm-12">
-                                        <div class="d-flex ">
-                                            <W1Label Value="Tỉnh thành" Styles="width: 120px" />
-                                            <div style="width: calc(100% - 120px)">
-                                                <DxComboBox Data="@ListCboProvince"
-                                                            @bind-Value="@EmployeeUpdate.provinceCode"
-                                                            FilteringMode="DataGridFilteringMode.Contains"
-                                                            TextFieldName="@nameof(ComboboxModel.name)"
-                                                            ValueFieldName="@nameof(ComboboxModel.code)" CssClass="w1FontSize">
-                                                </DxComboBox>
-                                            </div>
-                                        </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-sm-12">
+                            <div class="row align-items-center">
+                                <div class="col-auto">
+                                    <span class="bg-transparent avatar avatar-sm">
+                                        <i class="fa-solid fa-terminal fs-3"></i>
+                                    </span>
+                                </div>
+                                <div class="col">
+                                    <div class="text-secondary">
+                                        Mã số thuế
                                     </div>
-
-                                    <div class="col-md-6 col-sm-12">
-                                        <div class="d-flex ">
-                                            <W1Label Value="Nơi sinh" Styles="width: 120px" />
-                                            <div style="width: calc(100% - 120px)">
-                                                <DxTextBox @bind-Text="@EmployeeUpdate.placeOfBirth" CssClass="w1FontSize"></DxTextBox>
-                                            </div>
-                                        </div>
+                                    <div class="fw-medium text-truncate">
+                                        @(string.IsNullOrEmpty(EmployeeUpdate.taxNumber) ? "--" : EmployeeUpdate.taxNumber)
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-sm-12">
+                            <div class="row align-items-center">
+                                <div class="col-auto">
+                                    <span class="bg-transparent avatar avatar-sm">
+                                        <i class="fa-solid fa-building-columns fs-3"></i>
+                                    </span>
+                                </div>
+                                <div class="col">
+                                    <div class="text-secondary">
+                                        Ngân hàng
+                                    </div>
+                                    <div class="fw-medium text-truncate">
+                                        @EmployeeUpdate.bankName - @EmployeeUpdate.accountNumber
                                     </div>
                                 </div>
                             </div>
@@ -244,391 +121,776 @@
                     </div>
                 </div>
             </div>
-        </div>
-    </div>
+            <div class="col-12 col-md-8 col-lg-9 d-flex flex-column">
+                <div class="card-body p-0">
+                    <div class="card-header p-0 border-bottom-0">
+                        <DxTabs @bind-ActiveTabIndex="@ActiveTabMainIndex" Id="tabActive" CssClass="w-full w1FontSize">
+                            <DxTabPage Text="Thông tin cá nhân" Id="tabPending" CssClass="w1FontSize"></DxTabPage>
+                            <DxTabPage Text="Công việc" Id="tabAll" CssClass="w1FontSize"></DxTabPage>
+                        </DxTabs>
+                    </div>
+                    @switch(ActiveTabMainIndex)
+                    {
+                        case 0:
+                            <div class="w-full">
+                                @* Thông tin CMMD/CCCD/Passport  *@
+                                <div class="card-body py-3 px-3 border-top-0">
+                                    <div class="row row-gap-2">
+                                        <div class="col-sm-12">
+                                            <div class="d-flex justify-content-between">
+                                                <h3 class="m-0 mb-1">Thông tin căn cước & hộ chiếu</h3>
+                                                <div>
+                                                    <DxButton Text="Chỉnh sửa" IconCssClass="@IconClassConstants.ICON_EDIT" CssClass="w1FontSize"
+                                                              RenderStyleMode="@ButtonRenderStyleMode.Outline" Visible="@(IsAllowPut)"
+                                                              Click="@(async () => await OpenPopupHandler(nameof(IsShowPopupUpdateEmployee), popupType: nameof(EmployeeUpdate.cIC), headerText: "Thay đổi thông tin căn cước & hộ chiếu"))" />
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-sm-12">
+                                            <div class="d-flex ">
+                                                <div class="text-secondary" style="width: 150px">
+                                                    Căn cước công dân
+                                                </div>
+                                                <div class="fw-medium text-truncate" style="width: calc(100% - 150px)">
+                                                    @(string.IsNullOrEmpty(EmployeeUpdate.cIC) ? "--" : EmployeeUpdate.cIC)
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-sm-12">
+                                            <div class="d-flex ">
+                                                <div class="text-secondary" style="width: 150px">
+                                                    Ngày cấp
+                                                </div>
+                                                <div class="fw-medium text-truncate" style="width: calc(100% - 150px)">
+                                                    @(EmployeeUpdate.issuanceDateCIC?.ToString(GlobalContants.FORMAT_DATE) ?? "--")
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-sm-12">
+                                            <div class="d-flex ">
+                                                <div class="text-secondary" style="width: 150px">
+                                                    Nơi cấp
+                                                </div>
+                                                <div class="fw-medium text-truncate" style="width: calc(100% - 150px)">
+                                                    @(string.IsNullOrEmpty(EmployeeUpdate.placeOfIssuanceCIC) ? "--" : EmployeeUpdate.placeOfIssuanceCIC)
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-sm-12">
+                                            <div class="d-flex ">
+                                                <div class="text-secondary" style="width: 150px">
+                                                    Ngày hết hạn
+                                                </div>
+                                                <div class="fw-medium text-truncate" style="width: calc(100% - 150px)">
+                                                    @(EmployeeUpdate.expiryDateCIC?.ToString(GlobalContants.FORMAT_DATE) ?? "--")
+                                                </div>
+                                            </div>
+                                        </div>
 
-    @* Hộ khẩu thường trú  *@
-    <div class="card card-lg mt-1" style="padding: 5px" id="section-accordion-4">
-        <div class="row row-gap-2">
-            <div class="col-12">
-                <div class="accordion" id="accordion-4">
-                    <div class="accordion-item" style="border: none">
-                        <span class="accordion-header" id="heading-1">
-                            <button class="accordion-button " style="padding-top: 1px; padding-bottom: 1px;padding-left: 5px;"
-                                    type="button" data-bs-toggle="collapse" data-bs-target="#collapse-4" aria-expanded="true">
-                                <h4 class="mb-0 w1FontSize">Hộ khẩu thường trú</h4>
-                            </button>
-                        </span>
-                        <div style="border-bottom: 1px solid var(--tblr-border-color); margin-top: 2px"></div>
-                        <div id="collapse-4" class="accordion-collapse collapse show" data-bs-parent="#accordion-4">
-                            <div class="accordion-body p-2">
-                                <div class="row row-gap-2">
-                                    <div class="col-md-6 col-sm-12">
-                                        <div class="d-flex ">
-                                            <W1Label Value="Quốc gia" Styles="width: 120px" />
-                                            <div style="width: calc(100% - 120px)">
-                                                <DxComboBox Data="@ListCboCountry"
-                                                            FilteringMode="DataGridFilteringMode.Contains"
-                                                            Value="@EmployeeUpdate.countryCode1"
-                                                            ValueChanged="@((string? countryCode1) => ComboboxValueChangedHandler(countryCode1, controlID: nameof(EmployeeUpdate.countryCode1)))"
-                                                            ClearButtonDisplayMode="@DataEditorClearButtonDisplayMode.Auto"
-                                                            TextFieldName="@nameof(ComboboxModel.name)"
-                                                            ValueFieldName="@nameof(ComboboxModel.code)" CssClass="w1FontSize">
-                                                </DxComboBox>
+                                        <div class="col-sm-12">
+                                            <div class="d-flex ">
+                                                <div class="text-secondary" style="width: 150px">
+                                                    Hộ chiếu
+                                                </div>
+                                                <div class="fw-medium text-truncate" style="width: calc(100% - 150px)">
+                                                    @(string.IsNullOrEmpty(EmployeeUpdate.passportNumber) ? "--" : EmployeeUpdate.passportNumber)
+                                                </div>
                                             </div>
                                         </div>
-                                    </div>
-                                    <div class="col-md-6 col-sm-12">
-                                        <div class="d-flex ">
-                                            <W1Label Value="Tỉnh thành" Styles="width: 120px" />
-                                            <div style="width: calc(100% - 120px)">
-                                                <DxComboBox Data="@ListCboProvince1"
-                                                            FilteringMode="DataGridFilteringMode.Contains"
-                                                            Value="@EmployeeUpdate.provinceCode1"
-                                                            ValueChanged="@((string? provinceCode1) => ComboboxValueChangedHandler(provinceCode1, controlID: nameof(EmployeeUpdate.provinceCode1)))"
-                                                            ClearButtonDisplayMode="@DataEditorClearButtonDisplayMode.Auto"
-                                                            TextFieldName="@nameof(ComboboxModel.name)"
-                                                            ValueFieldName="@nameof(ComboboxModel.code)" CssClass="w1FontSize">
-                                                </DxComboBox>
+                                        <div class="col-sm-12">
+                                            <div class="d-flex ">
+                                                <div class="text-secondary" style="width: 150px">
+                                                    Ngày cấp
+                                                </div>
+                                                <div class="fw-medium text-truncate" style="width: calc(100% - 150px)">
+                                                    @(EmployeeUpdate.issueDatePassport?.ToString(GlobalContants.FORMAT_DATE) ?? "--")
+                                                </div>
                                             </div>
                                         </div>
-                                    </div>
-                                    <div class="col-md-6 col-sm-12">
-                                        <div class="d-flex ">
-                                            <W1Label Value="Quận huyện" Styles="width: 120px" />
-                                            <div style="width: calc(100% - 120px)">
-                                                <DxComboBox Data="@ListCboDistrict1"
-                                                            FilteringMode="DataGridFilteringMode.Contains"
-                                                            Value="@EmployeeUpdate.districtCode1"
-                                                            ValueChanged="@((string? districtCode1) => ComboboxValueChangedHandler(districtCode1, controlID: nameof(EmployeeUpdate.districtCode1)))"
-                                                            ClearButtonDisplayMode="@DataEditorClearButtonDisplayMode.Auto"
-                                                            TextFieldName="@nameof(ComboboxModel.name)"
-                                                            ValueFieldName="@nameof(ComboboxModel.code)" CssClass="w1FontSize">
-                                                </DxComboBox>
+                                        <div class="col-sm-12">
+                                            <div class="d-flex ">
+                                                <div class="text-secondary" style="width: 150px">
+                                                    Nơi cấp
+                                                </div>
+                                                <div class="fw-medium text-truncate" style="width: calc(100% - 150px)">
+                                                    @(string.IsNullOrEmpty(EmployeeUpdate.placeOfIssuePassport) ? "--" : EmployeeUpdate.placeOfIssuanceCIC)
+                                                </div>
                                             </div>
                                         </div>
-                                    </div>
-                                    <div class="col-md-6 col-sm-12">
-                                        <div class="d-flex ">
-                                            <W1Label Value="Phường xã" Styles="width: 120px" />
-                                            <div style="width: calc(100% - 120px)">
-                                                <DxComboBox Data="@ListCboWard1"
-                                                            FilteringMode="DataGridFilteringMode.Contains"
-                                                            @bind-Value="@EmployeeUpdate.wardCode1"
-                                                            ClearButtonDisplayMode="@DataEditorClearButtonDisplayMode.Auto"
-                                                            TextFieldName="@nameof(ComboboxModel.name)"
-                                                            ValueFieldName="@nameof(ComboboxModel.code)" CssClass="w1FontSize">
-                                                </DxComboBox>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <div class="col-md-6 col-sm-12">
-                                        <div class="d-flex ">
-                                            <W1Label Value="Số nhà" Styles="width: 120px" />
-                                            <div style="width: calc(100% - 120px)">
-                                                <DxTextBox @bind-Text="@EmployeeUpdate.houseNumber1" CssClass="w1FontSize"></DxTextBox>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <div class="col-md-6 col-sm-12">
-                                        <div class="d-flex ">
-                                            <W1Label Value="Địa chỉ" Styles="width: 120px" />
-                                            <div style="width: calc(100% - 120px)">
-                                                <DxTextBox @bind-Text="@EmployeeUpdate.placeOfResidence" CssClass="w1FontSize" ReadOnly="true"></DxTextBox>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <div class="col-md-6 col-sm-12">
-                                        <div class="d-flex ">
-                                            <W1Label Value="Số hộ khẩu" Styles="width: 120px" />
-                                            <div style="width: calc(100% - 120px)">
-                                                <DxTextBox @bind-Text="@EmployeeUpdate.householdRegistrationNumber" CssClass="w1FontSize"></DxTextBox>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <div class="col-md-6 col-sm-12">
-                                        <div class="d-flex ">
-                                            <W1Label Value="Mã số hộ gia đình" Styles="width: 120px" />
-                                            <div style="width: calc(100% - 120px)">
-                                                <DxTextBox @bind-Text="@EmployeeUpdate.householdNumber" CssClass="w1FontSize"></DxTextBox>
+                                        <div class="col-sm-12">
+                                            <div class="d-flex ">
+                                                <div class="text-secondary" style="width: 150px">
+                                                    Ngày hết hạn
+                                                </div>
+                                                <div class="fw-medium text-truncate" style="width: calc(100% - 150px)">
+                                                    @(EmployeeUpdate.expiryDatePassport?.ToString(GlobalContants.FORMAT_DATE) ?? "--")
+                                                </div>
                                             </div>
                                         </div>
                                     </div>
                                 </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
 
-    @* Chỗ ở hiện nay  *@
-    <div class="card card-lg mt-1" style="padding: 5px" id="section-accordion-5">
-        <div class="row row-gap-2">
-            <div class="col-12">
-                <div class="accordion" id="accordion-5">
-                    <div class="accordion-item" style="border: none">
-                        <span class="accordion-header" id="heading-1">
-                            <button class="accordion-button " style="padding-top: 1px; padding-bottom: 1px;padding-left: 5px;"
-                                    type="button" data-bs-toggle="collapse" data-bs-target="#collapse-5" aria-expanded="true">
-                                <h4 class="mb-0 w1FontSize">Chỗ ở hiện nay</h4>
-                            </button>
-                        </span>
-                        <div style="border-bottom: 1px solid var(--tblr-border-color); margin-top: 2px"></div>
-                        <div id="collapse-5" class="accordion-collapse collapse show" data-bs-parent="#accordion-5">
-                            <div class="accordion-body p-2">
-                                <div class="row row-gap-2">
-                                    <div class="col-md-12 col-sm-12">
-                                        <div class="d-flex ">
-                                            <W1Label Value="" Styles="width: 120px" />
-                                            <div style="width: calc(100% - 120px)">
-                                                <DxCheckBox CssClass="w-100 w1FontSize"
-                                                            SizeMode="@SizeMode.Small"
-                                                            Checked="@EmployeeUpdate.isEqualsHousehold"
-                                                            CheckedChanged="@((bool value) => EqualsHouseholdCheckedChangedHandler(value))"
-                                                            LabelPosition="@LabelPosition.Right">
-                                                    Giống hộ khẩu thường trú?
-                                                </DxCheckBox>
+                                @* Thông tin liên hệ  *@
+                                <div class="card-body py-3 px-3">
+                                    <div class="row row-gap-2">
+                                        <div class="col-sm-12">
+                                            <div class="d-flex justify-content-between">
+                                                <h3 class="m-0 mb-1">Thông tin liên hệ</h3>
+                                                <div>
+                                                    <DxButton Text="Chỉnh sửa" IconCssClass="@IconClassConstants.ICON_EDIT" CssClass="w1FontSize"
+                                                              RenderStyleMode="@ButtonRenderStyleMode.Outline" Visible="@(IsAllowPut)"
+                                                              Click="@(async () => await OpenPopupHandler(nameof(IsShowPopupUpdateEmployee), popupType: nameof(EmployeeUpdate.phone1), headerText: "Thay đổi thông tin liên hệ"))" />
+                                                </div>
                                             </div>
                                         </div>
-                                    </div>
-                                    <div class="col-md-6 col-sm-12">
-                                        <div class="d-flex ">
-                                            <W1Label Value="Quốc gia" Styles="width: 120px" />
-                                            <div style="width: calc(100% - 120px)">
-                                                <DxComboBox Data="@ListCboCountry"
-                                                            FilteringMode="DataGridFilteringMode.Contains"
-                                                            Value="@EmployeeUpdate.countryCode2"
-                                                            ValueChanged="@((string? countryCode2) => ComboboxValueChangedHandler(countryCode2, controlID: nameof(EmployeeUpdate.countryCode2)))"
-                                                            ClearButtonDisplayMode="@DataEditorClearButtonDisplayMode.Auto"
-                                                            TextFieldName="@nameof(ComboboxModel.name)"
-                                                            ValueFieldName="@nameof(ComboboxModel.code)" CssClass="w1FontSize">
-                                                </DxComboBox>
+                                        <div class="col-sm-12">
+                                            <div class="d-flex ">
+                                                <div class="text-secondary" style="width: 150px">
+                                                    Điện thoại di động
+                                                </div>
+                                                <div class="fw-medium text-truncate" style="width: calc(100% - 150px)">
+                                                    @(string.IsNullOrEmpty(EmployeeUpdate.phone1) ? "--" : EmployeeUpdate.phone1)
+                                                </div>
                                             </div>
                                         </div>
-                                    </div>
-                                    <div class="col-md-6 col-sm-12">
-                                        <div class="d-flex ">
-                                            <W1Label Value="Tỉnh thành" Styles="width: 120px" />
-                                            <div style="width: calc(100% - 120px)">
-                                                <DxComboBox Data="@ListCboProvince2"
-                                                            FilteringMode="DataGridFilteringMode.Contains"
-                                                            Value="@EmployeeUpdate.provinceCode2"
-                                                            ValueChanged="@((string? provinceCode2) => ComboboxValueChangedHandler(provinceCode2, controlID: nameof(EmployeeUpdate.provinceCode2)))"
-                                                            ClearButtonDisplayMode="@DataEditorClearButtonDisplayMode.Auto"
-                                                            TextFieldName="@nameof(ComboboxModel.name)"
-                                                            ValueFieldName="@nameof(ComboboxModel.code)" CssClass="w1FontSize">
-                                                </DxComboBox>
+                                        <div class="col-sm-12">
+                                            <div class="d-flex ">
+                                                <div class="text-secondary" style="width: 150px">
+                                                    Điện thoại cơ quan
+                                                </div>
+                                                <div class="fw-medium text-truncate" style="width: calc(100% - 150px)">
+                                                    @(string.IsNullOrEmpty(EmployeeUpdate.phone2) ? "--" : EmployeeUpdate.phone2)
+                                                </div>
                                             </div>
                                         </div>
-                                    </div>
-                                    <div class="col-md-6 col-sm-12">
-                                        <div class="d-flex ">
-                                            <W1Label Value="Quận huyện" Styles="width: 120px" />
-                                            <div style="width: calc(100% - 120px)">
-                                                <DxComboBox Data="@ListCboDistrict2"
-                                                            FilteringMode="DataGridFilteringMode.Contains"
-                                                            Value="@EmployeeUpdate.districtCode2"
-                                                            ValueChanged="@((string? districtCode2) => ComboboxValueChangedHandler(districtCode2, controlID: nameof(EmployeeUpdate.districtCode2)))"
-                                                            ClearButtonDisplayMode="@DataEditorClearButtonDisplayMode.Auto"
-                                                            TextFieldName="@nameof(ComboboxModel.name)"
-                                                            ValueFieldName="@nameof(ComboboxModel.code)" CssClass="w1FontSize">
-                                                </DxComboBox>
+                                        <div class="col-sm-12">
+                                            <div class="d-flex ">
+                                                <div class="text-secondary" style="width: 150px">
+                                                    Điện thoại nhà riêng
+                                                </div>
+                                                <div class="fw-medium text-truncate" style="width: calc(100% - 150px)">
+                                                    @(string.IsNullOrEmpty(EmployeeUpdate.phone3) ? "--" : EmployeeUpdate.phone3)
+                                                </div>
                                             </div>
                                         </div>
-                                    </div>
-                                    <div class="col-md-6 col-sm-12">
-                                        <div class="d-flex ">
-                                            <W1Label Value="Phường xã" Styles="width: 120px" />
-                                            <div style="width: calc(100% - 120px)">
-                                                <DxComboBox Data="@ListCboWard2"
-                                                            FilteringMode="DataGridFilteringMode.Contains"
-                                                            @bind-Value="@EmployeeUpdate.wardCode2"
-                                                            ClearButtonDisplayMode="@DataEditorClearButtonDisplayMode.Auto"
-                                                            TextFieldName="@nameof(ComboboxModel.name)"
-                                                            ValueFieldName="@nameof(ComboboxModel.code)" CssClass="w1FontSize">
-                                                </DxComboBox>
+                                        <div class="col-sm-12">
+                                            <div class="d-flex ">
+                                                <div class="text-secondary" style="width: 150px">
+                                                    Điện thoại khác
+                                                </div>
+                                                <div class="fw-medium text-truncate" style="width: calc(100% - 150px)">
+                                                    @(string.IsNullOrEmpty(EmployeeUpdate.phone4) ? "--" : EmployeeUpdate.phone4)
+                                                </div>
                                             </div>
                                         </div>
-                                    </div>
-                                    <div class="col-md-6 col-sm-12">
-                                        <div class="d-flex ">
-                                            <W1Label Value="Số nhà/Đường phố" Styles="width: 120px" />
-                                            <div style="width: calc(100% - 120px)">
-                                                <DxTextBox @bind-Text="@EmployeeUpdate.houseNumber2" CssClass="w1FontSize"></DxTextBox>
+                                        <div class="col-sm-12">
+                                            <div class="d-flex ">
+                                                <div class="text-secondary" style="width: 150px">
+                                                    Email cá nhân
+                                                </div>
+                                                <div class="fw-medium text-truncate" style="width: calc(100% - 150px)">
+                                                    @(string.IsNullOrEmpty(EmployeeUpdate.email1) ? "--" : EmployeeUpdate.email1)
+                                                </div>
                                             </div>
                                         </div>
-                                    </div>
-                                    <div class="col-md-6 col-sm-12">
-                                        <div class="d-flex ">
-                                            <W1Label Value="Địa chỉ" Styles="width: 120px" />
-                                            <div style="width: calc(100% - 120px)">
-                                                <DxTextBox @bind-Text="@EmployeeUpdate.temporaryAddress" CssClass="w1FontSize" ReadOnly="true"></DxTextBox>
+                                        <div class="col-sm-12">
+                                            <div class="d-flex ">
+                                                <div class="text-secondary" style="width: 150px">
+                                                    Email cơ quan
+                                                </div>
+                                                <div class="fw-medium text-truncate" style="width: calc(100% - 150px)">
+                                                    @(string.IsNullOrEmpty(EmployeeUpdate.email2) ? "--" : EmployeeUpdate.email2)
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-sm-12">
+                                            <div class="d-flex ">
+                                                <div class="text-secondary" style="width: 150px">
+                                                    Email khác
+                                                </div>
+                                                <div class="fw-medium text-truncate" style="width: calc(100% - 150px)">
+                                                    @(string.IsNullOrEmpty(EmployeeUpdate.email3) ? "--" : EmployeeUpdate.email3)
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-sm-12">
+                                            <div class="d-flex ">
+                                                <div class="text-secondary" style="width: 150px">
+                                                    Nguyên quán
+                                                </div>
+                                                <div class="fw-medium text-truncate" style="width: calc(100% - 150px)">
+                                                    @(string.IsNullOrEmpty(EmployeeUpdate.placeOfOrigin) ? "--" : EmployeeUpdate.placeOfOrigin)
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-sm-12">
+                                            <div class="d-flex ">
+                                                <div class="text-secondary" style="width: 150px">
+                                                    Tỉnh thành
+                                                </div>
+                                                <div class="fw-medium text-truncate" style="width: calc(100% - 150px)">
+                                                    @(string.IsNullOrEmpty(EmployeeUpdate.provinceName) ? "--" : EmployeeUpdate.provinceName)
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-sm-12">
+                                            <div class="d-flex ">
+                                                <div class="text-secondary" style="width: 150px">
+                                                    Nơi sinh
+                                                </div>
+                                                <div class="fw-medium text-truncate" style="width: calc(100% - 150px)">
+                                                    @(string.IsNullOrEmpty(EmployeeUpdate.placeOfBirth) ? "--" : EmployeeUpdate.placeOfBirth)
+                                                </div>
                                             </div>
                                         </div>
                                     </div>
                                 </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
 
-    @* Liên hệ khẩn cấp   *@
-    <div class="card card-lg mt-1" style="padding: 5px" id="section-accordion-6">
-        <div class="row row-gap-2">
-            <div class="col-12">
-                <div class="accordion" id="accordion-6">
-                    <div class="accordion-item" style="border: none">
-                        <span class="accordion-header" id="heading-1">
-                            <button class="accordion-button " style="padding-top: 1px; padding-bottom: 1px;padding-left: 5px;"
-                                    type="button" data-bs-toggle="collapse" data-bs-target="#collapse-6" aria-expanded="true">
-                                <h4 class="mb-0 w1FontSize">Liên hệ khẩn cấp</h4>
-                            </button>
-                        </span>
-                        <div style="border-bottom: 1px solid var(--tblr-border-color); margin-top: 2px"></div>
-                        <div id="collapse-6" class="accordion-collapse collapse show" data-bs-parent="#accordion-6">
-                            <div class="accordion-body p-2">
-                                <div class="row row-gap-2">
-                                    <div class="col-md-6 col-sm-12">
-                                        <div class="d-flex ">
-                                            <W1Label Value="Họ & tên" Styles="width: 120px" />
-                                            <div style="width: calc(100% - 120px)">
-                                                <DxTextBox @bind-Text="@EmployeeUpdate.fullName1" CssClass="w1FontSize"></DxTextBox>
+                                @* Hộ khẩu thường trú  *@
+                                <div class="card-body py-3 px-3">
+                                    <div class="row row-gap-2">
+                                        <div class="col-sm-12">
+                                            <div class="d-flex justify-content-between">
+                                                <h3 class="m-0 mb-1">Hộ khẩu thường trú</h3>
+                                                <div>
+                                                    <DxButton Text="Chỉnh sửa" IconCssClass="@IconClassConstants.ICON_EDIT" CssClass="w1FontSize"
+                                                              RenderStyleMode="@ButtonRenderStyleMode.Outline" Visible="@(IsAllowPut)"
+                                                              Click="@(async () => await OpenPopupHandler(nameof(IsShowPopupUpdateEmployee), popupType: nameof(EmployeeUpdate.houseNumber1), headerText: "Thay đổi thông tin hộ khẩu thường trú"))" />
+                                                </div>
                                             </div>
                                         </div>
-                                    </div>
-                                    <div class="col-md-6 col-sm-12">
-                                        <div class="d-flex ">
-                                            <W1Label Value="Quan hệ" Styles="width: 120px" />
-                                            <div style="width: calc(100% - 120px)">
-                                                <DxComboBox Data="@ListCboRelationship"
-                                                            @bind-Value="@EmployeeUpdate.relationship"
-                                                            FilteringMode="DataGridFilteringMode.Contains"
-                                                            TextFieldName="@nameof(ComboboxModel.name)"
-                                                            ValueFieldName="@nameof(ComboboxModel.code)" CssClass="w1FontSize">
-                                                </DxComboBox>
+                                        <div class="col-sm-12">
+                                            <div class="d-flex ">
+                                                <div class="text-secondary" style="width: 150px">
+                                                    Số nhà
+                                                </div>
+                                                <div class="fw-medium text-truncate" style="width: calc(100% - 150px)">
+                                                    @(string.IsNullOrEmpty(EmployeeUpdate.houseNumber1) ? "--" : EmployeeUpdate.houseNumber1)
+                                                </div>
                                             </div>
                                         </div>
-                                    </div>
-                                    <div class="col-md-6 col-sm-12">
-                                        <div class="d-flex ">
-                                            <W1Label Value="ĐT di động" Styles="width: 120px" />
-                                            <div style="width: calc(100% - 120px)">
-                                                <DxTextBox @bind-Text="@EmployeeUpdate.phone5" CssClass="w1FontSize"></DxTextBox>
+                                        <div class="col-sm-12">
+                                            <div class="d-flex ">
+                                                <div class="text-secondary" style="width: 150px">
+                                                    Địa chỉ
+                                                </div>
+                                                <div class="fw-medium text-truncate" style="width: calc(100% - 150px)">
+                                                    @(string.IsNullOrEmpty(EmployeeUpdate.placeOfResidence) ? "--" : EmployeeUpdate.placeOfResidence)
+                                                </div>
                                             </div>
                                         </div>
-                                    </div>
-                                    <div class="col-md-6 col-sm-12">
-                                        <div class="d-flex ">
-                                            <W1Label Value="ĐT nhà riêng" Styles="width: 120px" />
-                                            <div style="width: calc(100% - 120px)">
-                                                <DxTextBox @bind-Text="@EmployeeUpdate.phone6" CssClass="w1FontSize"></DxTextBox>
+                                        <div class="col-sm-12">
+                                            <div class="d-flex ">
+                                                <div class="text-secondary" style="width: 150px">
+                                                    Số hộ khẩu
+                                                </div>
+                                                <div class="fw-medium text-truncate" style="width: calc(100% - 150px)">
+                                                    @(string.IsNullOrEmpty(EmployeeUpdate.householdRegistrationNumber) ? "--" : EmployeeUpdate.householdRegistrationNumber)
+                                                </div>
                                             </div>
                                         </div>
-                                    </div>
-                                    <div class="col-md-6 col-sm-12">
-                                        <div class="d-flex ">
-                                            <W1Label Value="Email" Styles="width: 120px" />
-                                            <div style="width: calc(100% - 120px)">
-                                                <DxTextBox @bind-Text="@EmployeeUpdate.email4" CssClass="w1FontSize"></DxTextBox>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <div class="col-md-6 col-sm-12">
-                                        <div class="d-flex ">
-                                            <W1Label Value="Địa chỉ" Styles="width: 120px" />
-                                            <div style="width: calc(100% - 120px)">
-                                                <DxTextBox @bind-Text="@EmployeeUpdate.contactAddress" CssClass="w1FontSize"></DxTextBox>
+                                        <div class="col-sm-12">
+                                            <div class="d-flex ">
+                                                <div class="text-secondary" style="width: 150px">
+                                                    Mã số hộ gia đình
+                                                </div>
+                                                <div class="fw-medium text-truncate" style="width: calc(100% - 150px)">
+                                                    @(string.IsNullOrEmpty(EmployeeUpdate.householdNumber) ? "--" : EmployeeUpdate.householdNumber)
+                                                </div>
                                             </div>
                                         </div>
                                     </div>
                                 </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
 
-    @* Quan hệ gia đình  *@
-    <div class="card card-lg mt-1" style="padding: 5px" id="section-accordion-7">
-        <div class="row row-gap-2">
-            <div class="col-12">
-                <div class="accordion" id="accordion-7">
-                    <div class="accordion-item" style="border: none">
-                        <span class="accordion-header" id="heading-1">
-                            <button class="accordion-button " style="padding-top: 1px; padding-bottom: 1px;padding-left: 5px;"
-                                    type="button" data-bs-toggle="collapse" data-bs-target="#collapse-7" aria-expanded="true">
-                                <h4 class="mb-0 w1FontSize">Quan hệ gia đình</h4>
-                            </button>
-                        </span>
-                        <div style="border-bottom: 1px solid var(--tblr-border-color); margin-top: 2px"></div>
-                        <div id="collapse-7" class="accordion-collapse collapse show" data-bs-parent="#accordion-7">
-                            <div class="accordion-body p-0">
-                                <div class="row row-gap-2">
-                                    <div class="col-md-12 col-sm-12">
-                                        <DxGrid Data="ListFamilyRelationship" @ref="GridFamilyRelationship"
-                                                ShowFilterRow="false"
-                                                PageSize="500"
-                                                ColumnResizeMode="GridColumnResizeMode.ColumnsContainer"
-                                                PagerPosition="GridPagerPosition.Bottom"
-                                                PageSizeSelectorVisible="false"
-                                                PageSizeSelectorAllRowsItemVisible="false"
-                                                PagerSwitchToInputBoxButtonCount="10"
-                                                PagerVisibleNumericButtonCount="10"
-                                                TextWrapEnabled="false"
-                                                KeyFieldName="@nameof(FamilyRelationshipModel.id)"
-                                                ValidationEnabled="true"
-                                                AllowSelectRowByClick="true"
-                                                FocusedRowEnabled="true"
-                                                SelectionMode="GridSelectionMode.Single"
-                                                CssClass="h-full">
-                                            <ToolbarTemplate>
-                                                <DxToolbar ItemRenderStyleMode="@ToolbarRenderStyleMode.Plain">
-                                                    <Items>
-                                                        <DxToolbarItem IconCssClass="@IconClassConstants.ICON_ADD" BeginGroup="true" Alignment="@ToolbarItemAlignment.Right"
-                                                                       Click="@(async () => await OpenPopupHandler(nameof(IsShowPopupFamily)))" />
-                                                        <DxToolbarItem IconCssClass="@IconClassConstants.ICON_REFRESH" BeginGroup="true" Alignment="@ToolbarItemAlignment.Right"
-                                                                       Click="@(async () => await RefreshHandler(nameof(IsShowPopupFamily)))" />
-                                                    </Items>
-                                                </DxToolbar>
-                                            </ToolbarTemplate>
-                                            <Columns>
-                                                <DxGridDataColumn FieldName="@nameof(FamilyRelationshipModel.name)" Caption="Họ tên" MinWidth="140">
-                                                    <CellDisplayTemplate>
-                                                        @{
-                                                            <a @onclick="@(() => OpenPopupHandler(nameof(IsShowPopupFamily), "", EnumType.Update, (context.DataItem as FamilyRelationshipModel)))">@context.Value</a>
-                                                        }
-                                                    </CellDisplayTemplate>
-                                                </DxGridDataColumn>
-                                                <DxGridDataColumn FieldName="@nameof(FamilyRelationshipModel.relationshipName)" Caption="Mối quan hệ" MinWidth="110" />
-                                                <DxGridDataColumn FieldName="@nameof(FamilyRelationshipModel.phoneNumber)" Caption="Số điện thoại" MinWidth="110" />
-                                                <DxGridDataColumn FieldName="@nameof(FamilyRelationshipModel.dateOfBirth)" Caption="Ngày sinh" MinWidth="110" DisplayFormat="@GlobalContants.FORMAT_DATE" />
-                                                @* <DxGridDataColumn FieldName="@nameof(FamilyRelationshipModel.occupation)" Caption="Nghề nghiệp" MinWidth="140" /> *@
-                                                <DxGridDataColumn FieldName="@nameof(FamilyRelationshipModel.contactAddress)" Caption="Địa chỉ" MinWidth="170" />
-                                                <DxGridDataColumn FieldName="@nameof(FamilyRelationshipModel.remark)" Caption="Ghi chú" MinWidth="170" />
-                                            </Columns>
-                                        </DxGrid>
+                                @* Chỗ ở hiện nay  *@
+                                <div class="card-body py-3 px-3">
+                                    <div class="row row-gap-2">
+                                        <div class="col-sm-12">
+                                            <div class="d-flex justify-content-between">
+                                                <h3 class="m-0 mb-1">Chỗ ở hiện nay</h3>
+                                                <div>
+                                                    <DxButton Text="Chỉnh sửa" IconCssClass="@IconClassConstants.ICON_EDIT" CssClass="w1FontSize"
+                                                              RenderStyleMode="@ButtonRenderStyleMode.Outline" Visible="@(IsAllowPut)"
+                                                              Click="@(async () => await OpenPopupHandler(nameof(IsShowPopupUpdateEmployee), popupType: nameof(EmployeeUpdate.houseNumber2), headerText: "Thay đổi thông tin chỗ ở hiện nay"))" />
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-sm-12">
+                                            <div class="d-flex ">
+                                                <div class="text-secondary" style="width: 150px">
+                                                    Số nhà/Đường phố
+                                                </div>
+                                                <div class="fw-medium text-truncate" style="width: calc(100% - 150px)">
+                                                    @(string.IsNullOrEmpty(EmployeeUpdate.houseNumber2) ? "--" : EmployeeUpdate.houseNumber2)
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-sm-12">
+                                            <div class="d-flex ">
+                                                <div class="text-secondary" style="width: 150px">
+                                                    Địa chỉ
+                                                </div>
+                                                <div class="fw-medium text-truncate" style="width: calc(100% - 150px)">
+                                                    @(string.IsNullOrEmpty(EmployeeUpdate.temporaryAddress) ? "--" : EmployeeUpdate.temporaryAddress)
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                @* Liên hệ khẩn cấp *@
+                                <div class="card-body py-3 px-3">
+                                    <div class="row row-gap-2">
+                                        <div class="col-sm-12">
+                                            <div class="d-flex justify-content-between">
+                                                <h3 class="m-0 mb-1">Liên hệ khẩn cấp</h3>
+                                                <div>
+                                                    <DxButton Text="Chỉnh sửa" IconCssClass="@IconClassConstants.ICON_EDIT" CssClass="w1FontSize"
+                                                              RenderStyleMode="@ButtonRenderStyleMode.Outline" Visible="@(IsAllowPut)"
+                                                              Click="@(async () => await OpenPopupHandler(nameof(IsShowPopupUpdateEmployee), popupType: nameof(EmployeeUpdate.fullName1), headerText: "Thay đổi thông tin liên hệ khẩn cấp"))" />
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-sm-12">
+                                            <div class="d-flex ">
+                                                <div class="text-secondary" style="width: 150px">
+                                                    Người liên hệ
+                                                </div>
+                                                <div class="fw-medium text-truncate" style="width: calc(100% - 150px)">
+                                                    @(string.IsNullOrEmpty(EmployeeUpdate.fullName1) ? "--" : EmployeeUpdate.fullName1)
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-sm-12">
+                                            <div class="d-flex ">
+                                                <div class="text-secondary" style="width: 150px">
+                                                    Quan hệ
+                                                </div>
+                                                <div class="fw-medium text-truncate" style="width: calc(100% - 150px)">
+                                                    @(string.IsNullOrEmpty(EmployeeUpdate.relationship) ? "--" : EmployeeUpdate.relationship)
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-sm-12">
+                                            <div class="d-flex ">
+                                                <div class="text-secondary" style="width: 150px">
+                                                    Điện thoại di động
+                                                </div>
+                                                <div class="fw-medium text-truncate" style="width: calc(100% - 150px)">
+                                                    @(string.IsNullOrEmpty(EmployeeUpdate.phone5) ? "--" : EmployeeUpdate.phone5)
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-sm-12">
+                                            <div class="d-flex ">
+                                                <div class="text-secondary" style="width: 150px">
+                                                    Điện thoại nhà riêng
+                                                </div>
+                                                <div class="fw-medium text-truncate" style="width: calc(100% - 150px)">
+                                                    @(string.IsNullOrEmpty(EmployeeUpdate.phone6) ? "--" : EmployeeUpdate.phone6)
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-sm-12">
+                                            <div class="d-flex ">
+                                                <div class="text-secondary" style="width: 150px">
+                                                    Email
+                                                </div>
+                                                <div class="fw-medium text-truncate" style="width: calc(100% - 150px)">
+                                                    @(string.IsNullOrEmpty(EmployeeUpdate.email4) ? "--" : EmployeeUpdate.email4)
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-sm-12">
+                                            <div class="d-flex ">
+                                                <div class="text-secondary" style="width: 150px">
+                                                    Địa chỉ
+                                                </div>
+                                                <div class="fw-medium text-truncate" style="width: calc(100% - 150px)">
+                                                    @(string.IsNullOrEmpty(EmployeeUpdate.contactAddress) ? "--" : EmployeeUpdate.contactAddress)
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                @* Quan hệ gia đình *@
+                                <div class="card-body py-3 px-3">
+                                    <div class="row row-gap-2">
+                                        <div class="col-sm-12">
+                                            <div class="d-flex justify-content-between">
+                                                <h3 class="m-0 mb-1">Quan hệ gia đình</h3>
+                                                <div>
+                                                    <DxButton Text="Thêm mới" IconCssClass="@IconClassConstants.ICON_ADD" CssClass="w1FontSize"
+                                                              RenderStyleMode="@ButtonRenderStyleMode.Outline" Visible="@(IsAllowPut)"
+                                                              Click="@(async () => await OpenPopupHandler(nameof(IsShowPopupFamily)))" />
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-sm-12">
+                                            @if (ListFamilyRelationship != null && ListFamilyRelationship.Any())
+                                            {
+                                                <div class="table-responsive">
+                                                    <table class="table table-vcenter card-table table-striped">
+                                                        <tbody>
+                                                            @foreach (var item in ListFamilyRelationship)
+                                                            {
+                                                                <tr class="text-truncate">
+                                                                    <td class="px-0 py-2">
+                                                                        <div class="d-flex ">
+                                                                            <div class="text-secondary" style="width: 150px">
+                                                                                @item.relationshipName
+                                                                            </div>
+                                                                            <div class="fw-medium text-truncate" style="width: calc(100% - 150px)">
+                                                                                @if (IsAllowPut)
+                                                                                {
+                                                                                    <a class="a" @onclick="@(() => OpenPopupHandler(nameof(IsShowPopupFamily), "", EnumType.Update, item))">@item.name</a>
+                                                                                }
+                                                                                else
+                                                                                {
+                                                                                    @item.name
+                                                                                }
+                                                                            </div>
+                                                                        </div>
+                                                                        <div class="d-flex mt-2">
+                                                                            <div class="text-secondary" style="width: 150px">
+                                                                                Ngày sinh
+                                                                            </div>
+                                                                            <div class="fw-medium text-truncate" style="width: calc(100% - 150px)">
+                                                                                @(item.dateOfBirth?.ToString(GlobalContants.FORMAT_DATE) ?? "--")
+                                                                            </div>
+                                                                        </div>
+                                                                        <div class="d-flex mt-2">
+                                                                            <div class="text-secondary" style="width: 150px">
+                                                                                Số điện thoại
+                                                                            </div>
+                                                                            <div class="fw-medium text-truncate" style="width: calc(100% - 150px)">
+                                                                                @(string.IsNullOrEmpty(item.phoneNumber) ? "--" : item.phoneNumber)
+                                                                            </div>
+                                                                        </div>
+                                                                        <div class="d-flex mt-2">
+                                                                            <div class="text-secondary" style="width: 150px">
+                                                                                Địa chỉ
+                                                                            </div>
+                                                                            <div class="fw-medium text-truncate" style="width: calc(100% - 150px)">
+                                                                                @(string.IsNullOrEmpty(item.contactAddress) ? "--" : item.contactAddress)
+                                                                            </div>
+                                                                        </div>
+                                                                    </td>
+                                                                </tr>
+                                                            }
+                                                        </tbody>
+                                                    </table>
+                                                </div>
+                                            }
+                                            else
+                                            {
+                                                <W1NoData />
+                                            }
+                                        </div>
                                     </div>
                                 </div>
                             </div>
-                        </div>
-                    </div>
+                            break;
+                        case 1:
+                            <div class="w-full">
+                                @* Công tin công việc  *@
+                                <div class="card-body py-3 px-3">
+                                    <div class="row row-gap-2">
+                                        <div class="col-sm-12">
+                                            <div class="d-flex justify-content-between">
+                                                <h3 class="m-0 mb-1">Thông tin công việc</h3>
+   
+                                            </div>
+                                        </div>
+                                        <div class="col-sm-12">
+                                            <div class="d-flex ">
+                                                <div class="text-secondary" style="width: 150px">
+                                                    Trạng thái nhân viên
+                                                </div>
+                                                <div class="fw-medium text-truncate @EmployeeUpdate.textColor" style="width: calc(100% - 150px)">
+                                                    @(string.IsNullOrEmpty(EmployeeUpdate.statusName) ? "--" : EmployeeUpdate.statusName)
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-sm-12">
+                                            <div class="d-flex ">
+                                                <div class="text-secondary" style="width: 150px">
+                                                    Phòng ban
+                                                </div>
+                                                <div class="fw-medium text-truncate" style="width: calc(100% - 150px)">
+                                                    @(string.IsNullOrEmpty(EmployeeUpdate.departmentName) ? "--" : EmployeeUpdate.departmentName)
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-sm-12">
+                                            <div class="d-flex ">
+                                                <div class="text-secondary" style="width: 150px">
+                                                    Chức vụ
+                                                </div>
+                                                <div class="fw-medium text-truncate" style="width: calc(100% - 150px)">
+                                                    @(string.IsNullOrEmpty(EmployeeUpdate.positionName) ? "--" : EmployeeUpdate.positionName)
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-sm-12">
+                                            <div class="d-flex ">
+                                                <div class="text-secondary" style="width: 150px">
+                                                    Chức danh
+                                                </div>
+                                                <div class="fw-medium text-truncate" style="width: calc(100% - 150px)">
+                                                    @(string.IsNullOrEmpty(EmployeeUpdate.titleName) ? "--" : EmployeeUpdate.titleName)
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-sm-12">
+                                            <div class="d-flex ">
+                                                <div class="text-secondary" style="width: 150px">
+                                                    Bộ phận
+                                                </div>
+                                                <div class="fw-medium text-truncate" style="width: calc(100% - 150px)">
+                                                    @(string.IsNullOrEmpty(EmployeeUpdate.subDepartmentName) ? "--" : EmployeeUpdate.subDepartmentName)
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-sm-12">
+                                            <div class="d-flex ">
+                                                <div class="text-secondary" style="width: 150px">
+                                                    Chi nhánh làm việc
+                                                </div>
+                                                <div class="fw-medium text-truncate" style="width: calc(100% - 150px)">
+                                                    @(string.IsNullOrEmpty(EmployeeUpdate.workingBranchName) ? "--" : EmployeeUpdate.workingBranchName)
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-sm-12">
+                                            <div class="d-flex ">
+                                                <div class="text-secondary" style="width: 150px">
+                                                    Quản lý trực tiếp
+                                                </div>
+                                                <div class="fw-medium text-truncate" style="width: calc(100% - 150px)">
+                                                    @(string.IsNullOrEmpty(EmployeeUpdate.managerName) ? "--" : $"{EmployeeUpdate.managerCode} - {EmployeeUpdate.managerName}")
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-sm-12">
+                                            <div class="d-flex ">
+                                                <div class="text-secondary" style="width: 150px">
+                                                    Quản lý gián tiếp
+                                                </div>
+                                                <div class="fw-medium text-truncate" style="width: calc(100% - 150px)">
+                                                    @(string.IsNullOrEmpty(EmployeeUpdate.managerName2) ? "--" : $"{EmployeeUpdate.managerCode2} - {EmployeeUpdate.managerName2}")
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-sm-12">
+                                            <div class="d-flex ">
+                                                <div class="text-secondary" style="width: 150px">
+                                                    Mã chấm công
+                                                </div>
+                                                <div class="fw-medium text-truncate" style="width: calc(100% - 150px)">
+                                                    @(string.IsNullOrEmpty(EmployeeUpdate.attendanceSheetCode) ? "--" : EmployeeUpdate.attendanceSheetCode)
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-sm-12">
+                                            <div class="d-flex ">
+                                                <div class="text-secondary" style="width: 150px">
+                                                    Ngày bđ/kt thử việc
+                                                </div>
+                                                <div class="fw-medium text-truncate" style="width: calc(100% - 150px)">
+                                                    @(EmployeeUpdate.probationStartDate == null ? "--" : $"{EmployeeUpdate.probationStartDate?.ToString(GlobalContants.FORMAT_DATE)} - {EmployeeUpdate.probationEndDate?.ToString(GlobalContants.FORMAT_DATE)}")
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-sm-12">
+                                            <div class="d-flex ">
+                                                <div class="text-secondary" style="width: 150px">
+                                                    Dân tộc
+                                                </div>
+                                                <div class="fw-medium text-truncate" style="width: calc(100% - 150px)">
+                                                    @(string.IsNullOrEmpty(EmployeeUpdate.ethnicity) ? "--" : EmployeeUpdate.ethnicity)
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-sm-12">
+                                            <div class="d-flex ">
+                                                <div class="text-secondary" style="width: 150px">
+                                                    Tôn giáo
+                                                </div>
+                                                <div class="fw-medium text-truncate" style="width: calc(100% - 150px)">
+                                                    @(string.IsNullOrEmpty(EmployeeUpdate.religion) ? "--" : EmployeeUpdate.religion)
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-sm-12">
+                                            <div class="d-flex ">
+                                                <div class="text-secondary" style="width: 150px">
+                                                    Quốc tịch
+                                                </div>
+                                                <div class="fw-medium text-truncate" style="width: calc(100% - 150px)">
+                                                    @(string.IsNullOrEmpty(EmployeeUpdate.nationality) ? "--" : EmployeeUpdate.nationality)
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                 @* Thông tin hợp đồng  *@
+                                <div class="card-body py-3 px-3">
+                                    <div class="row row-gap-2">
+                                        <div class="col-sm-12">
+                                            <div class="d-flex justify-content-between">
+                                                <h3 class="m-0 mb-1">Thông tin Hợp đồng & Phụ lục hợp đồng</h3>
+                                            </div>
+                                        </div>
+                                        <div class="col-sm-12">
+                                            @if (ListContract != null && ListContract.Any())
+                                            {
+                                                <div class="table-responsive">
+                                                    <table class="table table-vcenter card-table table-striped">
+                                                        <tbody>
+                                                            @foreach (var item in ListContract)
+                                                            {
+                                                                <tr class="text-truncate">
+                                                                    <td class="px-0 py-2">
+                                                                        <div class="d-flex ">
+                                                                            <div class="text-secondary" style="width: 150px">
+                                                                                Mã hợp đồng
+                                                                            </div>
+                                                                            <div class="fw-medium text-truncate" style="width: calc(100% - 150px)">
+                                                                                <a class="a" @onclick="@(() => OpenPopupHandler(nameof(IsShowPopupFamily), "", EnumType.Update, item))">@item.contractCode</a>
+                                                                            </div>
+                                                                        </div>
+                                                                        <div class="d-flex mt-2">
+                                                                            <div class="text-secondary" style="width: 150px">
+                                                                                Loại hợp đồng
+                                                                            </div>
+                                                                            <div class="fw-medium text-truncate" style="width: calc(100% - 150px)">
+                                                                                @(string.IsNullOrEmpty(item.contractTypeName) ? "--" : item.contractTypeName)
+                                                                            </div>
+                                                                        </div>
+                                                                        <div class="d-flex mt-2">
+                                                                            <div class="text-secondary" style="width: 150px">
+                                                                                Trạng thái
+                                                                            </div>
+                                                                            <div class="fw-medium text-truncate" style="width: calc(100% - 150px)">
+                                                                                @(string.IsNullOrEmpty(item.statusName) ? "--" : item.statusName)
+                                                                            </div>
+                                                                        </div>
+                                                                        <div class="d-flex mt-2">
+                                                                            <div class="text-secondary" style="width: 150px">
+                                                                                Ngày bắt đầu/kết thúc
+                                                                            </div>
+                                                                            <div class="fw-medium text-truncate" style="width: calc(100% - 150px)">
+                                                                                @(item.startDate?.ToString(GlobalContants.FORMAT_DATE) ?? "--") - @(item.endDate?.ToString(GlobalContants.FORMAT_DATE) ?? "--")
+                                                                            </div>
+                                                                        </div>
+                                                                    </td>
+                                                                </tr>
+                                                            }
+                                                        </tbody>
+                                                    </table>
+                                                </div>
+                                            }
+                                            else
+                                            {
+                                                 <W1NoData />
+                                            }
+                                            
+                                        </div>
+                                    </div>
+                                </div>
+                                @* Thông tin bảo hiểm  *@
+                                <div class="card-body py-3 px-3">
+                                    <div class="row row-gap-2">
+                                        <div class="col-sm-12">
+                                            <div class="d-flex justify-content-between">
+                                                <h3 class="m-0 mb-1">Thông tin bảo hiểm</h3>
+                                            </div>
+                                        </div>
+                                        <div class="col-sm-12">
+                                            @if (ListInsurance != null && ListInsurance.Any())
+                                            {
+                                                <div class="table-responsive">
+                                                    <table class="table table-vcenter card-table table-striped">
+                                                        <tbody>
+                                                            @foreach (var item in ListInsurance)
+                                                            {
+                                                                <tr class="text-truncate">
+                                                                    <td class="px-0 py-2">
+                                                                        <div class="d-flex ">
+                                                                            <div class="text-secondary" style="width: 150px">
+                                                                                Số bảo hiểm
+                                                                            </div>
+                                                                            <div class="fw-medium text-truncate" style="width: calc(100% - 150px)">
+                                                                                <a class="a">@item.insuranceNo</a>
+                                                                            </div>
+                                                                        </div>
+                                                                        <div class="d-flex mt-2">
+                                                                            <div class="text-secondary" style="width: 150px">
+                                                                                Loại bảo hiểm
+                                                                            </div>
+                                                                            <div class="fw-medium text-truncate" style="width: calc(100% - 150px)">
+                                                                                @(string.IsNullOrEmpty(item.insuranceTypeName) ? "--" : item.insuranceTypeName)
+                                                                            </div>
+                                                                        </div>
+                                                                        <div class="d-flex mt-2">
+                                                                            <div class="text-secondary" style="width: 150px">
+                                                                                Nơi đăng ký KCB
+                                                                            </div>
+                                                                            <div class="fw-medium text-truncate" style="width: calc(100% - 150px)">
+                                                                                @(string.IsNullOrEmpty(item.address) ? "--" : item.address)
+                                                                            </div>
+                                                                        </div>
+                                                                        <div class="d-flex mt-2">
+                                                                            <div class="text-secondary" style="width: 150px">
+                                                                                Ngày cấp/hết hạn
+                                                                            </div>
+                                                                            <div class="fw-medium text-truncate" style="width: calc(100% - 150px)">
+                                                                                @(item.startDate?.ToString(GlobalContants.FORMAT_DATE) ?? "--") - @(item.endDate?.ToString(GlobalContants.FORMAT_DATE) ?? "--")
+                                                                            </div>
+                                                                        </div>
+                                                                    </td>
+                                                                </tr>
+                                                            }
+                                                        </tbody>
+                                                    </table>
+                                                </div>
+                                            }
+                                            else
+                                            {
+                                                <W1NoData />
+                                            }
+                                            
+                                        </div>
+                                    </div>
+                                </div>
+                                @* Thông tin hợp đồng  *@
+                                <div class="card-body py-3 px-3">
+                                    <div class="row row-gap-2">
+                                        <div class="col-sm-12">
+                                            <div class="d-flex justify-content-between">
+                                                <h3 class="m-0 mb-1">Lịch sử lương</h3>
+                                            </div>
+                                        </div>
+                                        <div class="col-sm-12">
+                                            <W1NoData />
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            break;
+                    }
+                    
+
+                     
                 </div>
+                
             </div>
         </div>
     </div>
 </div>
-<div class="mb-5"></div>
-<div class="mb-5"></div>
-<div class="mb-5"></div>
-<div class="mb-5"></div>
-<div class="mb-5"></div>
 
 @* Thêm thông quan hệ gia đình *@
 <W1Popup @bind-IsOpenModal="@IsShowPopupFamily"
@@ -694,6 +956,444 @@
             </div>
         </div>
     </div>
+</W1Popup>
+
+@* Popup thay đổi thông tin nhân viên *@
+<W1Popup @bind-IsOpenModal="@IsShowPopupUpdateEmployee"
+         Width="65%" TextBtnAccept="Cập nhật"
+         HandleClickAccept="@SaveDataHandler"
+         HeaderText="@(HeaderTextUpdateEmployee)">
+
+    @if (PopupTypeUpdateEmployee == nameof(EmployeeRefUpdate.cIC))
+    {
+        <div class="row row-gap-2">
+            <div class="col-md-6 col-sm-12">
+                <div class="row row-gap-2">
+                    <div class="col-md-12 col-sm-12">
+                        <div class="d-flex ">
+                            <W1Label Value="CCCD/CMND" Styles="width: 120px" IsRequired="true" />
+                            <div style="width: calc(100% - 120px)">
+                                <DxTextBox @bind-Text="@EmployeeRefUpdate.cIC" CssClass="w1FontSize" Id="@nameof(EmployeeRefUpdate.cIC)"></DxTextBox>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-12 col-sm-12">
+                        <div class="d-flex ">
+                            <W1Label Value="Ngày cấp" Styles="width: 120px" />
+                            <div style="width: calc(100% - 120px)">
+                                <DxDateEdit @bind-Date="@EmployeeRefUpdate.issuanceDateCIC" DisplayFormat="@GlobalContants.FORMAT_DATE"
+                                            Mask="@GlobalContants.FORMAT_DATE" Format="@GlobalContants.FORMAT_DATE" CssClass="w1FontSize"
+                                            ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto" />
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-12 col-sm-12">
+                        <div class="d-flex ">
+                            <W1Label Value="Nơi cấp" Styles="width: 120px" />
+                            <div style="width: calc(100% - 120px)">
+                                <DxTextBox @bind-Text="@EmployeeRefUpdate.placeOfIssuanceCIC" CssClass="w1FontSize"></DxTextBox>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-12 col-sm-12">
+                        <div class="d-flex ">
+                            <W1Label Value="Ngày hết hạn" Styles="width: 120px" />
+                            <div style="width: calc(100% - 120px)">
+                                <DxDateEdit @bind-Date="@EmployeeRefUpdate.expiryDateCIC" DisplayFormat="@GlobalContants.FORMAT_DATE"
+                                            Mask="@GlobalContants.FORMAT_DATE" Format="@GlobalContants.FORMAT_DATE" CssClass="w1FontSize"
+                                            ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto" />
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+            <div class="col-md-6 col-sm-12">
+                <div class="row row-gap-2">
+                    <div class="col-md-12 col-sm-12">
+                        <div class="d-flex ">
+                            <W1Label Value="Hộ chiếu" Styles="width: 120px" />
+                            <div style="width: calc(100% - 120px)">
+                                <DxTextBox @bind-Text="@EmployeeRefUpdate.passportNumber" CssClass="w1FontSize" Id="@nameof(EmployeeRefUpdate.cIC)"></DxTextBox>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-12 col-sm-12">
+                        <div class="d-flex ">
+                            <W1Label Value="Ngày cấp" Styles="width: 120px" />
+                            <div style="width: calc(100% - 120px)">
+                                <DxDateEdit @bind-Date="@EmployeeRefUpdate.issueDatePassport" DisplayFormat="@GlobalContants.FORMAT_DATE"
+                                            Mask="@GlobalContants.FORMAT_DATE" Format="@GlobalContants.FORMAT_DATE" CssClass="w1FontSize"
+                                            ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto" />
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-12 col-sm-12">
+                        <div class="d-flex ">
+                            <W1Label Value="Nơi cấp" Styles="width: 120px" />
+                            <div style="width: calc(100% - 120px)">
+                                <DxTextBox @bind-Text="@EmployeeRefUpdate.placeOfIssuePassport" CssClass="w1FontSize"></DxTextBox>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-12 col-sm-12">
+                        <div class="d-flex ">
+                            <W1Label Value="Ngày hết hạn" Styles="width: 120px" />
+                            <div style="width: calc(100% - 120px)">
+                                <DxDateEdit @bind-Date="@EmployeeRefUpdate.expiryDatePassport" DisplayFormat="@GlobalContants.FORMAT_DATE"
+                                            Mask="@GlobalContants.FORMAT_DATE" Format="@GlobalContants.FORMAT_DATE" CssClass="w1FontSize"
+                                            ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto" />
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    }
+
+    else if (PopupTypeUpdateEmployee == nameof(EmployeeRefUpdate.phone1))
+    {
+        <div class="row row-gap-2">
+            <div class="col-md-6 col-sm-12">
+                <div class="d-flex ">
+                    <W1Label Value="ĐT di động" Styles="width: 120px" />
+                    <div style="width: calc(100% - 120px)">
+                        <DxTextBox @bind-Text="@EmployeeRefUpdate.phone1" CssClass="w1FontSize"></DxTextBox>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6 col-sm-12">
+                <div class="d-flex ">
+                    <W1Label Value="ĐT cơ quan" Styles="width: 120px" />
+                    <div style="width: calc(100% - 120px)">
+                        <DxTextBox @bind-Text="@EmployeeRefUpdate.phone2" CssClass="w1FontSize"></DxTextBox>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6 col-sm-12">
+                <div class="d-flex ">
+                    <W1Label Value="ĐT nhà riêng" Styles="width: 120px" />
+                    <div style="width: calc(100% - 120px)">
+                        <DxTextBox @bind-Text="@EmployeeRefUpdate.phone3" CssClass="w1FontSize"></DxTextBox>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6 col-sm-12">
+                <div class="d-flex ">
+                    <W1Label Value="ĐT khác" Styles="width: 120px" />
+                    <div style="width: calc(100% - 120px)">
+                        <DxTextBox @bind-Text="@EmployeeRefUpdate.phone4" CssClass="w1FontSize"></DxTextBox>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6 col-sm-12">
+                <div class="d-flex ">
+                    <W1Label Value="Email cá nhân" Styles="width: 120px" />
+                    <div style="width: calc(100% - 120px)">
+                        <DxTextBox @bind-Text="@EmployeeRefUpdate.email1" CssClass="w1FontSize"></DxTextBox>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6 col-sm-12">
+                <div class="d-flex ">
+                    <W1Label Value="Email cơ quan" Styles="width: 120px" />
+                    <div style="width: calc(100% - 120px)">
+                        <DxTextBox @bind-Text="@EmployeeRefUpdate.email2" CssClass="w1FontSize"></DxTextBox>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6 col-sm-12">
+                <div class="d-flex ">
+                    <W1Label Value="Email khác" Styles="width: 120px" />
+                    <div style="width: calc(100% - 120px)">
+                        <DxTextBox @bind-Text="@EmployeeRefUpdate.email3" CssClass="w1FontSize"></DxTextBox>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-6 col-sm-12">
+                <div class="d-flex ">
+                    <W1Label Value="Nguyên quán" Styles="width: 120px" />
+                    <div style="width: calc(100% - 120px)">
+                        <DxTextBox @bind-Text="@EmployeeRefUpdate.placeOfOrigin" CssClass="w1FontSize"></DxTextBox>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-6 col-sm-12">
+                <div class="d-flex ">
+                    <W1Label Value="Tỉnh thành" Styles="width: 120px" />
+                    <div style="width: calc(100% - 120px)">
+                        <DxComboBox Data="@ListCboProvince"
+                                    @bind-Value="@EmployeeRefUpdate.provinceCode"
+                                    FilteringMode="DataGridFilteringMode.Contains"
+                                    TextFieldName="@nameof(ComboboxModel.name)"
+                                    ValueFieldName="@nameof(ComboboxModel.code)" CssClass="w1FontSize">
+                        </DxComboBox>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-6 col-sm-12">
+                <div class="d-flex ">
+                    <W1Label Value="Nơi sinh" Styles="width: 120px" />
+                    <div style="width: calc(100% - 120px)">
+                        <DxTextBox @bind-Text="@EmployeeRefUpdate.placeOfBirth" CssClass="w1FontSize"></DxTextBox>
+                    </div>
+                </div>
+            </div>
+        </div>
+    }
+    else if (PopupTypeUpdateEmployee == nameof(EmployeeRefUpdate.houseNumber1))
+    {
+        <div class="row row-gap-2">
+            <div class="col-md-6 col-sm-12">
+                <div class="d-flex ">
+                    <W1Label Value="Quốc gia" Styles="width: 120px" />
+                    <div style="width: calc(100% - 120px)">
+                        <DxComboBox Data="@ListCboCountry"
+                                    FilteringMode="DataGridFilteringMode.Contains"
+                                    Value="@EmployeeRefUpdate.countryCode1"
+                                    ValueChanged="@((string? countryCode1) => ComboboxValueChangedHandler(countryCode1, controlID: nameof(EmployeeRefUpdate.countryCode1)))"
+                                    ClearButtonDisplayMode="@DataEditorClearButtonDisplayMode.Auto"
+                                    TextFieldName="@nameof(ComboboxModel.name)"
+                                    ValueFieldName="@nameof(ComboboxModel.code)" CssClass="w1FontSize">
+                        </DxComboBox>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6 col-sm-12">
+                <div class="d-flex ">
+                    <W1Label Value="Tỉnh thành" Styles="width: 120px" />
+                    <div style="width: calc(100% - 120px)">
+                        <DxComboBox Data="@ListCboProvince1"
+                                    FilteringMode="DataGridFilteringMode.Contains"
+                                    Value="@EmployeeRefUpdate.provinceCode1"
+                                    ValueChanged="@((string? provinceCode1) => ComboboxValueChangedHandler(provinceCode1, controlID: nameof(EmployeeRefUpdate.provinceCode1)))"
+                                    ClearButtonDisplayMode="@DataEditorClearButtonDisplayMode.Auto"
+                                    TextFieldName="@nameof(ComboboxModel.name)"
+                                    ValueFieldName="@nameof(ComboboxModel.code)" CssClass="w1FontSize">
+                        </DxComboBox>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6 col-sm-12">
+                <div class="d-flex ">
+                    <W1Label Value="Quận huyện" Styles="width: 120px" />
+                    <div style="width: calc(100% - 120px)">
+                        <DxComboBox Data="@ListCboDistrict1"
+                                    FilteringMode="DataGridFilteringMode.Contains"
+                                    Value="@EmployeeRefUpdate.districtCode1"
+                                    ValueChanged="@((string? districtCode1) => ComboboxValueChangedHandler(districtCode1, controlID: nameof(EmployeeRefUpdate.districtCode1)))"
+                                    ClearButtonDisplayMode="@DataEditorClearButtonDisplayMode.Auto"
+                                    TextFieldName="@nameof(ComboboxModel.name)"
+                                    ValueFieldName="@nameof(ComboboxModel.code)" CssClass="w1FontSize">
+                        </DxComboBox>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6 col-sm-12">
+                <div class="d-flex ">
+                    <W1Label Value="Phường xã" Styles="width: 120px" />
+                    <div style="width: calc(100% - 120px)">
+                        <DxComboBox Data="@ListCboWard1"
+                                    FilteringMode="DataGridFilteringMode.Contains"
+                                    @bind-Value="@EmployeeRefUpdate.wardCode1"
+                                    ClearButtonDisplayMode="@DataEditorClearButtonDisplayMode.Auto"
+                                    TextFieldName="@nameof(ComboboxModel.name)"
+                                    ValueFieldName="@nameof(ComboboxModel.code)" CssClass="w1FontSize">
+                        </DxComboBox>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6 col-sm-12">
+                <div class="d-flex ">
+                    <W1Label Value="Số nhà" Styles="width: 120px" />
+                    <div style="width: calc(100% - 120px)">
+                        <DxTextBox @bind-Text="@EmployeeRefUpdate.houseNumber1" CssClass="w1FontSize"></DxTextBox>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6 col-sm-12">
+                <div class="d-flex ">
+                    <W1Label Value="Địa chỉ" Styles="width: 120px" />
+                    <div style="width: calc(100% - 120px)">
+                        <DxTextBox @bind-Text="@EmployeeRefUpdate.placeOfResidence" CssClass="w1FontSize" ReadOnly="true"></DxTextBox>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6 col-sm-12">
+                <div class="d-flex ">
+                    <W1Label Value="Số hộ khẩu" Styles="width: 120px" />
+                    <div style="width: calc(100% - 120px)">
+                        <DxTextBox @bind-Text="@EmployeeRefUpdate.householdRegistrationNumber" CssClass="w1FontSize"></DxTextBox>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6 col-sm-12">
+                <div class="d-flex ">
+                    <W1Label Value="Mã số hộ gia đình" Styles="width: 120px" />
+                    <div style="width: calc(100% - 120px)">
+                        <DxTextBox @bind-Text="@EmployeeRefUpdate.householdNumber" CssClass="w1FontSize"></DxTextBox>
+                    </div>
+                </div>
+            </div>
+        </div>
+    }
+    else if (PopupTypeUpdateEmployee == nameof(EmployeeRefUpdate.houseNumber2))
+    {
+        <div class="row row-gap-2">
+            <div class="col-md-12 col-sm-12">
+                <div class="d-flex ">
+                    <W1Label Value="" Styles="width: 120px" />
+                    <div style="width: calc(100% - 120px)">
+                        <DxCheckBox CssClass="w-100 w1FontSize"
+                                    SizeMode="@SizeMode.Small"
+                                    Checked="@EmployeeRefUpdate.isEqualsHousehold"
+                                    CheckedChanged="@((bool value) => EqualsHouseholdCheckedChangedHandler(value))"
+                                    LabelPosition="@LabelPosition.Right">
+                            Giống hộ khẩu thường trú?
+                        </DxCheckBox>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6 col-sm-12">
+                <div class="d-flex ">
+                    <W1Label Value="Quốc gia" Styles="width: 120px" />
+                    <div style="width: calc(100% - 120px)">
+                        <DxComboBox Data="@ListCboCountry"
+                                    FilteringMode="DataGridFilteringMode.Contains"
+                                    Value="@EmployeeRefUpdate.countryCode2"
+                                    ValueChanged="@((string? countryCode2) => ComboboxValueChangedHandler(countryCode2, controlID: nameof(EmployeeRefUpdate.countryCode2)))"
+                                    ClearButtonDisplayMode="@DataEditorClearButtonDisplayMode.Auto"
+                                    TextFieldName="@nameof(ComboboxModel.name)"
+                                    ValueFieldName="@nameof(ComboboxModel.code)" CssClass="w1FontSize">
+                        </DxComboBox>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6 col-sm-12">
+                <div class="d-flex ">
+                    <W1Label Value="Tỉnh thành" Styles="width: 120px" />
+                    <div style="width: calc(100% - 120px)">
+                        <DxComboBox Data="@ListCboProvince2"
+                                    FilteringMode="DataGridFilteringMode.Contains"
+                                    Value="@EmployeeRefUpdate.provinceCode2"
+                                    ValueChanged="@((string? provinceCode2) => ComboboxValueChangedHandler(provinceCode2, controlID: nameof(EmployeeRefUpdate.provinceCode2)))"
+                                    ClearButtonDisplayMode="@DataEditorClearButtonDisplayMode.Auto"
+                                    TextFieldName="@nameof(ComboboxModel.name)"
+                                    ValueFieldName="@nameof(ComboboxModel.code)" CssClass="w1FontSize">
+                        </DxComboBox>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6 col-sm-12">
+                <div class="d-flex ">
+                    <W1Label Value="Quận huyện" Styles="width: 120px" />
+                    <div style="width: calc(100% - 120px)">
+                        <DxComboBox Data="@ListCboDistrict2"
+                                    FilteringMode="DataGridFilteringMode.Contains"
+                                    Value="@EmployeeRefUpdate.districtCode2"
+                                    ValueChanged="@((string? districtCode2) => ComboboxValueChangedHandler(districtCode2, controlID: nameof(EmployeeRefUpdate.districtCode2)))"
+                                    ClearButtonDisplayMode="@DataEditorClearButtonDisplayMode.Auto"
+                                    TextFieldName="@nameof(ComboboxModel.name)"
+                                    ValueFieldName="@nameof(ComboboxModel.code)" CssClass="w1FontSize">
+                        </DxComboBox>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6 col-sm-12">
+                <div class="d-flex ">
+                    <W1Label Value="Phường xã" Styles="width: 120px" />
+                    <div style="width: calc(100% - 120px)">
+                        <DxComboBox Data="@ListCboWard2"
+                                    FilteringMode="DataGridFilteringMode.Contains"
+                                    @bind-Value="@EmployeeRefUpdate.wardCode2"
+                                    ClearButtonDisplayMode="@DataEditorClearButtonDisplayMode.Auto"
+                                    TextFieldName="@nameof(ComboboxModel.name)"
+                                    ValueFieldName="@nameof(ComboboxModel.code)" CssClass="w1FontSize">
+                        </DxComboBox>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6 col-sm-12">
+                <div class="d-flex ">
+                    <W1Label Value="Số nhà/Đường phố" Styles="width: 120px" />
+                    <div style="width: calc(100% - 120px)">
+                        <DxTextBox @bind-Text="@EmployeeRefUpdate.houseNumber2" CssClass="w1FontSize"></DxTextBox>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6 col-sm-12">
+                <div class="d-flex ">
+                    <W1Label Value="Địa chỉ" Styles="width: 120px" />
+                    <div style="width: calc(100% - 120px)">
+                        <DxTextBox @bind-Text="@EmployeeRefUpdate.temporaryAddress" CssClass="w1FontSize" ReadOnly="true"></DxTextBox>
+                    </div>
+                </div>
+            </div>
+        </div>
+    }
+    else if (PopupTypeUpdateEmployee == nameof(EmployeeRefUpdate.fullName1))
+    {
+        <div class="row row-gap-2">
+            <div class="col-md-6 col-sm-12">
+                <div class="d-flex ">
+                    <W1Label Value="Họ & tên" Styles="width: 120px" />
+                    <div style="width: calc(100% - 120px)">
+                        <DxTextBox @bind-Text="@EmployeeRefUpdate.fullName1" CssClass="w1FontSize"></DxTextBox>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6 col-sm-12">
+                <div class="d-flex ">
+                    <W1Label Value="Quan hệ" Styles="width: 120px" />
+                    <div style="width: calc(100% - 120px)">
+                        <DxComboBox Data="@ListCboRelationship"
+                                    @bind-Value="@EmployeeRefUpdate.relationship"
+                                    FilteringMode="DataGridFilteringMode.Contains"
+                                    TextFieldName="@nameof(ComboboxModel.name)"
+                                    ValueFieldName="@nameof(ComboboxModel.code)" CssClass="w1FontSize">
+                        </DxComboBox>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6 col-sm-12">
+                <div class="d-flex ">
+                    <W1Label Value="ĐT di động" Styles="width: 120px" />
+                    <div style="width: calc(100% - 120px)">
+                        <DxTextBox @bind-Text="@EmployeeRefUpdate.phone5" CssClass="w1FontSize"></DxTextBox>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6 col-sm-12">
+                <div class="d-flex ">
+                    <W1Label Value="ĐT nhà riêng" Styles="width: 120px" />
+                    <div style="width: calc(100% - 120px)">
+                        <DxTextBox @bind-Text="@EmployeeRefUpdate.phone6" CssClass="w1FontSize"></DxTextBox>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6 col-sm-12">
+                <div class="d-flex ">
+                    <W1Label Value="Email" Styles="width: 120px" />
+                    <div style="width: calc(100% - 120px)">
+                        <DxTextBox @bind-Text="@EmployeeRefUpdate.email4" CssClass="w1FontSize"></DxTextBox>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6 col-sm-12">
+                <div class="d-flex ">
+                    <W1Label Value="Địa chỉ" Styles="width: 120px" />
+                    <div style="width: calc(100% - 120px)">
+                        <DxTextBox @bind-Text="@EmployeeRefUpdate.contactAddress" CssClass="w1FontSize"></DxTextBox>
+                    </div>
+                </div>
+            </div>
+        </div>
+    }
+
 </W1Popup>
 
 @* Thông tin thay đổi mật khẩu *@

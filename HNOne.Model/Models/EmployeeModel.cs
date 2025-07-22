@@ -24,6 +24,7 @@ namespace HNOne.Model.Models
         public string? imageViewUrl { get; set; } // Đường dẫn ảnh
         public string? nationality { get; set; } // Quốc tịch
         public string? maritalStatus { get; set; } // Tình trạng hôn nhân
+        public string? maritalStatusName { get; set; } // Tình trạng hôn nhân
         public string? educationalInstitution1 { get; set; } // Trường đào tạo 1
         public string? educationalInstitution2 { get; set; } // Trường đào tạo 2
         public string? majorId1 { get; set; } // Chuyên ngành 1
@@ -66,7 +67,7 @@ namespace HNOne.Model.Models
         public string? subDepartmentName { get; set; }
         public string? link { get; set; }
         public string? statusName { get; set; } // trạng thái làm việc
-
+        public string? textColor { get; set; } // màu chữ
         #region thông tin cmnd, hộ chiếu
         public string? cIC { get; set; } // số căn cước
         public DateTime? issuanceDateCIC { get; set; } // Ngày cấp CCCD
