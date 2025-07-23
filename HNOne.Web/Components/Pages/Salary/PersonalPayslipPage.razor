@@ -1,0 +1,289 @@
+﻿@page "/phieu-luong-nhan-vien"
+@inherits Controllers.PersonalPayslipController
+<PageTitle>Phiếu lương</PageTitle>
+
+<div class="h-content-filter">
+    <div class="mt-1">
+        <div class="row row-gap-2">
+            <div class="col-md-3 col-sm-12">
+                <DxComboBox Data="@ListCboPreiod"
+                            Value="@pSalaryPreiodId"
+                            ValueChanged="@((string? salaryPreiod) => ComboboxValueChangedHandler(salaryPreiod, controlID: nameof(pSalaryPreiodId)))"
+                            FilteringMode="DataGridFilteringMode.Contains"
+                            TextFieldName="@nameof(ComboboxModel.name)"
+                            ValueFieldName="@nameof(ComboboxModel.code)"
+                            Id="pShiftPreiodId"
+                            CssClass="w1FontSize">
+                </DxComboBox>
+            </div>
+        </div>
+    </div>
+    <div class="row row-gap-2 mt-2" style="margin-bottom: 100px !important">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-body py-2 px-3">
+                    <div class="row row-gap-2">
+                        <div class="col-12">
+                            <div class="row gap-1 align-items-center">
+                                <div class="col-auto">
+                                    <span class="avatar avatar-md mt-2 mb-2 rounded-circle shadow-none"
+                                          style="background-image: url(@EmployeeUpdate.imageViewUrl); width: 50px; height: 50px">
+                                    </span>
+                                </div>
+                                <div class="col">
+                                    <div class="h5 mb-0">@EmployeeUpdate.code - @EmployeeUpdate.name </div>
+                                    <div class="mb-1 mt-1 text-secondary">@EmployeeUpdate.titleName</div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-sm-12 text-truncate">
+                            <div class="d-flex justify-content-between align-items-center align-items-end">
+                                <div class="text-secondary text-truncate">Kỳ lương</div>
+                                <span class="fw-medium">@pSalaryPreiodVale</span>
+                            </div>
+                        </div>
+                        <div class="col-sm-12 text-truncate">
+                            <div class="d-flex justify-content-between align-items-center align-items-end">
+                                <div class="text-secondary text-truncate">Lương cơ bản</div>
+                                <span class="fw-medium">@PayrollInfo.basicSalary.ToString(GlobalContants.FORMAT_CURRENCY)</span>
+                            </div>
+                        </div>
+                        <div class="col-sm-12 text-truncate">
+                            <div class="d-flex justify-content-between align-items-center align-items-end">
+                                <div class="text-secondary text-truncate">Lương thỏa thuận</div>
+                                <span class="fw-medium">@PayrollInfo.negotiatedSalary.ToString(GlobalContants.FORMAT_CURRENCY)</span>
+                            </div>
+                        </div>
+                        <div class="col-sm-12 text-truncate">
+                            <div class="d-flex justify-content-between align-items-center align-items-end">
+                                <div class="text-secondary text-truncate">Hệ số lương</div>
+                                <span class="fw-medium">@PayrollInfo.salaryCoefficient.ToString(GlobalContants.FORMAT_NUMBER_DOUBLE_1PLACE)</span>
+                            </div>
+                        </div>
+                        <div class="col-sm-12 text-truncate">
+                            <div class="d-flex justify-content-between align-items-center align-items-end">
+                                <div class="fw-medium text-truncate">Thực lĩnh</div>
+                                <span class="fw-medium text-green">@PayrollInfo.totalSalaryNet.ToString(GlobalContants.FORMAT_CURRENCY)</span>
+                            </div>
+                        </div>
+                        <div class="col-sm-12 text-truncate">
+                            <div class="d-flex justify-content-between align-items-center align-items-end">
+                                <div class="fw-medium text-truncate">Trạng thái</div>
+                                <div class="@PayrollInfo.bgColor py-1 px-3 rounded-3">@PayrollInfo.statusName</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+        <div class="col-12">
+            <div class="accordion card" id="accordion-info-1">
+                <div class="accordion-item" style="border: none">
+                    <span class="accordion-header card-header p-2" id="heading-1">
+                        <button class="accordion-button px-2 py-0" type="button" data-bs-toggle="collapse" data-bs-target="#collapse-info-1" aria-expanded="true">
+                            <h4 class="mb-0">Chi tiết công</h4>
+                        </button>
+                    </span>
+                    <div id="collapse-info-1" class="accordion-collapse collapse show" data-bs-parent="#accordion-info-1">
+                        <div class="accordion-body py-2 px-3">
+                            <div class="row row-gap-2">
+                                <div class="col-sm-12 text-truncate">
+                                    <div class="d-flex justify-content-between align-items-center align-items-end">
+                                        <div class="text-secondary text-truncate">Công định mức</div>
+                                        <span class="fw-medium">@PayrollInfo.cDM</span>
+                                    </div>
+                                </div>
+                                <div class="col-sm-12 text-truncate">
+                                    <div class="d-flex justify-content-between align-items-center align-items-end">
+                                        <div class="text-secondary text-truncate">Giờ công định mức</div>
+                                        <span class="fw-medium">@PayrollInfo.gCDM</span>
+                                    </div>
+                                </div>
+                                <div class="col-sm-12 text-truncate">
+                                    <div class="d-flex justify-content-between align-items-center align-items-end">
+                                        <div class="text-secondary text-truncate">Công thực tế</div>
+                                        <span class="fw-medium">@PayrollInfo.cTT</span>
+                                    </div>
+                                </div>
+                                <div class="col-sm-12 text-truncate">
+                                    <div class="d-flex justify-content-between align-items-center align-items-end">
+                                        <div class="text-secondary text-truncate">Công phép năm</div>
+                                        <span class="fw-medium">@PayrollInfo.nPN</span>
+                                    </div>
+                                </div>
+                                <div class="col-sm-12 text-truncate">
+                                    <div class="d-flex justify-content-between align-items-center align-items-end">
+                                        <div class="text-secondary text-truncate">Công chế độ</div>
+                                        <span class="fw-medium">@PayrollInfo.nCD</span>
+                                    </div>
+                                </div>
+                                <div class="col-sm-12 text-truncate">
+                                    <div class="d-flex justify-content-between align-items-center align-items-end">
+                                        <div class="text-secondary text-truncate">Công ngày nghỉ lễ</div>
+                                        <span class="fw-medium">@PayrollInfo.nL</span>
+                                    </div>
+                                </div>
+                                <div class="col-sm-12 text-truncate">
+                                    <div class="d-flex justify-content-between align-items-center align-items-end">
+                                        <div class="text-secondary text-truncate">Số giờ tăng ca</div>
+                                        <span class="fw-medium">@PayrollInfo.tGTC</span>
+                                    </div>
+                                </div>
+                                <div class="col-sm-12 text-truncate">
+                                    <div class="d-flex justify-content-between align-items-center align-items-end">
+                                        <div class="text-secondary text-truncate">Giờ công thiếu</div>
+                                        <span class="fw-medium text-red">@PayrollInfo.sGT</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-12">
+            <div class="accordion card" id="accordion-info-1">
+                <div class="accordion-item" style="border: none">
+                    <span class="accordion-header card-header p-2" id="heading-1">
+                        <button class="accordion-button px-2 py-0" type="button" data-bs-toggle="collapse" data-bs-target="#collapse-info-1" aria-expanded="true">
+                            <h4 class="mb-0">Lương công thực tế, phép, chế độ, tăng ca</h4>
+                        </button>
+                    </span>
+                    <div id="collapse-info-1" class="accordion-collapse collapse show" data-bs-parent="#accordion-info-1">
+                        <div class="accordion-body py-2 px-3">
+                            <div class="row row-gap-2">
+                                <div class="col-sm-12 text-truncate">
+                                    <div class="d-flex justify-content-between align-items-center align-items-end">
+                                        <div class="text-secondary text-truncate">Lương công thực tế</div>
+                                        <span class="fw-medium">@PayrollInfo.actualSalary.ToString(GlobalContants.FORMAT_CURRENCY)</span>
+                                    </div>
+                                </div>
+                                <div class="col-sm-12 text-truncate">
+                                    <div class="d-flex justify-content-between align-items-center align-items-end">
+                                        <div class="text-secondary text-truncate">Lương công phép năm</div>
+                                        <span class="fw-medium">@PayrollInfo.annualLeaveSalary.ToString(GlobalContants.FORMAT_CURRENCY)</span>
+                                    </div>
+                                </div>
+                                <div class="col-sm-12 text-truncate">
+                                    <div class="d-flex justify-content-between align-items-center align-items-end">
+                                        <div class="text-secondary text-truncate">Lương công chế độ</div>
+                                        <span class="fw-medium">@PayrollInfo.regulatedSalary.ToString(GlobalContants.FORMAT_CURRENCY)</span>
+                                    </div>
+                                </div>
+                                <div class="col-sm-12 text-truncate">
+                                    <div class="d-flex justify-content-between align-items-center align-items-end">
+                                        <div class="text-secondary text-truncate">Lương ngày nghỉ lễ</div>
+                                        <span class="fw-medium">@PayrollInfo.holidaySalary.ToString(GlobalContants.FORMAT_CURRENCY)</span>
+                                    </div>
+                                </div>
+                                <div class="col-sm-12 text-truncate">
+                                    <div class="d-flex justify-content-between align-items-center align-items-end">
+                                        <div class="text-secondary text-truncate">Lương công tăng ca</div>
+                                        <span class="fw-medium">@PayrollInfo.overtimeSalary.ToString(GlobalContants.FORMAT_CURRENCY)</span>
+                                    </div>
+                                </div>
+                                <div class="col-sm-12 text-truncate">
+                                    <div class="d-flex justify-content-between align-items-center align-items-end">
+                                        <div class="text-secondary text-truncate">Trừ lương giờ thiếu</div>
+                                        <span class="fw-medium text-red">@PayrollInfo.missingWorkingHourSalary.ToString(GlobalContants.FORMAT_CURRENCY)</span>
+                                    </div>
+                                </div>
+                                <div class="col-sm-12 text-truncate">
+                                    <div class="d-flex justify-content-between align-items-center align-items-end">
+                                        <div class="fw-medium text-truncate">Tổng cộng</div>
+                                        <span class="fw-medium text-green">
+                                            @((PayrollInfo.actualSalary + PayrollInfo.annualLeaveSalary + PayrollInfo.regulatedSalary + PayrollInfo.holidaySalary 
+                                                + PayrollInfo.overtimeSalary - PayrollInfo.missingWorkingHourSalary).ToString(GlobalContants.FORMAT_CURRENCY))
+                                        </span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-12">
+            <div class="accordion card" id="accordion-info-1">
+                <div class="accordion-item" style="border: none">
+                    <span class="accordion-header card-header p-2" id="heading-1">
+                        <button class="accordion-button px-2 py-0" type="button" data-bs-toggle="collapse" data-bs-target="#collapse-info-1" aria-expanded="true">
+                            <h4 class="mb-0">Các khoản phụ cấp</h4>
+                        </button>
+                    </span>
+                    <div id="collapse-info-1" class="accordion-collapse collapse show" data-bs-parent="#accordion-info-1">
+                        <div class="accordion-body py-2 px-3">
+                            <div class="row row-gap-2">
+                                @foreach (var item in ListAllowanceSalary)
+                                {
+                                    <div class="col-sm-12 text-truncate">
+                                        <div class="d-flex justify-content-between align-items-center align-items-end">
+                                            <div class="text-secondary text-truncate">@item.salaryCategoryName</div>
+                                            <span class="fw-medium">@item.amount.ToString(GlobalContants.FORMAT_CURRENCY)</span>
+                                        </div>
+                                    </div>
+                                }
+                                <div class="col-sm-12 text-truncate">
+                                    <div class="d-flex justify-content-between align-items-center align-items-end">
+                                        <div class="fw-medium text-truncate">Tổng cộng</div>
+                                        <span class="fw-medium text-green">@PayrollInfo.allowanceSalary.ToString(GlobalContants.FORMAT_CURRENCY)</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-12">
+            <div class="accordion card" id="accordion-info-1">
+                <div class="accordion-item" style="border: none">
+                    <span class="accordion-header card-header p-2" id="heading-1">
+                        <button class="accordion-button px-2 py-0" type="button" data-bs-toggle="collapse" data-bs-target="#collapse-info-1" aria-expanded="true">
+                            <h4 class="mb-0">Các khoản giảm trừ</h4>
+                        </button>
+                    </span>
+                    <div id="collapse-info-1" class="accordion-collapse collapse show" data-bs-parent="#accordion-info-1">
+                        <div class="accordion-body py-2 px-3">
+                            <div class="row row-gap-2">
+                                <div class="col-sm-12 text-truncate">
+                                    <div class="d-flex justify-content-between align-items-center align-items-end">
+                                        <div class="fw-medium text-secondary text-truncate">Trích nộp bảo hiểm</div>
+                                        <span class="fw-medium text-red">@((PayrollInfo.deductionEmployeeSI + PayrollInfo.deductionEmployeeHI 
+                                                                            + PayrollInfo.deductionEmployeeUI + PayrollInfo.deductionEmployeeAI).ToString(GlobalContants.FORMAT_CURRENCY))</span>
+                                    </div>
+                                </div>
+                                <div class="col-sm-12 text-truncate">
+                                    <div class="d-flex justify-content-between align-items-center align-items-end">
+                                        <div class="fw-medium text-secondary text-truncate">Công đoàn phí</div>
+                                        <span class="fw-medium mb-0 text-red">@PayrollInfo.deductionEmployeeUF.ToString(GlobalContants.FORMAT_CURRENCY)</span>
+                                    </div>
+                                </div>
+                                <div class="col-sm-12 text-truncate">
+                                    <div class="d-flex justify-content-between align-items-center align-items-end">
+                                        <div class="fw-medium text-secondary text-truncate">Thuế thu nhập cá nhân</div>
+                                        <span class="fw-medium text-red">@PayrollInfo.taxPayment.ToString(GlobalContants.FORMAT_CURRENCY)</span>
+                                    </div>
+                                </div>
+                                <div class="col-sm-12 text-truncate">
+                                    <div class="d-flex justify-content-between align-items-center align-items-end">
+                                        <div class="fw-medium text-truncate">Tổng cộng</div>
+                                        <span class="fw-medium text-red">
+                                            @((PayrollInfo.totalDeductionEmployee + PayrollInfo.deductionEmployeeUF + PayrollInfo.taxPayment).ToString(GlobalContants.FORMAT_CURRENCY))
+                                        </span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+   
+</div>
+

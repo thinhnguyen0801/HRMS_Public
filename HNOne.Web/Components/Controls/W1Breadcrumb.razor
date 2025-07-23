@@ -1,19 +1,20 @@
-﻿<div class="h-breadcrumb d-flex justify-content-between align-items-center">
-    <div style="width: 100%;">
-        <ol class="breadcrumb mx-2 py-1" aria-label="breadcrumbs">
-            @if (Breadcrumbs != null && Breadcrumbs.Any())
-            {
+﻿@if (Breadcrumbs != null && Breadcrumbs.Any())
+{
+    <div class="h-breadcrumb d-flex justify-content-between align-items-center">
+        <div style="width: 100%;">
+            <ol class="breadcrumb mx-2 py-1" aria-label="breadcrumbs">
                 @foreach (var item in Breadcrumbs)
                 {
                     <li class="breadcrumb-item @(item.isActive ? "active" : "")"> <a href="@item.enpoint">@item.title</a></li>
                 }
-            }
-        </ol>
+            </ol>
+        </div>
+        <div style="width: fit-content; cursor: pointer;">
+            <i class="fa-regular fa-star px-2"></i>
+        </div>
     </div>
-       <div style="width: fit-content; cursor: pointer;">
-    <i class="fa-regular fa-star px-2"></i>
-    </div>
-</div>
+}
+
 
 @code {
     [Parameter] public List<BreadcrumbModel>? Breadcrumbs { get; set; }

@@ -203,7 +203,9 @@
         public const string GET_COMBO_ANNUAL_LEAVE_YEAR = "ANNUAL_LEAVE_YEAR"; // danh sách năm đã phát sinh dữ liệu công ở bảng công nhân viên
         public const string GET_ITEM_DETAIL = "ITEM_DETAIL"; //
         public const string GET_ITEM_HEADER = "ITEM_HEADER"; //
+        public const string GET_SALARY_BY_EMPLOYEE = "ITEM_SALARY_BY_EMPLOYEE"; //
         public const string GET_COMBO_LIST_SALARY_PREIOD = "SA_LIST_SALARY_PREIOD"; // danh sách kỳ lương năm
+        public const string GET_COMBO_LIST_SALARY_PREIOD_BY_EMPLOYEE = "SA_LIST_SALARY_PREIOD_BY_EMPLOYEE"; // danh sách kỳ lương năm của nhân viên
         public const string GET_COMBO_LIST_ACCOUNTED_SALARY_TYPE = "SA_LIST_ACCOUNTED_SALARY_TYPE"; // danh sách các khoản lương cần hạch toán
         public const string GET_COMBO_LIST_ACCOUNTING = "SA_LIST_ACCOUNTING"; // danh sách các TÀI KHOẢN
         #endregion

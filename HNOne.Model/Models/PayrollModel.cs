@@ -136,5 +136,13 @@ namespace HNOne.Model.Models
         public decimal lateSalary { get; set; } // lương đi trễ về sớm
         #endregion
 
+        #region Thêm thông tin để in bảng lương cho nhân viên
+        public string? statusName { get; set; } // tình trạng
+        public string? bgColor { get; set; } // tình trạng
+        public string? salaryCategoryCode { get; set; } // Loại lương
+        public string? salaryCategoryName { get; set; } // Loại lương
+        public decimal salaryAllowance { get; set; } // lương đi trễ về sớm
+        #endregion
+
     }
 }
