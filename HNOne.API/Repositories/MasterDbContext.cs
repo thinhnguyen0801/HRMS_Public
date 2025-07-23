@@ -70,6 +70,7 @@ namespace HNOne.API.Repositories
         public DbSet<AdjustedAnnualLeaveRequests> AdjustedAnnualLeaveRequests { get; set; }
         public DbSet<AdjustedAnnualLeaveRequest1s> AdjustedAnnualLeaveRequest1s { get; set; }
         public DbSet<AnnualLeaveInformation1s> AnnualLeaveInformation1s { get; set; }
+        public DbSet<DecisionDocuments> DecisionDocuments { get; set; }
 
         public MasterDbContext(DbContextOptions<MasterDbContext> options)
             : base(options)
@@ -108,6 +109,7 @@ namespace HNOne.API.Repositories
             modelBuilder.Entity<AnnualLeaveInformations>().HasIndex(m => new { m.EmployeeId, m.BranchId, m.Year }).IsUnique();
             modelBuilder.Entity<SubDepartments>().HasIndex(m => m.Code).IsUnique();
             modelBuilder.Entity<AdjustedAnnualLeaveRequests>().HasIndex(m => m.VoucherNo).IsUnique();
+            modelBuilder.Entity<DecisionDocuments>().HasIndex(m => m.VoucherNo).IsUnique();
         }
 
 

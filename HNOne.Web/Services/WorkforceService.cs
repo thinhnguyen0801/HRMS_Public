@@ -326,5 +326,34 @@ namespace HNOne.Web.Services
             }
             catch (Exception) { throw; }
         }
+
+        /// <summary>
+        /// lấy danh sách/chi tiết chứng từ đề nghị
+        /// </summary>
+        /// <param name="request"></param>
+        /// <param name="isShowToast"></param>
+        /// <returns></returns>
+        public async Task<List<DecisionDocumentModel>?> GetDecisionDocumentAsync(RequestModel request, bool isShowToast = false)
+        {
+            try
+            {
+                List<DecisionDocumentModel>? data = null;
+                HttpResponseMessage httpResponse = await PostAsync(EnpointConstants.WORKFORCE_GET_DATA, request);
+                var checkContent = ValidateJsonContent(httpResponse.Content);
+                if (!checkContent) _toastService.ShowInfo(MessageConstants.MESSAGE_JSON_INVALID);
+                else
+                {
+                    var response = await httpResponse.Content.ReadFromJsonAsync<ResCliModel<DecisionDocumentModel>>();
+                    if (response == null || response.status != StatusCodes.Status200OK)
+                    {
+                        if (isShowToast) _toastService.ShowWarning(response?.message ?? MessageConstants.MESSAGE_IT_SUPPORT);
+                        return data;
+                    }
+                    data = response.data?.ToList();
+                }
+                return data;
+            }
+            catch (Exception) { throw; }
+        }
     }
 }

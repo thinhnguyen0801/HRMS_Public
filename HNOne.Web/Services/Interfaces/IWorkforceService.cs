@@ -14,5 +14,6 @@ namespace HNOne.Web.Services.Interfaces
         Task<List<AdjustedAnnualLeaveRequestModel>?> GetAdjustedALRequestAsync(RequestModel request, bool isShowToast = false);
         Task<List<WorkConfigModel>?> GenerateWorkConfigAsync(RequestModel request);
         Task<List<ShiftAssignmentModel>?> WorkCalculateAsync(RequestModel request);
+        Task<List<DecisionDocumentModel>?> GetDecisionDocumentAsync(RequestModel request, bool isShowToast = false);
     }
 }

@@ -88,6 +88,9 @@ namespace HNOne.API.Controllers
                     case ProcessConstants.GET_ADJUSTED_ANNUAL_LEAVE_REQUEST:
                         response.data = await _workforceRepository.GetAdjustedALRequest(request);
                         break;
+                    case ProcessConstants.GET_DECISION_DOCUMENT:
+                        response.data = await _workforceRepository.GetDecisionDocument(request);
+                        break;
                     default:
                         response.status = StatusCodes.Status404NotFound;
                         response.message = $"Process Key {processKey} was not provider!!!";
@@ -203,6 +206,11 @@ namespace HNOne.API.Controllers
                         var adjALRequest = DeserializeJson<AdjustedAnnualLeaveRequests>($"{request.json}");
                         var lstadjALRequest1s = DeserializeJson<List<AdjustedAnnualLeaveRequest1s>>($"{request.jsonDetail}");
                         response = await _workforceRepository.UpdateAdjustedAnnualLeave(processKey, adjALRequest!, lstadjALRequest1s!);
+                        break;
+                    case ProcessConstants.POST_DECISION_DOCUMENT:
+                    case ProcessConstants.PUT_DECISION_DOCUMENT:
+                        var decisionDocument = DeserializeJson<DecisionDocuments>($"{request.json}");
+                        response = await _workforceRepository.UpdateDecisionDocument(processKey, decisionDocument!);
                         break;
                     default:
                         response.status = StatusCodes.Status404NotFound;

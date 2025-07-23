@@ -41,5 +41,7 @@ namespace HNOne.API.Repositories.Interfaces
         Task<IEnumerable<ShiftAssignmentModel>> GetAttendanceSummary(RequestModel request);
         Task<IEnumerable<AdjustedAnnualLeaveRequestModel>> GetAdjustedALRequest(RequestModel request);
         Task<ResponseModel> UpdateAdjustedAnnualLeave(string actionType, AdjustedAnnualLeaveRequests entity, IEnumerable<AdjustedAnnualLeaveRequest1s> lstEntity1);
+        Task<IEnumerable<DecisionDocumentModel>> GetDecisionDocument(RequestModel request);
+        Task<ResponseModel> UpdateDecisionDocument(string actionType, DecisionDocuments entity);
     }
 }

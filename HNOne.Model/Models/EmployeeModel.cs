@@ -135,6 +135,7 @@ namespace HNOne.Model.Models
         public int? attendanceSheetId { get; set; } // id bảng công
         public string? attendanceSheetCode { get; set; } // mã chấm công
         public int branchId { get; set; } // ID chi nhánh
+        public string? branchCode { get; set; } //  chi nhánh
         public string? branchName { get; set; } //  chi nhánh
         public int workingBranchId { get; set; } // ID chi nhánh làm việc
         public string? workingBranchCode { get; set; } // ID chi nhánh làm việc
@@ -162,22 +163,15 @@ namespace HNOne.Model.Models
         public string? employeeCode { get; set; }
         public string? employeeName { get; set; }
         public string? contractCode { get; set; }
-        public DateTime? dateOfSigning { get; set; } // Ngày kí
         public int contractTypeId { get; set; } // Loại hợp đồng
+        public string? contractTypeCode { get; set; } // Loại hợp đồng
         public string? contractTypeName { get; set; } // Loại hợp đồng
-        public int branchId { get; set; } // ID chi nhánh
-        public string? branchName { get; set; } //  chi nhánh
-        public double salaryCoefficient { get; set; } // Hệ số lương
+        public DateTime? dateOfSigning { get; set; } // Ngày kí
+        public DateTime? startDate { get; set; } // bắt đầu
+        public DateTime? endDate { get; set; } // bắt đầu
         public decimal totalSalary { get; set; } // Tổng lương
-        public decimal netSalary { get; set; } // Tổng lương thực nhận
         public string? linkContract { get; set; }
-        public string? employeeType { get; set; } // loại nhân viên
-        public string? employeeTypeName { get; set; } // loại nhân viên
-        public int employeeSignatureId { get; set; } // nhân viên kí
-        public string? employeeSignatureCode { get; set; }
-        public string? employeeSignatureName { get; set; }
         public string? contractAppendixCode { get; set; } // số phụ lục
-        public int? contractNumber { get; set; } // Phụ lục số mấy rồi
         public string? linkContractAppendix { get; set; }
     }
 }

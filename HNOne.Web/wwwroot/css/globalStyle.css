@@ -167,3 +167,22 @@
         visibility: visible;
     }
 /*back to top button*/
+
+/*style cho h1-timeline*/
+.h1-timeline .timeline-event-icon {
+    background: none;
+    width: 25px;
+    height: unset;
+}
+
+.h1-timeline .timeline-event:not(:last-child):before {
+    top: 25px;
+    left: calc(25px / 2);
+    bottom: 0px;
+}
+
+.h1-timeline .timeline-event-card {
+    --h1-timeline-timeline-icon-size: 27.5px;
+    margin-left: calc(var(--h1-timeline-timeline-icon-size, 2.5rem) + var(--tblr-page-padding));
+}
+/*style cho h1-timeline*/

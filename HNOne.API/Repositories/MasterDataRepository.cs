@@ -1243,6 +1243,7 @@ namespace HNOne.API.Repositories
                 }
                 entity.Id = Guid.NewGuid();
                 entity.IsAllowEditing = true;
+                entity.RowOrder = 1;
                 entity.DateTracking = _dateTimeHelper.GetCurrentVietnamTime();
                 entity.CreateDate = _dateTimeHelper.GetCurrentVietnamTime();
                 await _dbContext.EnumCatagories.AddAsync(entity);

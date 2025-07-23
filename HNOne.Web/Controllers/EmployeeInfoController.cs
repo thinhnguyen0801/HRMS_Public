@@ -35,6 +35,7 @@ namespace HNOne.Web.Controllers
         public List<ContractAppendixModel>? ListContractAppendix { get; set; } // ds phụ lục theo hợp đồng
         public List<FamilyRelationshipModel>? ListFamilyRelationship { get; set; } // danh sách quan hệ gia đình
         public IGrid? GridFamilyRelationship { get; set; }
+        public List<EmployeeSalaryHistoryModel>? ListSalaryHistory { get; set; } // Lịch sử lương lấy theo hợp đồng
         public FamilyRelationshipModel FamilyRelationshipUpdate { get; set; } = new FamilyRelationshipModel();
         public UserModel UserUpdate { get; set; } = new UserModel(); // cập nhật thông tin đăng nhập
 
@@ -172,7 +173,7 @@ namespace HNOne.Web.Controllers
                     lstTask.Add(getFamilyRelationship()); // danh sách quan hệ gia đình
                     //lstTask.Add(getEducation()); // danh sách trình độ đại học
                     lstTask.Add(getContractList()); // danh sách hợp đồng
-
+                    lstTask.Add(getSalaryHistoryList()); // lịch sử lương
                     await Task.WhenAll(lstTask);
                     IsShowPopupUpdateEmployee = false;
                 }
@@ -275,6 +276,16 @@ namespace HNOne.Web.Controllers
             request.branchId = BranchId;
             ListInsurance = new List<InsuranceModel>();
             ListInsurance = await _personnelService.GetInsuranceAsync(request);
+        }
+
+        /// <summary>
+        /// Lấy danh sách lịch sử lương của nhân viên
+        /// </summary>
+        /// <returns></returns>
+        private async Task getSalaryHistoryList()
+        {
+            var lstSalary = await _personnelService.GetSalaryHistoryAsync(UserId, Token, EmployeeUpdate.id, isShowToast: false);
+            ListSalaryHistory = lstSalary;
         }
 
         private void validateForSaveFamilyRelationship(ref string errorMessage, ref string fieldName)

@@ -551,6 +551,35 @@ namespace HNOne.API.Repositories
                 return lstResult ?? new List<AdjustedAnnualLeaveRequestModel>();
             }
         }
+
+        /// <summary>
+        /// lấy danh sách đề nghị nghỉ phép
+        /// </summary>
+        /// <param name="request"></param>
+        /// <returns></returns>
+        public async Task<IEnumerable<DecisionDocumentModel>> GetDecisionDocument(RequestModel request)
+        {
+            using (var connection = _dapperDbContext.CreateConnection())
+            {
+                request.fromDate ??= new DateTime(2000, 01, 01);
+                request.toDate ??= DateTime.Now.AddMonths(1);
+                var parameters = new DynamicParameters();
+                parameters.Add("@DecisionDocumentId", request.documentId, DbType.Int32);
+                parameters.Add("@UserId", request.userId, DbType.Int32);
+                parameters.Add("@BranchId", request.branchId, DbType.Int32);
+                parameters.Add("@StatusIds", request.opt, DbType.String);
+                parameters.Add("@FromDate", request.fromDate, DbType.Date);
+                parameters.Add("@ToDate", request.toDate, DbType.Date);
+                parameters.Add("@EmployeeId", request.employeeId, DbType.Int32);
+                parameters.Add("@BranchIds", $"{request.branchIds}", DbType.String);
+                parameters.Add("@DepartmentIds", $"{request.departmentIds}", DbType.String);
+                IEnumerable<DecisionDocumentModel>? lstResult = null;
+                lstResult = await connection.QueryAsync<DecisionDocumentModel>(StoreConstants.STORE_H1_DECISION_DOCUMENT_SELECT, param: parameters
+                    , commandTimeout: GlobalConstants.COMMAND_TIMEOUT, commandType: CommandType.StoredProcedure);
+
+                return lstResult ?? new List<DecisionDocumentModel>();
+            }
+        }
         #endregion
 
         #region Command
@@ -2129,6 +2158,131 @@ namespace HNOne.API.Repositories
             catch (Exception)
             {
                 if (isTrans) await _dbContext.Database.RollbackTransactionAsync();
+                throw;
+            }
+        }
+
+        /// <summary>
+        /// Cập nhật thông tin chứng từ đề nghị
+        /// </summary>
+        /// <param name="actionType"></param>
+        /// <param name="entity"></param>
+        /// <returns></returns>
+        public async Task<ResponseModel> UpdateDecisionDocument(string actionType, DecisionDocuments entity)
+        {
+            ResponseModel response = new ResponseModel();
+            try
+            {
+                DateTime dateTimeNow = _dateTimeHelper.GetCurrentVietnamTime();
+                if (actionType == ProcessConstants.POST_DECISION_DOCUMENT)
+                {
+                    using (var connection = _dapperDbContext.CreateConnection())
+                    {
+                        // xuống store validate dữ liệu trước khi lưu
+                        DynamicParameters parameters = new DynamicParameters();
+                        parameters.Add("@UserId", entity.UserSign, DbType.Int32);
+                        parameters.Add("@BranchId", entity.BranchId, DbType.Int32);
+                        parameters.Add("@EmployeeId", entity.EmployeeId, DbType.Int32);
+                        parameters.Add("@ProcessKey", ProcessConstants.POST_DECISION_DOCUMENT, DbType.String);
+                        parameters.Add("@JHeader", JsonConvert.SerializeObject(entity), DbType.String);
+                        var resultCheck = await connection.QueryFirstOrDefaultAsync<ResponseModel>(StoreConstants.STORE_H1_DECISION_DOCUMENT_VALIDATE_CHECK, parameters
+                        , commandTimeout: GlobalConstants.COMMAND_TIMEOUT, commandType: CommandType.StoredProcedure);
+                        if (resultCheck == null || resultCheck.status != StatusCodes.Status200OK)
+                        {
+                            response.status = resultCheck?.status ?? StatusCodes.Status400BadRequest;
+                            response.message = resultCheck?.message ?? MessageConstants.MESSAGE_IT_SUPPORT;
+                            return response;
+                        }
+                        // đánh mã chứng từ
+                        parameters = new DynamicParameters();
+                        parameters.Add("@Type", GlobalConstants.TABLE_DECISION_DOCUMENT, DbType.String);
+                        parameters.Add("@BranchId", entity.BranchId, DbType.Int32);
+                        parameters.Add("@Opt", entity.DecisionTypeCode, DbType.String);
+                        parameters.Add("@Opt1", entity.EffectiveDate, DbType.String);
+                        string commandText = @$"select {StoreConstants.FUNC_GET_VOUCHER}(@Type, @BranchId, @Opt, @Opt1, '')";
+                        string? voucherNo = await connection.QueryFirstOrDefaultAsync<string>(commandText, param: parameters, commandTimeout: GlobalConstants.COMMAND_TIMEOUT, commandType: CommandType.Text);
+                        if (string.IsNullOrEmpty(voucherNo))
+                        {
+                            response.status = StatusCodes.Status204NoContent;
+                            response.message = MessageConstants.MESSAGE_VOUCHER_NO_MISSING;
+                            return response;
+                        }
+                        entity.Id = await _dbContext.DecisionDocuments.Select(m => m.Id).DefaultIfEmpty().MaxAsync() + 1;
+                        entity.VoucherNo = voucherNo;
+                        entity.DateTracking = dateTimeNow;
+                        entity.CreateDate = dateTimeNow;
+                        await _dbContext.DecisionDocuments.AddAsync(entity);
+                        await _dbContext.SaveChangesAsync();
+                        response.message = MessageConstants.MESSAGE_ADD_SUCCESS;
+                        response.data = entity.Id;
+                    }
+
+                }
+                else
+                {
+                    using (var connection = _dapperDbContext.CreateConnection())
+                    {
+                        var data = await _dbContext.DecisionDocuments.FirstOrDefaultAsync(m => m.Id == entity.Id);
+                        if (data == null)
+                        {
+                            response.status = StatusCodes.Status404NotFound;
+                            response.message = MessageConstants.MESSAGE_NOT_FOUNT;
+                            return response;
+                        }
+                        if (data.DateTracking != entity.DateTracking)
+                        {
+                            response.status = StatusCodes.Status409Conflict;
+                            response.message = MessageConstants.MESSAGE_DATA_CHECKING_MODIFIED;
+                            return response;
+                        }
+                        // xuống store validate dữ liệu trước khi lưu
+                        DynamicParameters parameters = new DynamicParameters();
+                        parameters.Add("@UserId", entity.UserSign, DbType.Int32);
+                        parameters.Add("@BranchId", entity.BranchId, DbType.Int32);
+                        parameters.Add("@EmployeeId", entity.EmployeeId, DbType.Int32);
+                        parameters.Add("@ProcessKey", ProcessConstants.POST_DECISION_DOCUMENT, DbType.String);
+                        parameters.Add("@JHeader", JsonConvert.SerializeObject(entity), DbType.String);
+                        var resultCheck = await connection.QueryFirstOrDefaultAsync<ResponseModel>(StoreConstants.STORE_H1_DECISION_DOCUMENT_VALIDATE_CHECK, parameters
+                        , commandTimeout: GlobalConstants.COMMAND_TIMEOUT, commandType: CommandType.StoredProcedure);
+                        if (resultCheck == null || resultCheck.status != StatusCodes.Status200OK)
+                        {
+                            response.status = resultCheck?.status ?? StatusCodes.Status400BadRequest;
+                            response.message = resultCheck?.message ?? MessageConstants.MESSAGE_IT_SUPPORT;
+                            return response;
+                        }
+                        data.DecisionTypeCode = entity.DecisionTypeCode;
+                        data.EmployeeId = entity.EmployeeId;
+                        data.EmployeeSignatureId = entity.EmployeeSignatureId;
+                        data.BranchId = entity.BranchId;
+                        data.EffectiveDate = entity.EffectiveDate;
+                        data.Remark = entity.Remark;
+                        data.NoteForAll = entity.NoteForAll;
+                        data.BranchIdCur = entity.BranchIdCur;
+                        data.DepartmentIdCur = entity.DepartmentIdCur;
+                        data.PositionIdCur = entity.PositionIdCur;
+                        data.TitleIdCur = entity.TitleIdCur;
+                        data.SubDepartmentIdCur = entity.SubDepartmentIdCur;
+                        data.WorkingBranchIdCur = entity.WorkingBranchIdCur;
+                        data.BranchIdNew = entity.BranchIdNew;
+                        data.DepartmentIdNew = entity.DepartmentIdNew;
+                        data.PositionIdNew = entity.PositionIdNew;
+                        data.TitleIdNew = entity.TitleIdNew;
+                        data.SubDepartmentIdNew = entity.SubDepartmentIdNew;
+                        data.WorkingBranchIdNew = entity.WorkingBranchIdNew;
+                        data.DateTracking = dateTimeNow;
+                        data.UpdateDate = dateTimeNow;
+                        data.UserSign2 = entity.UserSign2;
+                        _dbContext.DecisionDocuments.Attach(data);
+                        _dbContext.Entry(data).State = EntityState.Modified;
+                        await _dbContext.SaveChangesAsync();
+                        response.message = MessageConstants.MESSAGE_UPDATE_SUCCESS;
+                        response.data = data.Id;
+                    }
+                }
+                return response;
+            }
+            catch (Exception)
+            {
                 throw;
             }
         }

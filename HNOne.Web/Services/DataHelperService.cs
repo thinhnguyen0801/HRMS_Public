@@ -1,4 +1,6 @@
-﻿namespace HNOne.Web.Services
+﻿using HNOne.Web.Commons;
+
+namespace HNOne.Web.Services
 {
     public class DataHelperService
     {
@@ -15,6 +17,7 @@
             ListUris.Add("ConfirmWorkingDays", "xac-nhan-gio-cong?key=");
             ListUris.Add("SalaryExpenseAccountings", "hach-toan-chi-phi-luong?key=");
             ListUris.Add("AdjustedAnnualLeaveRequests", "dieu-chinh-phep-nam?key=");
+            ListUris.Add(nameof(EnumObjType.DecisionDocuments), "chung-tu-quyet-dinh?key=");
         }
     }
 }

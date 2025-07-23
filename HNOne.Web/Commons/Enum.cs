@@ -38,7 +38,8 @@
         LoaiChiLuong,
         PhuongThucThanhToan,
         DanhMucImport,
-        LoaiLuong
+        LoaiLuong,
+        LoaiQuyetDinh
     }
 
     public enum EnumObjType
@@ -53,6 +54,7 @@
         ConfirmWorkingDays, // xin nghỉ trong giờ
         SalaryExpenseAccountings, // hạch toán chi phí lương
         AdjustedAnnualLeaveRequests,
+        DecisionDocuments, // chứng từ quyết định
 
         // danh mục bảng
         Branchs,

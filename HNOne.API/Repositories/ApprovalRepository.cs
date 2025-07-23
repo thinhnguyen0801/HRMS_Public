@@ -115,7 +115,8 @@ namespace HNOne.API.Repositories
                     { GlobalConstants.TABLE_TRAINING, async id => { var training = await _dbContext.Trainings.FirstOrDefaultAsync(m => m.Id == id); return (training, training?.VoucherNo); } },
                     { GlobalConstants.TABLE_CONFIRM_WORKING_DAY, async id => { var confirm = await _dbContext.ConfirmWorkingDays.FirstOrDefaultAsync(m => m.Id == id); return (confirm, confirm?.VoucherNo); } },
                     { GlobalConstants.TABLE_SALARY_EXPENSE_ACCOUNTING, async id => { var salary = await _dbContext.SalaryExpenseAccountings.FirstOrDefaultAsync(m => m.Id == id); return (salary, salary?.VoucherNo); } },
-                    { GlobalConstants.TABLE_ADJUSTED_ANNUAL_LEAVE_REQUEST, async id => { var salary = await _dbContext.AdjustedAnnualLeaveRequests.FirstOrDefaultAsync(m => m.Id == id); return (salary, salary?.VoucherNo); } }
+                    { GlobalConstants.TABLE_ADJUSTED_ANNUAL_LEAVE_REQUEST, async id => { var salary = await _dbContext.AdjustedAnnualLeaveRequests.FirstOrDefaultAsync(m => m.Id == id); return (salary, salary?.VoucherNo); } },
+                    { GlobalConstants.TABLE_DECISION_DOCUMENT, async id => { var salary = await _dbContext.DecisionDocuments.FirstOrDefaultAsync(m => m.Id == id); return (salary, salary?.VoucherNo); } }
                 };
                 if (!entityHandlers.TryGetValue($"{entityModel.objType}", out var handler))
                 {
@@ -199,7 +200,8 @@ namespace HNOne.API.Repositories
                     { GlobalConstants.TABLE_TRAINING, async id => { var training = await _dbContext.Trainings.FirstOrDefaultAsync(m => m.Id == id); return (training, training?.VoucherNo, -1); } },
                     { GlobalConstants.TABLE_CONFIRM_WORKING_DAY, async id => { var confirm = await _dbContext.ConfirmWorkingDays.FirstOrDefaultAsync(m => m.Id == id); return (confirm, confirm?.VoucherNo, confirm?.EmployeeId); } },
                     { GlobalConstants.TABLE_SALARY_EXPENSE_ACCOUNTING, async id => { var salary = await _dbContext.SalaryExpenseAccountings.FirstOrDefaultAsync(m => m.Id == id); return (salary, salary?.VoucherNo, -1); } },
-                    { GlobalConstants.TABLE_ADJUSTED_ANNUAL_LEAVE_REQUEST, async id => { var salary = await _dbContext.AdjustedAnnualLeaveRequests.FirstOrDefaultAsync(m => m.Id == id); return (salary, salary?.VoucherNo, -1); } }
+                    { GlobalConstants.TABLE_ADJUSTED_ANNUAL_LEAVE_REQUEST, async id => { var salary = await _dbContext.AdjustedAnnualLeaveRequests.FirstOrDefaultAsync(m => m.Id == id); return (salary, salary?.VoucherNo, -1); } },
+                    { GlobalConstants.TABLE_DECISION_DOCUMENT, async id => { var salary = await _dbContext.DecisionDocuments.FirstOrDefaultAsync(m => m.Id == id); return (salary, salary?.VoucherNo, -1); } }
                 };
                 await _dbContext.Database.BeginTransactionAsync();
                 isTran = true;
@@ -312,7 +314,8 @@ namespace HNOne.API.Repositories
                     { GlobalConstants.TABLE_OVERTIME_REQUEST, async id => await _dbContext.OvertimeRequests.FirstOrDefaultAsync(m => m.Id == id) },
                     { GlobalConstants.TABLE_TRAINING, async id => await _dbContext.Trainings.FirstOrDefaultAsync(m => m.Id == id) },
                     { GlobalConstants.TABLE_CONFIRM_WORKING_DAY, async id => await _dbContext.ConfirmWorkingDays.FirstOrDefaultAsync(m => m.Id == id) },
-                    { GlobalConstants.TABLE_ADJUSTED_ANNUAL_LEAVE_REQUEST, async id => await _dbContext.AdjustedAnnualLeaveRequests.FirstOrDefaultAsync(m => m.Id == id) }
+                    { GlobalConstants.TABLE_ADJUSTED_ANNUAL_LEAVE_REQUEST, async id => await _dbContext.AdjustedAnnualLeaveRequests.FirstOrDefaultAsync(m => m.Id == id) },
+                    { GlobalConstants.TABLE_DECISION_DOCUMENT, async id => await _dbContext.DecisionDocuments.FirstOrDefaultAsync(m => m.Id == id) }
                 };
                 foreach (var entity in lstEntity)
                 {

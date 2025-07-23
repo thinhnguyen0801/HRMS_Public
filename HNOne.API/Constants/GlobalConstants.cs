@@ -25,6 +25,7 @@
         public const string TABLE_SALARY_EXPENSE_ACCOUNTING = "SalaryExpenseAccountings"; // đề nghị tăng ca
         public const string TABLE_SUB_DEPARTMENT = "SubDepartments"; // bảng bộ phận
         public const string TABLE_ADJUSTED_ANNUAL_LEAVE_REQUEST = "AdjustedAnnualLeaveRequests";
+        public const string TABLE_DECISION_DOCUMENT = "DecisionDocuments";
         #endregion
         public const string FORMAT_DATE = "dd/MM/yyyy";
         public const string FORMAT_CURRENCY = "###,###,###,##0.##";//

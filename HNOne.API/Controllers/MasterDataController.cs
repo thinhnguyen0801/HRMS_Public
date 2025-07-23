@@ -18,6 +18,7 @@ using System.Data;
 using DocumentFormat.OpenXml;
 using System.Text.RegularExpressions;
 using System.Text;
+using System.Linq;
 
 namespace HNOne.API.Controllers
 {
@@ -29,16 +30,19 @@ namespace HNOne.API.Controllers
         private readonly IMasterDataService _masterDataService;
         private readonly IApprovalRepository _approvalRepository;
         private readonly IPersonnelService _personnelService;
+        private readonly IWorkforceRepository _workforceRepository;
         private readonly IWebHostEnvironment _webHostEnvironment;
         public MasterDataController(IMasterDataService masterDataService
             , ILogger<MasterDataController> logger, IWebHostEnvironment webHostEnvironment
-            , IApprovalRepository approvalRepository, IPersonnelService personnelService)
+            , IApprovalRepository approvalRepository, IPersonnelService personnelService
+            , IWorkforceRepository workforceRepository)
         {
             _masterDataService = masterDataService;
             _logger = logger;
             _webHostEnvironment = webHostEnvironment;
             _approvalRepository = approvalRepository;
             _personnelService = personnelService;
+            _workforceRepository = workforceRepository;
         }
 
         /// <summary>
@@ -394,6 +398,9 @@ namespace HNOne.API.Controllers
                     case ProcessConstants.GET_CONTRACT_APPENDIX:
                         dataList = await _personnelService.GetContractAppendix(request);
                         break;
+                    case ProcessConstants.GET_DECISION_DOCUMENT:
+                        dataList = await _workforceRepository.GetDecisionDocument(request);
+                        break;
                     default:
                         response.status = StatusCodes.Status404NotFound;
                         response.message = $"Process Key {processKey} was not provider!!!";
@@ -423,6 +430,7 @@ namespace HNOne.API.Controllers
                     var body = wordDoc.MainDocumentPart!.Document.Body;
                     if (processKey == ProcessConstants.GET_CONTRACT) fillContractToFile(body!, dataList);
                     if (processKey == ProcessConstants.GET_CONTRACT_APPENDIX) fillContractAppendixToFile(body!, dataList);
+                    if (processKey == ProcessConstants.GET_DECISION_DOCUMENT) fillDecisionDocumentToFile(body!, dataList);
                     wordDoc.MainDocumentPart.Document.Save();
                 }
                 var fileBytes = await System.IO.File.ReadAllBytesAsync(outputPath);
@@ -553,6 +561,30 @@ namespace HNOne.API.Controllers
                 if (text.Text.Contains("##StartDate##")) text.Text = text.Text.Replace("##StartDate##", contract.dateOfSigning?.ToString(GlobalConstants.FORMAT_DATE));
                 if (text.Text.Contains("##SALARY_DECIDES##")) text.Text = text.Text.Replace("##SALARY_DECIDES##", (lstSalaryConfig.FirstOrDefault(m => m.isPrintSalary)?.amount ?? 0).ToString(GlobalConstants.FORMAT_CURRENCY));
             }
+        }
+
+        /// <summary>
+        /// Fill dữ liệu quyết định
+        /// </summary>
+        /// <param name="body"></param>
+        /// <param name="dataList"></param>
+        private void fillDecisionDocumentToFile(Body body, IEnumerable<object> dataList)
+        {
+            DecisionDocumentModel decision = dataList.Cast<DecisionDocumentModel>().First();
+            foreach (var text in body.Descendants<Text>())
+            {
+                if (text.Text.Contains("#VoucherNo#")) text.Text = text.Text.Replace("#VoucherNo#", decision.voucherNo);
+                if (text.Text.Contains("##FullName##")) text.Text = text.Text.Replace("##FullName##", decision.employeeNamePrint);
+                if (text.Text.Contains("#D#")) text.Text = text.Text.Replace("#D#", DateTime.Now.Day.ToString());
+                if (text.Text.Contains("#M#")) text.Text = text.Text.Replace("#M#", DateTime.Now.Month.ToString());
+                if (text.Text.Contains("#Y#")) text.Text = text.Text.Replace("#Y#", DateTime.Now.Year.ToString());
+                if (text.Text.Contains("##EmployeeCode##")) text.Text = text.Text.Replace("##EmployeeCode##", decision.employeeCode);
+                if (text.Text.Contains("##PCur##")) text.Text = text.Text.Replace("##PCur##", decision.noteForAllCurPrint);
+                if (text.Text.Contains("##PNew##")) text.Text = text.Text.Replace("##PNew##", decision.noteForAllNewPrint);
+                if (text.Text.Contains("##TNew##")) text.Text = text.Text.Replace("##TNew##", decision.titleNameNew);
+                if (text.Text.Contains("##Remark##")) text.Text = text.Text.Replace("##Remark##", decision.remark);
+                if (text.Text.Contains("##EffectDate##")) text.Text = text.Text.Replace("##EffectDate##", decision.effectiveDate?.ToString(GlobalConstants.FORMAT_DATE));
+            }    
         }
 
         /// <summary>
