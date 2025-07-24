@@ -37,6 +37,11 @@ namespace HNOne.Web.Controllers
         public List<EmployeeSalaryHistoryModel>? ListSalaryHistory { get; set; } // Lịch sử lương lấy theo hợp đồng
         public IGrid? GridSalaryHistory { get; set; }
 
+        public bool IsShowPopupActionHistory { get; set; }
+        public AuditLogModel ActionLogSelected { get; set; } = new AuditLogModel();
+        public List<AuditLogModel>? ListActionHistory { get; set; } // Lịch sử lương lấy theo hợp đồng
+        public IGrid? GridActionHistory { get; set; }
+
         public List<EnumCatagoryModel>? ListCboInsuranceType { get; set; } // loại bảo hiểm
         public List<EnumCatagoryModel>? ListCboRank { get; set; } // cbo xếp loại
         #endregion
@@ -186,7 +191,44 @@ namespace HNOne.Web.Controllers
         private async Task getSalaryHistoryList()
         {
             var lstSalary = await _personnelService.GetSalaryHistoryAsync(UserId, Token, EmployeeUpdate.id, isShowToast: false);
+            lstSalary = lstSalary?.Update(m => {
+                if(m.contractId > 0)
+                {
+                    Dictionary<string, string> pParams = new Dictionary<string, string>
+                    {
+                        { "pActionType", nameof(EnumType.Update) },
+                        { "pDocEntry", $"{m.contractId}" },
+                    };
+                    m.linkContract = _encryptHelper.Encrypt(JsonConvert.SerializeObject(pParams));
+                }
+                if (m.contractAppendixId > 0)
+                {
+                    Dictionary<string, string> pParams = new Dictionary<string, string>
+                    {
+                        { "pActionType", nameof(EnumType.Update) },
+                        { "pDocEntry", $"{m.contractAppendixId}" },
+                        { "pContractId", $"{m.contractId}" },
+                    };
+                    m.linkContractAppendix = _encryptHelper.Encrypt(JsonConvert.SerializeObject(pParams));
+                }
+            })?.ToList();
             ListSalaryHistory = lstSalary;
+        }
+
+        /// <summary>
+        /// lấy lịch sử thao tác
+        /// </summary>
+        /// <returns></returns>
+        private async Task getActionHistoryList()
+        {
+            RequestModel request = new RequestModel();
+            request.userId = UserId;
+            request.token = Token;
+            request.branchId = BranchId;
+            request.type = ProcessConstants.GET_COMBO_AUDIT_LOG_BY_EMPLOYEE;
+            request.opt = EmployeeUpdate.id.ToString();
+            var result = await _masterDataService.GetMasterDataAsync<AuditLogModel>(request);
+            ListActionHistory = result;
         }
         #endregion
 
@@ -355,6 +397,9 @@ namespace HNOne.Web.Controllers
                         break;
                     case nameof(EmployeeSalaryHistoryModel):
                         await getSalaryHistoryList();
+                        break;
+                    case nameof(AuditLogModel):
+                        await getActionHistoryList();
                         break;
                 }
             }

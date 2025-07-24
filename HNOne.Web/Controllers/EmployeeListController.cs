@@ -23,7 +23,10 @@ namespace HNOne.Web.Controllers
         #region Properties
         public List<EmployeeModel>? ListEmployee { get; set; }
         public IGrid? GridEmployee { get; set; }
+        public List<EmployeeModel>? ListEmployeeOff { get; set; }
+        public IGrid? GridEmployeeOff { get; set; }
         public IReadOnlyList<object>? SelectedEmployees { get; set; } = null;
+        public IReadOnlyList<object>? SelectedEmployeeOffs { get; set; } = null;
         public List<ComboboxModel>? ListCboStatus { get; set; } // danh sách tình trạng nhân viên
         public IReadOnlyList<object>? ListCboStatusSelected { get; set; } // cbo ds phòng ban
         public List<ComboboxModel>? ListCboBranch { get; set; } // cbo ds chi nhánh
@@ -31,7 +34,7 @@ namespace HNOne.Web.Controllers
         public List<ComboboxModel>? ListCboDepartment { get; set; } // cbo ds phòng ban
         public IReadOnlyList<object>? ListCboDepartmentSelected { get; set; }
         public bool IsShowFilter { get; set; } = true; // mở rộng vùng tìm kiếm
-
+        public int ActiveTabIndex { get; set; } = 0;
         // nút quyền
         public bool IsAllowPost { get; set; }
         public bool IsAllowDelete { get; set; }
@@ -117,11 +120,12 @@ namespace HNOne.Web.Controllers
             request.branchIds = ListCboBranchSelected.IsNullOrEmpty() ? BranchIds : string.Join(",", ListCboBranchSelected!.Cast<ComboboxModel>().Select(m=>m.id));
             request.departmentIds = ListCboDepartmentSelected.IsNullOrEmpty() ? DepartmentIds : string.Join(",", ListCboDepartmentSelected!.Cast<ComboboxModel>().Select(m => m.id));
             request.type = CommonConstants.ENUM_LIST;
+            request.opt1 = ActiveTabIndex == 0 ? "N" : "Y"; // lấy nhân viên nghỉ việc
             ListEmployee = new List<EmployeeModel>();
             var lstEmp = await _personnelService.GetEmployeeAsync(request);
             if(IsAllowPut)
             {
-                ListEmployee = lstEmp?.Update(m =>
+                lstEmp = lstEmp?.Update(m =>
                 {
                     Dictionary<string, string> pParams = new Dictionary<string, string>
                     {
@@ -131,10 +135,13 @@ namespace HNOne.Web.Controllers
                     m.link = "ho-so-nhan-vien?key=" + _encryptHelper.Encrypt(JsonConvert.SerializeObject(pParams));
                 })?.ToList();
             }
-            else
+            if (ActiveTabIndex == 0)
             {
                 ListEmployee = lstEmp;
+                return;
             }
+            ListEmployeeOff = lstEmp;
+            
         }
         #endregion
 
@@ -188,18 +195,20 @@ namespace HNOne.Web.Controllers
                     ShowInfo(MessageConstants.MESSAGE_NO_PERMISSION);
                     return;
                 }
-                if (SelectedEmployees.IsNullOrEmpty())
+                IReadOnlyList<object>? lstEmployeeSelected = ActiveTabIndex == 0 ? SelectedEmployees : SelectedEmployeeOffs;
+                if (lstEmployeeSelected.IsNullOrEmpty())
                 {
                     ShowWarning(MessageConstants.MESSAGE_NO_CHOSE_DATA);
                     return;
                 }
+                
                 bool isConfirm = await confirm.SetConfirm(MessageConstants.MESSAGE_TITLE, $"{MessageConstants.MESSAGE_CONFIRM_DELETE} ");
                 if (!isConfirm) return;
                 await ShowLoading();
                 string tableName = _encryptHelper.Encrypt(nameof(EnumObjType.Employees));
                 string pKey = _encryptHelper.Encrypt(nameof(LeaveConfigModel.id));
                 string fKey = _encryptHelper.Encrypt(nameof(ContractModel.employeeId));
-                string ids = string.Join(",", SelectedEmployees!.Cast<EmployeeModel>().Select(m => m.id));
+                string ids = string.Join(",", lstEmployeeSelected!.Cast<EmployeeModel>().Select(m => m.id));
                 string reasonDelete = "";
                 string strResult = await _masterDataService.DeleteDynnamicAsync(UserId, Token, BranchId, tableName, pKey, fKey, ids, reasonDelete);
                 if (strResult == "-1") return;
@@ -207,6 +216,7 @@ namespace HNOne.Web.Controllers
                 {
                     await getEmployee();
                     SelectedEmployees = null;
+                    SelectedEmployeeOffs = null;
                     return;
                 }
                 await Task.Delay(75);
@@ -237,17 +247,33 @@ namespace HNOne.Web.Controllers
         {
             try
             {
-                if (GridEmployee == null || ListEmployee.IsNullOrEmpty())
+                if (ActiveTabIndex == 0)
+                {
+                    if (GridEmployee == null || ListEmployee.IsNullOrEmpty())
+                    {
+                        ShowWarning(MessageConstants.MESSAGE_NOT_FOUNT);
+                        return;
+                    }
+                    await ShowLoading();
+                    await GridEmployee!.ExportToXlsxAsync("Danh-sach-nhan-vien", new GridXlExportOptions()
+                    {
+                        ExportTotalSummaries = false,
+                        ExportGroupSummaries = false
+                    });
+                    return;
+                }
+                if (GridEmployeeOff == null || ListEmployeeOff.IsNullOrEmpty())
                 {
                     ShowWarning(MessageConstants.MESSAGE_NOT_FOUNT);
                     return;
                 }
                 await ShowLoading();
-                await GridEmployee!.ExportToXlsxAsync("Danh-sach-nhan-vien", new GridXlExportOptions()
+                await GridEmployeeOff!.ExportToXlsxAsync("Danh-sach-nhan-vien-nghi-viec", new GridXlExportOptions()
                 {
                     ExportTotalSummaries = false,
                     ExportGroupSummaries = false
                 });
+
             }
             catch (Exception ex)
             {

@@ -162,6 +162,7 @@ namespace HNOne.Model.Models
         public int employeeId { get; set; }
         public string? employeeCode { get; set; }
         public string? employeeName { get; set; }
+        public int contractId { get; set; }
         public string? contractCode { get; set; }
         public int contractTypeId { get; set; } // Loại hợp đồng
         public string? contractTypeCode { get; set; } // Loại hợp đồng
@@ -171,7 +172,25 @@ namespace HNOne.Model.Models
         public DateTime? endDate { get; set; } // bắt đầu
         public decimal totalSalary { get; set; } // Tổng lương
         public string? linkContract { get; set; }
+        public int contractAppendixId { get; set; } // số phụ lục
         public string? contractAppendixCode { get; set; } // số phụ lục
+        public int? contractNumber { get; set; } // Phụ lục số mấy rồi
         public string? linkContractAppendix { get; set; }
+    }
+
+    public class AuditLogModel
+    {
+        public int id { get; set; }
+        public int docEntry { get; set; }
+        public int userId { get; set; }
+        public string? userCode { get; set; }
+        public string? userName { get; set; }
+        public int employeeId { get; set; }
+        public string? employeeCode { get; set; }
+        public string? employeeName { get; set; }
+        public string? entityType { get; set; }
+        public string? action { get; set; }
+        public DateTime timeStamp { get; set; }
+        public string? jsonPropsChange { get; set; }
     }
 }

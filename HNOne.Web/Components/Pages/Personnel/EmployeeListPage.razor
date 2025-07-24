@@ -130,54 +130,117 @@
                                     </Items>
                                 </DxToolbar>
                             </div>
-                            <div class="card-body p-1" style="height: calc(100vh - 165px); min-height: 350px">
-                                <DxGrid Data="ListEmployee" @ref="GridEmployee"
-                                        ShowFilterRow="true"
-                                        ColumnResizeMode="GridColumnResizeMode.ColumnsContainer"
-                                        PagerPosition="GridPagerPosition.Bottom"
-                                        PageSizeSelectorVisible="true"
-                                        PageSize="@GlobalContants.PageSize"
-                                        PageSizeSelectorItems="@(GlobalContants.PageSizeList)"
-                                        PageSizeSelectorAllRowsItemVisible="true"
-                                        PagerSwitchToInputBoxButtonCount="10"
-                                        PagerVisibleNumericButtonCount="10"
-                                        TextWrapEnabled="false"
-                                        FocusedRowEnabled="true"
-                                        SelectionMode="@GridSelectionMode.Multiple"
-                                        SelectAllCheckboxMode="GridSelectAllCheckboxMode.AllPages"
-                                        @bind-SelectedDataItems="@SelectedEmployees"
-                                        AutoExpandAllGroupRows="true"
-                                        KeyboardNavigationEnabled="true"
-                                        CssClass="h-full">
-                                    <Columns>
-                                        <DxGridSelectionColumn Width="35px" />
-                                        <DxGridDataColumn FieldName="@nameof(EmployeeModel.departmentCode)" Caption="Mã phòng ban" MinWidth="120" GroupIndex="0" />
-                                        <DxGridDataColumn FieldName="@nameof(EmployeeModel.departmentName)" Caption="Tên phòng ban" MinWidth="170" />
-                                        <DxGridDataColumn FieldName="@nameof(EmployeeModel.code)" Caption="Mã nhân viên" MinWidth="150">
-                                            <CellDisplayTemplate>
-                                                @{
-                                                    <a href="@((context.DataItem as EmployeeModel)!.link)">@context.Value</a>
-                                                }
-                                            </CellDisplayTemplate>
-                                        </DxGridDataColumn>
-                                        <DxGridDataColumn FieldName="@nameof(EmployeeModel.name)" Caption="Tên nhân viên" MinWidth="170" />
-                                        <DxGridDataColumn FieldName="@nameof(EmployeeModel.positionName)" Caption="Chức vụ" MinWidth="170" />
-                                        <DxGridDataColumn FieldName="@nameof(EmployeeModel.titleName)" Caption="Chức danh" MinWidth="190" />
-                                        <DxGridDataColumn FieldName="@nameof(EmployeeModel.subDepartmentName)" Caption="Bộ phận" MinWidth="190" />
-                                        <DxGridDataColumn FieldName="@nameof(EmployeeModel.statusName)" Caption="Trạng thái" MinWidth="170" />
-                                        <DxGridDataColumn FieldName="@nameof(EmployeeModel.shiftName)" Caption="Ca làm việc" MinWidth="150" />
-                                        <DxGridDataColumn FieldName="@nameof(EmployeeModel.branchName)" Caption="Chi nhánh" MinWidth="170" />
-                                        <DxGridDataColumn FieldName="@nameof(EmployeeModel.workingBranchName)" Caption="Chi nhánh làm việc" MinWidth="170" />
-                                        <DxGridDataColumn FieldName="@nameof(EmployeeModel.dateTracking)" Caption="Ngày cập nhật" MinWidth="120" DisplayFormat="@GlobalContants.FORMAT_DATE_TIME" />
-                                        <DxGridDataColumn FieldName="@nameof(EmployeeModel.userSignName)" Caption="Người tạo" MinWidth="120" />
-                                        <DxGridDataColumn FieldName="@nameof(EmployeeModel.userSignName)" Caption="Người cập nhật" MinWidth="120" />
-                                    </Columns>
-                                    <TotalSummary>
-                                        <DxGridSummaryItem DisplayText="@GlobalContants.FORMAT_GRID_DISPLAYTEXT_COUNT" SummaryType="GridSummaryItemType.Count"
-                                                           FieldName="@nameof(EmployeeModel.code)" ValueDisplayFormat="@GlobalContants.FORMAT_CURRENCY"
-                                                           FooterColumnName="@nameof(EmployeeModel.code)" />
-                                    </TotalSummary>
-                                </DxGrid>
+                            <div class="card-header p-0 border-bottom-0">
+                                <DxTabs @bind-ActiveTabIndex="@ActiveTabIndex" Id="tabActive" CssClass="w-full w1FontSize">
+                                    <DxTabPage Text="Nhân viên" Id="tabPending" CssClass="w1FontSize"></DxTabPage>
+                                    <DxTabPage Text="Nhân viên nghỉ việc" Id="tabAll" CssClass="w1FontSize">
+
+                                    </DxTabPage>
+                                </DxTabs>
+                            </div>
+                            <div class="card-body p-1" style="height: calc(100vh - 200px); min-height: 350px">
+                                @switch (ActiveTabIndex)
+                                {
+                                    case 0:
+                                        <DxGrid Data="ListEmployee" @ref="GridEmployee"
+                                                ShowFilterRow="true"
+                                                ColumnResizeMode="GridColumnResizeMode.ColumnsContainer"
+                                                PagerPosition="GridPagerPosition.Bottom"
+                                                PageSizeSelectorVisible="true"
+                                                PageSize="@GlobalContants.PageSize"
+                                                PageSizeSelectorItems="@(GlobalContants.PageSizeList)"
+                                                PageSizeSelectorAllRowsItemVisible="true"
+                                                PagerSwitchToInputBoxButtonCount="10"
+                                                PagerVisibleNumericButtonCount="10"
+                                                TextWrapEnabled="false"
+                                                FocusedRowEnabled="true"
+                                                SelectionMode="@GridSelectionMode.Multiple"
+                                                SelectAllCheckboxMode="GridSelectAllCheckboxMode.AllPages"
+                                                @bind-SelectedDataItems="@SelectedEmployees"
+                                                AutoExpandAllGroupRows="true"
+                                                KeyboardNavigationEnabled="true"
+                                                CssClass="h-full">
+                                            <Columns>
+                                                <DxGridSelectionColumn Width="35px" />
+                                                <DxGridDataColumn FieldName="@nameof(EmployeeModel.departmentCode)" Caption="Mã phòng ban" MinWidth="120" GroupIndex="0" />
+                                                <DxGridDataColumn FieldName="@nameof(EmployeeModel.departmentName)" Caption="Tên phòng ban" MinWidth="170" />
+                                                <DxGridDataColumn FieldName="@nameof(EmployeeModel.code)" Caption="Mã nhân viên" MinWidth="150">
+                                                    <CellDisplayTemplate>
+                                                        @{
+                                                            <a href="@((context.DataItem as EmployeeModel)!.link)">@context.Value</a>
+                                                        }
+                                                    </CellDisplayTemplate>
+                                                </DxGridDataColumn>
+                                                <DxGridDataColumn FieldName="@nameof(EmployeeModel.name)" Caption="Tên nhân viên" MinWidth="170" />
+                                                <DxGridDataColumn FieldName="@nameof(EmployeeModel.positionName)" Caption="Chức vụ" MinWidth="170" />
+                                                <DxGridDataColumn FieldName="@nameof(EmployeeModel.titleName)" Caption="Chức danh" MinWidth="190" />
+                                                <DxGridDataColumn FieldName="@nameof(EmployeeModel.subDepartmentName)" Caption="Bộ phận" MinWidth="190" />
+                                                <DxGridDataColumn FieldName="@nameof(EmployeeModel.statusName)" Caption="Trạng thái" MinWidth="170" />
+                                                <DxGridDataColumn FieldName="@nameof(EmployeeModel.shiftName)" Caption="Ca làm việc" MinWidth="150" />
+                                                <DxGridDataColumn FieldName="@nameof(EmployeeModel.branchName)" Caption="Chi nhánh" MinWidth="170" />
+                                                <DxGridDataColumn FieldName="@nameof(EmployeeModel.workingBranchName)" Caption="Chi nhánh làm việc" MinWidth="170" />
+                                                <DxGridDataColumn FieldName="@nameof(EmployeeModel.dateTracking)" Caption="Ngày cập nhật" MinWidth="120" DisplayFormat="@GlobalContants.FORMAT_DATE_TIME" />
+                                                <DxGridDataColumn FieldName="@nameof(EmployeeModel.userSignName)" Caption="Người tạo" MinWidth="120" />
+                                                <DxGridDataColumn FieldName="@nameof(EmployeeModel.userSignName)" Caption="Người cập nhật" MinWidth="120" />
+                                            </Columns>
+                                            <TotalSummary>
+                                                <DxGridSummaryItem DisplayText="@GlobalContants.FORMAT_GRID_DISPLAYTEXT_COUNT" SummaryType="GridSummaryItemType.Count"
+                                                                   FieldName="@nameof(EmployeeModel.code)" ValueDisplayFormat="@GlobalContants.FORMAT_CURRENCY"
+                                                                   FooterColumnName="@nameof(EmployeeModel.code)" />
+                                            </TotalSummary>
+                                        </DxGrid>
+                                        break;
+                                    case 1:
+                                        <DxGrid Data="ListEmployeeOff" @ref="GridEmployeeOff"
+                                                ShowFilterRow="true"
+                                                ColumnResizeMode="GridColumnResizeMode.ColumnsContainer"
+                                                PagerPosition="GridPagerPosition.Bottom"
+                                                PageSizeSelectorVisible="true"
+                                                PageSize="@GlobalContants.PageSize"
+                                                PageSizeSelectorItems="@(GlobalContants.PageSizeList)"
+                                                PageSizeSelectorAllRowsItemVisible="true"
+                                                PagerSwitchToInputBoxButtonCount="10"
+                                                PagerVisibleNumericButtonCount="10"
+                                                TextWrapEnabled="false"
+                                                FocusedRowEnabled="true"
+                                                SelectionMode="@GridSelectionMode.Multiple"
+                                                SelectAllCheckboxMode="GridSelectAllCheckboxMode.AllPages"
+                                                @bind-SelectedDataItems="@SelectedEmployeeOffs"
+                                                AutoExpandAllGroupRows="true"
+                                                KeyboardNavigationEnabled="true"
+                                                CssClass="h-full">
+                                            <Columns>
+                                                <DxGridSelectionColumn Width="35px" />
+                                                <DxGridDataColumn FieldName="@nameof(EmployeeModel.departmentCode)" Caption="Mã phòng ban" MinWidth="120" GroupIndex="0" />
+                                                <DxGridDataColumn FieldName="@nameof(EmployeeModel.departmentName)" Caption="Tên phòng ban" MinWidth="170" />
+                                                <DxGridDataColumn FieldName="@nameof(EmployeeModel.code)" Caption="Mã nhân viên" MinWidth="150">
+                                                    <CellDisplayTemplate>
+                                                        @{
+                                                            <a href="@((context.DataItem as EmployeeModel)!.link)">@context.Value</a>
+                                                        }
+                                                    </CellDisplayTemplate>
+                                                </DxGridDataColumn>
+                                                <DxGridDataColumn FieldName="@nameof(EmployeeModel.name)" Caption="Tên nhân viên" MinWidth="170" />
+                                                <DxGridDataColumn FieldName="@nameof(EmployeeModel.positionName)" Caption="Chức vụ" MinWidth="170" />
+                                                <DxGridDataColumn FieldName="@nameof(EmployeeModel.titleName)" Caption="Chức danh" MinWidth="190" />
+                                                <DxGridDataColumn FieldName="@nameof(EmployeeModel.subDepartmentName)" Caption="Bộ phận" MinWidth="190" />
+                                                <DxGridDataColumn FieldName="@nameof(EmployeeModel.statusName)" Caption="Trạng thái" MinWidth="170" />
+                                                <DxGridDataColumn FieldName="@nameof(EmployeeModel.shiftName)" Caption="Ca làm việc" MinWidth="150" />
+                                                <DxGridDataColumn FieldName="@nameof(EmployeeModel.branchName)" Caption="Chi nhánh" MinWidth="170" />
+                                                <DxGridDataColumn FieldName="@nameof(EmployeeModel.workingBranchName)" Caption="Chi nhánh làm việc" MinWidth="170" />
+                                                <DxGridDataColumn FieldName="@nameof(EmployeeModel.dateTracking)" Caption="Ngày cập nhật" MinWidth="120" DisplayFormat="@GlobalContants.FORMAT_DATE_TIME" />
+                                                <DxGridDataColumn FieldName="@nameof(EmployeeModel.userSignName)" Caption="Người tạo" MinWidth="120" />
+                                                <DxGridDataColumn FieldName="@nameof(EmployeeModel.userSignName)" Caption="Người cập nhật" MinWidth="120" />
+                                            </Columns>
+                                            <TotalSummary>
+                                                <DxGridSummaryItem DisplayText="@GlobalContants.FORMAT_GRID_DISPLAYTEXT_COUNT" SummaryType="GridSummaryItemType.Count"
+                                                                   FieldName="@nameof(EmployeeModel.code)" ValueDisplayFormat="@GlobalContants.FORMAT_CURRENCY"
+                                                                   FooterColumnName="@nameof(EmployeeModel.code)" />
+                                            </TotalSummary>
+                                        </DxGrid>
+                                        break;
+                                }
+                                
                             </div>
                         </div>
                     </div>

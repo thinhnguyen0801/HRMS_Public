@@ -20,6 +20,7 @@ namespace HNOne.Model.Entities
         public string? Name { get; set; } // Tên nhân viên
         [MaxLength(50)]
         public string? EmployeeType { get; set; } // Loại nhân viên
+        [Column(TypeName = "date")]
         public DateTime? DateOfBirth { get; set; } // Ngày sinh (Khi check chỉ lấy năm sinh. default 1/1)
         public bool IsOnlybirthYear { get; set; } // Chỉ lấy năm sinh. đặt ngày chỗ ngày sinh
         
@@ -46,15 +47,19 @@ namespace HNOne.Model.Entities
 
         [MaxLength(20)]
         public string? CIC { get; set; } // số căn cước
+        [Column(TypeName = "date")]
         public DateTime? IssuanceDateCIC { get; set; } // Ngày cấp CCCD
         [MaxLength(1000)]
         public string? PlaceOfIssuanceCIC { get; set; } // nơi cấp CCCD
+        [Column(TypeName = "date")]
         public DateTime? ExpiryDateCIC { get; set; } // ngày hết hạn CCCD
         [MaxLength(50)]
         public string? PassportNumber { get; set; } // số hộ chiếu
+        [Column(TypeName = "date")]
         public DateTime? IssueDatePassport { get; set; } // Ngày cấp hộ chiếu
         [MaxLength(1000)]
         public string? PlaceOfIssuePassport { get; set; } // nơi cấp hộ chiếu
+        [Column(TypeName = "date")]
         public DateTime? ExpiryDatePassport { get; set; } // ngày hết hạn hộ chiếu
 
         #endregion
@@ -195,10 +200,15 @@ namespace HNOne.Model.Entities
         public string? StatusId { get; set; } // Tình trạng. Lấy ở bảng Enum
 
         // quản lý trực tiếp, gián tiếp để sau, địa chỉ làm việc
+        [Column(TypeName = "date")]
         public DateTime? DateOfJoining { get; set; } // Ngày công ty
+        [Column(TypeName = "date")]
         public DateTime? TraineeDate { get; set; } // Ngày tập sự
+        [Column(TypeName = "date")]
         public DateTime? StartDate { get; set; } // Ngày vào làm
+        [Column(TypeName = "date")]
         public DateTime? ProbationStartDate { get; set; } // ngày thử việc
+        [Column(TypeName = "date")]
         public DateTime? ProbationEndDate { get; set; } // ngày kết thúc thử việcs
 
         [MaxLength(1000)]

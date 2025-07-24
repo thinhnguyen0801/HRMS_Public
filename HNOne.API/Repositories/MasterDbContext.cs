@@ -1,10 +1,26 @@
 ﻿using HNOne.Model.Entities;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.ChangeTracking;
+using Newtonsoft.Json;
+using System.Security.AccessControl;
+using System.Text;
 
 namespace HNOne.API.Repositories
 {
     public partial class MasterDbContext : DbContext
     {
+        private static readonly HashSet<string> _excludedColumns = new()
+        {
+            "CreateDate",
+            "UserSign",
+            "UpdateDate",
+            "UserSign2",
+            "IsDelete",
+            "DeleteReason",
+            "DateTracking"
+        };
+        public int pUserId { get; set; } // gán ở controller
+        public int pDocEntry { get; set; } // gán ở controller
         public DbSet<Menus> Menus { get; set; }
         public DbSet<Branchs> Branchs { get; set; }
         public DbSet<Departments> Departments { get; set; }
@@ -71,6 +87,7 @@ namespace HNOne.API.Repositories
         public DbSet<AdjustedAnnualLeaveRequest1s> AdjustedAnnualLeaveRequest1s { get; set; }
         public DbSet<AnnualLeaveInformation1s> AnnualLeaveInformation1s { get; set; }
         public DbSet<DecisionDocuments> DecisionDocuments { get; set; }
+        public DbSet<AuditLogs> AuditLogs { get; set; }
 
         public MasterDbContext(DbContextOptions<MasterDbContext> options)
             : base(options)
@@ -112,6 +129,48 @@ namespace HNOne.API.Repositories
             modelBuilder.Entity<DecisionDocuments>().HasIndex(m => m.VoucherNo).IsUnique();
         }
 
+        public override async Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
+        {
+            var modifiedEntities = ChangeTracker.Entries<Employees>()
+                .Where(m => m.State == EntityState.Deleted || m.State == EntityState.Modified)
+                .ToList();
+            foreach(var item in modifiedEntities)
+            {
+                var auditLog = new AuditLogs();
+                auditLog.Action = item.State.ToString();
+                auditLog.UserId = pUserId;
+                auditLog.DocEntry = pDocEntry; 
+                auditLog.EntityType = item.Entity.GetType().Name;
+                auditLog.TimeStamp = DateTime.UtcNow;
+                auditLog.JsonPropsChange = getChanges(item);
+                await AuditLogs.AddAsync(auditLog);
+            }
+
+            return await base.SaveChangesAsync(cancellationToken);
+        }
+
+        /// <summary>
+        /// lấy json lưu thông tin
+        /// </summary>
+        /// <param name="entry"></param>
+        /// <returns></returns>
+        private string getChanges(EntityEntry entry)
+        {
+            
+            var changes = new Dictionary<string, string>();
+            foreach (var prop in entry.Properties)
+            {
+                if (_excludedColumns.Contains(prop.Metadata.Name)) continue;
+                var oldValue = prop.OriginalValue;
+                var newValue = prop.CurrentValue;
+                if (!Equals(prop.OriginalValue, prop.CurrentValue))
+                {
+                    changes.TryAdd(prop.Metadata.Name, $"${oldValue} -> {newValue}");
+                }
+            }
+            if (changes == null || !changes.Any()) return "";
+            return JsonConvert.SerializeObject(changes);
+        }
 
         //Add-Migration NewMigration -Project HNOne.API
         //Remove-Migration

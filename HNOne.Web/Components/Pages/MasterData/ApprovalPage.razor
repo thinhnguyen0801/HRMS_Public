@@ -101,7 +101,7 @@
                                     KeyFieldName="@nameof(ApprovalModel.id)"
                                     CssClass="h-full">
                                 <Columns>
-                                    <DxGridDataColumn FieldName="@nameof(ApprovalModel.objTypeName)" Caption="Loại chứng từ" MinWidth="140" DataRowEditorVisible="false" />
+                                    <DxGridDataColumn FieldName="@nameof(ApprovalModel.objTypeName)" Caption="Loại chứng từ" MinWidth="140" DataRowEditorVisible="false" GroupIndex="0"  />
                                     <DxGridDataColumn FieldName="@nameof(ApprovalModel.voucherNo)" Caption="Mã chứng từ" MinWidth="140" DataRowEditorVisible="false">
                                         <CellDisplayTemplate>
                                             @{
@@ -109,6 +109,7 @@
                                             }
                                         </CellDisplayTemplate>
                                     </DxGridDataColumn>
+                                    <DxGridDataColumn FieldName="@nameof(ApprovalModel.statusName)" Caption="Tình trạng" MinWidth="140" DataRowEditorVisible="false" />
                                     <DxGridDataColumn FieldName="@nameof(ApprovalModel.createDate)" Caption="Ngày giờ tạo" MinWidth="120" DisplayFormat="@GlobalContants.FORMAT_DATE_TIME" DataRowEditorVisible="false" />
                                     <DxGridDataColumn FieldName="@nameof(ApprovalModel.employeeSignatureName)" Caption="Người duyệt" MinWidth="110" DataRowEditorVisible="false" />
                                     <DxGridDataColumn FieldName="@nameof(ApprovalModel.createDate)" Caption="Ngày giờ tạo" MinWidth="120" DisplayFormat="@GlobalContants.FORMAT_DATE_TIME" DataRowEditorVisible="false" />

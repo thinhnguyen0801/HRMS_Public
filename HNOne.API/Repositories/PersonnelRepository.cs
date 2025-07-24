@@ -52,6 +52,7 @@ namespace HNOne.API.Repositories
                 parameters.Add("@StatusIds", $"{request.opt}", DbType.String);
                 parameters.Add("@BranchIds", $"{request.branchIds}", DbType.String);
                 parameters.Add("@Type", $"{request.type}", DbType.String);
+                parameters.Add("@IsOff", $"{request.opt1}", DbType.String);
                 var lstResult = await connection.QueryAsync<EmployeeModel>(StoreConstants.STORE_H1_EMPLOYEE_SELECT, param: parameters, commandTimeout: GlobalConstants.COMMAND_TIMEOUT, commandType: CommandType.StoredProcedure);
                 return lstResult;
             }; 
@@ -309,8 +310,9 @@ namespace HNOne.API.Repositories
                 {
                     string strQuery = "select * from Employees as T0 with(nolock) where T0.IsDelete = 0 and Id = @EmployeeId";
                     DynamicParameters parameters = new DynamicParameters();
-                    parameters.Add("@EmployeeId", entity.Id, DbType.Int32);
-                    var data = await connection.QueryFirstOrDefaultAsync<Employees>(strQuery, parameters, commandTimeout: 500, commandType: CommandType.Text);
+                    //parameters.Add("@EmployeeId", entity.Id, DbType.Int32);
+                    //var data = await connection.QueryFirstOrDefaultAsync<Employees>(strQuery, parameters, commandTimeout: 500, commandType: CommandType.Text);
+                    var data = await _dbContext.Employees.AsTracking().FirstOrDefaultAsync(m => m.Id == entity.Id && m.IsDelete == false); // thay hàm này để tracking dữ liệu
                     if (data == null)
                     {
                         response.status = StatusCodes.Status404NotFound;
@@ -370,6 +372,8 @@ namespace HNOne.API.Repositories
                         await _dbContext.Users.AddAsync(account);
                     }
                     employeeUpdate(ref data, entity);
+                    _dbContext.pUserId = entity.UserSign ?? -1;
+                    _dbContext.pDocEntry = entity.Id;
                     _dbContext.Employees.Attach(data);
                     _dbContext.Entry(data).State = EntityState.Modified;
                     await _dbContext.SaveChangesAsync();
@@ -406,10 +410,11 @@ namespace HNOne.API.Repositories
                         response.message = $"Bạn chưa được cấp quyền để thực hiện thay đổi thông tin nhân viên!!!";
                         return response;
                     }
-                    string strQuery = "select * from Employees as T0 with(nolock) where T0.IsDelete = 0 and Id = @EmployeeId";
-                    DynamicParameters parameters = new DynamicParameters();
-                    parameters.Add("@EmployeeId", entity.Id, DbType.Int32);
-                    var data = await connection.QueryFirstOrDefaultAsync<Employees>(strQuery, parameters, commandTimeout: 500, commandType: CommandType.Text);
+                    //string strQuery = "select * from Employees as T0 with(nolock) where T0.IsDelete = 0 and Id = @EmployeeId";
+                    //DynamicParameters parameters = new DynamicParameters();
+                    //parameters.Add("@EmployeeId", entity.Id, DbType.Int32);
+                    //var data = await connection.QueryFirstOrDefaultAsync<Employees>(strQuery, parameters, commandTimeout: 500, commandType: CommandType.Text);
+                    var data = await _dbContext.Employees.FirstOrDefaultAsync(m => m.Id == entity.Id && m.IsDelete == false); // thay hàm này để tracking dữ liệu
                     if (data == null)
                     {
                         response.status = StatusCodes.Status404NotFound;
@@ -417,6 +422,8 @@ namespace HNOne.API.Repositories
                         return response;
                     }
                     employeeInfoUpdate(ref data, entity);
+                    _dbContext.pUserId = entity.UserSign ?? -1;
+                    _dbContext.pDocEntry = entity.Id;
                     _dbContext.Employees.Attach(data);
                     _dbContext.Entry(data).State = EntityState.Modified;
                     await _dbContext.SaveChangesAsync();

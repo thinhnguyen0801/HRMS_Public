@@ -254,6 +254,7 @@ namespace HNOne.Web.Controllers
                     lstTask.Add(getEducation()); // danh sách trình độ đại học
                     lstTask.Add(getContractList()); // danh sách hợp đồng
                     lstTask.Add(getSalaryHistoryList()); // lịch sử lương
+                    lstTask.Add(getActionHistoryList()); // lịch sử thao tác
 
                     await Task.WhenAll(lstTask);
                 }
@@ -471,6 +472,22 @@ namespace HNOne.Web.Controllers
                             IsCreatePopup = false;
                         }
                         IsShowPopupEducation = true;
+                        break;
+                    case nameof(IsShowPopupActionHistory):
+                        AuditLogModel auditLog = JsonConvert.DeserializeObject<AuditLogModel>
+                                    (JsonConvert.SerializeObject(pItemDetails))!;
+                        if (auditLog == null || string.IsNullOrEmpty(auditLog.jsonPropsChange)) return;
+                        string formattedJson = JsonConvert.SerializeObject(
+                            JsonConvert.DeserializeObject(auditLog.jsonPropsChange),
+                            Formatting.Indented
+                        );
+                        ActionLogSelected = new AuditLogModel();
+                        ActionLogSelected.employeeName = auditLog.employeeName;
+                        ActionLogSelected.timeStamp = auditLog.timeStamp;
+                        ActionLogSelected.action = auditLog.action;
+                        ActionLogSelected.entityType = auditLog.entityType;
+                        ActionLogSelected.jsonPropsChange = formattedJson;
+                        IsShowPopupActionHistory = true;
                         break;
                 }
             }

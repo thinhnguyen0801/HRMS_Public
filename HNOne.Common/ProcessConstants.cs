@@ -210,6 +210,7 @@
         public const string GET_COMBO_LIST_SALARY_PREIOD_BY_EMPLOYEE = "SA_LIST_SALARY_PREIOD_BY_EMPLOYEE"; // danh sách kỳ lương năm của nhân viên
         public const string GET_COMBO_LIST_ACCOUNTED_SALARY_TYPE = "SA_LIST_ACCOUNTED_SALARY_TYPE"; // danh sách các khoản lương cần hạch toán
         public const string GET_COMBO_LIST_ACCOUNTING = "SA_LIST_ACCOUNTING"; // danh sách các TÀI KHOẢN
+        public const string GET_COMBO_AUDIT_LOG_BY_EMPLOYEE = "AUDIT_LOG_BY_EMPLOYEE"; // danh sách các LOG CỦA NHÂN VIÊN
         #endregion
     }
 }
