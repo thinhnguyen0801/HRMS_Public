@@ -1,0 +1,182 @@
+﻿@page "/bang-cong-nhan-vien"
+@inherits Controllers.PersonalTimesheetController
+<PageTitle>Bảng công nhân viên</PageTitle>
+
+<div class="h-content-filter">
+    <div class="mt-1">
+        <div class="row row-gap-2">
+            <div class="col-md-3 col-sm-12">
+                <DxComboBox Data="@ListCboPreiod"
+                            Value="@pSalaryPreiodId"
+                            ValueChanged="@((string? salaryPreiod) => ComboboxValueChangedHandler(salaryPreiod, controlID: nameof(pSalaryPreiodId)))"
+                            FilteringMode="DataGridFilteringMode.Contains"
+                            TextFieldName="@nameof(ComboboxModel.name)"
+                            ValueFieldName="@nameof(ComboboxModel.code)"
+                            Id="pShiftPreiodId"
+                            CssClass="w1FontSize">
+                </DxComboBox>
+            </div>
+        </div>
+    </div>
+    <div class="row row-gap-2 mt-2" style="margin-bottom: 100px !important">
+        <div class="col-12">
+            <div class="accordion card" id="accordion-info-1">
+                <div class="accordion-item" style="border: none">
+                    <span class="accordion-header card-header p-2" id="heading-1">
+                        <button class="accordion-button px-2 py-0" type="button" data-bs-toggle="collapse" data-bs-target="#collapse-info-1" aria-expanded="true">
+                            <h4 class="mb-0">Thông tin công</h4>
+                        </button>
+                    </span>
+                    <div id="collapse-info-1" class="accordion-collapse collapse show" data-bs-parent="#accordion-info-1">
+                        <div class="accordion-body py-2 px-3">
+                            <div class="row row-gap-2">
+                                <div class="col-12">
+                                    <div class="row gap-1 align-items-center">
+                                        <div class="col-auto">
+                                            <span class="avatar avatar-md mt-2 mb-2 rounded-circle shadow-none"
+                                                  style="background-image: url(@EmployeeUpdate.imageViewUrl); width: 50px; height: 50px">
+                                            </span>
+                                        </div>
+                                        <div class="col">
+                                            <div class="h5 mb-0">@EmployeeUpdate.code - @EmployeeUpdate.name </div>
+                                            <div class="mb-1 mt-1 text-secondary">@EmployeeUpdate.titleName</div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-sm-12 text-truncate">
+                                    <div class="d-flex justify-content-between align-items-center align-items-end">
+                                        <div class="text-secondary text-truncate">Kỳ công</div>
+                                        <span class="fw-medium">@pSalaryPreiodVale</span>
+                                    </div>
+                                </div>
+                                <div class="col-sm-12 text-truncate">
+                                    <div class="d-flex justify-content-between align-items-center align-items-end">
+                                        <div class="text-secondary text-truncate">Công định mức</div>
+                                        <span class="fw-medium">@TimeSheet.cDM</span>
+                                    </div>
+                                </div>
+                                <div class="col-sm-12 text-truncate">
+                                    <div class="d-flex justify-content-between align-items-center align-items-end">
+                                        <div class="text-secondary text-truncate">Công thực tế</div>
+                                        <span class="fw-medium">@TimeSheet.cTT</span>
+                                    </div>
+                                </div>
+                                <div class="col-sm-12 text-truncate">
+                                    <div class="d-flex justify-content-between align-items-center align-items-end">
+                                        <div class="text-secondary text-truncate">Công phép năm</div>
+                                        <span class="fw-medium">@TimeSheet.nPN</span>
+                                    </div>
+                                </div>
+                                <div class="col-sm-12 text-truncate">
+                                    <div class="d-flex justify-content-between align-items-center align-items-end">
+                                        <div class="text-secondary text-truncate">Công chế độ</div>
+                                        <span class="fw-medium">@TimeSheet.nCD</span>
+                                    </div>
+                                </div>
+                                <div class="col-sm-12 text-truncate">
+                                    <div class="d-flex justify-content-between align-items-center align-items-end">
+                                        <div class="text-secondary text-truncate">Công ngày nghỉ lễ</div>
+                                        <span class="fw-medium">@TimeSheet.nL</span>
+                                    </div>
+                                </div>
+                                <div class="col-sm-12 text-truncate">
+                                    <div class="d-flex justify-content-between align-items-center align-items-end">
+                                        <div class="text-secondary text-truncate">Nghỉ phép không tính lương</div>
+                                        <span class="fw-medium text-red">@TimeSheet.nPKL</span>
+                                    </div>
+                                </div>
+                                <div class="col-sm-12 text-truncate">
+                                    <div class="d-flex justify-content-between align-items-center align-items-end">
+                                        <div class="text-secondary text-truncate">Nghỉ không phép</div>
+                                        <span class="fw-medium text-red">@TimeSheet.nKP</span>
+                                    </div>
+                                </div>
+                                <div class="col-sm-12 text-truncate">
+                                    <div class="d-flex justify-content-between align-items-center align-items-end">
+                                        <div class="text-secondary text-truncate">Đi trễ/Về sớm (lần/phút)</div>
+                                        <span class="fw-medium text-red">@TimeSheet.sLDLTVS / @TimeSheet.tGDLTVS</span>
+                                    </div>
+                                </div>
+                                <div class="col-sm-12 text-truncate">
+                                    <div class="d-flex justify-content-between align-items-center align-items-end">
+                                        <div class="fw-medium text-truncate">Tổng giờ thiếu</div>
+                                        <span class="fw-medium text-red">@TimeSheet.sGT</span>
+                                    </div>
+                                </div>
+                                <div class="col-sm-12 text-truncate">
+                                    <div class="d-flex justify-content-between align-items-center align-items-end">
+                                        <div class="fw-medium text-truncate">Tổng giờ tăng ca</div>
+                                        <span class="fw-medium text-green">@TimeSheet.tGTC</span>
+                                    </div>
+                                </div>
+                                <div class="col-sm-12 text-truncate">
+                                    <div class="d-flex justify-content-between align-items-center align-items-end">
+                                        <div class="fw-medium text-truncate">Tổng ngày công</div>
+                                        <span class="fw-medium text-green">@TimeSheet.tNC</span>
+                                    </div>
+                                </div>
+                                <div class="col-sm-12 text-truncate">
+                                    <div class="d-flex justify-content-between align-items-center align-items-end">
+                                        <div class="fw-medium text-truncate">Trạng thái</div>
+                                        <div class="@TimeSheet.bgColor py-1 px-3 rounded-3">@TimeSheet.statusName</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-12">
+            <div class="accordion card" id="accordion-info-2">
+                <div class="accordion-item" style="border: none">
+                    <span class="accordion-header card-header p-2" id="heading-1">
+                        <button class="accordion-button px-2 py-0" type="button" data-bs-toggle="collapse" data-bs-target="#collapse-info-2" aria-expanded="true">
+                            <h4 class="mb-0">Thông tin chi tiết ngày công</h4>
+                        </button>
+                    </span>
+                    <div id="collapse-info-2" class="accordion-collapse collapse show" data-bs-parent="#accordion-info-2">
+                        <div class="accordion-body py-2 px-3">
+                            @if (ListDetail != null && ListDetail.Any())
+                            {
+                                <div class="h1-card-list">
+                                    @foreach (var item in ListDetail)
+                                    {
+                                        <div class="col-12 text-truncate">
+                                            <div class="d-flex justify-content-between align-items-center align-items-end">
+                                                <div class="fw-medium">@item.workingDate?.ToString("dd-MM")</div>
+                                                <span class="fw-medium">@item.symbol</span>
+                                            </div>
+                                            <div class="d-flex justify-content-between align-items-center align-items-end">
+                                                <div class="text-secondary">Ca làm việc</div>
+                                                <span class="fw-medium">@item.shiftCode</span>
+                                            </div>
+                                            <div class="d-flex justify-content-between align-items-center align-items-end">
+                                                <div class="text-secondary">Chấm công</div>
+                                                <span class="fw-medium">@item.startDateActual?.ToString("HH:mm") | @item.endDateActual?.ToString("HH:mm")</span>
+                                            </div>
+                                            <div class="d-flex justify-content-between align-items-center align-items-end">
+                                                <div class="text-secondary">Giờ thực tế | Định Mức</div>
+                                                <span class="fw-medium">@item.totalWorkingHoursActual.ToString(GlobalContants.FORMAT_NUMBER_DOUBLE_1PLACE) | @item.totalWorkingHours.ToString(GlobalContants.FORMAT_NUMBER_DOUBLE_1PLACE)</span>
+                                            </div>
+                                            <div class="d-flex justify-content-between align-items-center align-items-end">
+                                                <div class="text-secondary">Đi trễ về sớm (phút)</div>
+                                                <span class="fw-medium text-red">@item.totalLeaveWorkingHours.ToString(GlobalContants.FORMAT_NUMBER_DOUBLE_1PLACE)</span>
+                                            </div>
+                                            <div class="d-flex justify-content-between align-items-center align-items-end">
+                                                <div class="text-secondary">Số giờ tăng ca</div>
+                                                <span class="fw-medium text-green">@item.totalOvertimeHours.ToString(GlobalContants.FORMAT_NUMBER_DOUBLE_1PLACE)</span>
+                                            </div>
+                                        </div>
+                                    }
+                                </div>
+                            }
+                            
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

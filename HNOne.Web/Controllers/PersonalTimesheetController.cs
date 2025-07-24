@@ -1,34 +1,27 @@
-﻿using DevExpress.Blazor;
-using DevExpress.Pdf.Native.BouncyCastle.Asn1.Ocsp;
-using HNOne.Common;
+﻿using HNOne.Common;
 using HNOne.Model;
-using HNOne.Model.Entities;
 using HNOne.Model.Models;
-using HNOne.Web.Commons;
-using HNOne.Web.Components.Controls;
 using HNOne.Web.Models;
+using HNOne.Web.Services;
 using HNOne.Web.Services.Interfaces;
 using Microsoft.AspNetCore.Components;
-using Microsoft.AspNetCore.WebUtilities;
-using Microsoft.JSInterop;
-using Newtonsoft.Json;
 
 namespace HNOne.Web.Controllers
 {
-    public class PersonalPayslipController : DocumentControllerBase
+    public class PersonalTimesheetController : DocumentControllerBase
     {
         [Inject] IPersonnelService _personnelService { get; init; }
-        [Inject] ISalaryService _salaryService { get; init; }
         [Inject] IConfiguration _configuration { get; init; }
+        [Inject] IWorkforceService _workforceService { get; init; }
+
         #region Properties
         public EmployeeModel EmployeeUpdate { get; set; } = new EmployeeModel();
-        public PayrollModel PayrollInfo { get; set; } = new PayrollModel();
-        public List<SalaryConfigurationModel> ListAllowanceSalary { get; set; } = new List<SalaryConfigurationModel>();
-        public List<ComboboxModel>? ListCboPreiod { get; set; } // cbo ds kỳ lương
+        public ShiftAssignmentModel TimeSheet { get; set; } = new ShiftAssignmentModel();
+        public List<ShiftAssignmentModel> ListDetail { get; set; } = new List<ShiftAssignmentModel>();
+        public List<ComboboxModel>? ListCboPreiod { get; set; } // cbo ds kỳ công
         public string? pSalaryPreiodId { get; set; }
-        public string? pSalaryPreiodVale { get; set; } // giá trị từ ngày đến ngày của kỳ lương
+        public string? pSalaryPreiodVale { get; set; } // giá trị từ ngày đến ngày của kỳ công
         #endregion
-
         protected override async Task OnAfterRenderAsync(bool firstRender)
         {
             await base.OnAfterRenderAsync(firstRender);
@@ -64,23 +57,24 @@ namespace HNOne.Web.Controllers
             try
             {
                 RequestModel request = new RequestModel();
-                request.process = ProcessConstants.GET_SALARY_MASTER_DATA;
+                request.process = ProcessConstants.GET_WORKFORCE_MASTER_DATA;
                 request.userId = UserId;
                 request.branchId = BranchId;
                 request.employeeId = EmployeeId;
                 request.token = Token;
-                request.type = ProcessConstants.GET_COMBO_LIST_SALARY_PREIOD_BY_EMPLOYEE;
-                ListCboPreiod = await _salaryService.GetMasterDataAsync<ComboboxModel>(request);
+                request.type = ProcessConstants.GET_COMBO_LIST_SHIFT_PREIOD_BY_EMPLOYEE;
+                ListCboPreiod = await _workforceService.GetMasterDataAsync<ComboboxModel>(request);
                 if (!ListCboPreiod.IsNullOrEmpty())
                 {
                     var first = ListCboPreiod!.First(); // cho xem bảng lương mới nhất
                     pSalaryPreiodId = first.code;
                     pSalaryPreiodVale = first.value;
-                    await getPayrollSummary();
+                    await getAttendanceSummary();
                 }
             }
             catch (Exception) { throw; }
         }
+
         private async Task showVoucher()
         {
             try
@@ -105,42 +99,31 @@ namespace HNOne.Web.Controllers
             catch (Exception) { throw; }
         }
 
-        /// <summary>
-        /// Lấy thông tin lương của nhân viên
-        /// </summary>
-        /// <returns></returns>
-        private async Task getPayrollSummary()
+        private async Task getAttendanceSummary()
         {
             if (EmployeeId < 1 || string.IsNullOrEmpty(pSalaryPreiodId)) return;
-            PayrollInfo = new PayrollModel();
-            ListAllowanceSalary = new List<SalaryConfigurationModel>();
+            TimeSheet = new ShiftAssignmentModel();
+            ListDetail = new List<ShiftAssignmentModel>();
             string[] arrDt = pSalaryPreiodId!.Split("-");
             int.TryParse(arrDt[0], out int year);
             int.TryParse(arrDt[1], out int month);
             RequestModel request = new RequestModel();
-            request.process = ProcessConstants.GET_PAYROLL_SUMMARY;
+            request.process = ProcessConstants.GET_ATTENDANCE_SUMMARY;
             request.userId = UserId;
             request.branchId = BranchId;
             request.token = Token;
-            request.type = ProcessConstants.GET_SALARY_BY_EMPLOYEE;
+            request.type = ProcessConstants.GET_TIME_SHEET_BY_EMPLOYEE;
             request.opt = year.ToString(); // năm
             request.opt1 = month.ToString(); // tháng
             request.departmentIds = "";
             request.opt2 = "";
             request.opt3 = $"{EmployeeId}";
             request.opt4 = "";
-            var response = await _salaryService.GetMasterDataAsync<PayrollModel>(request);
+            var response = await _workforceService.GetMasterDataAsync<ShiftAssignmentModel>(request);
             if (!response.IsNullOrEmpty())
             {
-                PayrollInfo = response![0];
-                foreach(var item in response)
-                {
-                    SalaryConfigurationModel itemAdd = new SalaryConfigurationModel();
-                    itemAdd.salaryCategoryName = item.salaryCategoryName;
-                    itemAdd.salaryCategoryCode = item.salaryCategoryCode;
-                    itemAdd.amount = item.salaryAllowance;
-                    ListAllowanceSalary.Add(itemAdd);
-                }
+                TimeSheet = response![0];
+                ListDetail = response;
             }
         }
         #endregion
@@ -165,7 +148,7 @@ namespace HNOne.Web.Controllers
                         pSalaryPreiodVale = ListCboPreiod?.FirstOrDefault(m => m.code == pSalaryPreiodId)?.value;
                         await ShowLoading();
                         await Task.Delay(75);
-                        await getPayrollSummary();
+                        await getAttendanceSummary();
                         break;
                 }
             }

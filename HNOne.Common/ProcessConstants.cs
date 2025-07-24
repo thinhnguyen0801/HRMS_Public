@@ -200,10 +200,12 @@
         public const string GET_COMBO_LIST_OF_SHIFT_CHANGE_DAY = "SC_LIST_OF_SHIFT_CHANGE_DAY";
         public const string GET_COMBO_LIST_OVERTIME_REQUEST_DAY = "OTR_LIST_OVERTIME_REQUEST_DAY";
         public const string GET_COMBO_LIST_SHIFT_PREIOD = "SA_LIST_SHIFT_PREIOD"; // danh sách kỳ công năm
+        public const string GET_COMBO_LIST_SHIFT_PREIOD_BY_EMPLOYEE = "SA_LIST_SHIFT_PREIOD_BY_EMPLOYEE"; // danh sách kỳ công năm của nhân viên
         public const string GET_COMBO_ANNUAL_LEAVE_YEAR = "ANNUAL_LEAVE_YEAR"; // danh sách năm đã phát sinh dữ liệu công ở bảng công nhân viên
         public const string GET_ITEM_DETAIL = "ITEM_DETAIL"; //
         public const string GET_ITEM_HEADER = "ITEM_HEADER"; //
         public const string GET_SALARY_BY_EMPLOYEE = "ITEM_SALARY_BY_EMPLOYEE"; //
+        public const string GET_TIME_SHEET_BY_EMPLOYEE = "ITEM_TIME_SHEET_BY_EMPLOYEE"; //
         public const string GET_COMBO_LIST_SALARY_PREIOD = "SA_LIST_SALARY_PREIOD"; // danh sách kỳ lương năm
         public const string GET_COMBO_LIST_SALARY_PREIOD_BY_EMPLOYEE = "SA_LIST_SALARY_PREIOD_BY_EMPLOYEE"; // danh sách kỳ lương năm của nhân viên
         public const string GET_COMBO_LIST_ACCOUNTED_SALARY_TYPE = "SA_LIST_ACCOUNTED_SALARY_TYPE"; // danh sách các khoản lương cần hạch toán

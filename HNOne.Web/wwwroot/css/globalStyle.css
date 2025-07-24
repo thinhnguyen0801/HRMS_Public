@@ -186,3 +186,24 @@
     margin-left: calc(var(--h1-timeline-timeline-icon-size, 2.5rem) + var(--tblr-page-padding));
 }
 /*style cho h1-timeline*/
+/*style cho danh sách hiển thị ở mobile*/
+.h1-card-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    padding-bottom: 1rem;
+}
+
+.h1-card-list > div {
+    /*lấy div con liền kề*/
+    width: 100%;
+    border-radius: 10px;
+    padding: 0.75rem;
+    transition: box-shadow 0.3s, background 0.3s, color 0.3s;
+}
+
+.h1-card-list > div:nth-child(even) {
+    /*màu ở div chẵn*/
+    background-color: #f5f5f5;
+}
+/*style cho danh sách hiển thị ở mobile*/

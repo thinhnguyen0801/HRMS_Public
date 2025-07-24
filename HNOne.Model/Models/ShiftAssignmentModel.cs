@@ -100,5 +100,11 @@
         public double sGTCKT { get; set; } // số giờ tăng ca được chuyển sang tháng tiếp theo
         public bool isLocked { get; set; }
         #endregion
+
+        #region Thêm thông tin để in bảng công cho nhân viên
+        public string? statusName { get; set; } // tình trạng
+        public double totalLeaveWorkingHours { get; set; } // Tổng số giờ đi trễ về sớm
+        public double totalOvertimeHours { get; set; } // Tổng số giờ tăng ca
+        #endregion
     }
 }

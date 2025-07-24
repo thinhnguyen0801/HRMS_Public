@@ -197,7 +197,9 @@ namespace HNOne.Model.Entities
         public int LeaveRequestId { get; set; } // phiếu đề nghị nghỉ phép
         public int ReasonId { get; set; } // Id của lý do nghỉ phép
         public int OvertimeRequesttId { get; set; } // phiếu đề nghị tăng ca
+        public double TotalOvertimeHours { get; set; } // Tổng số giờ tăng ca
         public int LeaveWorkingHourId { get; set; } // đăng kí đi muộn về sớm
+        public double TotalLeaveWorkingHours { get; set; } // Tổng số giờ đi trễ về sớm
         public int ConfirmWorkingDayId { get; set; } // ID đăng kí xác nhận giờ công
         [MaxLength(50)]
         public string? VoucherNo { get; set; } // Chứng từ liên quan
