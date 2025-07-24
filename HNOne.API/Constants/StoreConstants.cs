@@ -51,5 +51,6 @@
         public const string STORE_H1_CALCULATE_ANNUAL_LEAVE_UPDATE = "[dbo].[H1_CALCULATE_ANNUAL_LEAVE_UPDATE]"; // tính toán lại thông tin phép năm của nhân viên
         public const string STORE_H1_SHIFT_ASSIGNMENTS_UPDATE = "[dbo].[H1_SHIFT_ASSIGNMENTS_UPDATE]"; // cập nhật thông tin ca làm việc
         public const string STORE_H1_DECISION_DOCUMENT_SELECT = "[dbo].[H1_DECISION_DOCUMENT_SELECT]";
+        public const string STORE_H1_DAILY_JOB_UPDATE = "[dbo].[H1_DAILY_JOB_UPDATE]";
     }
 }

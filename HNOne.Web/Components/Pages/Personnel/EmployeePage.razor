@@ -1401,9 +1401,9 @@
                                                 </ToolbarTemplate>
                                                 <Columns>
                                                     <DxGridDataColumn FieldName="@nameof(AuditLogModel.timeStamp)" Caption="Ngày giờ" Width="130px" MinWidth="120" DisplayFormat="@GlobalContants.FORMAT_DATE"  />
-                                                    <DxGridDataColumn FieldName="@nameof(AuditLogModel.action)" Caption="Loại thay đổi"  MinWidth="130" Width="140px"  />
-                                                    <DxGridDataColumn FieldName="@nameof(AuditLogModel.userName)" Caption="Tài khoản đổi"  MinWidth="130" Width="140px"  />
-                                                    <DxGridDataColumn FieldName="@nameof(AuditLogModel.employeeName)" Caption="Nhân viên đổi"  MinWidth="170" Width="170px"  />
+                                                    <DxGridDataColumn FieldName="@nameof(AuditLogModel.action)" Caption="Loại thao tác"  MinWidth="150" Width="150px"  />
+                                                    <DxGridDataColumn FieldName="@nameof(AuditLogModel.userName)" Caption="Tài khoản thao tác"  MinWidth="150" Width="150px"  />
+                                                    <DxGridDataColumn FieldName="@nameof(AuditLogModel.employeeName)" Caption="Nhân viên thao tác"  MinWidth="170" Width="170px"  />
                                                     <DxGridDataColumn FieldName="@nameof(AuditLogModel.jsonPropsChange)" Caption="Dữ liệu thay đổi"  MinWidth="140">
                                                         <CellDisplayTemplate>
                                                             @{

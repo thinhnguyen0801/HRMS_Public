@@ -254,6 +254,11 @@ namespace HNOne.API.Repositories
                         // nếu phê duyệt phiếu nghỉ phép thì tính toán lại thông tin phép năm của tháng đó
                         await calculateAnnualLeaveInfo(dynamicRecord, entity);
                     }
+                    else if (entity.objType == GlobalConstants.TABLE_DECISION_DOCUMENT && actionType == CommonConstants.STATUS_CODE_APPROVED)
+                    {
+                        // nếu duyệt thông tin quyết định thì thêm một dòng vào bgJob để chạy định kỳ
+                        await addJobShedule(dynamicRecord, entity);
+                    }    
                     
                     // cập nhật tình trạng phê duyệt
                     data.StatusCode = entity.statusCode;
@@ -513,6 +518,30 @@ namespace HNOne.API.Repositories
                 //parameters.Add("@StatusIds", $"{pLeaveRequest.EmployeeId}", DbType.String);
                 await _dbContext.Database.ExecuteSqlRawAsync($"exec {StoreConstants.STORE_H1_CALCULATE_ANNUAL_LEAVE_UPDATE} @p0, @p1, @p2, @p3"
                     , entity.userSign ?? -1, entity.branchId, pLeaveRequest.Id, pLeaveRequest.EmployeeId);
+            }
+            catch (Exception) { throw; }
+        }
+
+        /// <summary>
+        /// Thêm dữ liệu job
+        /// </summary>
+        /// <param name="decision"></param>
+        /// <param name="entity"></param>
+        /// <returns></returns>
+        private async Task addJobShedule(DecisionDocuments decision,ApprovalModel entity)
+        {
+            try
+            {
+                DailyJobConfigs entityJob = new DailyJobConfigs();
+                entityJob.ObjType = entity.objType;
+                entityJob.DocEntry = entity.docEntry;
+                entityJob.ExecuteDate = decision.EffectiveDate;
+                entityJob.SQLText = $"exec {StoreConstants.STORE_H1_DAILY_JOB_UPDATE} @UserId = {entity.userSign ?? -1}, @BranchId = {entity.branchId}, @ObjType = {entity.objType}, @DocEntry = {entity.docEntry}";
+                entityJob.IsCompleted = false;
+                entityJob.CompletedDate = null;
+                entityJob.CreateDate = DateTime.UtcNow;
+                entityJob.UserSign = entity.userSign;
+                await _dbContext.DailyJobConfigs.AddAsync(entityJob);
             }
             catch (Exception) { throw; }
         }

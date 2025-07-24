@@ -88,6 +88,7 @@ namespace HNOne.API.Repositories
         public DbSet<AnnualLeaveInformation1s> AnnualLeaveInformation1s { get; set; }
         public DbSet<DecisionDocuments> DecisionDocuments { get; set; }
         public DbSet<AuditLogs> AuditLogs { get; set; }
+        public DbSet<DailyJobConfigs> DailyJobConfigs { get; set; } // bảng job chạy định kỳ
 
         public MasterDbContext(DbContextOptions<MasterDbContext> options)
             : base(options)
