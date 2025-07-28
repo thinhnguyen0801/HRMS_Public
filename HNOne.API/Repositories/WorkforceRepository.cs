@@ -1307,6 +1307,7 @@ namespace HNOne.API.Repositories
                         entity1.StartBreakTime = item.StartBreakTime;
                         entity1.EndBreakTime = item.EndBreakTime;
                         entity1.Remark = item.Remark;
+                        entity1.TotalBreakTimeMinutes = item.TotalBreakTimeMinutes;
                         entity1.TotalWorkingHours = item.TotalWorkingHours;
                         entity1.IsDayOff = item.IsDayOff;
                         entity1.BgColor = item.BgColor;
@@ -1412,6 +1413,7 @@ namespace HNOne.API.Repositories
                         entity1.EndBreakTime = item.EndBreakTime;
                         entity1.Remark = item.Remark;
                         entity1.TotalWorkingHours = item.TotalWorkingHours;
+                        entity1.TotalBreakTimeMinutes = item.TotalBreakTimeMinutes;
                         entity1.IsDayOff = item.IsDayOff;
                         entity1.BgColor = item.BgColor;
                         entity1.Symbol = item.Symbol;

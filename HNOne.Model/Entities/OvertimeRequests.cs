@@ -59,6 +59,7 @@ namespace HNOne.Model.Entities
         [MaxLength(250)]
         public string? Symbol { get; set; } // ký hiệu
         public int HolidayId { get; set; } // Rơi vô kì nghỉ lễ nào bảng HolidayCatagories
+        public double TotalBreakTimeMinutes { get; set; } // tổng số giờ làm việc
         public double TotalWorkingHours { get; set; } // tổng số giờ làm việc
         [MaxLength(50)]
         public string? ShiftCode1 { get; set; } // ca làm việc

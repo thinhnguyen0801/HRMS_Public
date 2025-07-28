@@ -276,7 +276,16 @@
                                                                     DisplayFormat="@GlobalContants.FORMAT_TIME" />
                                             </EditSettings>
                                         </DxGridDataColumn>
-                                        <DxGridDataColumn FieldName="@nameof(OvertimeRequest1Model.startBreakTime)" Caption="Giờ nghỉ b/đ" Width="130px" MinWidth="120"
+
+                                        <DxGridDataColumn FieldName="@nameof(OvertimeRequest1Model.totalBreakTimeMinutes)" Caption="Số phút nghỉ" Width="120px" MinWidth="110"
+                                                          DisplayFormat="@GlobalContants.FORMAT_NUMBER" DataRowEditorVisible="@(!IsReadonlyControl)">
+                                            <EditSettings>
+                                                <DxSpinEditSettings CssClass="w1FontSize" InputCssClass="text-end" MinValue="0.0" 
+                                                                    Mask="@GlobalContants.FORMAT_CURRENCY" DisplayFormat="@GlobalContants.FORMAT_CURRENCY" />
+                                            </EditSettings>
+                                        </DxGridDataColumn>
+
+                                        @* <DxGridDataColumn FieldName="@nameof(OvertimeRequest1Model.startBreakTime)" Caption="Giờ nghỉ b/đ" Width="130px" MinWidth="120"
                                                           DisplayFormat="@GlobalContants.FORMAT_TIME" DataRowEditorVisible="@(!IsReadonlyControl)">
                                             <EditSettings>
                                                 <DxTimeEditSettings CssClass="w1FontSize" Mask="@GlobalContants.FORMAT_TIME" Format="@GlobalContants.FORMAT_TIME"
@@ -289,7 +298,7 @@
                                                 <DxTimeEditSettings CssClass="w1FontSize" Mask="@GlobalContants.FORMAT_TIME" Format="@GlobalContants.FORMAT_TIME"
                                                                     DisplayFormat="@GlobalContants.FORMAT_TIME" />
                                             </EditSettings>
-                                        </DxGridDataColumn>
+                                        </DxGridDataColumn> *@
                                         
                                         <DxGridDataColumn FieldName="@nameof(OvertimeRequest1Model.totalWorkingHours)" Caption="Tổng số giờ" Width="140px" MinWidth="120"
                                                           DisplayFormat="@GlobalContants.FORMAT_NUMBER" DataRowEditorVisible="false" />

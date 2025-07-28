@@ -302,6 +302,13 @@ namespace HNOne.Web.Controllers
                 fieldName = "gridInfo";
                 return;
             }
+            itemCheck = ListOvertimeDays!.FirstOrDefault(m => m.totalWorkingHours <= 0);
+            if (itemCheck != null)
+            {
+                errorMessage = $"Ngày [{itemCheck.overtimeDate.ToString(GlobalContants.FORMAT_DATE)}] Số giờ tăng ca không hợp lệ";
+                fieldName = "gridInfo";
+                return;
+            }
         }
 
         /// <summary>
@@ -349,8 +356,14 @@ namespace HNOne.Web.Controllers
             {
                 item.startTime = new DateTime(item.overtimeDate.Year, item.overtimeDate.Month, item.overtimeDate.Day, item.startTime.Hour, item.startTime.Minute, 0);
                 item.endTime = new DateTime(item.overtimeDate.Year, item.overtimeDate.Month, item.overtimeDate.Day, item.endTime.Hour, item.endTime.Minute, 0);
-                item.startBreakTime = new DateTime(item.overtimeDate.Year, item.overtimeDate.Month, item.overtimeDate.Day, item.startBreakTime?.Hour ?? 0, item.startBreakTime?.Minute ?? 0, 0);
-                item.endBreakTime = new DateTime(item.overtimeDate.Year, item.overtimeDate.Month, item.overtimeDate.Day, item.endBreakTime?.Hour ?? 0, item.endBreakTime?.Minute ?? 0, 0);
+                if(item.totalBreakTimeMinutes > 0)
+                {
+                    var startBT = item.startTime;
+                    item.startBreakTime = startBT;
+                    item.endBreakTime = startBT.AddMinutes(item.totalBreakTimeMinutes);
+                }
+                //item.startBreakTime = new DateTime(item.overtimeDate.Year, item.overtimeDate.Month, item.overtimeDate.Day, item.startBreakTime?.Hour ?? 0, item.startBreakTime?.Minute ?? 0, 0);
+                //item.endBreakTime = new DateTime(item.overtimeDate.Year, item.overtimeDate.Month, item.overtimeDate.Day, item.endBreakTime?.Hour ?? 0, item.endBreakTime?.Minute ?? 0, 0);
                 TimeSpan workBeforeBreak = item.startBreakTime!.Value - item.startTime;
                 TimeSpan workAfterBreak = item.endTime - item.endBreakTime!.Value;
                 totalHours += workBeforeBreak.TotalHours + workAfterBreak.TotalHours;
@@ -712,10 +725,14 @@ namespace HNOne.Web.Controllers
                 itemFind.endTime = itemEdit.endTime;
                 itemFind.startBreakTime = itemEdit.startBreakTime;
                 itemFind.endBreakTime = itemEdit.endBreakTime;
+                itemFind.totalBreakTimeMinutes = itemEdit.totalBreakTimeMinutes;
                 // Tính tổng giờ làm việc
                 double totalWorkHours = 0;
-                if(itemFind.startBreakTime != null && itemFind.endBreakTime != null)
+                if (itemEdit.totalBreakTimeMinutes > 0)
                 {
+                    var startBT = itemEdit.startTime;
+                    itemFind.startBreakTime = startBT;
+                    itemFind.endBreakTime = startBT.AddMinutes(itemEdit.totalBreakTimeMinutes);
                     TimeSpan workBeforeBreak = itemFind.startBreakTime!.Value - itemFind.startTime;
                     TimeSpan workAfterBreak = itemFind.endTime - itemFind.endBreakTime!.Value;
                     totalWorkHours = workBeforeBreak.TotalHours + workAfterBreak.TotalHours;
