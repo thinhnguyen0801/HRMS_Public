@@ -172,6 +172,7 @@ namespace HNOne.Web.Controllers
                     ReasonCategorieUpdate.name = pItemDetails!.name;
                     ReasonCategorieUpdate.branchId = pItemDetails!.branchId;
                     ReasonCategorieUpdate.type = pItemDetails!.type;
+                    ReasonCategorieUpdate.value2 = pItemDetails.value2;
                     decimal.TryParse(pItemDetails!.value, out decimal oConfig);
                     decimal.TryParse(pItemDetails!.value1, out decimal oConfig1);
                     ReasonCategorieUpdate.isActive = pItemDetails!.isActive;
