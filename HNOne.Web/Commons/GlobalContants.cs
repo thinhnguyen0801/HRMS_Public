@@ -8,7 +8,7 @@
         public const string FORMAT_GRID_DISPLAYTEXT_COUNT = "Số dòng: {0}";
         public const string FORMAT_GRID_DISPLAYTEXT_SUM = "Tổng: {0}";
         public const string FORMAT_GRID_DISPLAYTEXT_SUM_PAYROLL = "{0}";
-        public const string FORMAT_NUMBER = "#,###0.###";//
+        public const string FORMAT_NUMBER = "#,###0.##";//
         public const string FORMAT_NUMBER_DOUBLE_2PLACE = "n2";//
         public const string FORMAT_NUMBER_DOUBLE_1PLACE = "n1";//
         public const string FORMAT_CURRENCY = "###,###,###,##0.###";//
