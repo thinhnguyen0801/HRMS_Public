@@ -29,6 +29,9 @@ namespace HNOne.Common
         public const string ENUM_BY_EMPLOYEE = "BY_EMPLOYEE";
         public const string ENUM_DETAIL = "DETAIL";
         public const string ENUM_EMPLOYEE_SIGNATURE = "EMPLOYEE_SIGNATURE";
+        public const string ENUM_BASIC_SALARY = "LCB";
+        public const string ENUM_NEGOTIATED_SALARY = "LQD";
+        public const string ENUM_ALLOWANCE_SALARY = "LPC";
         #endregion
     }
 }

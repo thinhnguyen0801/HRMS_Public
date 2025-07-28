@@ -217,8 +217,8 @@ namespace HNOne.Web.Controllers
         /// </summary>
         private void calcTotalSalary()
         {
-            ContractDocument.totalSalary = (ListSalaryInfoConfig?.Sum(m => m.amount) ?? 0);
-            ContractDocument.netSalary = ContractDocument.totalSalary * (decimal)ContractDocument.salaryCoefficient;
+            ContractDocument.totalSalary = ListSalaryInfoConfig?.Where(m => m.salaryCategoryCode != CommonConstants.ENUM_BASIC_SALARY)?.Sum(m => m.amount) ?? 0; // tổng lương - lương cơ bản ra
+            ContractDocument.netSalary = ListSalaryInfoConfig?.Where(m => m.salaryCategoryCode != CommonConstants.ENUM_BASIC_SALARY)?.Sum(m => m.isProbationaryPeriod ? m.amount * (decimal)ContractDocument.salaryCoefficient : m.amount) ?? 0;
             StateHasChanged();
         }
 
