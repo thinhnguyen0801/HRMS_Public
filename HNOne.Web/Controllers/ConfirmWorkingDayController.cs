@@ -89,6 +89,10 @@ namespace HNOne.Web.Controllers
                     {
                         await showVoucher();
                     }
+                    else
+                    {
+                        await getEmployeeSignatureHistory(EmployeeId);
+                    }
                 }
                 catch (Exception ex)
                 {
@@ -356,6 +360,36 @@ namespace HNOne.Web.Controllers
                 await InvokeAsync(StateHasChanged);
             }
         }
+
+        /// <summary>
+        /// lấy nhân viên ký của người đó trước đây để tiến hành ký
+        /// </summary>
+        /// <returns></returns>
+        private async Task getEmployeeSignatureHistory(int employeeId)
+        {
+            try
+            {
+                ConfirmRequestDocument.employeeSignatureId = -1;
+                ConfirmRequestDocument.employeeSignatureCode = "";
+                ConfirmRequestDocument.employeeSignatureName = "";
+                RequestModel request = new RequestModel();
+                request.userId = UserId;
+                request.token = Token;
+                request.branchId = BranchId;
+                request.type = ProcessConstants.GET_COMBO_TYPE_PREVIOUS_SIGNER_BY_EMPLOYEE;
+                request.opt = employeeId.ToString();
+                request.opt1 = nameof(EnumObjType.ConfirmWorkingDays);
+                var result = await _masterDataService.GetMasterDataAsync<EmployeeModel>(request);
+                if (!result.IsNullOrEmpty())
+                {
+                    var employee = result![0];
+                    ConfirmRequestDocument.employeeSignatureId = employee.id;
+                    ConfirmRequestDocument.employeeSignatureCode = employee.code;
+                    ConfirmRequestDocument.employeeSignatureName = employee.name;
+                }
+            }
+            catch (Exception) { }
+        }
         #endregion
 
 
@@ -436,11 +470,14 @@ namespace HNOne.Web.Controllers
                 switch (pPopupType)
                 {
                     case nameof(ConfirmRequestDocument.employeeCode):
+                        await ShowLoading();
+                        await getEmployeeSignatureHistory(employee.id);
                         ConfirmRequestDocument.employeeId = employee.id;
                         ConfirmRequestDocument.employeeCode = employee.code;
                         ConfirmRequestDocument.employeeName = employee.name;
                         ConfirmRequestDocument.departmentId = employee.departmentId;
                         IsShowDialogEmpSearch = false;
+                        await Task.Delay(75);
                         break;
                     case nameof(ConfirmRequestDocument.employeeSignatureCode):
                         ConfirmRequestDocument.employeeSignatureId = employee.id;

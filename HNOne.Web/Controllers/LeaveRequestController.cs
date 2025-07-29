@@ -82,11 +82,15 @@ namespace HNOne.Web.Controllers
                     //
                     initDataAsync();
                     await buildComboAsync();
-                    await getAnnualLeaveInfo(EmployeeId);
                     if (pDocEntry > 0)
                     {
                         await showVoucher();
-                    }    
+                    }
+                    else
+                    {
+                        await getAnnualLeaveInfo(EmployeeId);
+                        await getEmployeeSignatureHistory(EmployeeId);
+                    }
                 }
                 catch (Exception ex)
                 {
@@ -482,6 +486,36 @@ namespace HNOne.Web.Controllers
                 await InvokeAsync(StateHasChanged);
             }
         }
+        
+        /// <summary>
+        /// lấy nhân viên ký của người đó trước đây để tiến hành ký
+        /// </summary>
+        /// <returns></returns>
+        private async Task getEmployeeSignatureHistory(int employeeId)
+        {
+            try
+            {
+                LeaveRequestDocument.employeeSignatureId = -1;
+                LeaveRequestDocument.employeeSignatureCode = "";
+                LeaveRequestDocument.employeeSignatureName = "";
+                RequestModel request = new RequestModel();
+                request.userId = UserId;
+                request.token = Token;
+                request.branchId = BranchId;
+                request.type = ProcessConstants.GET_COMBO_TYPE_PREVIOUS_SIGNER_BY_EMPLOYEE;
+                request.opt = employeeId.ToString();
+                request.opt1 = nameof(EnumObjType.LeaveRequests);
+                var result = await _masterDataService.GetMasterDataAsync<EmployeeModel>(request);
+                if (!result.IsNullOrEmpty())
+                {
+                    var employee = result![0];
+                    LeaveRequestDocument.employeeSignatureId = employee.id;
+                    LeaveRequestDocument.employeeSignatureCode = employee.code;
+                    LeaveRequestDocument.employeeSignatureName = employee.name;
+                }
+            }
+            catch (Exception) {}
+        }
         #endregion
 
 
@@ -534,6 +568,7 @@ namespace HNOne.Web.Controllers
                     case nameof(LeaveRequestDocument.employeeCode):
                         await ShowLoading();
                         await getAnnualLeaveInfo(employee.id);
+                        await getEmployeeSignatureHistory(employee.id);
                         LeaveRequestDocument.employeeId = employee.id;
                         LeaveRequestDocument.employeeCode = employee.code;
                         LeaveRequestDocument.employeeName = employee.name;

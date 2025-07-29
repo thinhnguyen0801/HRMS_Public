@@ -85,6 +85,10 @@ namespace HNOne.Web.Controllers
                     {
                         await showVoucher();
                     }
+                    else
+                    {
+                        await getEmployeeSignatureHistory(EmployeeId);
+                    }
                 }
                 catch (Exception ex)
                 {
@@ -406,6 +410,36 @@ namespace HNOne.Web.Controllers
                 await InvokeAsync(StateHasChanged);
             }
         }
+
+        /// <summary>
+        /// lấy nhân viên ký của người đó trước đây để tiến hành ký
+        /// </summary>
+        /// <returns></returns>
+        private async Task getEmployeeSignatureHistory(int employeeId)
+        {
+            try
+            {
+                ShiftRequestDocument.employeeSignatureId = -1;
+                ShiftRequestDocument.employeeSignatureCode = "";
+                ShiftRequestDocument.employeeSignatureName = "";
+                RequestModel request = new RequestModel();
+                request.userId = UserId;
+                request.token = Token;
+                request.branchId = BranchId;
+                request.type = ProcessConstants.GET_COMBO_TYPE_PREVIOUS_SIGNER_BY_EMPLOYEE;
+                request.opt = employeeId.ToString();
+                request.opt1 = nameof(EnumObjType.ShiftChanges);
+                var result = await _masterDataService.GetMasterDataAsync<EmployeeModel>(request);
+                if (!result.IsNullOrEmpty())
+                {
+                    var employee = result![0];
+                    ShiftRequestDocument.employeeSignatureId = employee.id;
+                    ShiftRequestDocument.employeeSignatureCode = employee.code;
+                    ShiftRequestDocument.employeeSignatureName = employee.name;
+                }
+            }
+            catch (Exception) { }
+        }
         #endregion
 
         #region Protected Functions
@@ -456,11 +490,14 @@ namespace HNOne.Web.Controllers
                 switch (pPopupType)
                 {
                     case nameof(ShiftRequestDocument.employeeCode):
+                        await ShowLoading();
+                        await getEmployeeSignatureHistory(employee.id);
                         ShiftRequestDocument.employeeId = employee.id;
                         ShiftRequestDocument.employeeCode = employee.code;
                         ShiftRequestDocument.employeeName = employee.name;
                         ShiftRequestDocument.departmentId = employee.departmentId;
                         IsShowDialogEmpSearch = false;
+                        await Task.Delay(75);
                         break;
                     case nameof(ShiftRequestDocument.employeeSignatureCode):
                         ShiftRequestDocument.employeeSignatureId = employee.id;

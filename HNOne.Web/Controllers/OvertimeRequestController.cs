@@ -85,6 +85,10 @@ namespace HNOne.Web.Controllers
                     {
                         await showVoucher();
                     }
+                    else
+                    {
+                        await getEmployeeSignatureHistory(EmployeeId);
+                    }
                 }
                 catch (Exception ex)
                 {
@@ -467,6 +471,36 @@ namespace HNOne.Web.Controllers
                 await InvokeAsync(StateHasChanged);
             }
         }
+
+        /// <summary>
+        /// lấy nhân viên ký của người đó trước đây để tiến hành ký
+        /// </summary>
+        /// <returns></returns>
+        private async Task getEmployeeSignatureHistory(int employeeId)
+        {
+            try
+            {
+                OvertimeRequestDocument.employeeSignatureId = -1;
+                OvertimeRequestDocument.employeeSignatureCode = "";
+                OvertimeRequestDocument.employeeSignatureName = "";
+                RequestModel request = new RequestModel();
+                request.userId = UserId;
+                request.token = Token;
+                request.branchId = BranchId;
+                request.type = ProcessConstants.GET_COMBO_TYPE_PREVIOUS_SIGNER_BY_EMPLOYEE;
+                request.opt = employeeId.ToString();
+                request.opt1 = nameof(EnumObjType.OvertimeRequests);
+                var result = await _masterDataService.GetMasterDataAsync<EmployeeModel>(request);
+                if (!result.IsNullOrEmpty())
+                {
+                    var employee = result![0];
+                    OvertimeRequestDocument.employeeSignatureId = employee.id;
+                    OvertimeRequestDocument.employeeSignatureCode = employee.code;
+                    OvertimeRequestDocument.employeeSignatureName = employee.name;
+                }
+            }
+            catch (Exception) { }
+        }
         #endregion
 
         #region Protected Functions
@@ -516,11 +550,14 @@ namespace HNOne.Web.Controllers
                 switch (pPopupType)
                 {
                     case nameof(OvertimeRequestDocument.employeeCode):
+                        await ShowLoading();
+                        await getEmployeeSignatureHistory(employee.id);
                         OvertimeRequestDocument.employeeId = employee.id;
                         OvertimeRequestDocument.employeeCode = employee.code;
                         OvertimeRequestDocument.employeeName = employee.name;
                         OvertimeRequestDocument.departmentId = employee.departmentId;
                         IsShowDialogEmpSearch = false;
+                        await Task.Delay(75);
                         break;
                     case nameof(OvertimeRequestDocument.employeeSignatureCode):
                         OvertimeRequestDocument.employeeSignatureId = employee.id;
