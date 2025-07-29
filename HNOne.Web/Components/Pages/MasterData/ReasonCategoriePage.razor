@@ -61,6 +61,14 @@
                             <DxGridDataColumn FieldName="@nameof(ReasonCategorieModel.typeName)" Caption="Loại lý do" MinWidth="170" />
                             <DxGridDataColumn FieldName="@nameof(ReasonCategorieModel.isActive)" Caption="Hoạt động?" MinWidth="100" />
                             <DxGridDataColumn FieldName="@nameof(ReasonCategorieModel.value)" Caption="% Tính lương" MinWidth="100" />
+                            <DxGridDataColumn FieldName="@nameof(ReasonCategorieModel.leaveTypeName)" Caption="Loại nghỉ" MinWidth="150" />
+                            <DxGridDataColumn FieldName="@nameof(ReasonCategorieModel.symbolDayOff)" Caption="Ký hiệu" MinWidth="70">
+                                <CellDisplayTemplate>
+                                    @{
+                                        <span style="padding: 2px;background-color: @($"{(context.DataItem as ReasonCategorieModel)!.bgColorDayOff}")">@context.Value</span>
+                                    }
+                                </CellDisplayTemplate>
+                            </DxGridDataColumn>
                             <DxGridDataColumn FieldName="@nameof(ReasonCategorieModel.dateTracking)" Caption="Ngày cập nhật" MinWidth="120" DisplayFormat="@GlobalContants.FORMAT_DATE_TIME" />
                             <DxGridDataColumn FieldName="@nameof(ReasonCategorieModel.userSignName)" Caption="Người tạo" MinWidth="120" />
                             <DxGridDataColumn FieldName="@nameof(ReasonCategorieModel.userSign2Name)" Caption="Người cập nhật" MinWidth="120" />
@@ -144,6 +152,22 @@
                                     ValueFieldName="@nameof(ComboboxModel.code)"
                                     CssClass="w1FontSize" Id="txtvalue2">
                         </DxComboBox>
+                    </div>
+                </div>
+            </div>
+            <div class="col-sm-12">
+                <div class="d-flex ">
+                    <W1Label Value="Ký hiệu ngày nghỉ" Styles="width: 110px" IsRequired="true" />
+                    <div style="width: calc(100% - 110px)">
+                        <div class="row row-gap-2">
+                            <div class="col-md-7 col-sm-12">
+                                <DxTextBox @bind-Text="@ReasonCategorieUpdate.symbolDayOff" CssClass="w1FontSize" Id="symbolDayOff" />
+                            </div>
+                            <div class="col-md-5 col-sm-12">
+                                <DxTextBox @bind-Text="@ReasonCategorieUpdate.bgColorDayOff" CssClass="w1FontSize" NullText="Màu ngày nghỉ" />
+                            </div>
+                        </div>
+
                     </div>
                 </div>
             </div>

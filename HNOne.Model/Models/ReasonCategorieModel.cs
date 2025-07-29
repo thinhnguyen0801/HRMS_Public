@@ -17,6 +17,9 @@ namespace HNOne.Model.Models
         public int branchId { get; set; }
         public string? branchCode { get; set; }
         public string? branchName { get; set; }
+        public string? symbolDayOff { get; set; } // ký hiệu ngày nghỉ
+        public string? bgColorDayOff { get; set; } // màu ngày nghỉ
+        public string? leaveTypeName { get; set; } // Loại nghỉ
         public DateTime? createDate { get; set; }
         public int? userSign { get; set; }
         public DateTime? updateDate { get; set; }

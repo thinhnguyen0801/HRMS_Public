@@ -265,10 +265,11 @@ namespace HNOne.API.Repositories
             {
                 DynamicParameters parameters = new DynamicParameters();
                 string strQuery = "select T0.*, T1.Name as TypeName" +
-                    " ,T2.BranchCode as BranchCode, T2.BranchName as BranchName" +
+                    " ,T2.BranchCode as BranchCode, T2.BranchName as BranchName, T3.Name as LeaveTypeName" +
                     " from ReasonCategories as T0 with(nolock)" +
                     " inner join [dbo].[HRM_FN_GET_ENUM] ('LoaiLyDo', '', '') as T1 on T0.Type = T1.Code" +
                     " inner join Branchs as T2 with(nolock) on T0.BranchId = T2.BranchId" +
+                    " left join [dbo].[HRM_FN_GET_ENUM] ('LoaiNghiPhep', '', '') as T3 on T0.Value2 = T3.Code" +
                     " where T0.IsDelete = 0";
                 // thêm điều kiện
                 if (request.opt == CommonConstants.ENUM_ACTIVE)
@@ -1061,6 +1062,8 @@ namespace HNOne.API.Repositories
                 data.Value = entity.Value;
                 data.Value1 = entity.Value1;
                 data.Value2 = entity.Value2;
+                data.SymbolDayOff = entity.SymbolDayOff;
+                data.BgColorDayOff = entity.BgColorDayOff;
                 data.DateTracking = _dateTimeHelper.GetCurrentVietnamTime();
                 data.UpdateDate = _dateTimeHelper.GetCurrentVietnamTime();
                 data.UserSign2 = entity.UserSign2;

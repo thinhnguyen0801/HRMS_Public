@@ -109,16 +109,24 @@ namespace HNOne.Web.Controllers
             }
             if (string.IsNullOrEmpty(ReasonCategorieUpdate.type))
             {
-                errorMessage = String.Format(MessageConstants.MESSAGE_COMBOBOX_REQUIRE, "Loại lý do");
+                errorMessage = string.Format(MessageConstants.MESSAGE_COMBOBOX_REQUIRE, "Loại lý do");
                 fieldName = "txtType";
                 return;
             }
-            if (ReasonCategorieUpdate.type == GlobalContants.ENUM_REASON_DNNP 
-                && string.IsNullOrEmpty(ReasonCategorieUpdate.value2))
+            if (ReasonCategorieUpdate.type == GlobalContants.ENUM_REASON_DNNP)
             {
-                errorMessage = String.Format(MessageConstants.MESSAGE_COMBOBOX_REQUIRE, "Loại nghỉ phép");
-                fieldName = "txtvalue2";
-                return;
+                if(string.IsNullOrEmpty(ReasonCategorieUpdate.value2))
+                {
+                    errorMessage = string.Format(MessageConstants.MESSAGE_COMBOBOX_REQUIRE, "Loại nghỉ phép");
+                    fieldName = "txtvalue2";
+                    return;
+                }
+                if (string.IsNullOrEmpty(ReasonCategorieUpdate.symbolDayOff))
+                {
+                    errorMessage = string.Format(MessageConstants.MESSAGE_COMBOBOX_REQUIRE, "Ký hiệu ngày nghỉ");
+                    fieldName = "symbolDayOff";
+                    return;
+                }
             }
         }
 
@@ -173,6 +181,8 @@ namespace HNOne.Web.Controllers
                     ReasonCategorieUpdate.branchId = pItemDetails!.branchId;
                     ReasonCategorieUpdate.type = pItemDetails!.type;
                     ReasonCategorieUpdate.value2 = pItemDetails.value2;
+                    ReasonCategorieUpdate.symbolDayOff = pItemDetails.symbolDayOff;
+                    ReasonCategorieUpdate.bgColorDayOff = pItemDetails.bgColorDayOff;
                     decimal.TryParse(pItemDetails!.value, out decimal oConfig);
                     decimal.TryParse(pItemDetails!.value1, out decimal oConfig1);
                     ReasonCategorieUpdate.isActive = pItemDetails!.isActive;

@@ -19,6 +19,10 @@ namespace HNOne.Model.Entities
         public string? Value1 { get; set; } // config nếu có 1
         [MaxLength(250)]
         public string? Value2 { get; set; } // config nếu có 2
+        [MaxLength(50)]
+        public string? SymbolDayOff { get; set; } // ký hiệu ngày nghỉ
+        [MaxLength(250)]
+        public string? BgColorDayOff { get; set; } // màu ngày nghỉ
         public bool IsActive { get; set; }
         public int BranchId { get; set; }
 
