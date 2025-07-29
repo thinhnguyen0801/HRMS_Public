@@ -127,6 +127,8 @@
                                                        Visible="@(IsAllowDelete)" />
                                         <DxToolbarItem Text="Kết xuất" BeginGroup="true" IconCssClass="@($"{IconClassConstants.ICON_EXPORT_EXCEL}")" CssClass="w1FontSize"
                                                        Alignment="@ToolbarItemAlignment.Right" Click="@(()=> ExportExcelHandler())" />
+                                        <DxToolbarItem Text="Chọn cột" BeginGroup="true" IconCssClass="@($"{IconClassConstants.ICON_GRID}")" CssClass="w1FontSize"
+                                                       Alignment="@ToolbarItemAlignment.Right" Click="@(()=> ColumnChooseHandler())" />
                                     </Items>
                                 </DxToolbar>
                             </div>
@@ -164,7 +166,7 @@
                                                 <DxGridSelectionColumn Width="35px" />
                                                 <DxGridDataColumn FieldName="@nameof(EmployeeModel.departmentCode)" Caption="Mã phòng ban" MinWidth="120" GroupIndex="0" />
                                                 <DxGridDataColumn FieldName="@nameof(EmployeeModel.departmentName)" Caption="Tên phòng ban" MinWidth="170" />
-                                                <DxGridDataColumn FieldName="@nameof(EmployeeModel.code)" Caption="Mã nhân viên" MinWidth="150">
+                                                <DxGridDataColumn FieldName="@nameof(EmployeeModel.code)" Caption="Mã nhân viên" MinWidth="125">
                                                     <CellDisplayTemplate>
                                                         @{
                                                             <a href="@((context.DataItem as EmployeeModel)!.link)">@context.Value</a>
@@ -172,16 +174,46 @@
                                                     </CellDisplayTemplate>
                                                 </DxGridDataColumn>
                                                 <DxGridDataColumn FieldName="@nameof(EmployeeModel.name)" Caption="Tên nhân viên" MinWidth="170" />
-                                                <DxGridDataColumn FieldName="@nameof(EmployeeModel.positionName)" Caption="Chức vụ" MinWidth="170" />
-                                                <DxGridDataColumn FieldName="@nameof(EmployeeModel.titleName)" Caption="Chức danh" MinWidth="190" />
-                                                <DxGridDataColumn FieldName="@nameof(EmployeeModel.subDepartmentName)" Caption="Bộ phận" MinWidth="190" />
-                                                <DxGridDataColumn FieldName="@nameof(EmployeeModel.statusName)" Caption="Trạng thái" MinWidth="170" />
-                                                <DxGridDataColumn FieldName="@nameof(EmployeeModel.shiftName)" Caption="Ca làm việc" MinWidth="150" />
-                                                <DxGridDataColumn FieldName="@nameof(EmployeeModel.branchName)" Caption="Chi nhánh" MinWidth="170" />
-                                                <DxGridDataColumn FieldName="@nameof(EmployeeModel.workingBranchName)" Caption="Chi nhánh làm việc" MinWidth="170" />
+                                                <DxGridDataColumn FieldName="@nameof(EmployeeModel.positionName)" Caption="Chức vụ" MinWidth="150" />
+                                                <DxGridDataColumn FieldName="@nameof(EmployeeModel.titleName)" Caption="Chức danh" MinWidth="170" />
+                                                <DxGridDataColumn FieldName="@nameof(EmployeeModel.subDepartmentName)" Caption="Bộ phận" MinWidth="160" />
+                                                <DxGridDataColumn FieldName="@nameof(EmployeeModel.statusName)" Caption="Trạng thái" MinWidth="130" />
+                                                <DxGridDataColumn FieldName="@nameof(EmployeeModel.shiftName)" Caption="Ca làm việc" MinWidth="130" />
+                                                <DxGridDataColumn FieldName="@nameof(EmployeeModel.branchName)" Caption="Chi nhánh" MinWidth="150" />
+                                                <DxGridDataColumn FieldName="@nameof(EmployeeModel.workingBranchName)" Caption="Chi nhánh làm việc" MinWidth="150" />
+                                                <DxGridDataColumn FieldName="@nameof(EmployeeModel.probationStartDate)" Caption="Ngày thử việc" MinWidth="120" DisplayFormat="@GlobalContants.FORMAT_DATE" />
+                                                <DxGridDataColumn FieldName="@nameof(EmployeeModel.probationEndDate)" Caption="Ngày hết thử việc" MinWidth="130" DisplayFormat="@GlobalContants.FORMAT_DATE" />
+                                                <DxGridDataColumn FieldName="@nameof(EmployeeModel.dateOfBirth)" Caption="Ngày sinh" MinWidth="120" DisplayFormat="@GlobalContants.FORMAT_DATE" />
+                                                <DxGridDataColumn FieldName="@nameof(EmployeeModel.gender)" Caption="Giơi tính" MinWidth="90" />
+
+                                                <DxGridDataColumn FieldName="@nameof(EmployeeModel.managerName)" Caption="Quản lý trực tiếp" MinWidth="150" Visible="false" />
+                                                <DxGridDataColumn FieldName="@nameof(EmployeeModel.managerName2)" Caption="Quản lý gián tiếp" MinWidth="150" Visible="false" />
+                                                <DxGridDataColumn FieldName="@nameof(EmployeeModel.taxNumber)" Caption="Mã số thuế" MinWidth="130" Visible="false" />
+                                                <DxGridDataColumn FieldName="@nameof(EmployeeModel.ethnicity)" Caption="Dân tộc" MinWidth="100" Visible="false" />
+                                                <DxGridDataColumn FieldName="@nameof(EmployeeModel.religion)" Caption="Tôn giáo" MinWidth="100" Visible="false" />
+                                                <DxGridDataColumn FieldName="@nameof(EmployeeModel.nationality)" Caption="Quốc tịch" MinWidth="100" Visible="false" />
+                                                <DxGridDataColumn FieldName="@nameof(EmployeeModel.maritalStatusName)" Caption="T/t hôn nhân" MinWidth="110" Visible="false" />
+
+                                                <DxGridDataColumn FieldName="@nameof(EmployeeModel.cIC)" Caption="CCCD/CMND" MinWidth="130" Visible="false" />
+                                                <DxGridDataColumn FieldName="@nameof(EmployeeModel.issuanceDateCIC)" Caption="Ngày cấp" MinWidth="120" DisplayFormat="@GlobalContants.FORMAT_DATE" Visible="false" />
+                                                <DxGridDataColumn FieldName="@nameof(EmployeeModel.placeOfIssuanceCIC)" Caption="Nơi cấp" MinWidth="150" Visible="false" />
+                                                <DxGridDataColumn FieldName="@nameof(EmployeeModel.expiryDateCIC)" Caption="Ngày hết hạn" MinWidth="120" DisplayFormat="@GlobalContants.FORMAT_DATE" Visible="false" />
+                                                <DxGridDataColumn FieldName="@nameof(EmployeeModel.passportNumber)" Caption="Hộ chiếu" MinWidth="130" Visible="false" />
+                                                <DxGridDataColumn FieldName="@nameof(EmployeeModel.issueDatePassport)" Caption="Ngày cấp" MinWidth="120" DisplayFormat="@GlobalContants.FORMAT_DATE" Visible="false" />
+                                                <DxGridDataColumn FieldName="@nameof(EmployeeModel.placeOfIssuePassport)" Caption="Nơi cấp" MinWidth="150" Visible="false" />
+                                                <DxGridDataColumn FieldName="@nameof(EmployeeModel.expiryDatePassport)" Caption="Ngày hết hạn" MinWidth="120" DisplayFormat="@GlobalContants.FORMAT_DATE" Visible="false" />
+
+                                                <DxGridDataColumn FieldName="@nameof(EmployeeModel.phone1)" Caption="Sđt di động" MinWidth="130" />
+                                                <DxGridDataColumn FieldName="@nameof(EmployeeModel.phone2)" Caption="Sdt cơ quan" MinWidth="130" />
+                                                <DxGridDataColumn FieldName="@nameof(EmployeeModel.email1)" Caption="Email cá nhân" MinWidth="130" />
+                                                <DxGridDataColumn FieldName="@nameof(EmployeeModel.email2)" Caption="Email cơ quan" MinWidth="130" />
+                                                <DxGridDataColumn FieldName="@nameof(EmployeeModel.placeOfOrigin)" Caption="Nguyên quán" MinWidth="150" Visible="false"  />
+                                                <DxGridDataColumn FieldName="@nameof(EmployeeModel.placeOfResidence)" Caption="Hộ khẩu trường trú" MinWidth="150" Visible="false"  />
+                                                <DxGridDataColumn FieldName="@nameof(EmployeeModel.temporaryAddress)" Caption="Chỗ ở hiện nay" MinWidth="150" Visible="false"  />
+
                                                 <DxGridDataColumn FieldName="@nameof(EmployeeModel.dateTracking)" Caption="Ngày cập nhật" MinWidth="120" DisplayFormat="@GlobalContants.FORMAT_DATE_TIME" />
-                                                <DxGridDataColumn FieldName="@nameof(EmployeeModel.userSignName)" Caption="Người tạo" MinWidth="120" />
-                                                <DxGridDataColumn FieldName="@nameof(EmployeeModel.userSignName)" Caption="Người cập nhật" MinWidth="120" />
+                                                <DxGridDataColumn FieldName="@nameof(EmployeeModel.userSignName)" Caption="Người tạo" MinWidth="120" Visible="false" />
+                                                <DxGridDataColumn FieldName="@nameof(EmployeeModel.userSignName)" Caption="Người cập nhật" MinWidth="120" Visible="false" />
                                             </Columns>
                                             <TotalSummary>
                                                 <DxGridSummaryItem DisplayText="@GlobalContants.FORMAT_GRID_DISPLAYTEXT_COUNT" SummaryType="GridSummaryItemType.Count"
@@ -213,7 +245,7 @@
                                                 <DxGridSelectionColumn Width="35px" />
                                                 <DxGridDataColumn FieldName="@nameof(EmployeeModel.departmentCode)" Caption="Mã phòng ban" MinWidth="120" GroupIndex="0" />
                                                 <DxGridDataColumn FieldName="@nameof(EmployeeModel.departmentName)" Caption="Tên phòng ban" MinWidth="170" />
-                                                <DxGridDataColumn FieldName="@nameof(EmployeeModel.code)" Caption="Mã nhân viên" MinWidth="150">
+                                                <DxGridDataColumn FieldName="@nameof(EmployeeModel.code)" Caption="Mã nhân viên" MinWidth="125">
                                                     <CellDisplayTemplate>
                                                         @{
                                                             <a href="@((context.DataItem as EmployeeModel)!.link)">@context.Value</a>
@@ -221,16 +253,46 @@
                                                     </CellDisplayTemplate>
                                                 </DxGridDataColumn>
                                                 <DxGridDataColumn FieldName="@nameof(EmployeeModel.name)" Caption="Tên nhân viên" MinWidth="170" />
-                                                <DxGridDataColumn FieldName="@nameof(EmployeeModel.positionName)" Caption="Chức vụ" MinWidth="170" />
-                                                <DxGridDataColumn FieldName="@nameof(EmployeeModel.titleName)" Caption="Chức danh" MinWidth="190" />
-                                                <DxGridDataColumn FieldName="@nameof(EmployeeModel.subDepartmentName)" Caption="Bộ phận" MinWidth="190" />
-                                                <DxGridDataColumn FieldName="@nameof(EmployeeModel.statusName)" Caption="Trạng thái" MinWidth="170" />
-                                                <DxGridDataColumn FieldName="@nameof(EmployeeModel.shiftName)" Caption="Ca làm việc" MinWidth="150" />
-                                                <DxGridDataColumn FieldName="@nameof(EmployeeModel.branchName)" Caption="Chi nhánh" MinWidth="170" />
-                                                <DxGridDataColumn FieldName="@nameof(EmployeeModel.workingBranchName)" Caption="Chi nhánh làm việc" MinWidth="170" />
+                                                <DxGridDataColumn FieldName="@nameof(EmployeeModel.positionName)" Caption="Chức vụ" MinWidth="150" />
+                                                <DxGridDataColumn FieldName="@nameof(EmployeeModel.titleName)" Caption="Chức danh" MinWidth="170" />
+                                                <DxGridDataColumn FieldName="@nameof(EmployeeModel.subDepartmentName)" Caption="Bộ phận" MinWidth="160" />
+                                                <DxGridDataColumn FieldName="@nameof(EmployeeModel.statusName)" Caption="Trạng thái" MinWidth="130" />
+                                                <DxGridDataColumn FieldName="@nameof(EmployeeModel.shiftName)" Caption="Ca làm việc" MinWidth="130" />
+                                                <DxGridDataColumn FieldName="@nameof(EmployeeModel.branchName)" Caption="Chi nhánh" MinWidth="150" />
+                                                <DxGridDataColumn FieldName="@nameof(EmployeeModel.workingBranchName)" Caption="Chi nhánh làm việc" MinWidth="150" />
+                                                <DxGridDataColumn FieldName="@nameof(EmployeeModel.probationStartDate)" Caption="Ngày thử việc" MinWidth="120" DisplayFormat="@GlobalContants.FORMAT_DATE" />
+                                                <DxGridDataColumn FieldName="@nameof(EmployeeModel.probationEndDate)" Caption="Ngày hết thử việc" MinWidth="130" DisplayFormat="@GlobalContants.FORMAT_DATE" />
+                                                <DxGridDataColumn FieldName="@nameof(EmployeeModel.dateOfBirth)" Caption="Ngày sinh" MinWidth="120" DisplayFormat="@GlobalContants.FORMAT_DATE" />
+                                                <DxGridDataColumn FieldName="@nameof(EmployeeModel.gender)" Caption="Giơi tính" MinWidth="90" />
+
+                                                <DxGridDataColumn FieldName="@nameof(EmployeeModel.managerName)" Caption="Quản lý trực tiếp" MinWidth="150" Visible="false" />
+                                                <DxGridDataColumn FieldName="@nameof(EmployeeModel.managerName2)" Caption="Quản lý gián tiếp" MinWidth="150" Visible="false" />
+                                                <DxGridDataColumn FieldName="@nameof(EmployeeModel.taxNumber)" Caption="Mã số thuế" MinWidth="130" Visible="false" />
+                                                <DxGridDataColumn FieldName="@nameof(EmployeeModel.ethnicity)" Caption="Dân tộc" MinWidth="100" Visible="false" />
+                                                <DxGridDataColumn FieldName="@nameof(EmployeeModel.religion)" Caption="Tôn giáo" MinWidth="100" Visible="false" />
+                                                <DxGridDataColumn FieldName="@nameof(EmployeeModel.nationality)" Caption="Quốc tịch" MinWidth="100" Visible="false" />
+                                                <DxGridDataColumn FieldName="@nameof(EmployeeModel.maritalStatusName)" Caption="T/t hôn nhân" MinWidth="110" Visible="false" />
+
+                                                <DxGridDataColumn FieldName="@nameof(EmployeeModel.cIC)" Caption="CCCD/CMND" MinWidth="130" Visible="false" />
+                                                <DxGridDataColumn FieldName="@nameof(EmployeeModel.issuanceDateCIC)" Caption="Ngày cấp" MinWidth="120" DisplayFormat="@GlobalContants.FORMAT_DATE" Visible="false" />
+                                                <DxGridDataColumn FieldName="@nameof(EmployeeModel.placeOfIssuanceCIC)" Caption="Nơi cấp" MinWidth="150" Visible="false" />
+                                                <DxGridDataColumn FieldName="@nameof(EmployeeModel.expiryDateCIC)" Caption="Ngày hết hạn" MinWidth="120" DisplayFormat="@GlobalContants.FORMAT_DATE" Visible="false" />
+                                                <DxGridDataColumn FieldName="@nameof(EmployeeModel.passportNumber)" Caption="Hộ chiếu" MinWidth="130" Visible="false" />
+                                                <DxGridDataColumn FieldName="@nameof(EmployeeModel.issueDatePassport)" Caption="Ngày cấp" MinWidth="120" DisplayFormat="@GlobalContants.FORMAT_DATE" Visible="false" />
+                                                <DxGridDataColumn FieldName="@nameof(EmployeeModel.placeOfIssuePassport)" Caption="Nơi cấp" MinWidth="150" Visible="false" />
+                                                <DxGridDataColumn FieldName="@nameof(EmployeeModel.expiryDatePassport)" Caption="Ngày hết hạn" MinWidth="120" DisplayFormat="@GlobalContants.FORMAT_DATE" Visible="false" />
+
+                                                <DxGridDataColumn FieldName="@nameof(EmployeeModel.phone1)" Caption="Sđt di động" MinWidth="130" />
+                                                <DxGridDataColumn FieldName="@nameof(EmployeeModel.phone2)" Caption="Sdt cơ quan" MinWidth="130" />
+                                                <DxGridDataColumn FieldName="@nameof(EmployeeModel.email1)" Caption="Email cá nhân" MinWidth="130" />
+                                                <DxGridDataColumn FieldName="@nameof(EmployeeModel.email2)" Caption="Email cơ quan" MinWidth="130" />
+                                                <DxGridDataColumn FieldName="@nameof(EmployeeModel.placeOfOrigin)" Caption="Nguyên quán" MinWidth="150" Visible="false"  />
+                                                <DxGridDataColumn FieldName="@nameof(EmployeeModel.placeOfResidence)" Caption="Hộ khẩu trường trú" MinWidth="150" Visible="false"  />
+                                                <DxGridDataColumn FieldName="@nameof(EmployeeModel.temporaryAddress)" Caption="Chỗ ở hiện nay" MinWidth="150" Visible="false"  />
+
                                                 <DxGridDataColumn FieldName="@nameof(EmployeeModel.dateTracking)" Caption="Ngày cập nhật" MinWidth="120" DisplayFormat="@GlobalContants.FORMAT_DATE_TIME" />
-                                                <DxGridDataColumn FieldName="@nameof(EmployeeModel.userSignName)" Caption="Người tạo" MinWidth="120" />
-                                                <DxGridDataColumn FieldName="@nameof(EmployeeModel.userSignName)" Caption="Người cập nhật" MinWidth="120" />
+                                                <DxGridDataColumn FieldName="@nameof(EmployeeModel.userSignName)" Caption="Người tạo" MinWidth="120" Visible="false" />
+                                                <DxGridDataColumn FieldName="@nameof(EmployeeModel.userSignName)" Caption="Người cập nhật" MinWidth="120" Visible="false" />
                                             </Columns>
                                             <TotalSummary>
                                                 <DxGridSummaryItem DisplayText="@GlobalContants.FORMAT_GRID_DISPLAYTEXT_COUNT" SummaryType="GridSummaryItemType.Count"

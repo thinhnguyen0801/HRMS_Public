@@ -291,6 +291,29 @@ namespace HNOne.Web.Controllers
         /// Mở rộng & thu gọn vùng tìm kiếm
         /// </summary>
         protected void ShowFilterHandler() => IsShowFilter = !IsShowFilter;
+        
+        /// <summary>
+        /// Chọn cột hiển thị
+        /// </summary>
+        protected void ColumnChooseHandler()
+        {
+            try
+            {
+                if (ActiveTabIndex == 0)
+                {
+                    if (GridEmployee == null) return;
+                    GridEmployee.ShowColumnChooser();
+                    return;
+                }
+                if (GridEmployeeOff == null) return;
+                GridEmployeeOff.ShowColumnChooser();
+            }
+            catch (Exception ex)
+            {
+                _logger!.LogError(ex, "ExportExcelHandler");
+                ShowError(ex.Message);
+            }
+        }
         #endregion
 
     }

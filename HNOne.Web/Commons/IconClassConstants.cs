@@ -26,5 +26,6 @@
         public const string ICON_SEARCH_MINUS = "fa-solid fa-magnifying-glass-minus h1-text-icon-primary";
         public const string ICON_FILTER_CLEAR = "fa-solid fa-filter-circle-xmark h1-text-icon-primary";
         public const string ICON_FILTER = "fa-solid fa-filter h1-text-icon-primary";
+        public const string ICON_GRID = "fa-solid fa-grip-vertical h1-text-icon-primary"; // <i class="fa-solid fa-grip-vertical"></i>
     }
 }
