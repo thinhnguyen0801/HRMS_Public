@@ -39,7 +39,8 @@
         PhuongThucThanhToan,
         DanhMucImport,
         LoaiLuong,
-        LoaiQuyetDinh
+        LoaiQuyetDinh,
+        LoaiTongHop
     }
 
     public enum EnumObjType
@@ -55,6 +56,7 @@
         SalaryExpenseAccountings, // hạch toán chi phí lương
         AdjustedAnnualLeaveRequests,
         DecisionDocuments, // chứng từ quyết định
+        RewardAllowanceRequests, // Khen thưởng - phụ cấp
 
         // danh mục bảng
         Branchs,

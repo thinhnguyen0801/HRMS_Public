@@ -384,9 +384,11 @@ namespace HNOne.API.Repositories
             {
                 var parameters = new DynamicParameters();
                 string strQuery = "select T0.*, T0.Id as SalaryCategoryId" +
-                    ",T2.BranchCode, T2.BranchName, T3.Name as SalaryCalculateMethodName" +
+                    ", T2.BranchCode, T2.BranchName, T3.Name as SalaryCalculateMethodName" +
+                    ", T1.Name as AllowanceTypeName" +
                     " from SalaryConfigurations as T0 with(nolock) " +
                     " inner join Branchs as T2 with(nolock) on T0.BranchId = T2.BranchId" +
+                    " inner join [dbo].[HRM_FN_GET_ENUM] ('LoaiTongHop', '', '') as T1 on T0.AllowanceType = T1.Code" +
                     " left join EnumCatagories as T3 with(nolock) on T0.SalaryCalculateMethod = T3.Code and T3.EnumType = 'CachTinhLuongPhuCap'" +
                     " where T0.IsDelete = '0'";
                 // thêm điều kiện
@@ -404,6 +406,11 @@ namespace HNOne.API.Repositories
                     request.branchIds = request.branchIds.Trim(',');
                     strQuery += " and T0.BranchId in ((select [Value] from string_split(@BranchIds, ',')))";
                     parameters.Add("@BranchIds", request.branchIds, DbType.String);
+                }
+                if (!string.IsNullOrEmpty(request.type))
+                {
+                    strQuery += " and T0.AllowanceType = @AllowanceType";
+                    parameters.Add("@AllowanceType", request.type, DbType.String);
                 }
                 var results = await connection.QueryAsync<SalaryConfigurationModel>(strQuery, param: parameters, commandTimeout: GlobalConstants.COMMAND_TIMEOUT, commandType: CommandType.Text);
                 return results;
@@ -1212,6 +1219,7 @@ namespace HNOne.API.Repositories
                 result.SalaryDefault = entity.SalaryDefault;
                 result.SalaryCalculateMethod = entity.SalaryCalculateMethod;
                 result.IsUseOfGradeLevel = entity.IsUseOfGradeLevel;
+                result.AllowanceType = entity.AllowanceType;
                 result.DateTracking = _dateTimeHelper.GetCurrentVietnamTime();
                 result.UpdateDate = _dateTimeHelper.GetCurrentVietnamTime();
                 result.UserSign2 = entity.UserSign2;
@@ -1246,6 +1254,7 @@ namespace HNOne.API.Repositories
                 }
                 entity.Id = Guid.NewGuid();
                 entity.IsAllowEditing = true;
+                entity.IsAllowInsert = true;
                 entity.RowOrder = 1;
                 entity.DateTracking = _dateTimeHelper.GetCurrentVietnamTime();
                 entity.CreateDate = _dateTimeHelper.GetCurrentVietnamTime();

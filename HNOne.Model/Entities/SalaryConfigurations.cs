@@ -41,5 +41,7 @@ namespace HNOne.Model.Entities
         [MaxLength(50)]
         public string? SalaryCalculateMethod { get; set; } // cách tính lương lấy ở enum
         public bool IsUseOfGradeLevel { get; set; } // có sử dụng ngạch bậc không?
+        [MaxLength(50)]
+        public string? AllowanceType { get; set; } // cố định theo tháng hay là phụ cấp & khen thưởng khác
     }
 }

@@ -32,6 +32,8 @@ namespace HNOne.Common
         public const string ENUM_BASIC_SALARY = "LCB";
         public const string ENUM_NEGOTIATED_SALARY = "LQD";
         public const string ENUM_ALLOWANCE_SALARY = "LPC";
+        public const string ENUM_ALLOWANCE_TYPE_CDTT = "CDTT"; // Cố định theo tháng
+        public const string ENUM_ALLOWANCE_TYPE_KTPC = "KTPC"; // Khen thưởng & Phụ cấp khác
         #endregion
     }
 }

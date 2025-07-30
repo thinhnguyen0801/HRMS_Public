@@ -31,7 +31,7 @@ namespace HNOne.Web.Controllers
         public List<ComboboxModel>? ListCboSalaryCatagory { get; set; } // cbo ds loại lương
         public List<ComboboxModel>? ListCboBranch { get; set; } // cbo ds chi nhánh
         public List<EnumCatagoryModel>? ListCboFormula { get; set; } // cbo ds công thức tính phụ cấp
-
+        public List<ComboboxModel>? ListCboAllowanceType { get; set; } // Loại phụ cấp
         // nút quyền
         public bool IsAllowPost { get; set; }
         public bool IsAllowDelete { get; set; }
@@ -76,7 +76,7 @@ namespace HNOne.Web.Controllers
         private async Task getSalaryConfig()
         {
             ListSalaryConfig = new List<SalaryConfigurationModel>();
-            ListSalaryConfig = await _masterDataService.GetSalaryConfigAsync(UserId, Token, BranchId, $"{BranchIds}", isShowToast: true);
+            ListSalaryConfig = await _masterDataService.GetSalaryConfigAsync(UserId, Token, BranchId, $"{BranchIds}", allowanceType: "", isShowToast: true);
         }
 
         private async Task buildComboboxAsync()
@@ -87,14 +87,17 @@ namespace HNOne.Web.Controllers
                 //var getTask2 = _masterDataService.GetSalaryCatagoryAsync(UserId, Token, "ACTIVE"); // ds loại lương chỉ lấy active
                 var getTask2 = _masterDataService.GetFunEnumAsync(UserId, Token, nameof(EnumCatagory.LoaiLuong)); // ds loại lương
                 var getTask3 = _masterDataService.GetEnumAsync(UserId, Token, nameof(EnumCatagory.CachTinhLuongPhuCap));
+                var getTask4 = _masterDataService.GetFunEnumAsync(UserId, Token, nameof(EnumCatagory.LoaiTongHop)); // ds loại phụ cấp
                 await Task.WhenAll(
                     getTask1,
                     getTask2,
-                    getTask3
+                    getTask3,
+                    getTask4
                 );
                 ListCboBranch = (await getTask1)?.Select(m => new ComboboxModel() { id = m.branchId, name = m.branchName })?.ToList();
                 ListCboSalaryCatagory = (await getTask2)?.Select(m => new ComboboxModel() { code = m.code, name = m.name })?.ToList();
                 ListCboFormula = await getTask3;
+                ListCboAllowanceType = (await getTask4)?.Select(m => new ComboboxModel() { code = m.code, name = m.name })?.ToList();
             }
             catch (Exception ex)
             {
@@ -113,21 +116,38 @@ namespace HNOne.Web.Controllers
             //}
             if (string.IsNullOrEmpty(EntityUpdate.salaryCategoryCode))
             {
-                errorMessage = String.Format(MessageConstants.MESSAGE_COMBOBOX_REQUIRE, "Mã loại lương");
+                errorMessage = string.Format(MessageConstants.MESSAGE_COMBOBOX_REQUIRE, "Mã loại lương");
                 fieldName = "salaryCategoryCode";
                 return;
             }
             if (string.IsNullOrEmpty(EntityUpdate.salaryCategoryName))
             {
-                errorMessage = String.Format(MessageConstants.MESSAGE_COMBOBOX_REQUIRE, "Tên loại lương");
-                fieldName = "salaryCategoryCode";
+                errorMessage = string.Format(MessageConstants.MESSAGE_STRING_REQUIRE, "Tên loại lương");
+                fieldName = "salaryCategoryName";
+                return;
+            }
+            // nếu chọn là phụ cấp thì vui lòng điền tiếp cách tính & loại phụ cấp
+            if (string.IsNullOrEmpty(EntityUpdate.allowanceType))
+            {
+                errorMessage = string.Format(MessageConstants.MESSAGE_COMBOBOX_REQUIRE, "Nhóm tổng hợp");
+                fieldName = "txtAllowanceType";
                 return;
             }
             if (EntityUpdate.branchId < 1)
             {
-                errorMessage = String.Format(MessageConstants.MESSAGE_COMBOBOX_REQUIRE, "Chi nhánh");
+                errorMessage = string.Format(MessageConstants.MESSAGE_COMBOBOX_REQUIRE, "Chi nhánh");
                 fieldName = "txtBranchId";
                 return;
+            }
+            if (EntityUpdate.isAllowance)
+            {
+                // nếu chọn là phụ cấp thì vui lòng điền tiếp cách tính & loại phụ cấp
+                if (string.IsNullOrEmpty(EntityUpdate.salaryCalculateMethod))
+                {
+                    errorMessage = string.Format(MessageConstants.MESSAGE_COMBOBOX_REQUIRE, "Cách tính lương phụ cấp");
+                    fieldName = "txtSalaryCalculateMethod";
+                    return;
+                }
             }
         }
 
@@ -200,6 +220,8 @@ namespace HNOne.Web.Controllers
                     EntityUpdate.salaryDefault = pItemDetails!.salaryDefault;
                     EntityUpdate.salaryCalculateMethod = pItemDetails!.salaryCalculateMethod;
                     EntityUpdate.isUseOfGradeLevel = pItemDetails!.isUseOfGradeLevel;
+                    EntityUpdate.allowanceType = pItemDetails!.allowanceType;
+                    EntityUpdate.allowanceTypeName = pItemDetails!.allowanceTypeName;
                     IsCreate = false;
                 }
                 IsShowDialog = true;

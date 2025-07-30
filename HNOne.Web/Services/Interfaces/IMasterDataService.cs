@@ -3,6 +3,7 @@ using HNOne.Model;
 using HNOne.Model.Models;
 using Microsoft.JSInterop;
 using HNOne.Web.Commons;
+using HNOne.Common;
 
 namespace HNOne.Web.Services.Interfaces
 {
@@ -26,7 +27,7 @@ namespace HNOne.Web.Services.Interfaces
         Task<bool> UpdateReasonCategorieAsync(string processKey, int userId, string token, string json);
         Task<List<SalaryCategoryModel>?> GetSalaryCatagoryAsync(int userId, string token, string condition = "", bool isShowToast = false);
         Task<bool> UpdateSalaryCategoryAsync(string processKey, int userId, string token, string json);
-        Task<List<SalaryConfigurationModel>?> GetSalaryConfigAsync(int userId, string token, int branchId, string branchIds = "", string opt = "", bool isShowToast = false);
+        Task<List<SalaryConfigurationModel>?> GetSalaryConfigAsync(int userId, string token, int branchId, string branchIds = "", string opt = "", string allowanceType = CommonConstants.ENUM_ALLOWANCE_TYPE_CDTT, bool isShowToast = false);
         Task<bool> UpdateSalaryConfigAsync(string processKey, int userId, string token, string json);
         Task<string?> GetDocumentNo(int userId, string token, int branchId, string? type, string? opt = "", string? opt1 = "", string? opt2 = "");
         Task<List<ComboboxModel>?> GetLocationAsync(int userId, string token, string? type, string? opt = "", string? opt1 = "", string? opt2 = "");

@@ -27,6 +27,8 @@ namespace HNOne.Model.Models
         public decimal salaryDefault { get; set; } // Tiền lương mặt định
         public string? salaryCalculateMethod { get; set; } // cách tính lương lấy ở enum
         public string? SalaryCalculateMethodName { get; set; } // cách tính lương lấy ở enum
+        public string? allowanceType { get; set; } // Loại phụ cấp
+        public string? allowanceTypeName { get; set; } // tên loại phụ cấp
         public bool isUseOfGradeLevel { get; set; } // có sử dụng ngạch bậc không?
         public decimal amount { get; set; } // số tiền
         public int contractId { get; set; } // ID hợp đồng

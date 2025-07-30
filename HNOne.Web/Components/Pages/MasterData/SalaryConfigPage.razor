@@ -36,6 +36,8 @@
                             PagerVisibleNumericButtonCount="10"
                             TextWrapEnabled="false"
                             FocusedRowEnabled="true"
+                            AutoExpandAllGroupRows="true"
+                            KeyboardNavigationEnabled="true"
                             SelectionMode="@GridSelectionMode.Multiple"
                             SelectAllCheckboxMode="GridSelectAllCheckboxMode.AllPages"
                             @bind-SelectedDataItems="@SelectedSalaries"
@@ -43,6 +45,7 @@
                             CssClass="h-full">
                         <Columns>
                             <DxGridSelectionColumn Width="45px" />
+                            <DxGridDataColumn FieldName="@nameof(SalaryConfigurationModel.allowanceTypeName)" Caption="Nhóm" MinWidth="150" GroupIndex="0" />
                             <DxGridDataColumn FieldName="@nameof(SalaryConfigurationModel.salaryCategoryName)" Caption="Tên loại lương" MinWidth="190">
                                 <CellDisplayTemplate>
                                     @{
@@ -74,7 +77,7 @@
                             <DxGridDataColumn FieldName="@nameof(SalaryConfigurationModel.isPrintContract)" Caption="In hợp đồng" MinWidth="95" />
                             <DxGridDataColumn FieldName="@nameof(SalaryConfigurationModel.salaryDefault)" Caption="Lương mặc định" MinWidth="110" DisplayFormat="@GlobalContants.FORMAT_CURRENCY" />
                             <DxGridDataColumn FieldName="@nameof(SalaryConfigurationModel.SalaryCalculateMethodName)" Caption="Cách tính lương" MinWidth="110" />
-                            <DxGridDataColumn FieldName="@nameof(SalaryConfigurationModel.isUseOfGradeLevel)" Caption="Dùng ngạch bậc?" MinWidth="110" />
+                            @* <DxGridDataColumn FieldName="@nameof(SalaryConfigurationModel.isUseOfGradeLevel)" Caption="Dùng ngạch bậc?" MinWidth="110" /> *@
                             <DxGridDataColumn FieldName="@nameof(SalaryConfigurationModel.dateTracking)" Caption="Ngày cập nhật" MinWidth="120" DisplayFormat="@GlobalContants.FORMAT_DATE_TIME" />
                             <DxGridDataColumn FieldName="@nameof(SalaryConfigurationModel.userSignName)" Caption="Người tạo" MinWidth="120" />
                             <DxGridDataColumn FieldName="@nameof(SalaryConfigurationModel.userSign2Name)" Caption="Người cập nhật" MinWidth="120" />
@@ -131,6 +134,25 @@
                     <div class="row row-gap-2">
                         <div class="col-md-8 col-sm-12">
                             <DxTextBox @bind-Text="@EntityUpdate.salaryCategoryName" CssClass="w1FontSize" Id="salaryCategoryName"></DxTextBox>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-sm-12">
+            <div class="d-flex ">
+                <W1Label Value="Nhóm tổng hợp" Styles="width: 110px" IsRequired="true" />
+                <div style="width: calc(100% - 110px)">
+                    <div class="row row-gap-2">
+                        <div class="col-md-8 col-sm-12">
+                            <DxComboBox Data="@ListCboAllowanceType"
+                                        @bind-Value="@EntityUpdate.allowanceType"
+                                        FilteringMode="DataGridFilteringMode.Contains"
+                                        TextFieldName="@nameof(ComboboxModel.name)"
+                                        ValueFieldName="@nameof(ComboboxModel.code)"
+                                        Id="txtAllowanceType"
+                                        CssClass="w1FontSize">
+                            </DxComboBox>
                         </div>
                     </div>
                 </div>
