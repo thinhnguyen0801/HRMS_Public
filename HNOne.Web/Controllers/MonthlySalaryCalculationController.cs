@@ -18,6 +18,7 @@ namespace HNOne.Web.Controllers
         [Inject] IPersonnelService _personnelService { get; init; }
         [Inject] IMasterDataService _masterDataService { get; init; }
         [Inject] ISalaryService _salaryService { get; init; }
+        [Inject] IWorkforceService _workforceService { get; init; }
         public W1Confirm confirm { get; set; }
         const string STRING_KEY_EVENT_POST_CALC = "PAYROLL_CONTROLLER_POST_CALC";
         const string STRING_KEY_EVENT_PUT = "PAYROLL_CONTROLLER_PUT";
@@ -111,13 +112,6 @@ namespace HNOne.Web.Controllers
             SearchUpdate.month = DateTime.Now.Month;
             MaxDaysInMonth = DateTime.DaysInMonth(SearchUpdate.year, SearchUpdate.month);
             SearchUpdate.branchId = BranchId;
-            int defaultYear = 2024;
-            ListCboYear = new List<ComboboxModel>();
-            for (int i = defaultYear; i < DateTime.Now.AddYears(2).Year; i++)
-            {
-                ListCboYear.Add(new ComboboxModel() { id = i, name = $"Năm {i}" });
-            }
-
             ListCboMonth = new List<ComboboxModel>();
             for (int i = 1; i < 13; i++)
             {
@@ -129,10 +123,17 @@ namespace HNOne.Web.Controllers
         {
             try
             {
+                RequestModel request = new RequestModel();
+                request.process = ProcessConstants.GET_WORKFORCE_MASTER_DATA;
+                request.userId = UserId;
+                request.branchId = BranchId;
+                request.token = Token;
+                request.type = ProcessConstants.GET_COMBO_ANNUAL_LEAVE_YEAR;
                 var getTask1 = _masterDataService.GetDepartmentAsync(UserId, Token, BranchId, opt: CommonConstants.ENUM_ACTIVE); // ds phòng ban
                 var getTask2 = _masterDataService.GetEnumAsync(UserId, Token, nameof(EnumCatagory.TrangThaiPhatSinhCong)); // ds trạng thái cho phép phát sinh công
                 var getTask3 = _masterDataService.GetEnumAsync(UserId, Token, nameof(EnumCatagory.TrangThaiNhanVien)); // ds trạng thái
                 var getTask4 = _masterDataService.GetBranchAsync(UserId, Token, BranchId, $"{BranchIds}", supperAdmin: IsAdmin ? "Y" : "N");
+                var getTask5 = _workforceService.GetMasterDataAsync<ComboboxModel>(request, isShowToast: false);
                 await Task.WhenAll(
                     getTask1,
                     getTask2,
@@ -143,7 +144,7 @@ namespace HNOne.Web.Controllers
                 ListCboDepartment = (await getTask1)?.Select(m => new ComboboxModel() { id = m.id, code = m.code, name = m.name })?.ToList();
                 ListCboStatus = (await getTask3)?.Where(m => m.rowOrder != 0).Select(m => new ComboboxModel() { code = m.code, name = m.name })?.ToList();
                 ListCboBranch = (await getTask4)?.Select(m => new ComboboxModel() { id = m.branchId, name = m.branchName })?.ToList();
-
+                ListCboYear = await getTask5;
                 // gán dữ liệu mặc định
                 string[]? statusIds = $"{(await getTask2)?.FirstOrDefault()?.value}".Split(",");
                 if (!statusIds.IsNullOrEmpty()

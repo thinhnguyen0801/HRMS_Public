@@ -123,7 +123,7 @@ namespace HNOne.Web.Controllers
                 request.token = Token;
                 request.type = ProcessConstants.GET_COMBO_ANNUAL_LEAVE_YEAR;
                 var getTask4 = _masterDataService.GetBranchAsync(UserId, Token, BranchId, $"{BranchIds}", supperAdmin: IsAdmin ? "Y" : "N");
-                var getTask3 = _workforceService.GetMasterDataAsync<ComboboxModel>(request, isShowToast: true);
+                var getTask3 = _workforceService.GetMasterDataAsync<ComboboxModel>(request, isShowToast: false);
                 await Task.WhenAll(
                     getTask3,
                     getTask4

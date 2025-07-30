@@ -157,7 +157,7 @@ namespace HNOne.Web.Controllers
                 request.token = Token;
                 request.type = ProcessConstants.GET_COMBO_ANNUAL_LEAVE_YEAR;
                 var getTask1 = _masterDataService.GetFunEnumAsync(UserId, Token, nameof(EnumCatagory.TrangThaiHopDong)); // ds trạng thái
-                var getTask3 = _workforceService.GetMasterDataAsync<ComboboxModel>(request, isShowToast: true);
+                var getTask3 = _workforceService.GetMasterDataAsync<ComboboxModel>(request, isShowToast: false);
                 await Task.WhenAll(
                     getTask1,
                     getTask3

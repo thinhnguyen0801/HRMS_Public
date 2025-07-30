@@ -101,7 +101,7 @@ namespace HNOne.Web.Controllers
                 var getTask2 = _masterDataService.GetEnumAsync(UserId, Token, nameof(EnumCatagory.TrangThaiPhatSinhCong)); // ds trạng thái cho phép phát sinh công
                 var getTask3 = _masterDataService.GetEnumAsync(UserId, Token, nameof(EnumCatagory.TrangThaiNhanVien)); // ds trạng thái
                 var getTask4 = _masterDataService.GetBranchAsync(UserId, Token, BranchId, $"{BranchIds}", supperAdmin: IsAdmin ? "Y" : "N");
-                var getTask5 = _workforceService.GetMasterDataAsync<ComboboxModel>(request, isShowToast: true);
+                var getTask5 = _workforceService.GetMasterDataAsync<ComboboxModel>(request, isShowToast: false);
                 await Task.WhenAll(
                     getTask1,
                     getTask2,
