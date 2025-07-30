@@ -13,5 +13,8 @@
         public string? zipCode { get; set; } // mã tỉnh cấp
         public string? address { get; set; } // Nơi đăng kí khám chửa bệnh
         public string? addressNo { get; set; } // mã nơi đăng kí
+        public DateTime? returnDate { get; set; } // Ngày hết hạn
+        public string? filePath { get; set; } //
+        public string? fileName { get; set; } //
     }
 }

@@ -52,7 +52,7 @@ namespace HNOne.API.Repositories
                 parameters.Add("@StatusIds", $"{request.opt}", DbType.String);
                 parameters.Add("@BranchIds", $"{request.branchIds}", DbType.String);
                 parameters.Add("@Type", $"{request.type}", DbType.String);
-                parameters.Add("@IsOff", $"{request.opt1}", DbType.String);
+                parameters.Add("@TabIndex", $"{request.opt1}", DbType.String);
                 var lstResult = await connection.QueryAsync<EmployeeModel>(StoreConstants.STORE_H1_EMPLOYEE_SELECT, param: parameters, commandTimeout: GlobalConstants.COMMAND_TIMEOUT, commandType: CommandType.StoredProcedure);
                 return lstResult;
             }; 
@@ -878,6 +878,9 @@ namespace HNOne.API.Repositories
                 data.ZipCode = entity.ZipCode;
                 data.Address = entity.Address;
                 data.AddressNo = entity.AddressNo;
+                data.FilePath = entity.FilePath;
+                data.FileName = entity.FileName;
+                data.ReturnDate = entity.ReturnDate;
                 data.DateTracking = dateTimeNow;
                 data.UpdateDate = dateTimeNow;
                 data.UserSign2 = entity.UserSign2;

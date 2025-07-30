@@ -957,7 +957,7 @@ namespace HNOne.Web.Services
         /// <param name="listImages"></param>
         /// <param name="subFolder"></param>
         /// <returns></returns>
-        public async Task<List<FileUploadModel>?> UploadImagesAsync(List<FileUploadModel> listImages, string subFolder)
+        public async Task<List<FileUploadModel>?> UploadImagesAsync(List<FileUploadModel> listImages, string subFolder, string enpoint = EnpointConstants.MASTERDATA_UPLOAD_IMAGE)
         {
             bool isSuccess = false;
             try
@@ -977,7 +977,7 @@ namespace HNOne.Web.Services
                         }
                     }
                 }
-                HttpResponseMessage httpResponse = await _httpClient.PostAsync($"api/{EnpointConstants.MASTERDATA_UPLOAD_IMAGE}?subFolder={subFolder}", content);
+                HttpResponseMessage httpResponse = await _httpClient.PostAsync($"api/{enpoint}?subFolder={subFolder}", content);
                 var checkContent = ValidateJsonContent(httpResponse.Content);
                 if (httpResponse.StatusCode == System.Net.HttpStatusCode.Unauthorized)
                 {

@@ -1167,19 +1167,27 @@
                                                     </DxToolbar>
                                                 </ToolbarTemplate>
                                                 <Columns>
-                                                    <DxGridDataColumn FieldName="@nameof(InsuranceModel.insuranceNo)" Caption="Sổ bảo hiểm" MinWidth="140">
+                                                    <DxGridDataColumn FieldName="@nameof(InsuranceModel.insuranceNo)" Caption="Sổ bảo hiểm" MinWidth="120" Width="120px">
                                                         <CellDisplayTemplate>
                                                             @{
                                                                 <a @onclick="@(() => OpenPopupHandler(nameof(IsShowPopupInsurance), "", EnumType.Update, (context.DataItem as InsuranceModel)))">@context.Value</a>
                                                             }
                                                         </CellDisplayTemplate>
                                                     </DxGridDataColumn>
-                                                    <DxGridDataColumn FieldName="@nameof(InsuranceModel.insuranceTypeName)" Caption="Loại bảo hiểm" MinWidth="110" />
-                                                    <DxGridDataColumn FieldName="@nameof(InsuranceModel.addressNo)" Caption="Mã đăng ký" MinWidth="110" />
-                                                    <DxGridDataColumn FieldName="@nameof(InsuranceModel.address)" Caption="Nơi đăng ký KCB" MinWidth="170" />
-                                                    <DxGridDataColumn FieldName="@nameof(InsuranceModel.startDate)" Caption="Ngày cấp" MinWidth="110" DisplayFormat="@GlobalContants.FORMAT_DATE" />
-                                                    <DxGridDataColumn FieldName="@nameof(InsuranceModel.endDate)" Caption="Ngày hết hạn" MinWidth="110" DisplayFormat="@GlobalContants.FORMAT_DATE" />
-                                                    <DxGridDataColumn FieldName="@nameof(InsuranceModel.zipCode)" Caption="Mã tỉnh cấp" MinWidth="110" />
+                                                    <DxGridDataColumn FieldName="@nameof(InsuranceModel.insuranceTypeName)" Caption="Loại bảo hiểm" MinWidth="110" Width="120px" />
+                                                    <DxGridDataColumn FieldName="@nameof(InsuranceModel.addressNo)" Caption="Mã đăng ký" MinWidth="110" Width="120px" />
+                                                    <DxGridDataColumn FieldName="@nameof(InsuranceModel.address)" Caption="Nơi đăng ký KCB" MinWidth="170" Width="170px"/>
+                                                    <DxGridDataColumn FieldName="@nameof(InsuranceModel.startDate)" Caption="Ngày cấp" MinWidth="110" Width="110px" DisplayFormat="@GlobalContants.FORMAT_DATE" />
+                                                    <DxGridDataColumn FieldName="@nameof(InsuranceModel.endDate)" Caption="Ngày hết hạn" MinWidth="110" Width="110px" DisplayFormat="@GlobalContants.FORMAT_DATE" />
+                                                    <DxGridDataColumn FieldName="@nameof(InsuranceModel.zipCode)" Caption="Mã tỉnh cấp" MinWidth="110" Width="120px" />
+                                                    <DxGridDataColumn FieldName="@nameof(InsuranceModel.returnDate)" Caption="Ngày trả sổ" MinWidth="110" Width="110px" DisplayFormat="@GlobalContants.FORMAT_DATE" />
+                                                    <DxGridDataColumn FieldName="@nameof(InsuranceModel.fileName)" Caption="Đính kèm" MinWidth="140">
+                                                        <CellDisplayTemplate>
+                                                            @{
+                                                                <a @onclick="@(() => DownLoadFileHandler((context.DataItem as InsuranceModel)!))">@context.Value</a>
+                                                            }
+                                                        </CellDisplayTemplate>
+                                                    </DxGridDataColumn>
                                                 </Columns>
                                             </DxGrid>
                                         </div>
@@ -1400,7 +1408,7 @@
                                                     </DxToolbar>
                                                 </ToolbarTemplate>
                                                 <Columns>
-                                                    <DxGridDataColumn FieldName="@nameof(AuditLogModel.timeStamp)" Caption="Ngày giờ" Width="130px" MinWidth="120" DisplayFormat="@GlobalContants.FORMAT_DATE"  />
+                                                    <DxGridDataColumn FieldName="@nameof(AuditLogModel.timeStamp)" Caption="Ngày giờ" Width="130px" MinWidth="120" DisplayFormat="@GlobalContants.FORMAT_DATE_TIME"  />
                                                     <DxGridDataColumn FieldName="@nameof(AuditLogModel.action)" Caption="Loại thao tác"  MinWidth="150" Width="150px"  />
                                                     <DxGridDataColumn FieldName="@nameof(AuditLogModel.userName)" Caption="Tài khoản thao tác"  MinWidth="150" Width="150px"  />
                                                     <DxGridDataColumn FieldName="@nameof(AuditLogModel.employeeName)" Caption="Nhân viên thao tác"  MinWidth="170" Width="170px"  />
@@ -1493,6 +1501,29 @@
                         <W1Label Value="Mã nơi đăng ký" Styles="width: 110px" />
                         <div style="width: calc(100% - 110px)">
                             <DxTextBox @bind-Text="@InsuranceUpdate.addressNo" CssClass="w1FontSize"></DxTextBox>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-sm-12">
+                    <div class="d-flex ">
+                        <W1Label Value="Ngày trả sổ" Styles="width: 110px" />
+                        <div style="width: calc(100% - 110px)">
+                            <DxDateEdit @bind-Date="@InsuranceUpdate.returnDate"
+                                        CssClass="w1FontSize" Id="returnDate"
+                                        ClearButtonDisplayMode="@DataEditorClearButtonDisplayMode.Auto"
+                                        Mask="@GlobalContants.FORMAT_DATE" Format="@GlobalContants.FORMAT_DATE"
+                                        DisplayFormat="@GlobalContants.FORMAT_DATE" />
+                        </div>
+                    </div>
+                </div>
+                <div class="col-sm-12">
+                    <div class="d-flex ">
+                        <W1Label Value="Đính kèm" Styles="width: 110px" />
+                        <div style="width: calc(100% - 110px)">
+                            <InputFile id="ref-upload-insurance" accept="@AllowedExtensions" OnChange="@OnLoadFileInsuranceHandler" />
+                            <div class="mt-1">
+                                <DxTextBox @bind-Text="@InsuranceUpdate.fileName" ReadOnly="true" CssClass="w1FontSize"></DxTextBox>
+                            </div>
                         </div>
                     </div>
                 </div>

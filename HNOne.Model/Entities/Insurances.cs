@@ -24,5 +24,10 @@ namespace HNOne.Model.Entities
         public string? Address { get; set; } // Nơi đăng kí khám chửa bệnh
         [MaxLength(250)]
         public string? AddressNo { get; set; } // mã nơi đăng kí
+        public DateTime? ReturnDate { get; set; } // Ngày trả số bảo hiểm
+        [MaxLength(500)]
+        public string? FileName { get; set; } // tên file
+        [MaxLength(500)]
+        public string? FilePath { get; set; } // file path
     }
 }

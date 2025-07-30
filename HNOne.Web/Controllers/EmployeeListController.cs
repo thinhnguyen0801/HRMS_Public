@@ -121,7 +121,6 @@ namespace HNOne.Web.Controllers
             request.departmentIds = ListCboDepartmentSelected.IsNullOrEmpty() ? DepartmentIds : string.Join(",", ListCboDepartmentSelected!.Cast<ComboboxModel>().Select(m => m.id));
             request.type = CommonConstants.ENUM_LIST;
             request.opt1 = ActiveTabIndex == 0 ? "N" : "Y"; // lấy nhân viên nghỉ việc
-            ListEmployee = new List<EmployeeModel>();
             var lstEmp = await _personnelService.GetEmployeeAsync(request);
             if(IsAllowPut)
             {
@@ -137,9 +136,11 @@ namespace HNOne.Web.Controllers
             }
             if (ActiveTabIndex == 0)
             {
+                ListEmployee = new List<EmployeeModel>();
                 ListEmployee = lstEmp;
                 return;
             }
+            ListEmployeeOff = new List<EmployeeModel>();
             ListEmployeeOff = lstEmp;
             
         }

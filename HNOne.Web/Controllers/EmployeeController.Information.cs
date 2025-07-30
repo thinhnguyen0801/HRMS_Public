@@ -3,6 +3,7 @@ using HNOne.Common;
 using HNOne.Model;
 using HNOne.Model.Models;
 using HNOne.Web.Commons;
+using Microsoft.AspNetCore.Components.Forms;
 using Microsoft.JSInterop;
 using Newtonsoft.Json;
 
@@ -44,6 +45,7 @@ namespace HNOne.Web.Controllers
 
         public List<EnumCatagoryModel>? ListCboInsuranceType { get; set; } // loại bảo hiểm
         public List<EnumCatagoryModel>? ListCboRank { get; set; } // cbo xếp loại
+        private List<FileUploadModel>? lstFileTemp { get; set; } // danh sách file tạm
         #endregion
 
         #region Private Functions
@@ -255,6 +257,23 @@ namespace HNOne.Web.Controllers
                 bool isConfirm = await confirm.SetConfirm(MessageConstants.MESSAGE_TITLE, errorMessage);
                 if (!isConfirm) return;
                 await ShowLoading();
+                // lưu hình ảnh
+                if (!lstFileTemp.IsNullOrEmpty())
+                {
+                    var lstAllowedExtensions = AllowedExtensions.Split(",").Select(m => m?.Trim());
+                    var lstFileExtension = lstFileTemp!.Select(m => Path.GetExtension(m.fileName));
+                    var checkExist = lstFileExtension.Any(m => !lstAllowedExtensions.Contains(m));
+                    if (checkExist)
+                    {
+                        _toastService.ShowWarning("Bạn chỉ được phép đính kèm tệp dạng hình ảnh, tài liệu");
+                        return;
+                    }
+                    var lstImages = await _masterDataService.UploadImagesAsync(lstFileTemp!, "InsuranceController", enpoint: EnpointConstants.MASTERDATA_UPLOAD_FILE);
+                    if (lstImages.IsNullOrEmpty()) return;
+                    InsuranceUpdate.filePath = lstImages![0].filePath;
+                    InsuranceUpdate.fileName = lstImages![0].fileName;
+                    lstFileTemp = new List<FileUploadModel>();
+                }
                 string processKey = IsCreatePopup ? ProcessConstants.POST_INSURANCE : ProcessConstants.PUT_INSURANCE;
                 InsuranceUpdate.insuranceTypeName = ListCboInsuranceType?.FirstOrDefault(m => m.code == InsuranceUpdate.insuranceType)?.name;
                 InsuranceUpdate.employeeId = EmployeeUpdate.id;
@@ -411,6 +430,90 @@ namespace HNOne.Web.Controllers
             finally
             {
                 await Task.Delay(50);
+                await ShowLoading(false);
+                await InvokeAsync(StateHasChanged);
+            }
+        }
+        
+        /// <summary>
+        /// load dữ liệu file để lưu hợp đồng
+        /// </summary>
+        /// <param name="args"></param>
+        /// <returns></returns>
+        protected async Task OnLoadFileInsuranceHandler(InputFileChangeEventArgs args)
+        {
+            try
+            {
+                if (args.FileCount <= 0) return;
+                var lstAllowedExtensions = AllowedExtensions.Split(",").Select(m => m?.Trim());
+                var lstFileExtension = args.GetMultipleFiles().Select(m => Path.GetExtension(m.Name));
+                var checkExist = lstFileExtension.Any(m => !lstAllowedExtensions.Contains(m));
+                if (checkExist)
+                {
+                    _toastService.ShowWarning("Bạn chỉ được phép đính kèm tệp dạng hình ảnh, tài liệu");
+                    return;
+                }
+                await ShowLoading();
+                lstFileTemp ??= new List<FileUploadModel>();
+                var rootFolder = Path.Combine(_webHostEnvironment!.WebRootPath, "Upload", "Temps");
+                //tạo thư mục
+                if (!Directory.Exists(rootFolder)) Directory.CreateDirectory(rootFolder);
+                string strFileFullName = string.Empty;
+                var file = args.GetMultipleFiles().First();
+                string fileNameNew = $"{Guid.NewGuid()}---{file.Name}";
+                strFileFullName = Path.Combine(rootFolder, fileNameNew);
+                await using FileStream fs = new(strFileFullName, FileMode.Create);
+                await file.OpenReadStream(long.MaxValue).CopyToAsync(fs);
+                await fs.FlushAsync();
+                await fs.DisposeAsync();
+                FileUploadModel itemFile = new FileUploadModel();
+                itemFile.fileName = fileNameNew;
+                itemFile.filePath = strFileFullName;
+                itemFile.isDelete = false;
+                // cập nhật nó là true để khỏi upload -> nhưng phải remove temp. ví dụ họ chọn mà không lưu
+                // lấy file chọn mới nhất. xóa mấy cái chọn củ đi
+                foreach (var item in lstFileTemp)
+                {
+                    item.isDelete = true;
+                }
+                lstFileTemp.Add(itemFile);
+                InsuranceUpdate.fileName = file.Name;
+            }
+            catch (Exception ex)
+            {
+                _logger!.LogError(ex, "OnLoadFileInsuranceHandler");
+                _toastService!.ShowError(ex.Message);
+            }
+            finally
+            {
+                await Task.Delay(75);
+                await ShowLoading(false);
+                await InvokeAsync(StateHasChanged);
+            }
+            
+        }
+
+        /// <summary>
+        /// download file đính kèm
+        /// </summary>
+        /// <param name="pItemDetails"></param>
+        /// <returns></returns>
+        protected async Task DownLoadFileHandler(InsuranceModel pItemDetails)
+        {
+            try
+            {
+                if (string.IsNullOrEmpty(pItemDetails.fileName)) return;
+                string apiUrl = _configuration.GetSection("appSettings:ImageUrl").Value + "";
+                var fileViewUrl = $"{apiUrl}InsuranceController/{pItemDetails.fileName}";
+                await _jsRuntime.InvokeVoidAsync("open", fileViewUrl, "_blank");
+            }
+            catch (Exception ex)
+            {
+                _logger!.LogError(ex, "OnLoadFileInsuranceHandler");
+                _toastService!.ShowError(ex.Message);
+            }
+            finally
+            {
                 await ShowLoading(false);
                 await InvokeAsync(StateHasChanged);
             }

@@ -379,6 +379,54 @@ namespace HNOne.API.Controllers
             }
         }
 
+        /// <summary>
+        /// Upload file đính kèm
+        /// </summary>
+        /// <param name="files"></param>
+        /// <param name="subFolder"></param>
+        /// <returns></returns>
+        [HttpPost]
+        [Route("upload-files")]
+        public async Task<IActionResult> UploadFiles([FromForm] List<IFormFile> files, string subFolder)
+        {
+            try
+            {
+                if (files == null || !files.Any())
+                {
+                    return StatusCode(StatusCodes.Status400BadRequest, new
+                    {
+                        StatusCode = StatusCodes.Status400BadRequest,
+                        Message = "Không có dữ liệu file đính kèm"
+                    });
+                }
+                var result = new List<FileUploadModel>();
+                string fileName = string.Empty;
+                string path = $"{this._webHostEnvironment.WebRootPath}\\{subFolder}";
+                if (!Directory.Exists(path)) Directory.CreateDirectory(path);
+                foreach (var file in files)
+                {
+                    fileName = file.FileName; // trên kia mã hóa
+                    string fullPath = Path.Combine(path, fileName);
+                    using (var fileStream = new FileStream(fullPath, FileMode.Create))
+                    {
+                        await file.CopyToAsync(fileStream);
+                        result.Add(new FileUploadModel() { fileName = fileName, filePath = fullPath });
+                    }
+                }
+                return Ok(result);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, $"UploadFile: {ex.Message}");
+                return StatusCode(StatusCodes.Status400BadRequest, new
+                {
+                    StatusCode = StatusCodes.Status400BadRequest,
+                    ex.Message
+                });
+
+            }
+        }
+
         [HttpPost]
         [Route("export-data")]
         public async Task<IActionResult> ExportData([FromBody] RequestModel request)

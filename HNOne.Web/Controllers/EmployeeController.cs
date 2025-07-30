@@ -30,13 +30,12 @@ namespace HNOne.Web.Controllers
         [Inject] IConfiguration _configuration { get; init; }
         public W1Confirm confirm { get; set; }
 
+        public string AllowedExtensions { get; set; } = ".png, .jpg, .jpeg, .docx, .xlsx, .pdf, .zip, .rar, .7z";
         #region Properties
         public string? pActionType { get; set; } = nameof(EnumType.Add);
         private int pDocEntry { get; set; } = 0;
         public int ActiveTabIndex { get; set; } = 0;
         public bool firstRender = true;
-        public string AddressStr = "{0}, {1}, {2}, {3}, {4}";
-
         public EmployeeModel EmployeeUpdate { get; set; } = new EmployeeModel();
         public List<ComboboxModel>? ListCboBranch { get; set; } // cbo ds chi nhánh
         public List<ComboboxModel>? ListCboWorkingBranch { get; set; } // cbo ds chi nhánh làm việc
@@ -60,14 +59,11 @@ namespace HNOne.Web.Controllers
         public List<ComboboxModel>? ListCboWard2 { get; set; } // cbo ds phường xã 
         public List<EnumCatagoryModel>? ListCboShift { get; set; } // cbo ds ca làm việc
 
-
         private string? pPopupType { get; set; } = string.Empty; // mở popup nào
         public bool IsShowDialogEmpSearch { get; set; }
         public string? StatusIds { get; set; } // Tình trạng nào
         public object? EmployeeSelected { get; set; } // Nhân viên được chọn
-
         private List<FileUploadModel>? lstImageTemp { get; set; } // danh sách ảnh tạm
-        //public bool IsReadonlyControl { get; set; } = false;
         #endregion
 
         protected override async Task OnAfterRenderAsync(bool firstRender)
@@ -409,6 +405,9 @@ namespace HNOne.Web.Controllers
                             InsuranceUpdate.zipCode = insurance.zipCode;
                             InsuranceUpdate.address = insurance.address;
                             InsuranceUpdate.addressNo = insurance.addressNo;
+                            InsuranceUpdate.returnDate = insurance.returnDate;
+                            InsuranceUpdate.filePath = insurance.filePath;
+                            InsuranceUpdate.fileName = insurance.fileName;
                             IsCreatePopup = false;
                         }
                         IsShowPopupInsurance = true;
@@ -585,6 +584,7 @@ namespace HNOne.Web.Controllers
                     var lstImages = await _masterDataService!.UploadImagesAsync(lstImageTemp!, nameof(EmployeeController));
                     if (lstImages.IsNullOrEmpty()) return;
                     EmployeeUpdate.imageUrl = lstImages![0].fileName;
+                    lstImageTemp = new List<FileUploadModel>();
                 }
                 string processKey = pActionType == nameof(EnumType.Add) ? ProcessConstants.POST_EMPLOYEE : ProcessConstants.PUT_EMPLOYEE;
                 if (!string.IsNullOrEmpty(EmployeeUpdate.provinceCode))
