@@ -22,7 +22,8 @@ namespace HNOne.Model.Models
         public int branchId { get; set; }
         public string? branchCode { get; set; } //  chi nhánh
         public string? branchName { get; set; } //  chi nhánh
-        public string? remark { get; set; } // lý do
+        public string? reasonId { get; set; } // lý do
+        public string? reasonName { get; set; } // lý do
         public DateTime? effectiveDate { get; set; } // ngày hiệu lực
         public string? noteForAll { get; set; }
         public string? link { get; set; }

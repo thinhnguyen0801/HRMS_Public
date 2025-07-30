@@ -36,6 +36,7 @@ namespace HNOne.Web.Controllers
 
         public DecisionDocumentModel RequestDocument { get; set; } = new DecisionDocumentModel();
         public List<EnumCatagoryModel>? ListCboStatus { get; set; } // cbo ds tình trạng
+        public List<ComboboxModel>? ListCboReason { get; set; } // cbo ds lý do
         public List<EnumCatagoryModel>? ListCboDecisionType { get; set; } // cbo ds loại quyết định
         public List<ComboboxModel>? ListCboBranch { get; set; } // cbo ds chi nhánh
         public List<ComboboxModel>? ListCboDepartment { get; set; } // cbo ds phòng ban
@@ -160,6 +161,7 @@ namespace HNOne.Web.Controllers
                 request.process = ProcessConstants.GET_WORKING_BRANCH;
                 var getTask1 = _masterDataService.GetDepartmentAsync(UserId, Token, BranchId, opt: CommonConstants.ENUM_ACTIVE); // ds phòng ban
                 var getTask2 = _masterDataService.GetPositionAsync(UserId, Token, BranchId, opt: CommonConstants.ENUM_ACTIVE); // ds chức vụ
+                var getTask3 = _masterDataService.GetReasonCategoryAsync(UserId, Token, branchId: BranchId, reasonType: GlobalContants.ENUM_REASON_CTQD, opt: CommonConstants.ENUM_ACTIVE); // ds lý do
                 var getTask11 = _masterDataService.GetBranchAsync(1, "", opt: CommonConstants.ENUM_PAGE_LOGIN); // danh sách chi nhánh
                 var getTask13 = _masterDataService.GetFunEnumAsync(UserId, Token, nameof(EnumCatagory.LoaiQuyetDinh)); // ds loại quyết định
                 var getTask5 = _masterDataService.GetFunEnumAsync(UserId, Token, nameof(EnumCatagory.TrangThaiHopDong)); // ds trạng thái
@@ -179,6 +181,7 @@ namespace HNOne.Web.Controllers
                 ListCboDepartment = (await getTask1)?.Select(m => new ComboboxModel() { id = m.id, name = m.name })?.ToList();
                 ListCboPosition = (await getTask2)?.Select(m => new ComboboxModel() { id = m.id, name = m.name })?.ToList();
                 ListCboWorkingBranch = (await getTask12)?.Select(m => new ComboboxModel() { id = m.id, name = m.name })?.ToList();
+                ListCboReason = (await getTask3)?.Select(m => new ComboboxModel() { code = m.id.ToString(), name = m.name })?.ToList();
             }
             catch (Exception) { throw; }
         }
@@ -231,10 +234,10 @@ namespace HNOne.Web.Controllers
                 fieldName = nameof(RequestDocument.employeeSignatureId);
                 return;
             }
-            if (string.IsNullOrWhiteSpace(RequestDocument.remark))
+            if (string.IsNullOrWhiteSpace(RequestDocument.reasonId))
             {
-                errorMessage = string.Format(MessageConstants.MESSAGE_STRING_REQUIRE, "Lý do");
-                fieldName = "txtRemark";
+                errorMessage = string.Format(MessageConstants.MESSAGE_COMBOBOX_REQUIRE, "Lý do");
+                fieldName = "txtReasonId";
                 return;
             }
             if (RequestDocument.employeeId < 1)

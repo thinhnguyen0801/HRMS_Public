@@ -21,6 +21,7 @@
         public const string CONTRACT_APPENDIX_NO = "CONTRACT_APPENDIX_NO";
         public const string ENUM_REASON_DNNP = "DNNP";
         public const string ENUM_REASON_DNTC = "DNTC";
+        public const string ENUM_REASON_CTQD = "CTQD";
         public const string ENUM_YES = "Y";
         public const string ENUM_NO = "N";
         public const string FORMAT_GRID_DISPLAYTEXT_SUM_HOUR = "Tổng: {0} giờ";

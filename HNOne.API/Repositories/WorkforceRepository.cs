@@ -2257,7 +2257,7 @@ namespace HNOne.API.Repositories
                         data.EmployeeSignatureId = entity.EmployeeSignatureId;
                         data.BranchId = entity.BranchId;
                         data.EffectiveDate = entity.EffectiveDate;
-                        data.Remark = entity.Remark;
+                        data.ReasonId = entity.ReasonId;
                         data.NoteForAll = entity.NoteForAll;
                         data.BranchIdCur = entity.BranchIdCur;
                         data.DepartmentIdCur = entity.DepartmentIdCur;

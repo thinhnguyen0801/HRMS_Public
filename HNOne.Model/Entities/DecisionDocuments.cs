@@ -28,7 +28,7 @@ namespace HNOne.Model.Entities
         [Column(TypeName = "date")]
         public DateTime EffectiveDate { get; set; } // ngày hiệu lực
         [MaxLength(250)]
-        public string? Remark { get; set; } // ghi chú
+        public string? ReasonId { get; set; } // lý do
         [MaxLength(250)]
         public string? NoteForAll { get; set; }
 

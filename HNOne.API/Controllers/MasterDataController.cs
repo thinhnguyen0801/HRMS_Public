@@ -630,7 +630,7 @@ namespace HNOne.API.Controllers
                 if (text.Text.Contains("##PCur##")) text.Text = text.Text.Replace("##PCur##", decision.noteForAllCurPrint);
                 if (text.Text.Contains("##PNew##")) text.Text = text.Text.Replace("##PNew##", decision.noteForAllNewPrint);
                 if (text.Text.Contains("##TNew##")) text.Text = text.Text.Replace("##TNew##", decision.titleNameNew);
-                if (text.Text.Contains("##Remark##")) text.Text = text.Text.Replace("##Remark##", decision.remark);
+                if (text.Text.Contains("##Remark##")) text.Text = text.Text.Replace("##Remark##", decision.reasonName);
                 if (text.Text.Contains("##EffectDate##")) text.Text = text.Text.Replace("##EffectDate##", decision.effectiveDate?.ToString(GlobalConstants.FORMAT_DATE));
             }    
         }

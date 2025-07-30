@@ -132,11 +132,17 @@
                                         </div>
                                     </div>
                                     <div class="col-md-6 col-sm-12">
-                                        <div class="d-flex ">
+                                        <div class="d-flex">
                                             <W1Label Value="Lý do" Styles="width: 120px" IsRequired="true" />
                                             <div style="width: calc(100% - 120px)">
-                                                <DxMemo @bind-Text="@RequestDocument.remark" Id="txtRemark" BindValueMode="@BindValueMode.OnInput" Rows="1"
-                                                        InputId="txtghiChu" CssClass="w1FontSize" ReadOnly="@IsReadonlyControl" />
+                                                <DxComboBox Data="@ListCboReason"
+                                                            @bind-Value="@RequestDocument.reasonId"
+                                                            FilteringMode="DataGridFilteringMode.Contains"
+                                                            TextFieldName="@nameof(ComboboxModel.name)"
+                                                            ValueFieldName="@nameof(ComboboxModel.code)"
+                                                            Id="txtReasonId" ReadOnly="@IsReadonlyControl"
+                                                            CssClass="w1FontSize">
+                                                </DxComboBox>
                                             </div>
                                         </div>
                                     </div>
