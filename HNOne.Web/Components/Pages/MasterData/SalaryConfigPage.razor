@@ -60,10 +60,12 @@
                                     }
                                 </CellDisplayTemplate>
                             </DxGridDataColumn>
-                            <DxGridDataColumn FieldName="@nameof(SalaryConfigurationModel.branchName)" Caption="Chi nhánh" MinWidth="160" />
+                            <DxGridDataColumn FieldName="@nameof(SalaryConfigurationModel.branchName)" Caption="Chi nhánh" MinWidth="140" />
                             <DxGridDataColumn FieldName="@nameof(SalaryConfigurationModel.isActive)" Caption="Đã áp dụng?" MinWidth="100" />
-                            <DxGridDataColumn FieldName="@nameof(SalaryConfigurationModel.isPersonalIncomeTax)" Caption="Thuế TNCN" MinWidth="90" />
+                            <DxGridDataColumn FieldName="@nameof(SalaryConfigurationModel.salaryDefault)" Caption="Lương mặc định" MinWidth="110" DisplayFormat="@GlobalContants.FORMAT_CURRENCY" />
+                            <DxGridDataColumn FieldName="@nameof(SalaryConfigurationModel.SalaryCalculateMethodName)" Caption="Cách tính lương" MinWidth="110" />
                             <DxGridDataColumn FieldName="@nameof(SalaryConfigurationModel.taxLimit)" Caption="Giới hạn chịu thuế" MinWidth="130" DisplayFormat="@GlobalContants.FORMAT_CURRENCY" />
+                            <DxGridDataColumn FieldName="@nameof(SalaryConfigurationModel.isPersonalIncomeTax)" Caption="Thuế TNCN" MinWidth="90" />
                             <DxGridDataColumn FieldName="@nameof(SalaryConfigurationModel.isSocialInsurance)" Caption="BHXH" MinWidth="80" />
                             <DxGridDataColumn FieldName="@nameof(SalaryConfigurationModel.isHealthInsurance)" Caption="BHYT" MinWidth="80" />
                             <DxGridDataColumn FieldName="@nameof(SalaryConfigurationModel.isAccidentInsurance)" Caption="BHTN" MinWidth="80" />
@@ -71,12 +73,10 @@
                             <DxGridDataColumn FieldName="@nameof(SalaryConfigurationModel.isUnionFee)" Caption="Phí công đoàn" MinWidth="110" />
                             <DxGridDataColumn FieldName="@nameof(SalaryConfigurationModel.isProbationaryPeriod)" Caption="Thử việc" MinWidth="80" />
                             <DxGridDataColumn FieldName="@nameof(SalaryConfigurationModel.isOvertime)" Caption="Tăng ca" MinWidth="80" />
-                            <DxGridDataColumn FieldName="@nameof(SalaryConfigurationModel.overtimeCoefficient)" Caption="H/số tăng ca" MinWidth="100" DisplayFormat="@GlobalContants.FORMAT_NUMBER" />
-                            <DxGridDataColumn FieldName="@nameof(SalaryConfigurationModel.coefficientNightShift)" Caption="H/số tăng ca đêm" MinWidth="115" DisplayFormat="@GlobalContants.FORMAT_NUMBER" />
                             <DxGridDataColumn FieldName="@nameof(SalaryConfigurationModel.isAllowance)" Caption="Phụ cấp" MinWidth="90" />
                             <DxGridDataColumn FieldName="@nameof(SalaryConfigurationModel.isPrintContract)" Caption="In hợp đồng" MinWidth="95" />
-                            <DxGridDataColumn FieldName="@nameof(SalaryConfigurationModel.salaryDefault)" Caption="Lương mặc định" MinWidth="110" DisplayFormat="@GlobalContants.FORMAT_CURRENCY" />
-                            <DxGridDataColumn FieldName="@nameof(SalaryConfigurationModel.SalaryCalculateMethodName)" Caption="Cách tính lương" MinWidth="110" />
+                            <DxGridDataColumn FieldName="@nameof(SalaryConfigurationModel.overtimeCoefficient)" Caption="H/số tăng ca" MinWidth="100" DisplayFormat="@GlobalContants.FORMAT_NUMBER" />
+                            <DxGridDataColumn FieldName="@nameof(SalaryConfigurationModel.coefficientNightShift)" Caption="H/số tăng ca đêm" MinWidth="115" DisplayFormat="@GlobalContants.FORMAT_NUMBER" />
                             @* <DxGridDataColumn FieldName="@nameof(SalaryConfigurationModel.isUseOfGradeLevel)" Caption="Dùng ngạch bậc?" MinWidth="110" /> *@
                             <DxGridDataColumn FieldName="@nameof(SalaryConfigurationModel.dateTracking)" Caption="Ngày cập nhật" MinWidth="120" DisplayFormat="@GlobalContants.FORMAT_DATE_TIME" />
                             <DxGridDataColumn FieldName="@nameof(SalaryConfigurationModel.userSignName)" Caption="Người tạo" MinWidth="120" />
@@ -129,18 +129,6 @@
         </div>
         <div class="col-sm-12">
             <div class="d-flex ">
-                <W1Label Value="Tên loại lương" Styles="width: 110px" IsRequired="true" />
-                <div style="width: calc(100% - 110px)">
-                    <div class="row row-gap-2">
-                        <div class="col-md-8 col-sm-12">
-                            <DxTextBox @bind-Text="@EntityUpdate.salaryCategoryName" CssClass="w1FontSize" Id="salaryCategoryName"></DxTextBox>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-        <div class="col-sm-12">
-            <div class="d-flex ">
                 <W1Label Value="Nhóm tổng hợp" Styles="width: 110px" IsRequired="true" />
                 <div style="width: calc(100% - 110px)">
                     <div class="row row-gap-2">
@@ -150,9 +138,21 @@
                                         FilteringMode="DataGridFilteringMode.Contains"
                                         TextFieldName="@nameof(ComboboxModel.name)"
                                         ValueFieldName="@nameof(ComboboxModel.code)"
-                                        Id="txtAllowanceType"
+                                        Id="txtAllowanceType" ReadOnly="@(!IsCreate)"
                                         CssClass="w1FontSize">
                             </DxComboBox>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-sm-12">
+            <div class="d-flex ">
+                <W1Label Value="Tên loại lương" Styles="width: 110px" IsRequired="true" />
+                <div style="width: calc(100% - 110px)">
+                    <div class="row row-gap-2">
+                        <div class="col-md-8 col-sm-12">
+                            <DxTextBox @bind-Text="@EntityUpdate.salaryCategoryName" CssClass="w1FontSize" Id="salaryCategoryName"></DxTextBox>
                         </div>
                     </div>
                 </div>
@@ -168,7 +168,7 @@
                                         @bind-Value="@EntityUpdate.branchId"
                                         FilteringMode="DataGridFilteringMode.Contains"
                                         TextFieldName="@nameof(ComboboxModel.name)"
-                                        Id="txtBranchId"
+                                        Id="txtBranchId" ReadOnly="@(!IsCreate)"
                                         CssClass="w1FontSize"
                                         ValueFieldName="@nameof(ComboboxModel.id)">
                             </DxComboBox>

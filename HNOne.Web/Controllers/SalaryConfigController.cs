@@ -139,16 +139,6 @@ namespace HNOne.Web.Controllers
                 fieldName = "txtBranchId";
                 return;
             }
-            if (EntityUpdate.isAllowance)
-            {
-                // nếu chọn là phụ cấp thì vui lòng điền tiếp cách tính & loại phụ cấp
-                if (string.IsNullOrEmpty(EntityUpdate.salaryCalculateMethod))
-                {
-                    errorMessage = string.Format(MessageConstants.MESSAGE_COMBOBOX_REQUIRE, "Cách tính lương phụ cấp");
-                    fieldName = "txtSalaryCalculateMethod";
-                    return;
-                }
-            }
         }
 
         /// <summary>
