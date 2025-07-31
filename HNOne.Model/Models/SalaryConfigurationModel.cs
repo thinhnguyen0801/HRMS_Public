@@ -26,7 +26,7 @@ namespace HNOne.Model.Models
         public bool isProbationaryPeriod { get; set; } // là thử việc. tính theo %
         public decimal salaryDefault { get; set; } // Tiền lương mặt định
         public string? salaryCalculateMethod { get; set; } // cách tính lương lấy ở enum
-        public string? SalaryCalculateMethodName { get; set; } // cách tính lương lấy ở enum
+        public string? salaryCalculateMethodName { get; set; } // cách tính lương lấy ở enum
         public string? allowanceType { get; set; } // Loại phụ cấp
         public string? allowanceTypeName { get; set; } // tên loại phụ cấp
         public bool isUseOfGradeLevel { get; set; } // có sử dụng ngạch bậc không?

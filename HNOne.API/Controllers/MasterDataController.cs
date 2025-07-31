@@ -526,7 +526,7 @@ namespace HNOne.API.Controllers
                     totalSalary += item.amount;
                     TableRow dataRow = new TableRow();
                     // Tạo ô cho "Nội dung"
-                    if (!string.IsNullOrEmpty(item.SalaryCalculateMethodName)) item.salaryCategoryName = $"{item.salaryCategoryName} ({item.SalaryCalculateMethodName})";
+                    if (!string.IsNullOrEmpty(item.salaryCalculateMethodName)) item.salaryCategoryName = $"{item.salaryCategoryName} ({item.salaryCalculateMethodName})";
                     var cell1 = new TableCell(new Paragraph(createFormattedRun($"{item.salaryCategoryName}", sampleRunProperties)));
                     var cell2 = new TableCell(new Paragraph(createFormattedRun($"{item.amount.ToString(GlobalConstants.FORMAT_CURRENCY)}", sampleRunProperties)));
                     dataRow.Append(cell1,cell2);
@@ -582,7 +582,7 @@ namespace HNOne.API.Controllers
                     totalSalary += item.amount;
                     TableRow dataRow = new TableRow();
                     // Tạo ô cho "Nội dung"
-                    if (!string.IsNullOrEmpty(item.SalaryCalculateMethodName)) item.salaryCategoryName = $"{item.salaryCategoryName} ({item.SalaryCalculateMethodName})";
+                    if (!string.IsNullOrEmpty(item.salaryCalculateMethodName)) item.salaryCategoryName = $"{item.salaryCategoryName} ({item.salaryCalculateMethodName})";
                     var cell1 = new TableCell(new Paragraph(createFormattedRun($"{item.salaryCategoryName}", sampleRunProperties)));
                     var cell2 = new TableCell(new Paragraph(createFormattedRun($"{item.amount.ToString(GlobalConstants.FORMAT_CURRENCY)}", sampleRunProperties)));
                     dataRow.Append(cell1, cell2);
