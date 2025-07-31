@@ -44,5 +44,6 @@ namespace HNOne.Common
         public const string MESSAGE_CONFIRM_ADD_OLD_DAY = "Bạn đang lập phiếu trễ so với thời gian trên phiếu đăng ký.<br />";
         public const string MESSAGE_CONFIRM_APPROVAL_DOCUMENT = "Bạn có chắc muốn phê duyệt?";
         public const string MESSAGE_CONFIRM_REJECT_DOCUMENT = "Bạn có chắc muốn từ chối?";
+        public const string MESSAGE_CONFIRM_CONTINUE = "Bạn có chắc muốn tiếp tục?";
     }
 }

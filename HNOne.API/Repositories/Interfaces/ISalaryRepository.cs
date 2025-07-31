@@ -16,5 +16,7 @@ namespace HNOne.API.Repositories.Interfaces
         Task<IEnumerable<dynamic>> GetSalaryMasterData(RequestModel request);
         Task<IEnumerable<SalaryExpenseAccountingModel>> GetSalaryExpenseAccounting(RequestModel request);
         Task<ResponseModel> UpdateSalaryExpenseAccounting(string actionType, SalaryExpenseAccountings entity, IEnumerable<SalaryExpenseAccounting1s> lstEntity1);
+        Task<IEnumerable<RewardAllowanceRequestModel>> GetRewardAllowanceRequest(RequestModel request);
+        Task<ResponseModel> UpdateRewardAllowanceRequest(string actionType, RewardAllowanceRequests entity, IEnumerable<RewardAllowanceRequest1s> lstEntity1);
     }
 }

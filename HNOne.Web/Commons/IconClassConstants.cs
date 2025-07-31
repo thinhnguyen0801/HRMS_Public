@@ -6,6 +6,7 @@
         public const string ICON_ADD = "fa-solid fa-plus h1-text-icon-primary";
         public const string ICON_DELETE = "fa-solid fa-trash-can text-red";
         public const string ICON_UPDATE = "fa-solid fa-floppy-disk h1-text-icon-primary";
+        public const string ICON_CANCEL = "fa-solid fa-xmark text-red"; // <i class="fa-solid fa-xmark"></i>
         public const string FONT_SIZE_ICON = "fs-2 cursor-pointer";
         public const string ICON_SHARE = "fa-solid fa-share h1-text-icon-primary"; // icon chuyển duyệt
         public const string ICON_APPROVAL = "fa-solid fa-check h1-text-icon-primary"; // icon phê duyệt
@@ -27,5 +28,6 @@
         public const string ICON_FILTER_CLEAR = "fa-solid fa-filter-circle-xmark h1-text-icon-primary";
         public const string ICON_FILTER = "fa-solid fa-filter h1-text-icon-primary";
         public const string ICON_GRID = "fa-solid fa-grip-vertical h1-text-icon-primary"; // <i class="fa-solid fa-grip-vertical"></i>
+        public const string ICON_DOWN = "fa-solid fa-angles-down h1-text-icon-primary"; // <i class="fa-solid fa-angles-down"></i>
     }
 }

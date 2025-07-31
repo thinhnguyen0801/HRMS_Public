@@ -89,6 +89,8 @@ namespace HNOne.API.Repositories
         public DbSet<DecisionDocuments> DecisionDocuments { get; set; }
         public DbSet<AuditLogs> AuditLogs { get; set; }
         public DbSet<DailyJobConfigs> DailyJobConfigs { get; set; } // bảng job chạy định kỳ
+        public DbSet<RewardAllowanceRequests> RewardAllowanceRequests { get; set; } // Khen thưởng & Phụ cấp
+        public DbSet<RewardAllowanceRequest1s> RewardAllowanceRequest1s { get; set; }
 
         public MasterDbContext(DbContextOptions<MasterDbContext> options)
             : base(options)
@@ -128,6 +130,7 @@ namespace HNOne.API.Repositories
             modelBuilder.Entity<SubDepartments>().HasIndex(m => m.Code).IsUnique();
             modelBuilder.Entity<AdjustedAnnualLeaveRequests>().HasIndex(m => m.VoucherNo).IsUnique();
             modelBuilder.Entity<DecisionDocuments>().HasIndex(m => m.VoucherNo).IsUnique();
+            modelBuilder.Entity<RewardAllowanceRequests>().HasIndex(m => m.VoucherNo).IsUnique();
         }
 
         public override async Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)

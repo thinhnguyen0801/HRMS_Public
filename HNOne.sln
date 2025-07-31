@@ -16,7 +16,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "HNOne.Common", "HNOne.Commo
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "HNOne.Web", "HNOne.Web\HNOne.Web.csproj", "{56AC4240-D020-49C8-8CE8-BADD603D6C72}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HNOne.DailyJob", "HNOne.DailyJob\HNOne.DailyJob.csproj", "{7E5EEC3D-4E81-4D80-9D7F-C107E7C4B1DA}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "HNOne.DailyJob", "HNOne.DailyJob\HNOne.DailyJob.csproj", "{7E5EEC3D-4E81-4D80-9D7F-C107E7C4B1DA}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

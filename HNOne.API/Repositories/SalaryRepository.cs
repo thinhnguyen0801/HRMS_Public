@@ -135,6 +135,44 @@ namespace HNOne.API.Repositories
                 return lstResult ?? new List<SalaryExpenseAccountingModel>();
             }
         }
+
+        /// <summary>
+        /// lấy danh sách khen thưởng & phụ cấp
+        /// </summary>
+        /// <param name="request"></param>
+        /// <returns></returns>
+        public async Task<IEnumerable<RewardAllowanceRequestModel>> GetRewardAllowanceRequest(RequestModel request)
+        {
+            using (var connection = _dapperDbContext.CreateConnection())
+            {
+                request.fromDate ??= new DateTime(2000, 01, 01);
+                request.toDate ??= DateTime.Now.AddMonths(1);
+                var parameters = new DynamicParameters();
+                parameters.Add("@RewardAllowanceId", request.documentId, DbType.Int32);
+                parameters.Add("@UserId", request.userId, DbType.Int32);
+                parameters.Add("@BranchId", request.branchId, DbType.Int32);
+                parameters.Add("@EmployeeId", request.employeeId, DbType.Int32);
+                parameters.Add("@FromDate", request.fromDate, DbType.Date);
+                parameters.Add("@ToDate", request.toDate, DbType.Date);
+                parameters.Add("@StatusIds", request.opt, DbType.String);
+                parameters.Add("@BranchIds", $"{request.branchIds}", DbType.String);
+                parameters.Add("@Type", $"{request.type}", DbType.String);
+                IEnumerable<RewardAllowanceRequestModel>? lstResult = null;
+                var dtResult = await connection.QueryMultipleAsync(StoreConstants.STORE_H1_REWARD_ALLOWANCE_REQUEST_SELECT, param: parameters
+                    , commandTimeout: GlobalConstants.COMMAND_TIMEOUT, commandType: CommandType.StoredProcedure);
+                if (dtResult != null)
+                {
+                    lstResult = dtResult.Read<RewardAllowanceRequestModel>();
+                    if (request.documentId > 0)
+                    {
+                        var lstDetail = dtResult.Read<RewardAllowanceRequest1Model>();
+                        string jsonDetail = JsonConvert.SerializeObject(lstDetail);
+                        lstResult = lstResult.Update(m => m.jsonDetail = jsonDetail);
+                    }
+                }
+                return lstResult ?? new List<RewardAllowanceRequestModel>();
+            }
+        }
         #endregion Query
 
         #region Command
@@ -521,6 +559,171 @@ namespace HNOne.API.Repositories
                     await _dbContext.Database.CommitTransactionAsync();
                     response.message = MessageConstants.MESSAGE_UPDATE_SUCCESS;
                     response.data = data.Id;
+                }
+                return response;
+            }
+            catch (Exception)
+            {
+                if (isTrans) await _dbContext.Database.RollbackTransactionAsync();
+                throw;
+            }
+        }
+
+        /// <summary>
+        /// Thêm mới & cập nhật thông tin khen thưởng & phụ cấp
+        /// </summary>
+        /// <param name="actionType"></param>
+        /// <param name="entity"></param>
+        /// <param name="lstEntity1"></param>
+        /// <returns></returns>
+        public async Task<ResponseModel> UpdateRewardAllowanceRequest(string actionType, RewardAllowanceRequests entity, IEnumerable<RewardAllowanceRequest1s> lstEntity1)
+        {
+            bool isTrans = false;
+            ResponseModel response = new ResponseModel();
+            try
+            {
+                DateTime dateTimeNow = _dateTimeHelper.GetCurrentVietnamTime();
+                if (actionType == ProcessConstants.POST_REWARD_ALLOWANCE_REQUEST)
+                {
+                    using (var connection = _dapperDbContext.CreateConnection())
+                    {
+                        // xuống store validate dữ liệu trước khi lưu
+                        DynamicParameters parameters = new DynamicParameters();
+                        parameters.Add("@UserId", entity.UserSign, DbType.Int32);
+                        parameters.Add("@BranchId", entity.BranchId, DbType.Int32);
+                        parameters.Add("@ProcessKey", ProcessConstants.POST_REWARD_ALLOWANCE_REQUEST, DbType.String);
+                        parameters.Add("@JHeader", JsonConvert.SerializeObject(entity), DbType.String);
+                        parameters.Add("@JLine", JsonConvert.SerializeObject(lstEntity1), DbType.String);
+                        var resultCheck = await connection.QueryFirstOrDefaultAsync<ResponseModel>(StoreConstants.STORE_H1_REWARD_ALLOWANCE_REQUEST_VALIDATE_CHECK, parameters
+                        , commandTimeout: GlobalConstants.COMMAND_TIMEOUT, commandType: CommandType.StoredProcedure);
+                        if (resultCheck == null || resultCheck.status != StatusCodes.Status200OK)
+                        {
+                            response.status = resultCheck?.status ?? StatusCodes.Status400BadRequest;
+                            response.message = resultCheck?.message ?? MessageConstants.MESSAGE_IT_SUPPORT;
+                            return response;
+                        }
+                        // đánh mã chứng từ
+                        parameters = new DynamicParameters();
+                        parameters.Add("@Type", GlobalConstants.TABLE_REWARD_ALLOWANCE_REQUEST, DbType.String);
+                        parameters.Add("@BranchId", entity.BranchId, DbType.Int32);
+                        string commandText = @$"select {StoreConstants.FUNC_GET_VOUCHER}(@Type, @BranchId, '', '', '')";
+                        string? voucherNo = await connection.QueryFirstOrDefaultAsync<string>(commandText, param: parameters, commandTimeout: GlobalConstants.COMMAND_TIMEOUT, commandType: CommandType.Text);
+                        if (string.IsNullOrEmpty(voucherNo))
+                        {
+                            response.status = StatusCodes.Status204NoContent;
+                            response.message = MessageConstants.MESSAGE_VOUCHER_NO_MISSING;
+                            return response;
+                        }
+                        await _dbContext.Database.BeginTransactionAsync();
+                        isTrans = true;
+                        entity.Id = await _dbContext.RewardAllowanceRequests.Select(m => m.Id).DefaultIfEmpty().MaxAsync() + 1;
+                        entity.VoucherNo = voucherNo;
+                        entity.DateTracking = dateTimeNow;
+                        entity.CreateDate = dateTimeNow;
+                        await _dbContext.RewardAllowanceRequests.AddAsync(entity);
+                        // thêm chi tiết
+                        foreach (var item in lstEntity1)
+                        {
+                            RewardAllowanceRequest1s entity1 = new RewardAllowanceRequest1s();
+                            entity1.RewardAllowanceId = entity.Id;
+                            entity1.EmployeeId = item.EmployeeId;
+                            entity1.SalaryCalculateMethod = item.SalaryCalculateMethod;
+                            entity1.SalaryCalculateMethodName = item.SalaryCalculateMethodName;
+                            entity1.RewardAmount = item.RewardAmount;
+                            entity1.TaxPayment = item.TaxPayment;
+                            entity1.PaidAmount = item.PaidAmount;
+                            entity1.TotalSalary = item.TotalSalary;
+                            entity1.NetSalary = item.NetSalary;
+                            entity1.MaxSalary = item.MaxSalary;
+                            entity1.Remark = item.Remark;
+                            entity1.CDM = item.CDM;
+                            entity1.CTT = item.CTT;
+                            entity1.DateTracking = dateTimeNow;
+                            entity1.UserSign = entity.UserSign;
+                            await _dbContext.RewardAllowanceRequest1s.AddAsync(entity1);
+                        }
+                        await _dbContext.SaveChangesAsync();
+                        await _dbContext.Database.CommitTransactionAsync();
+                        response.message = MessageConstants.MESSAGE_ADD_SUCCESS;
+                        response.data = entity.Id;
+                    }    
+                }
+                else
+                {
+                    using (var connection = _dapperDbContext.CreateConnection())
+                    {
+                        var data = await _dbContext.RewardAllowanceRequests.FirstOrDefaultAsync(m => m.Id == entity.Id);
+                        if (data == null)
+                        {
+                            response.status = StatusCodes.Status404NotFound;
+                            response.message = MessageConstants.MESSAGE_NOT_FOUNT;
+                            return response;
+                        }
+                        if (data.DateTracking != entity.DateTracking)
+                        {
+                            response.status = StatusCodes.Status409Conflict;
+                            response.message = MessageConstants.MESSAGE_DATA_CHECKING_MODIFIED;
+                            return response;
+                        }
+                        // xuống store validate dữ liệu trước khi lưu
+                        DynamicParameters parameters = new DynamicParameters();
+                        parameters.Add("@UserId", entity.UserSign, DbType.Int32);
+                        parameters.Add("@BranchId", entity.BranchId, DbType.Int32);
+                        parameters.Add("@ProcessKey", ProcessConstants.POST_REWARD_ALLOWANCE_REQUEST, DbType.String);
+                        parameters.Add("@JHeader", JsonConvert.SerializeObject(entity), DbType.String);
+                        parameters.Add("@JLine", JsonConvert.SerializeObject(lstEntity1), DbType.String);
+                        var resultCheck = await connection.QueryFirstOrDefaultAsync<ResponseModel>(StoreConstants.STORE_H1_REWARD_ALLOWANCE_REQUEST_VALIDATE_CHECK, parameters
+                        , commandTimeout: GlobalConstants.COMMAND_TIMEOUT, commandType: CommandType.StoredProcedure);
+                        if (resultCheck == null || resultCheck.status != StatusCodes.Status200OK)
+                        {
+                            response.status = resultCheck?.status ?? StatusCodes.Status400BadRequest;
+                            response.message = resultCheck?.message ?? MessageConstants.MESSAGE_IT_SUPPORT;
+                            return response;
+                        }
+                        data.RewardName = entity.RewardName;
+                        data.RewardDate = entity.RewardDate;
+                        data.RewardPaymentDate = entity.RewardPaymentDate;
+                        data.EmployeeSignatureId = entity.EmployeeSignatureId;
+                        data.StatusCode = entity.StatusCode;
+                        data.NoteForAll = entity.NoteForAll;
+                        data.TotalReward = entity.TotalReward;
+                        data.DateTracking = dateTimeNow;
+                        data.UpdateDate = dateTimeNow;
+                        data.UserSign2 = entity.UserSign2;
+                        await _dbContext.Database.BeginTransactionAsync();
+                        isTrans = true;
+                        _dbContext.RewardAllowanceRequests.Attach(data);
+                        _dbContext.Entry(data).State = EntityState.Modified;
+                        // thêm chi tiết đề nghị nghỉ phép
+                        // bỏ dữ liệu củ đi
+                        var lstRewardAllowanceRequest1s = await _dbContext.RewardAllowanceRequest1s.Where(m => m.RewardAllowanceId == data.Id).ToListAsync();
+                        if (!lstRewardAllowanceRequest1s.IsNullOrEmpty()) _dbContext.RewardAllowanceRequest1s.RemoveRange(lstRewardAllowanceRequest1s);
+                        // thêm chi tiết
+                        foreach (var item in lstEntity1)
+                        {
+                            RewardAllowanceRequest1s entity1 = new RewardAllowanceRequest1s();
+                            entity1.RewardAllowanceId = entity.Id;
+                            entity1.EmployeeId = item.EmployeeId;
+                            entity1.SalaryCalculateMethod = item.SalaryCalculateMethod;
+                            entity1.SalaryCalculateMethodName = item.SalaryCalculateMethodName;
+                            entity1.RewardAmount = item.RewardAmount;
+                            entity1.TaxPayment = item.TaxPayment;
+                            entity1.PaidAmount = item.PaidAmount;
+                            entity1.TotalSalary = item.TotalSalary;
+                            entity1.NetSalary = item.NetSalary;
+                            entity1.MaxSalary = item.MaxSalary;
+                            entity1.Remark = item.Remark;
+                            entity1.CDM = item.CDM;
+                            entity1.CTT = item.CTT;
+                            entity1.DateTracking = dateTimeNow;
+                            entity1.UserSign = entity.UserSign;
+                            await _dbContext.RewardAllowanceRequest1s.AddAsync(entity1);
+                        }
+                        await _dbContext.SaveChangesAsync();
+                        await _dbContext.Database.CommitTransactionAsync();
+                        response.message = MessageConstants.MESSAGE_UPDATE_SUCCESS;
+                        response.data = data.Id;
+                    }    
                 }
                 return response;
             }

@@ -115,8 +115,9 @@ namespace HNOne.API.Repositories
                     { GlobalConstants.TABLE_TRAINING, async id => { var training = await _dbContext.Trainings.FirstOrDefaultAsync(m => m.Id == id); return (training, training?.VoucherNo); } },
                     { GlobalConstants.TABLE_CONFIRM_WORKING_DAY, async id => { var confirm = await _dbContext.ConfirmWorkingDays.FirstOrDefaultAsync(m => m.Id == id); return (confirm, confirm?.VoucherNo); } },
                     { GlobalConstants.TABLE_SALARY_EXPENSE_ACCOUNTING, async id => { var salary = await _dbContext.SalaryExpenseAccountings.FirstOrDefaultAsync(m => m.Id == id); return (salary, salary?.VoucherNo); } },
-                    { GlobalConstants.TABLE_ADJUSTED_ANNUAL_LEAVE_REQUEST, async id => { var salary = await _dbContext.AdjustedAnnualLeaveRequests.FirstOrDefaultAsync(m => m.Id == id); return (salary, salary?.VoucherNo); } },
-                    { GlobalConstants.TABLE_DECISION_DOCUMENT, async id => { var salary = await _dbContext.DecisionDocuments.FirstOrDefaultAsync(m => m.Id == id); return (salary, salary?.VoucherNo); } }
+                    { GlobalConstants.TABLE_ADJUSTED_ANNUAL_LEAVE_REQUEST, async id => { var request = await _dbContext.AdjustedAnnualLeaveRequests.FirstOrDefaultAsync(m => m.Id == id); return (request, request?.VoucherNo); } },
+                    { GlobalConstants.TABLE_DECISION_DOCUMENT, async id => { var request = await _dbContext.DecisionDocuments.FirstOrDefaultAsync(m => m.Id == id); return (request, request?.VoucherNo); } },
+                    { GlobalConstants.TABLE_REWARD_ALLOWANCE_REQUEST, async id => { var request = await _dbContext.RewardAllowanceRequests.FirstOrDefaultAsync(m => m.Id == id); return (request, request?.VoucherNo); } }
                 };
                 if (!entityHandlers.TryGetValue($"{entityModel.objType}", out var handler))
                 {
@@ -201,7 +202,8 @@ namespace HNOne.API.Repositories
                     { GlobalConstants.TABLE_CONFIRM_WORKING_DAY, async id => { var confirm = await _dbContext.ConfirmWorkingDays.FirstOrDefaultAsync(m => m.Id == id); return (confirm, confirm?.VoucherNo, confirm?.EmployeeId); } },
                     { GlobalConstants.TABLE_SALARY_EXPENSE_ACCOUNTING, async id => { var salary = await _dbContext.SalaryExpenseAccountings.FirstOrDefaultAsync(m => m.Id == id); return (salary, salary?.VoucherNo, -1); } },
                     { GlobalConstants.TABLE_ADJUSTED_ANNUAL_LEAVE_REQUEST, async id => { var salary = await _dbContext.AdjustedAnnualLeaveRequests.FirstOrDefaultAsync(m => m.Id == id); return (salary, salary?.VoucherNo, -1); } },
-                    { GlobalConstants.TABLE_DECISION_DOCUMENT, async id => { var salary = await _dbContext.DecisionDocuments.FirstOrDefaultAsync(m => m.Id == id); return (salary, salary?.VoucherNo, -1); } }
+                    { GlobalConstants.TABLE_DECISION_DOCUMENT, async id => { var salary = await _dbContext.DecisionDocuments.FirstOrDefaultAsync(m => m.Id == id); return (salary, salary?.VoucherNo, salary?.EmployeeId); } },
+                    { GlobalConstants.TABLE_REWARD_ALLOWANCE_REQUEST, async id => { var salary = await _dbContext.RewardAllowanceRequests.FirstOrDefaultAsync(m => m.Id == id); return (salary, salary?.VoucherNo, -1); } }
                 };
                 await _dbContext.Database.BeginTransactionAsync();
                 isTran = true;
@@ -295,7 +297,7 @@ namespace HNOne.API.Repositories
 
         /// <summary>
         /// Hủy chứng từ
-        /// Áp dụng đổi với các chứng từ đang chở xử lý
+        /// Áp dụng đổi với các chứng từ đang chở xử lý & đã duyệt nhưng bị sai PNS vào hủy
         /// </summary>
         /// <param name="lstEntity"></param>
         /// <returns></returns>
@@ -320,7 +322,8 @@ namespace HNOne.API.Repositories
                     { GlobalConstants.TABLE_TRAINING, async id => await _dbContext.Trainings.FirstOrDefaultAsync(m => m.Id == id) },
                     { GlobalConstants.TABLE_CONFIRM_WORKING_DAY, async id => await _dbContext.ConfirmWorkingDays.FirstOrDefaultAsync(m => m.Id == id) },
                     { GlobalConstants.TABLE_ADJUSTED_ANNUAL_LEAVE_REQUEST, async id => await _dbContext.AdjustedAnnualLeaveRequests.FirstOrDefaultAsync(m => m.Id == id) },
-                    { GlobalConstants.TABLE_DECISION_DOCUMENT, async id => await _dbContext.DecisionDocuments.FirstOrDefaultAsync(m => m.Id == id) }
+                    { GlobalConstants.TABLE_DECISION_DOCUMENT, async id => await _dbContext.DecisionDocuments.FirstOrDefaultAsync(m => m.Id == id) },
+                    { GlobalConstants.TABLE_REWARD_ALLOWANCE_REQUEST, async id => await _dbContext.RewardAllowanceRequests.FirstOrDefaultAsync(m => m.Id == id) }
                 };
                 foreach (var entity in lstEntity)
                 {
@@ -349,6 +352,18 @@ namespace HNOne.API.Repositories
                     dynamicRecord.DateTracking = dateTimeNow;
                     _dbContext.Attach(dynamicRecord);
                     _dbContext.Entry(dynamicRecord).State = EntityState.Modified;
+
+                    // nếu có phê duyệt thì hủy phiếu duyệt
+                    var dataApproval = await _dbContext.Approvals.FirstOrDefaultAsync(m => (m.Id == entity.id) || (m.DocEntry == entity.docEntry && m.ObjType == entity.objType));
+                    if(dataApproval != null)
+                    {
+                        // đi kiểm tra dữ liệu phiếu đã chốt kỳ công hay kỳ lương hay chưa
+                        dataApproval.StatusCode = entity.statusCode;
+                        dataApproval.DateTracking = dateTimeNow;
+                        _dbContext.Approvals.Attach(dataApproval);
+                        _dbContext.Approvals.Entry(dataApproval).State = EntityState.Modified;
+                        // gửi thông báo đến nhân viên ký 
+                    }
                 }
                 await _dbContext.SaveChangesAsync();
                 await _dbContext.Database.CommitTransactionAsync();

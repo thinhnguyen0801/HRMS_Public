@@ -52,5 +52,7 @@
         public const string STORE_H1_SHIFT_ASSIGNMENTS_UPDATE = "[dbo].[H1_SHIFT_ASSIGNMENTS_UPDATE]"; // cập nhật thông tin ca làm việc
         public const string STORE_H1_DECISION_DOCUMENT_SELECT = "[dbo].[H1_DECISION_DOCUMENT_SELECT]";
         public const string STORE_H1_DAILY_JOB_UPDATE = "[dbo].[H1_DAILY_JOB_UPDATE]";
+        public const string STORE_H1_REWARD_ALLOWANCE_REQUEST_SELECT = "[dbo].[H1_REWARD_ALLOWANCE_REQUEST_SELECT]";
+        public const string STORE_H1_REWARD_ALLOWANCE_REQUEST_VALIDATE_CHECK = "[dbo].[H1_REWARD_ALLOWANCE_REQUEST_VALIDATE_CHECK]";
     }
 }

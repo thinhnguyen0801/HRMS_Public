@@ -187,6 +187,10 @@
         public const string POST_DECISION_DOCUMENT = "post-decision-document";
         public const string PUT_DECISION_DOCUMENT = "put-decision-document";
 
+        public const string GET_REWARD_ALLOWANCE_REQUEST = "get-reward-allowance-request";
+        public const string POST_REWARD_ALLOWANCE_REQUEST = "post-reward-allowance-request";
+        public const string PUT_REWARD_ALLOWANCE_REQUEST = "put-reward-allowance-request";
+
         #region Loại dưới store
         public const string GET_COMBO_TYPE_CONTRACT_BY_EMPLOYEEID = "CONTRACT_BY_EMPLOYEEID";
         public const string GET_COMBO_TYPE_SALARY_ADJUSTMENT_BY_CONTRACT = "SALARY_ADJUSTMENT_BY_CONTRACT";
