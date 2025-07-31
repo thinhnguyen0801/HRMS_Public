@@ -34,6 +34,18 @@
             </DxToolbar>
         </div>
     }
+    else if (IsReadonlyControl && IsAllowCancel && ConfirmRequestDocument.statusCode == CommonConstants.STATUS_CODE_APPROVED)
+    {
+       @* Để cho PNS hủy phiếu khi phiếu đã duyệt *@
+       <div class="card p-1">
+            <DxToolbar ItemRenderStyleMode="@ToolbarRenderStyleMode.Contained">
+                <Items>
+                    <DxToolbarItem Text="Hủy phiếu" BeginGroup="true" IconCssClass="@($"{IconClassConstants.ICON_CANCEL}")" CssClass="w1FontSize"
+                                   Alignment="@ToolbarItemAlignment.Right" Click="@(() => CancelDocumentHandler())"  />
+                </Items>
+            </DxToolbar>
+        </div>
+    }
 
     <div class="card card-lg mt-1" style="padding: 5px">
         <div class="row row-gap-2">

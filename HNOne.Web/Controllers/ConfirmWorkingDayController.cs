@@ -26,6 +26,7 @@ namespace HNOne.Web.Controllers
         const string STRING_KEY_EVENT_POST = "CONFIRM_WORKING_DAY_CONTROLLER_POST";
         const string STRING_KEY_EVENT_PUT = "CONFIRM_WORKING_DAY_CONTROLLER_PUT";
         const string STRING_KEY_EVENT_DELETE = "CONFIRM_WORKING_DAY_CONTROLLER_DELETE";
+        const string STRING_KEY_EVENT_CANCEL = "CONFIRM_WORKING_DAY_CONTROLLER_CANCEL";
         const string STRING_KEY_EVENT_APPROVAL = "APPROVAL_CONTROLLER_PUT";
         #region Properties
         public string? pActionType { get; set; } = nameof(EnumType.Add);
@@ -59,6 +60,7 @@ namespace HNOne.Web.Controllers
         public bool IsAllowPost { get; set; }
         public bool IsAllowDelete { get; set; }
         public bool IsAllowPut { get; set; }
+        public bool IsAllowCancel { get; set; } // hủy phiếu để văn thư hay pns hủy
         public bool IsAllowApproval { get; set; }
         public bool IsShowPromptDeny { get; set; }
         #endregion
@@ -132,6 +134,7 @@ namespace HNOne.Web.Controllers
             IsAllowPost = lstKey.FirstOrDefault(m => m == STRING_KEY_EVENT_POST) != null;
             IsAllowDelete = lstKey.FirstOrDefault(m => m == STRING_KEY_EVENT_DELETE) != null;
             IsAllowPut = lstKey.FirstOrDefault(m => m == STRING_KEY_EVENT_PUT) != null;
+            IsAllowCancel = lstKey.FirstOrDefault(m => m == STRING_KEY_EVENT_CANCEL) != null;
         }
 
         private void initDataAsync(bool isRefresh = false)
