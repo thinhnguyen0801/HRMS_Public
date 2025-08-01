@@ -250,6 +250,7 @@ namespace HNOne.Web.Controllers
                     lstTask.Add(getEducation()); // danh sách trình độ đại học
                     lstTask.Add(getContractList()); // danh sách hợp đồng
                     lstTask.Add(getSalaryHistoryList()); // lịch sử lương
+                    lstTask.Add(getWorkProgressList()); // diễn biến công tác
                     lstTask.Add(getActionHistoryList()); // lịch sử thao tác
 
                     await Task.WhenAll(lstTask);

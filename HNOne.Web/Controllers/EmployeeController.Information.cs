@@ -38,6 +38,9 @@ namespace HNOne.Web.Controllers
         public List<EmployeeSalaryHistoryModel>? ListSalaryHistory { get; set; } // Lịch sử lương lấy theo hợp đồng
         public IGrid? GridSalaryHistory { get; set; }
 
+        public List<DecisionDocumentModel>? ListWorkProgress { get; set; } // Diễn biến công tác, lấy theo quyết định
+        public IGrid? GridWorkProgress { get; set; }
+
         public bool IsShowPopupActionHistory { get; set; }
         public AuditLogModel ActionLogSelected { get; set; } = new AuditLogModel();
         public List<AuditLogModel>? ListActionHistory { get; set; } // Lịch sử lương lấy theo hợp đồng
@@ -232,6 +235,33 @@ namespace HNOne.Web.Controllers
             var result = await _masterDataService.GetMasterDataAsync<AuditLogModel>(request);
             ListActionHistory = result;
         }
+        
+        /// <summary>
+        /// Lấy diễn biến công tác theo quyết định
+        /// </summary>
+        /// <returns></returns>
+        private async Task getWorkProgressList()
+        {
+            RequestModel request = new RequestModel();
+            request.userId = UserId;
+            request.branchId = BranchId;
+            request.token = Token;
+            request.opt = ActiveTabIndex == 0 ? "ACTIVE" : "";
+            request.type = "BY_EMPLOYEE";
+            request.employeeId = EmployeeUpdate.id;
+            request.process = ProcessConstants.GET_DECISION_DOCUMENT;
+            var lstWorkProgress = await _workforceService.GetDecisionDocumentAsync(request, isShowToast: false);
+            lstWorkProgress = lstWorkProgress?.Update(m =>
+            {
+                Dictionary<string, string> pParams = new Dictionary<string, string>
+                {
+                    { "pActionType", nameof(EnumType.Update) },
+                    { "pDocEntry", $"{m.id}" },
+                };
+                m.link = "chung-tu-quyet-dinh?key=" + _encryptHelper.Encrypt(JsonConvert.SerializeObject(pParams));
+            })?.ToList();
+            ListWorkProgress = lstWorkProgress;
+        }
         #endregion
 
         #region Protected Functions
@@ -416,6 +446,9 @@ namespace HNOne.Web.Controllers
                         break;
                     case nameof(EmployeeSalaryHistoryModel):
                         await getSalaryHistoryList();
+                        break;
+                    case nameof(EnumObjType.DecisionDocuments):
+                        await getWorkProgressList();
                         break;
                     case nameof(AuditLogModel):
                         await getActionHistoryList();

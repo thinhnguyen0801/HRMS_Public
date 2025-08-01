@@ -23,6 +23,7 @@ namespace HNOne.Web.Controllers
         [Inject] IWebHostEnvironment _webHostEnvironment { get; init; }
         [Inject] IConfiguration _configuration { get; init; }
         [Inject] IUserService _userDataService { get; init; }
+        [Inject] IWorkforceService _workforceService { get; init; }
         public W1Confirm confirm { get; set; }
         #region Properties
         public int ActiveTabIndex { get; set; } = 0;
@@ -36,6 +37,7 @@ namespace HNOne.Web.Controllers
         public List<FamilyRelationshipModel>? ListFamilyRelationship { get; set; } // danh sách quan hệ gia đình
         public IGrid? GridFamilyRelationship { get; set; }
         public List<EmployeeSalaryHistoryModel>? ListSalaryHistory { get; set; } // Lịch sử lương lấy theo hợp đồng
+        public List<DecisionDocumentModel>? ListWorkProgress { get; set; } // diễn biến công tác của nhân viên lấy theo quyết định
         public FamilyRelationshipModel FamilyRelationshipUpdate { get; set; } = new FamilyRelationshipModel();
         public UserModel UserUpdate { get; set; } = new UserModel(); // cập nhật thông tin đăng nhập
 
@@ -174,6 +176,7 @@ namespace HNOne.Web.Controllers
                     //lstTask.Add(getEducation()); // danh sách trình độ đại học
                     lstTask.Add(getContractList()); // danh sách hợp đồng
                     lstTask.Add(getSalaryHistoryList()); // lịch sử lương
+                    lstTask.Add(getWorkProgressList()); // lịch sử công tác
                     await Task.WhenAll(lstTask);
                     IsShowPopupUpdateEmployee = false;
                 }
@@ -286,6 +289,33 @@ namespace HNOne.Web.Controllers
         {
             var lstSalary = await _personnelService.GetSalaryHistoryAsync(UserId, Token, EmployeeUpdate.id, isShowToast: false);
             ListSalaryHistory = lstSalary;
+        }
+
+        /// <summary>
+        /// Lấy diễn biến công tác theo quyết định
+        /// </summary>
+        /// <returns></returns>
+        private async Task getWorkProgressList()
+        {
+            RequestModel request = new RequestModel();
+            request.userId = UserId;
+            request.branchId = BranchId;
+            request.token = Token;
+            request.opt = ActiveTabIndex == 0 ? "ACTIVE" : "";
+            request.type = "BY_EMPLOYEE";
+            request.employeeId = EmployeeUpdate.id;
+            request.process = ProcessConstants.GET_DECISION_DOCUMENT;
+            var lstWorkProgress = await _workforceService.GetDecisionDocumentAsync(request, isShowToast: false);
+            lstWorkProgress = lstWorkProgress?.Update(m =>
+            {
+                Dictionary<string, string> pParams = new Dictionary<string, string>
+                {
+                    { "pActionType", nameof(EnumType.Update) },
+                    { "pDocEntry", $"{m.id}" },
+                };
+                m.link = "chung-tu-quyet-dinh?key=" + _encryptHelper.Encrypt(JsonConvert.SerializeObject(pParams));
+            })?.ToList();
+            ListWorkProgress = lstWorkProgress;
         }
 
         private void validateForSaveFamilyRelationship(ref string errorMessage, ref string fieldName)

@@ -17,7 +17,7 @@
                 {
                     <DxTabPage Text="Trình độ/Bằng cấp" CssClass="w1FontSize" Click="@(() => ScrollToSection("section-accordion-14"))"></DxTabPage>
                     <DxTabPage Text="Quan hệ gia đình" CssClass="w1FontSize" Click="@(() => ScrollToSection("section-accordion-7"))"></DxTabPage>
-                    @* <DxTabPage Text="Lịch sử công tác" CssClass="w1FontSize" Click="@(() => ScrollToSection("section-accordion-9"))"></DxTabPage> *@
+                    <DxTabPage Text="Diễn biến công tác" CssClass="w1FontSize" Click="@(() => ScrollToSection("section-accordion-9"))"></DxTabPage>
                     <DxTabPage Text="Thông tin bảo hiểm" CssClass="w1FontSize" Click="@(() => ScrollToSection("section-accordion-10"))"></DxTabPage>
                     <DxTabPage Text="Danh sách hợp đồng" CssClass="w1FontSize" Click="@(() => ScrollToSection("section-accordion-11"))"></DxTabPage>
                     @* <DxTabPage Text="Danh sách quyết định" CssClass="w1FontSize" Click="@(() => ScrollToSection("section-accordion-12"))"></DxTabPage> *@
@@ -1200,8 +1200,8 @@
             </div>
         </div>
 
-        @* Lịch sử công tác  *@
-       @*  <div class="card card-lg mt-1" style="padding: 5px" id="section-accordion-9">
+        @* Diễn biến công tác  *@
+        <div class="card card-lg mt-1" style="padding: 5px" id="section-accordion-9">
             <div class="row row-gap-2">
                 <div class="col-12">
                     <div class="accordion" id="accordion-9">
@@ -1209,7 +1209,7 @@
                             <span class="accordion-header" id="heading-1">
                                 <button class="accordion-button " style="padding-top: 1px; padding-bottom: 1px;padding-left: 5px;"
                                         type="button" data-bs-toggle="collapse" data-bs-target="#collapse-9" aria-expanded="true">
-                                    <h4 class="mb-0 w1FontSize">Lịch sử công tác</h4>
+                                    <h4 class="mb-0 w1FontSize">Diễn biến công tác</h4>
                                 </button>
                             </span>
                             <div style="border-bottom: 1px solid var(--tblr-border-color); margin-top: 2px"></div>
@@ -1217,7 +1217,44 @@
                                 <div class="accordion-body p-1">
                                     <div class="row row-gap-2">
                                         <div class="col-md-12 col-sm-12">
-                                            
+                                            <DxGrid Data="ListWorkProgress" @ref="GridWorkProgress"
+                                                    ShowFilterRow="false"
+                                                    PageSize="500"
+                                                    ColumnResizeMode="GridColumnResizeMode.ColumnsContainer"
+                                                    PagerPosition="GridPagerPosition.Bottom"
+                                                    PageSizeSelectorVisible="false"
+                                                    PageSizeSelectorAllRowsItemVisible="false"
+                                                    PagerSwitchToInputBoxButtonCount="10"
+                                                    PagerVisibleNumericButtonCount="10"
+                                                    TextWrapEnabled="false"
+                                                    ValidationEnabled="true"
+                                                    AllowSelectRowByClick="true"
+                                                    FocusedRowEnabled="true"
+                                                    SelectionMode="GridSelectionMode.Single"
+                                                    CssClass="h-full">
+                                                <ToolbarTemplate>
+                                                    <DxToolbar ItemRenderStyleMode="@ToolbarRenderStyleMode.Plain">
+                                                        <Items>
+                                                            <DxToolbarItem IconCssClass="@IconClassConstants.ICON_REFRESH" BeginGroup="true" Alignment="@ToolbarItemAlignment.Right"
+                                                                           Click="@(async () => await RefreshHandler(nameof(EnumObjType.DecisionDocuments)))" />
+                                                        </Items>
+                                                    </DxToolbar>
+                                                </ToolbarTemplate>
+                                                <Columns>
+                                                    <DxGridDataColumn FieldName="@nameof(DecisionDocumentModel.voucherNo)" Caption="Số quyết định" MinWidth="140" Width="155px">
+                                                        <CellDisplayTemplate>
+                                                            @{
+                                                                <a href="@($"{(context.DataItem as DecisionDocumentModel)!.link}")">@context.Value</a>
+                                                            }
+                                                        </CellDisplayTemplate>
+                                                    </DxGridDataColumn>
+                                                    <DxGridDataColumn FieldName="@nameof(DecisionDocumentModel.dateOfSigning)" Caption="Ngày ký" Width="120px" MinWidth="110" DisplayFormat="@GlobalContants.FORMAT_DATE"  />
+                                                    <DxGridDataColumn FieldName="@nameof(DecisionDocumentModel.dateOfSigning)" Caption="Ngày quyết định" Width="130px" MinWidth="110" DisplayFormat="@GlobalContants.FORMAT_DATE"  />
+                                                    <DxGridDataColumn FieldName="@nameof(DecisionDocumentModel.decisionTypeName)" Caption="Loại quyết định" MinWidth="170" Width="175px" />
+                                                    <DxGridDataColumn FieldName="@nameof(DecisionDocumentModel.noteForAll)" Caption="Diễn giải" MinWidth="190" />
+                                                    
+                                                </Columns>
+                                            </DxGrid>
                                         </div>
                                     </div>
                                 </div>
@@ -1226,7 +1263,7 @@
                     </div>
                 </div>
             </div>
-        </div> *@
+        </div>
 
         @* Danh sách hợp đồng  *@
         <div class="card card-lg mt-1" style="padding: 5px" id="section-accordion-11">

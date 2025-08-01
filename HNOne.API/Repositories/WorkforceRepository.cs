@@ -573,6 +573,7 @@ namespace HNOne.API.Repositories
                 parameters.Add("@EmployeeId", request.employeeId, DbType.Int32);
                 parameters.Add("@BranchIds", $"{request.branchIds}", DbType.String);
                 parameters.Add("@DepartmentIds", $"{request.departmentIds}", DbType.String);
+                parameters.Add("@Type", $"{request.type}", DbType.String);
                 IEnumerable<DecisionDocumentModel>? lstResult = null;
                 lstResult = await connection.QueryAsync<DecisionDocumentModel>(StoreConstants.STORE_H1_DECISION_DOCUMENT_SELECT, param: parameters
                     , commandTimeout: GlobalConstants.COMMAND_TIMEOUT, commandType: CommandType.StoredProcedure);
