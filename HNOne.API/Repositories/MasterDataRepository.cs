@@ -1244,6 +1244,14 @@ namespace HNOne.API.Repositories
             try
             {
                 bool isResult = true;
+                // kiểm xem được phép tạo mới không?
+                isResult = ((await _dbContext.EnumCatagories.FirstOrDefaultAsync(m => m.EnumType == entity.EnumType))?.IsAllowInsert ?? false) == false;
+                if (isResult)
+                {
+                    response.status = StatusCodes.Status409Conflict;
+                    response.message = $"Loại danh mục [{entity.EnumTypeName}] không được phép thêm mới. Chỉ được cấp phép chỉnh sửa!";
+                    return response;
+                }
                 // Tạo mới
                 isResult = await _dbContext.EnumCatagories.FirstOrDefaultAsync(m => m.Code == entity.Code && m.EnumType == entity.EnumType) != null;
                 if (isResult)
@@ -1255,7 +1263,7 @@ namespace HNOne.API.Repositories
                 entity.Id = Guid.NewGuid();
                 entity.IsAllowEditing = true;
                 entity.IsAllowInsert = true;
-                entity.RowOrder = 1;
+                entity.RowOrder = await _dbContext.EnumCatagories.Where(m => m.EnumType == entity.EnumType).Select(m => m.RowOrder).DefaultIfEmpty().MaxAsync() + 1;
                 entity.DateTracking = _dateTimeHelper.GetCurrentVietnamTime();
                 entity.CreateDate = _dateTimeHelper.GetCurrentVietnamTime();
                 await _dbContext.EnumCatagories.AddAsync(entity);
