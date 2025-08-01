@@ -33,6 +33,8 @@ namespace HNOne.Web.Controllers
         public bool IsShowDialog { get; set; }
         public bool IsCreate { get; set; } = true;
         public List<ComboboxModel>? ListCboEnumType { get; set; } // cbo ds loại enum
+        public List<ComboboxModel>? ListCboEmpStatus { get; set; } // cbo ds tình trạng nhân viên
+        public IEnumerable<ComboboxModel>? ListCboStatusSelected { get; set; } // ds chọn
         string? enumType;
         public string? pEnumTypeId
         {
@@ -98,8 +100,11 @@ namespace HNOne.Web.Controllers
         {
             try
             {
-                var lstResult = await _masterDataService.GetFunEnumAsync(UserId, Token, nameof(EnumType)); // ds loại danh mục
-                ListCboEnumType = lstResult?.Select(m => new ComboboxModel() { code = m.code, name = m.name })?.ToList();
+                var getTask1 = _masterDataService.GetFunEnumAsync(UserId, Token, nameof(EnumType)); // ds loại danh mục
+                var getTask5 = _masterDataService.GetEnumAsync(UserId, Token, nameof(EnumCatagory.TrangThaiNhanVien)); // ds trạng thái
+                await Task.WhenAll(getTask1, getTask5);
+                ListCboEmpStatus = (await getTask5)?.Where(m => m.rowOrder != 0).Select(m => new ComboboxModel() { code = m.code, name = m.name })?.ToList();
+                ListCboEnumType = (await getTask1)?.Select(m => new ComboboxModel() { code = m.code, name = m.name })?.ToList();
                 pEnumTypeId = ListCboEnumType?.FirstOrDefault()?.code;
             }
             catch (Exception) { throw; }
@@ -233,6 +238,16 @@ namespace HNOne.Web.Controllers
                         EnumUpdate.value1 = pItemDetails!.value1;
                         EnumUpdate.value2 = pItemDetails!.value2;
                     }
+                    else if (EnumUpdate.enumType == nameof(EnumCatagory.TrangThaiPhatSinhCong))
+                    {
+                        EnumUpdate.value = pItemDetails!.value;
+                        ListCboStatusSelected = new List<ComboboxModel>();
+                        var statusIds = $"{EnumUpdate.value}".Split(",");
+                        if (!statusIds.IsNullOrEmpty() && !ListCboEmpStatus.IsNullOrEmpty())
+                        {
+                            ListCboStatusSelected = ListCboEmpStatus!.Where(m => statusIds.Contains(m.code));
+                        }
+                    }    
                     IsCreate = false;
                 }
                 IsShowDialog = true;
@@ -310,6 +325,15 @@ namespace HNOne.Web.Controllers
                 else if (EnumUpdate.enumType == nameof(EnumCatagory.QuyCachDanhMa))
                 {
                     EnumUpdate.value = $"{EnumUpdate.value1?.Trim()}{EnumUpdate.value2?.Trim()}";
+                }
+                else if (EnumUpdate.enumType == nameof(EnumCatagory.TrangThaiPhatSinhCong))
+                {
+                    if(ListCboStatusSelected.IsNullOrEmpty())
+                    {
+                        ShowWarning("Vui lòng chọn trạng thái phát sinh dữ liệu công");
+                        return;
+                    }
+                    EnumUpdate.value = string.Join(",", ListCboStatusSelected!.Select(m => m.code));
                 }
                 string content = JsonConvert.SerializeObject(EnumUpdate);
                 isConfirm = await _masterDataService.UpdateContractTypeAsync(processKey, UserId, Token, content);

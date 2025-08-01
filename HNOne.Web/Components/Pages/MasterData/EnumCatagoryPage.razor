@@ -131,6 +131,14 @@
                                 <DxGridDataColumn FieldName="@nameof(EnumCatagoryModel.userSignName)" Caption="Người tạo" MinWidth="120" />
                                 <DxGridDataColumn FieldName="@nameof(EnumCatagoryModel.userSign2Name)" Caption="Người cập nhật" MinWidth="120" />
                             }
+                            else if (pEnumTypeId == nameof(EnumCatagory.TrangThaiPhatSinhCong))
+                            {
+                                <DxGridDataColumn FieldName="@nameof(EnumCatagoryModel.value)" Caption="Trạng thái" MinWidth="140" Width="150px" />
+                                <DxGridDataColumn FieldName="@nameof(EnumCatagoryModel.enumTypeName)" Caption="Loại danh mục" MinWidth="120" Width="180px" />
+                                <DxGridDataColumn FieldName="@nameof(EnumCatagoryModel.dateTracking)" Caption="Ngày cập nhật" MinWidth="120" DisplayFormat="@GlobalContants.FORMAT_DATE_TIME" />
+                                <DxGridDataColumn FieldName="@nameof(EnumCatagoryModel.userSignName)" Caption="Người tạo" MinWidth="120" />
+                                <DxGridDataColumn FieldName="@nameof(EnumCatagoryModel.userSign2Name)" Caption="Người cập nhật" MinWidth="120" />
+                            }
                             else
                             {
                                 <DxGridDataColumn FieldName="@nameof(EnumCatagoryModel.enumTypeName)" Caption="Loại danh mục" MinWidth="120" Width="180px" />
@@ -342,6 +350,24 @@
                     <W1Label Value="Hậu tố" Styles="width: 110px" />
                     <div style="width: calc(100% - 110px)">
                         <DxTextBox @bind-Text="@EnumUpdate.value2" CssClass="w1FontSize" Id="txtvalue2" ReadOnly="true"></DxTextBox>
+                    </div>
+                </div>
+            </div>
+        }
+        else if (EnumUpdate.enumType == nameof(EnumCatagory.TrangThaiPhatSinhCong))
+        {
+            <div class="col-sm-12">
+                <div class="d-flex ">
+                    <W1Label Value="Trạng thái" Styles="width: 110px" IsRequired="true" />
+                    <div style="width: calc(100% - 110px)">
+                        <DxTagBox Data="@ListCboEmpStatus"
+                                  @bind-Values="@ListCboStatusSelected" CssClass="w1FontSize"
+                                  DropDownBodyCssClass="w1FontSize" DropDownCssClass="w1FontSize"
+                                  ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
+                                  TextFieldName="@nameof(ComboboxModel.name)">
+                            <DxListEditorColumn FieldName="@nameof(ComboboxModel.code)" Caption="Mã" Width="120px" />
+                            <DxListEditorColumn FieldName="@nameof(ComboboxModel.name)" Caption="Tên" />
+                        </DxTagBox>
                     </div>
                 </div>
             </div>
