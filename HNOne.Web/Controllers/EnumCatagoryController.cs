@@ -112,6 +112,7 @@ namespace HNOne.Web.Controllers
 
         private async Task getEnumTypes()
         {
+            SelectedEnums = null;
             ListEnum = new List<EnumCatagoryModel>();
             ListEnum = await _masterDataService.GetEnumAsync(UserId, Token, pEnumTypeId, isShowToast: true);
         }
