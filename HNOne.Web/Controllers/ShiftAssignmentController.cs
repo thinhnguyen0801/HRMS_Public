@@ -1,4 +1,5 @@
-﻿using DevExpress.Blazor;
+﻿using ClosedXML.Excel;
+using DevExpress.Blazor;
 using HNOne.Common;
 using HNOne.Model;
 using HNOne.Model.Entities;
@@ -8,8 +9,11 @@ using HNOne.Web.Components.Controls;
 using HNOne.Web.Models;
 using HNOne.Web.Services.Interfaces;
 using Microsoft.AspNetCore.Components;
+using Microsoft.AspNetCore.Components.Forms;
 using Microsoft.JSInterop;
 using Newtonsoft.Json;
+using System.Data;
+using System.Reflection;
 
 namespace HNOne.Web.Controllers
 {
@@ -24,7 +28,6 @@ namespace HNOne.Web.Controllers
         public List<ShiftAssignmentModel>? ListShiftAssignment { get; set; }
         public IGrid? GridShiftAssignment { get; set; }
 
-
         public List<ComboboxModel>? ListCboBranch { get; set; } // cbo ds chi nhánh
         public List<ComboboxModel>? ListCboStatus { get; set; } // cbo ds tình trạng
         public IEnumerable<ComboboxModel>? ListCboStatusSelected { get; set; }
@@ -38,6 +41,7 @@ namespace HNOne.Web.Controllers
         private List<ComboboxModel>? lstDayOffInMonth { get; set; } // danh sách ngày nghỉ
         public int MaxDaysInMonth { get; set; } = 30; // max số ngày trong tháng
         public bool IsShowFilter { get; set; } = true; // mở rộng vùng tìm kiếm
+        public InputFile? inputFile { get; set; } // file
         #endregion
 
         protected override async Task OnAfterRenderAsync(bool firstRender)
@@ -176,6 +180,63 @@ namespace HNOne.Web.Controllers
                 string? jsonDetail =  response!.FirstOrDefault(m => !string.IsNullOrEmpty(m.jsonDetail))?.jsonDetail;
                 if(!string.IsNullOrEmpty(jsonDetail)) lstDayOffInMonth = JsonConvert.DeserializeObject<List<ComboboxModel>>(jsonDetail);
             }    
+        }
+        
+        private List<ShiftAssignmentModel> readExcelToDataTable(Stream excelStream)
+        {
+            try
+            {
+                var list = new List<ShiftAssignmentModel>();
+                using (var workbook = new XLWorkbook(excelStream))
+                {
+                    var worksheet = workbook.Worksheet(1);
+                    var range = worksheet.RangeUsed();
+                    var rows = range.RowsUsed();
+
+                    var headerRow = rows.First();
+                    var headers = headerRow.Cells().Select(c => c.GetString()).ToList();
+                    // Map từ cột có dấu sang property
+                    Dictionary<string, string> columnMap = new(StringComparer.OrdinalIgnoreCase)
+                    {
+                        { "Mã nhân viên", "employeeCode" }
+                    };
+
+                    foreach (var row in rows.Skip(1))
+                    {
+                        var obj = new ShiftAssignmentModel();
+
+                        for (int i = 0; i < headers.Count; i++)
+                        {
+                            string excelHeader = headers[i];
+                            if (string.IsNullOrWhiteSpace(excelHeader)) continue;
+
+                            // 1. Map nếu nằm trong dictionary
+                            string propertyName = columnMap != null && columnMap.TryGetValue(excelHeader, out var mappedName)
+                                ? mappedName
+                                : excelHeader; // 2. Nếu không, dùng luôn header
+
+                            PropertyInfo? prop = typeof(ShiftAssignmentModel).GetProperty(propertyName, BindingFlags.IgnoreCase | BindingFlags.Public | BindingFlags.Instance);
+                            if (prop != null && prop.CanWrite)
+                            {
+                                string? cellValue = row.Cell(i + 1).GetString()?.Trim();
+                                try
+                                {
+                                    object? convertedValue = Convert.ChangeType(cellValue, Nullable.GetUnderlyingType(prop.PropertyType) ?? prop.PropertyType);
+                                    prop.SetValue(obj, convertedValue);
+                                }
+                                catch
+                                {
+                                    // Option: log hoặc bỏ qua lỗi nếu không convert được
+                                }
+                            }
+                        }
+
+                        list.Add(obj);
+                    }
+                }
+                return list;
+            }
+            catch(Exception) { throw; }
         }
         #endregion
 
@@ -384,13 +445,125 @@ namespace HNOne.Web.Controllers
                 await GridShiftAssignment!.ExportToXlsxAsync("Phan-cong-ca-lam-viec", new GridXlExportOptions()
                 {
                     ExportTotalSummaries = false,
-                    ExportGroupSummaries = false
+                    ExportGroupSummaries = false,
+                    GroupExportMode = GridGroupExportMode.None,
+                    CustomizeCell = ((GridExportCustomizeCellEventArgs arg) =>
+                    {
+                        ShiftAssignmentModel? rowItem = arg.DataItem as ShiftAssignmentModel;
+                        if (string.IsNullOrEmpty(rowItem?.jsonDetail)) return;
+                        var lstDayOffInMonth = JsonConvert.DeserializeObject<List<ComboboxModel>>($"{rowItem.jsonDetail}");
+                        var item = lstDayOffInMonth?.FirstOrDefault(m => $"{m.code}" == arg.ColumnFieldName);
+                        if (item != null)
+                        {
+                            //arg.Formatting.BackColor = System.Drawing.ColorTranslator.FromHtml(item.value ?? "");
+                            arg.Formatting.BackColor = System.Drawing.Color.Yellow;
+                        }
+                    })
                 });
             }
             catch (Exception ex)
             {
                 _logger!.LogError(ex, "ExportExcelHandler");
                 ShowError(ex.Message);
+            }
+            finally
+            {
+                await ShowLoading(false);
+                await InvokeAsync(StateHasChanged);
+            }
+        }
+
+        /// <summary>
+        /// Import file
+        /// </summary>
+        /// <returns></returns>
+        protected async Task ImportExcelHandler()
+        {
+            try
+            {
+                if (inputFile == null) return;
+                await _jsRuntime.InvokeVoidAsync("triggerClick", inputFile.Element);
+            }
+            catch (Exception ex)
+            {
+                _logger!.LogError(ex, "ImportExcelHandler");
+                ShowError(ex.Message);
+            }
+        }
+
+        /// <summary>
+        /// Import dữ liệu từ file excel
+        /// </summary>
+        /// <returns></returns>
+        protected async Task OnLoadFileHandler(InputFileChangeEventArgs args)
+        {
+            try
+            {
+                if (args.FileCount <= 0) return;
+                var lstFileExtension = args.GetMultipleFiles().Select(m => Path.GetExtension(m.Name));
+                var checkExist = lstFileExtension.Any(m => m != ".xlsx");
+                if (checkExist)
+                {
+                    ShowWarning("Bạn chỉ được phép đính kèm tệp excel(.xlsx)");
+                    return;
+                }
+                var isConfirm = await confirm.SetConfirm(MessageConstants.MESSAGE_TITLE, $"Chỉ những dòng có nhân viên sẽ được thay thế dữ liệu từ Excel <br /> Bạn có chắc muốn tiếp tục?");
+                if (!isConfirm) return;
+                await ShowLoading();
+                using var stream = args.File.OpenReadStream();
+                using var memoryStream = new MemoryStream();
+                await stream.CopyToAsync(memoryStream);
+                memoryStream.Position = 0;
+                var result = readExcelToDataTable(memoryStream);
+                if (result.IsNullOrEmpty() || ListShiftAssignment.IsNullOrEmpty())
+                {
+                    ShowWarning(MessageConstants.MESSAGE_NOT_FOUNT);
+                    return;
+                }   
+                foreach(var itemGrid in ListShiftAssignment!)
+                {
+                    foreach(var item in result)
+                    {
+                        if (itemGrid.employeeCode != item.employeeCode) continue;
+                        itemGrid.n01 = item.n01;
+                        itemGrid.n02 = item.n02;
+                        itemGrid.n03 = item.n03;
+                        itemGrid.n04 = item.n04;
+                        itemGrid.n05 = item.n05;
+                        itemGrid.n06 = item.n06;
+                        itemGrid.n07 = item.n07;
+                        itemGrid.n08 = item.n08;
+                        itemGrid.n09 = item.n09;
+                        itemGrid.n10 = item.n10;
+                        itemGrid.n11 = item.n11;
+                        itemGrid.n12 = item.n12;
+                        itemGrid.n13 = item.n13;
+                        itemGrid.n14 = item.n14;
+                        itemGrid.n15 = item.n15;
+                        itemGrid.n16 = item.n16;
+                        itemGrid.n17 = item.n17;
+                        itemGrid.n18 = item.n18;
+                        itemGrid.n19 = item.n19;
+                        itemGrid.n20 = item.n20;
+                        itemGrid.n21 = item.n21;
+                        itemGrid.n22 = item.n22;
+                        itemGrid.n23 = item.n23;
+                        itemGrid.n24 = item.n24;
+                        itemGrid.n25 = item.n25;
+                        itemGrid.n26 = item.n26;
+                        itemGrid.n27 = item.n27;
+                        itemGrid.n28 = item.n28;
+                        itemGrid.n29 = item.n29;
+                        itemGrid.n30 = item.n30;
+                        itemGrid.n31 = item.n31;
+                    }
+                }
+                GridShiftAssignment?.Reload();
+            }
+            catch (Exception ex)
+            {
+                ShowError(ex.Message);
+                _logger.LogError(ex, "ImportDataHandler");
             }
             finally
             {
@@ -412,13 +585,14 @@ namespace HNOne.Web.Controllers
         {
             try
             {
-                if (arg.ElementType == GridElementType.DataCell)
+                if (arg.ElementType != GridElementType.DataCell) return;
+                ShiftAssignmentModel rowItem = (ShiftAssignmentModel)arg.Grid.GetDataItem(arg.VisibleIndex);
+                if (string.IsNullOrEmpty(rowItem.jsonDetail)) return;
+                var lstDayOffInMonth = JsonConvert.DeserializeObject<List<ComboboxModel>>($"{rowItem.jsonDetail}");
+                var item = lstDayOffInMonth?.FirstOrDefault(m => $"{m.code}" == arg.Column.Name);
+                if (item != null)
                 {
-                    var item = lstDayOffInMonth?.FirstOrDefault(m => $"{m.code}" == arg.Column.Name);
-                    if(item != null)
-                    {
-                        arg.Style = $"background-color: {item.value}";
-                    }    
+                    arg.Style = $"background-color: {item.value}";
                 }
             }
             catch (Exception ex)

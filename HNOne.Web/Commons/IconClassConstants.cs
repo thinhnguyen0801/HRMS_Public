@@ -29,5 +29,6 @@
         public const string ICON_FILTER = "fa-solid fa-filter h1-text-icon-primary";
         public const string ICON_GRID = "fa-solid fa-grip-vertical h1-text-icon-primary"; // <i class="fa-solid fa-grip-vertical"></i>
         public const string ICON_DOWN = "fa-solid fa-angles-down h1-text-icon-primary"; // <i class="fa-solid fa-angles-down"></i>
+        public const string ICON_IMPORT = "fa-solid fa-file-import h1-text-icon-primary"; // <i class="fa-solid fa-file-import"></i>
     }
 }

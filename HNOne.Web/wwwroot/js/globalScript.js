@@ -150,3 +150,8 @@ async function createUrlViewer(contentStreamReference, type) {
     url = URL.createObjectURL(file);
     return url
 }
+
+// trigger click 1 element
+window.triggerClick = function (element) {
+    element.click();
+};

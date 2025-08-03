@@ -2,7 +2,7 @@
 @inherits Controllers.ShiftAssignmentController
 <PageTitle>Phân công ca làm việc</PageTitle>
 
-
+<InputFile id="ref-upload-insurance" @ref="@inputFile" accept=".xlsx" OnChange="@OnLoadFileHandler" style="display:none" />
 <div class="h-content-filter">
     <div class="grid gap-1 row-gap-2">
         <div class="@(IsShowFilter ? "g-col-md-4 g-col-sm-12 g-col-12" : "d-none")">
@@ -104,6 +104,8 @@
                             </div>
                             <DxToolbar ItemRenderStyleMode="@ToolbarRenderStyleMode.Contained">
                                 <Items>
+                                    <DxToolbarItem Text="Import" BeginGroup="true" IconCssClass="@($"{IconClassConstants.ICON_IMPORT}")" CssClass="w1FontSize"
+                                                   Alignment="@ToolbarItemAlignment.Right" Click="@ImportExcelHandler" />
                                     <DxToolbarItem Text="Làm mới" BeginGroup="true" IconCssClass="@($"{IconClassConstants.ICON_REFRESH}")" CssClass="w1FontSize"
                                                    Alignment="@ToolbarItemAlignment.Right" Click="@RefreshDataHandler" />
                                     <DxToolbarItem Text="Phát sinh công" BeginGroup="true" IconCssClass="@($"{IconClassConstants.ICON_CALENDAR_CHECK}")" CssClass="w1FontSize"
@@ -140,7 +142,7 @@
                                     @* <DxGridDataColumn FieldName="@nameof(ShiftAssignmentModel.rowOrder)" Caption="STT" Width="50px" MinWidth="45" DataRowEditorVisible="false" FixedPosition="@GridColumnFixedPosition.Left" /> *@
                                     <DxGridDataColumn FieldName="@nameof(ShiftAssignmentModel.employeeCode)" Caption="Mã nhân viên" Width="130px" MinWidth="130" DataRowEditorVisible="false" FixedPosition="@GridColumnFixedPosition.Left" />
                                     <DxGridDataColumn FieldName="@nameof(ShiftAssignmentModel.employeeName)" Caption="Họ tên" Width="145px" MinWidth="130" DataRowEditorVisible="false" FixedPosition="@GridColumnFixedPosition.Left" />
-                                    <DxGridDataColumn FieldName="@nameof(ShiftAssignmentModel.departmentName)" Caption="Phòng ban" Width="145px" MinWidth="130" DataRowEditorVisible="false" />
+                                    <DxGridDataColumn FieldName="@nameof(ShiftAssignmentModel.departmentName)" Caption="Phòng ban" Width="145px" MinWidth="130" DataRowEditorVisible="false" GroupIndex="0" />
                                     <DxGridDataColumn FieldName="@nameof(ShiftAssignmentModel.titleName)" Caption="Chức danh" Width="145px" MinWidth="130" DataRowEditorVisible="false" />
                                     <DxGridDataColumn FieldName="@nameof(ShiftAssignmentModel.shiftCode)" Caption="Ca mặc định" Width="100px" MinWidth="90" DataRowEditorVisible="false" />
                                     <DxGridDataColumn FieldName="@nameof(ShiftAssignmentModel.n01)" Name="@nameof(ShiftAssignmentModel.n01)" Caption="N01" MinWidth="90">

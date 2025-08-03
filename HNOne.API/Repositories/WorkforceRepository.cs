@@ -316,19 +316,8 @@ namespace HNOne.API.Repositories
                 parameters.Add("@DepartmentIds", request.departmentIds);
                 parameters.Add("@Year", request.year);
                 parameters.Add("@Month", request.month);
-                IEnumerable<ShiftAssignmentModel>? lstResult = null;
-                var dtResult = await connection.QueryMultipleAsync(StoreConstants.STORE_H1_ARRANGE_SHIFT_SELECT, param: parameters
+                var lstResult = await connection.QueryAsync<ShiftAssignmentModel>(StoreConstants.STORE_H1_ARRANGE_SHIFT_SELECT, param: parameters
                     , commandTimeout: GlobalConstants.COMMAND_TIMEOUT, commandType: CommandType.StoredProcedure);
-                if (dtResult != null)
-                {
-                    lstResult = dtResult.Read<ShiftAssignmentModel>();
-                    if(!lstResult.IsNullOrEmpty())
-                    {
-                        var lstDetail = dtResult.Read<ComboboxModel>();
-                        string jsonDetail = JsonConvert.SerializeObject(lstDetail);
-                        lstResult.First().jsonDetail = jsonDetail;
-                    }    
-                }
                 return lstResult ?? new List<ShiftAssignmentModel>();
             }
         }
