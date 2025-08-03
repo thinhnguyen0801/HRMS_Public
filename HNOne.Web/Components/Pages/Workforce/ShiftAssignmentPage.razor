@@ -104,8 +104,6 @@
                             </div>
                             <DxToolbar ItemRenderStyleMode="@ToolbarRenderStyleMode.Contained">
                                 <Items>
-                                    <DxToolbarItem Text="Import" BeginGroup="true" IconCssClass="@($"{IconClassConstants.ICON_IMPORT}")" CssClass="w1FontSize"
-                                                   Alignment="@ToolbarItemAlignment.Right" Click="@ImportExcelHandler" />
                                     <DxToolbarItem Text="Làm mới" BeginGroup="true" IconCssClass="@($"{IconClassConstants.ICON_REFRESH}")" CssClass="w1FontSize"
                                                    Alignment="@ToolbarItemAlignment.Right" Click="@RefreshDataHandler" />
                                     <DxToolbarItem Text="Phát sinh công" BeginGroup="true" IconCssClass="@($"{IconClassConstants.ICON_CALENDAR_CHECK}")" CssClass="w1FontSize"
@@ -114,6 +112,8 @@
                                                    Alignment="@ToolbarItemAlignment.Right" Click="@SaveDataHandler" />
                                     <DxToolbarItem Text="Kết xuất" BeginGroup="true" IconCssClass="@($"{IconClassConstants.ICON_EXPORT_EXCEL}")" CssClass="w1FontSize"
                                                    Alignment="@ToolbarItemAlignment.Right" Click="@(()=> ExportExcelHandler())" />
+                                    <DxToolbarItem Text="Import" BeginGroup="true" IconCssClass="@($"{IconClassConstants.ICON_IMPORT}")" CssClass="w1FontSize"
+                                                   Alignment="@ToolbarItemAlignment.Right" Click="@ImportExcelHandler" />
                                 </Items>
                             </DxToolbar>
                         </div>

@@ -382,6 +382,7 @@ namespace HNOne.Web.Controllers
             request.userId = UserId;
             request.token = Token;
             request.branchId = BranchId;
+            request.employeeId = LeaveRequestDocument.employeeId;
             request.opt = LeaveRequestDocument.fromDate!.FormatDateTimeSql();
             request.opt1 = LeaveRequestDocument.toDate!.FormatDateTimeSql();
             request.type = ProcessConstants.GET_COMBO_LIST_OF_VACATION_DAY;
