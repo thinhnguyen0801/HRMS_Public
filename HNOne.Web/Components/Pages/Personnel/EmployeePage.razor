@@ -37,6 +37,10 @@
                 <DxToolbarItem Text="Lưu & tạo tài khoản" BeginGroup="true" IconCssClass="@($"{IconClassConstants.ICON_UPDATE}")" CssClass="w1FontSize"
                                Alignment="@ToolbarItemAlignment.Right" Click="@(() => SaveDataHandler(isCreateAccount: true))" />
 
+                 <DxToolbarItem Text="Đăng ký thai sản" BeginGroup="true" IconCssClass="@($"{IconClassConstants.ICON_ADD}")" CssClass="w1FontSize"
+                               Alignment="@ToolbarItemAlignment.Right" Click="@(() => CreateContractHandler())" 
+                               Visible="@(pActionType == nameof(EnumType.Update))" />
+
                 <DxToolbarItem Text="Phát sinh công" BeginGroup="true" IconCssClass="@($"{IconClassConstants.ICON_CALENDAR_CHECK}")" CssClass="w1FontSize"
                                Alignment="@ToolbarItemAlignment.Right" Click="@(() => GenerateWorkHandler())" 
                                Visible="@(pActionType == nameof(EnumType.Update))" />
