@@ -88,6 +88,7 @@
         public double nPKL { get; set; } // nghỉ phép không lương
         public double nB { get; set; } // nghỉ bù
         public double nKP { get; set; } // nghỉ không phép
+        public double nNV { get; set; } // Nghỉ ngừng việc
         public double cTPC { get; set; } // số công tính phụ cấp
         public double tGDLTVS { get; set; } // thời gian đi trễ về sớm
         public double sLDLTVS { get; set; } // số lần đi trễ về sớm

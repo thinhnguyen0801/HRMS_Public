@@ -272,6 +272,8 @@ namespace HNOne.Web.Controllers
                     ShowInfo(MessageConstants.MESSAGE_NO_PERMISSION);
                     return;
                 }
+                bool isConfirm = await confirm.SetConfirm(MessageConstants.MESSAGE_TITLE, $"Tính công đối với nhân viên chưa được khóa kỳ công. <br /> Bạn có chắc muốn tiếp tục");
+                if (!isConfirm) return;
                 await ShowLoading();
                 SelectedItems = null;
                 ListTimesheet = new List<ShiftAssignmentModel>();

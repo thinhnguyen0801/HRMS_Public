@@ -53,6 +53,7 @@ namespace HNOne.Model.Entities
         public double NPKL { get; set; } // nghỉ phép không lương
         public double NB { get; set; } // nghỉ bù
         public double NKP { get; set; } // nghỉ không phép
+        public double NNV { get; set; } // nghỉ ngừng việc
         public double CTPC { get; set; } // số công tính phụ cấp
         public double TGDLTVS { get; set; } // thời gian đi trễ về sớm
         public double SLDLTVS { get; set; } // số lần đi trễ về sớm
