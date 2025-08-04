@@ -230,6 +230,7 @@ namespace HNOne.API.Repositories
                     data.NPN = entity.NPN;
                     data.NCD = entity.NCD;
                     data.NPKL = entity.NPKL;
+                    data.NNV = entity.NNV;
                     data.NB = entity.NB;
                     data.NKP = entity.NKP;
                     data.CTPC = entity.CTPC;
@@ -265,8 +266,12 @@ namespace HNOne.API.Repositories
                     data.AnnualLeaveSalary = entity.AnnualLeaveSalary;
                     data.RegulatedSalary = entity.RegulatedSalary;
                     data.HolidaySalary = entity.HolidaySalary;
+                    data.IdleSalary = entity.IdleSalary;
                     data.MissingWorkingHourSalary = entity.MissingWorkingHourSalary;
+                    data.UnpaidLeaveSalary = entity.UnpaidLeaveSalary;
                     data.LateSalary = entity.LateSalary;
+                    data.RewardAllowanceSalary = entity.RewardAllowanceSalary;
+                    data.BackPaymentSalary = entity.BackPaymentSalary;
                     #endregion
 
                     #region Thông tin về trích nộp

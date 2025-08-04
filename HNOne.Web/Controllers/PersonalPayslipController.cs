@@ -24,6 +24,7 @@ namespace HNOne.Web.Controllers
         public EmployeeModel EmployeeUpdate { get; set; } = new EmployeeModel();
         public PayrollModel PayrollInfo { get; set; } = new PayrollModel();
         public List<SalaryConfigurationModel> ListAllowanceSalary { get; set; } = new List<SalaryConfigurationModel>();
+        public List<SalaryConfigurationModel> ListRewardSalary { get; set; } = new List<SalaryConfigurationModel>(); // danh sách khen thưởng & phụ cấp
         public List<ComboboxModel>? ListCboPreiod { get; set; } // cbo ds kỳ lương
         public string? pSalaryPreiodId { get; set; }
         public string? pSalaryPreiodVale { get; set; } // giá trị từ ngày đến ngày của kỳ lương
@@ -114,6 +115,7 @@ namespace HNOne.Web.Controllers
             if (EmployeeId < 1 || string.IsNullOrEmpty(pSalaryPreiodId)) return;
             PayrollInfo = new PayrollModel();
             ListAllowanceSalary = new List<SalaryConfigurationModel>();
+            ListRewardSalary = new List<SalaryConfigurationModel>();
             string[] arrDt = pSalaryPreiodId!.Split("-");
             int.TryParse(arrDt[0], out int year);
             int.TryParse(arrDt[1], out int month);
@@ -132,14 +134,22 @@ namespace HNOne.Web.Controllers
             var response = await _salaryService.GetMasterDataAsync<PayrollModel>(request);
             if (!response.IsNullOrEmpty())
             {
-                PayrollInfo = response![0];
-                foreach(var item in response)
+                PayrollInfo = response!.FirstOrDefault(m=>m.isRewardAllowance == false) ?? new PayrollModel();
+                foreach(var item in response!)
                 {
                     SalaryConfigurationModel itemAdd = new SalaryConfigurationModel();
                     itemAdd.salaryCategoryName = item.salaryCategoryName;
                     itemAdd.salaryCategoryCode = item.salaryCategoryCode;
                     itemAdd.amount = item.salaryAllowance;
-                    ListAllowanceSalary.Add(itemAdd);
+                    if (item.isRewardAllowance == false)
+                    {
+                        ListAllowanceSalary.Add(itemAdd);
+                    }
+                    else
+                    {
+                        // Lương khen thưởng & phụ cấp khác
+                        ListRewardSalary.Add(itemAdd);
+                    }
                 }
             }
         }

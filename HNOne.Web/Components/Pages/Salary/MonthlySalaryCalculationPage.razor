@@ -248,11 +248,27 @@
                                                 </HeaderCaptionTemplate>
                                             </DxGridDataColumn>
 
+                                            <DxGridDataColumn FieldName="@nameof(PayrollModel.rewardAllowanceSalary)" Caption="Trổng khen thưởng & phụ cấp khác" MinWidth="110"
+                                                              CaptionAlignment="@GridTextAlignment.Center" DisplayFormat="@GlobalContants.FORMAT_CURRENCY">
+                                                <HeaderCaptionTemplate>
+                                                    <div>Tổng</div>
+                                                    <div>KT - PC <span style="color: red;">&nbsp;(*)</span></div>
+                                                </HeaderCaptionTemplate>
+                                            </DxGridDataColumn>
+
                                             <DxGridDataColumn FieldName="@nameof(PayrollModel.totalDeductionEmployee)" Caption="Tổng trích nộp" MinWidth="110"
                                                               CaptionAlignment="@GridTextAlignment.Center" DisplayFormat="@GlobalContants.FORMAT_CURRENCY">
                                                 <HeaderCaptionTemplate>
                                                     <div>Tổng</div>
                                                     <div>Trích nộp <span style="color: red;">&nbsp;(*)</span></div>
+                                                </HeaderCaptionTemplate>
+                                            </DxGridDataColumn>
+                                            
+                                             <DxGridDataColumn FieldName="@nameof(PayrollModel.backPaymentSalary)" Caption="Truy thu trích nộp" MinWidth="110"
+                                                              CaptionAlignment="@GridTextAlignment.Center" DisplayFormat="@GlobalContants.FORMAT_CURRENCY">
+                                                <HeaderCaptionTemplate>
+                                                    <div>Tổng</div>
+                                                    <div>Truy thu <span style="color: red;">&nbsp;(*)</span></div>
                                                 </HeaderCaptionTemplate>
                                             </DxGridDataColumn>
 
@@ -334,11 +350,25 @@
                                                     <div>Phụ cấp</div>
                                                 </HeaderCaptionTemplate>
                                             </DxGridDataColumn>
+                                            <DxGridDataColumn FieldName="@nameof(PayrollModel.nNV)" Caption="Công ngừng việc" MinWidth="80"
+                                                              CaptionAlignment="@GridTextAlignment.Center" DisplayFormat="@GlobalContants.FORMAT_CURRENCY">
+                                                <HeaderCaptionTemplate>
+                                                    <div>Công</div>
+                                                    <div>Ngừng việc</div>
+                                                </HeaderCaptionTemplate>
+                                            </DxGridDataColumn>
                                             <DxGridDataColumn FieldName="@nameof(PayrollModel.tGTC)" Caption="Giờ công tăng ca" MinWidth="80"
                                                               CaptionAlignment="@GridTextAlignment.Center" DisplayFormat="@GlobalContants.FORMAT_CURRENCY">
                                                 <HeaderCaptionTemplate>
                                                     <div>Giờ công</div>
                                                     <div>Tăng ca</div>
+                                                </HeaderCaptionTemplate>
+                                            </DxGridDataColumn>
+                                            <DxGridDataColumn FieldName="@nameof(PayrollModel.nKP)" Caption="Nghỉ không phép" MinWidth="80"
+                                                              CaptionAlignment="@GridTextAlignment.Center" DisplayFormat="@GlobalContants.FORMAT_CURRENCY">
+                                                <HeaderCaptionTemplate>
+                                                    <div>Nghỉ</div>
+                                                    <div>Không phép</div>
                                                 </HeaderCaptionTemplate>
                                             </DxGridDataColumn>
                                             <DxGridDataColumn FieldName="@nameof(PayrollModel.sGT)" Caption="Giờ công thiếu" MinWidth="80"
@@ -358,21 +388,21 @@
                                             <DxGridDataColumn FieldName="@nameof(PayrollModel.actualSalary)" Caption="Lương công thực tế" MinWidth="100"
                                                               CaptionAlignment="@GridTextAlignment.Center" DisplayFormat="@GlobalContants.FORMAT_CURRENCY">
                                                 <HeaderCaptionTemplate>
-                                                    <div>Lương công</div>
+                                                    <div>Lương</div>
                                                     <div>Thực tế</div>
                                                 </HeaderCaptionTemplate>
                                             </DxGridDataColumn>
                                             <DxGridDataColumn FieldName="@nameof(PayrollModel.annualLeaveSalary)" Caption="Lương công phép năm" MinWidth="100"
                                                               CaptionAlignment="@GridTextAlignment.Center" DisplayFormat="@GlobalContants.FORMAT_CURRENCY">
                                                 <HeaderCaptionTemplate>
-                                                    <div>Lương công</div>
+                                                    <div>Lương</div>
                                                     <div>Phép năm</div>
                                                 </HeaderCaptionTemplate>
                                             </DxGridDataColumn>
                                             <DxGridDataColumn FieldName="@nameof(PayrollModel.regulatedSalary)" Caption="Lương công chế độ" MinWidth="100"
                                                               CaptionAlignment="@GridTextAlignment.Center" DisplayFormat="@GlobalContants.FORMAT_CURRENCY">
                                                 <HeaderCaptionTemplate>
-                                                    <div>Lương công</div>
+                                                    <div>Lương</div>
                                                     <div>Chế độ</div>
                                                 </HeaderCaptionTemplate>
                                             </DxGridDataColumn>
@@ -383,11 +413,25 @@
                                                     <div>Nghỉ lễ</div>
                                                 </HeaderCaptionTemplate>
                                             </DxGridDataColumn>
+                                            <DxGridDataColumn FieldName="@nameof(PayrollModel.idleSalary)" Caption="Lương nghỉ ngừng việc" MinWidth="100"
+                                                              CaptionAlignment="@GridTextAlignment.Center" DisplayFormat="@GlobalContants.FORMAT_CURRENCY">
+                                                <HeaderCaptionTemplate>
+                                                    <div>Lương</div>
+                                                    <div>Ngừng việc</div>
+                                                </HeaderCaptionTemplate>
+                                            </DxGridDataColumn>
                                             <DxGridDataColumn FieldName="@nameof(PayrollModel.overtimeSalary)" Caption="Lương công Tăng ca" MinWidth="100"
                                                               CaptionAlignment="@GridTextAlignment.Center" DisplayFormat="@GlobalContants.FORMAT_CURRENCY">
                                                 <HeaderCaptionTemplate>
-                                                    <div>Lương công</div>
+                                                    <div>Lương</div>
                                                     <div>Tăng ca</div>
+                                                </HeaderCaptionTemplate>
+                                            </DxGridDataColumn>
+                                            <DxGridDataColumn FieldName="@nameof(PayrollModel.unpaidLeaveSalary)" Caption="Lương không phép" MinWidth="100"
+                                                              CaptionAlignment="@GridTextAlignment.Center" DisplayFormat="@GlobalContants.FORMAT_CURRENCY">
+                                                <HeaderCaptionTemplate>
+                                                    <div>Lương</div>
+                                                    <div>Không phép</div>
                                                 </HeaderCaptionTemplate>
                                             </DxGridDataColumn>
                                             <DxGridDataColumn FieldName="@nameof(PayrollModel.missingWorkingHourSalary)" Caption="Lương giờ thiếu" MinWidth="100"

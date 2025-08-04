@@ -114,6 +114,7 @@ namespace HNOne.Model.Models
         public double nL { get; set; } // nghỉ lễ
         public double nCD { get; set; } // nghỉ chết độ
         public double nPKL { get; set; } // nghỉ phép không lương
+        public double nNV { get; set; } // nghỉ ngừng việc do không có lớp học
         public double nB { get; set; } // nghỉ bù
         public double nKP { get; set; } // nghỉ không phép
         public double cTPC { get; set; } // số công tính phụ cấp
@@ -132,8 +133,12 @@ namespace HNOne.Model.Models
         public decimal annualLeaveSalary { get; set; } // lương nghỉ phép năm
         public decimal regulatedSalary { get; set; } // lương nghỉ chế độ
         public decimal holidaySalary { get; set; } // lương nghỉ lễ
+        public decimal idleSalary { get; set; } // lương nghỉ nhừng việc, tiền lương nhàn rỗi không có lớp giảng
         public decimal missingWorkingHourSalary { get; set; } // lương số giờ thiếu
+        public decimal unpaidLeaveSalary { get; set; } // lương không phép bị trừ
         public decimal lateSalary { get; set; } // lương đi trễ về sớm
+        public decimal rewardAllowanceSalary { get; set; } // lương thưởng & phụ cấp khác
+        public decimal backPaymentSalary { get; set; } // lương phải trả (Truy thu trích nộp)
         #endregion
 
         #region Thêm thông tin để in bảng lương cho nhân viên
@@ -142,6 +147,7 @@ namespace HNOne.Model.Models
         public string? salaryCategoryCode { get; set; } // Loại lương
         public string? salaryCategoryName { get; set; } // Loại lương
         public decimal salaryAllowance { get; set; } // lương đi trễ về sớm
+        public bool isRewardAllowance { get; set; } // là khen thưởng & phụ cấp
         #endregion
 
     }

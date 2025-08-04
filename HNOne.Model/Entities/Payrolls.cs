@@ -45,6 +45,7 @@ namespace HNOne.Model.Entities
         public double NPKL { get; set; } // nghỉ phép không lương
         public double NB { get; set; } // nghỉ bù
         public double NKP { get; set; } // nghỉ không phép
+        public double NNV { get; set; } // nghỉ nhừng việc, sẽ được tính theo hệ số & lương cơ bản
         public double CTPC { get; set; } // số công tính phụ cấp
         public double TGDLTVS { get; set; } // thời gian đi trễ về sớm
         public double SLDLTVS { get; set; } // số lần đi trễ về sớm
@@ -98,9 +99,17 @@ namespace HNOne.Model.Entities
         [Column(TypeName = "decimal(19, 6)")]
         public decimal HolidaySalary { get; set; } // lương nghỉ lễ
         [Column(TypeName = "decimal(19, 6)")]
+        public decimal UnpaidLeaveSalary { get; set; } // lương nghỉ không phép
+        [Column(TypeName = "decimal(19, 6)")]
         public decimal MissingWorkingHourSalary { get; set; } // lương số giờ thiếu
         [Column(TypeName = "decimal(19, 6)")]
         public decimal LateSalary { get; set; } // lương đi trễ về sớm
+        [Column(TypeName = "decimal(19, 6)")]
+        public decimal IdleSalary { get; set; } // lương nghỉ nhừng việc, tiền lương nhàn rỗi không có lớp giảng
+        [Column(TypeName = "decimal(19, 6)")]
+        public decimal RewardAllowanceSalary { get; set; } // lương thưởng & phụ cấp khác
+        [Column(TypeName = "decimal(19, 6)")]
+        public decimal BackPaymentSalary { get; set; } // lương phải trả (Truy thu trích nộp)
         #endregion
 
         #region Thông tin về trích nộp

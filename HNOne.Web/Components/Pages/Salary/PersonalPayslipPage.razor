@@ -126,8 +126,20 @@
                                 </div>
                                 <div class="col-sm-12 text-truncate">
                                     <div class="d-flex justify-content-between align-items-center align-items-end">
+                                        <div class="text-secondary text-truncate">Công nghỉ ngưng việc</div>
+                                        <span class="fw-medium">@PayrollInfo.nNV</span>
+                                    </div>
+                                </div>
+                                <div class="col-sm-12 text-truncate">
+                                    <div class="d-flex justify-content-between align-items-center align-items-end">
                                         <div class="text-secondary text-truncate">Số giờ tăng ca</div>
                                         <span class="fw-medium">@PayrollInfo.tGTC</span>
+                                    </div>
+                                </div>
+                                <div class="col-sm-12 text-truncate">
+                                    <div class="d-flex justify-content-between align-items-center align-items-end">
+                                        <div class="text-secondary text-truncate">Tổng ngày nghỉ không phép</div>
+                                        <span class="fw-medium">@PayrollInfo.nKP</span>
                                     </div>
                                 </div>
                                 <div class="col-sm-12 text-truncate">
@@ -144,14 +156,14 @@
         </div>
 
         <div class="col-12">
-            <div class="accordion card" id="accordion-info-1">
+            <div class="accordion card" id="accordion-info-2">
                 <div class="accordion-item" style="border: none">
                     <span class="accordion-header card-header p-2" id="heading-1">
-                        <button class="accordion-button px-2 py-0" type="button" data-bs-toggle="collapse" data-bs-target="#collapse-info-1" aria-expanded="true">
+                        <button class="accordion-button px-2 py-0" type="button" data-bs-toggle="collapse" data-bs-target="#collapse-info-2" aria-expanded="true">
                             <h4 class="mb-0">Lương công thực tế, phép, chế độ, tăng ca</h4>
                         </button>
                     </span>
-                    <div id="collapse-info-1" class="accordion-collapse collapse show" data-bs-parent="#accordion-info-1">
+                    <div id="collapse-info-2" class="accordion-collapse collapse show" data-bs-parent="#accordion-info-2">
                         <div class="accordion-body py-2 px-3">
                             <div class="row row-gap-2">
                                 <div class="col-sm-12 text-truncate">
@@ -180,8 +192,20 @@
                                 </div>
                                 <div class="col-sm-12 text-truncate">
                                     <div class="d-flex justify-content-between align-items-center align-items-end">
+                                        <div class="text-secondary text-truncate">Lương nghỉ ngừng việc</div>
+                                        <span class="fw-medium">@PayrollInfo.idleSalary.ToString(GlobalContants.FORMAT_CURRENCY)</span>
+                                    </div>
+                                </div>
+                                <div class="col-sm-12 text-truncate">
+                                    <div class="d-flex justify-content-between align-items-center align-items-end">
                                         <div class="text-secondary text-truncate">Lương công tăng ca</div>
                                         <span class="fw-medium">@PayrollInfo.overtimeSalary.ToString(GlobalContants.FORMAT_CURRENCY)</span>
+                                    </div>
+                                </div>
+                                <div class="col-sm-12 text-truncate">
+                                    <div class="d-flex justify-content-between align-items-center align-items-end">
+                                        <div class="text-secondary text-truncate">Nghỉ không phép</div>
+                                        <span class="fw-medium text-red">@PayrollInfo.unpaidLeaveSalary.ToString(GlobalContants.FORMAT_CURRENCY)</span>
                                     </div>
                                 </div>
                                 <div class="col-sm-12 text-truncate">
@@ -194,7 +218,7 @@
                                     <div class="d-flex justify-content-between align-items-center align-items-end">
                                         <div class="fw-medium text-truncate">Tổng cộng</div>
                                         <span class="fw-medium text-green">
-                                            @((PayrollInfo.actualSalary + PayrollInfo.annualLeaveSalary + PayrollInfo.regulatedSalary + PayrollInfo.holidaySalary 
+                                            @((PayrollInfo.actualSalary + PayrollInfo.annualLeaveSalary + PayrollInfo.regulatedSalary + PayrollInfo.holidaySalary + PayrollInfo.idleSalary
                                                 + PayrollInfo.overtimeSalary - PayrollInfo.missingWorkingHourSalary).ToString(GlobalContants.FORMAT_CURRENCY))
                                         </span>
                                     </div>
@@ -207,14 +231,14 @@
         </div>
 
         <div class="col-12">
-            <div class="accordion card" id="accordion-info-1">
+            <div class="accordion card" id="accordion-info-3">
                 <div class="accordion-item" style="border: none">
                     <span class="accordion-header card-header p-2" id="heading-1">
-                        <button class="accordion-button px-2 py-0" type="button" data-bs-toggle="collapse" data-bs-target="#collapse-info-1" aria-expanded="true">
+                        <button class="accordion-button px-2 py-0" type="button" data-bs-toggle="collapse" data-bs-target="#collapse-info-3" aria-expanded="true">
                             <h4 class="mb-0">Các khoản phụ cấp</h4>
                         </button>
                     </span>
-                    <div id="collapse-info-1" class="accordion-collapse collapse show" data-bs-parent="#accordion-info-1">
+                    <div id="collapse-info-3" class="accordion-collapse collapse show" data-bs-parent="#accordion-info-3">
                         <div class="accordion-body py-2 px-3">
                             <div class="row row-gap-2">
                                 @foreach (var item in ListAllowanceSalary)
@@ -240,14 +264,47 @@
         </div>
 
         <div class="col-12">
-            <div class="accordion card" id="accordion-info-1">
+            <div class="accordion card" id="accordion-info-3">
                 <div class="accordion-item" style="border: none">
                     <span class="accordion-header card-header p-2" id="heading-1">
-                        <button class="accordion-button px-2 py-0" type="button" data-bs-toggle="collapse" data-bs-target="#collapse-info-1" aria-expanded="true">
+                        <button class="accordion-button px-2 py-0" type="button" data-bs-toggle="collapse" data-bs-target="#collapse-info-3" aria-expanded="true">
+                            <h4 class="mb-0">Các khoản phát sinh khác</h4>
+                        </button>
+                    </span>
+                    <div id="collapse-info-3" class="accordion-collapse collapse show" data-bs-parent="#accordion-info-3">
+                        <div class="accordion-body py-2 px-3">
+                            <div class="row row-gap-2">
+                                @foreach (var item in ListRewardSalary)
+                                {
+                                    <div class="col-sm-12 text-truncate">
+                                        <div class="d-flex justify-content-between align-items-center align-items-end">
+                                            <div class="text-secondary text-truncate">@item.salaryCategoryName</div>
+                                            <span class="fw-medium @(item.salaryCategoryCode == "TTTN" ? "text-red" : "")">@item.amount.ToString(GlobalContants.FORMAT_CURRENCY)</span>
+                                        </div>
+                                    </div>
+                                }
+                                <div class="col-sm-12 text-truncate">
+                                    <div class="d-flex justify-content-between align-items-center align-items-end">
+                                        <div class="fw-medium text-truncate">Tổng cộng</div>
+                                        <span class="fw-medium text-green">@((PayrollInfo.rewardAllowanceSalary - PayrollInfo.backPaymentSalary).ToString(GlobalContants.FORMAT_CURRENCY))</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-12">
+            <div class="accordion card" id="accordion-info-4">
+                <div class="accordion-item" style="border: none">
+                    <span class="accordion-header card-header p-2" id="heading-1">
+                        <button class="accordion-button px-2 py-0" type="button" data-bs-toggle="collapse" data-bs-target="#collapse-info-4" aria-expanded="true">
                             <h4 class="mb-0">Các khoản giảm trừ</h4>
                         </button>
                     </span>
-                    <div id="collapse-info-1" class="accordion-collapse collapse show" data-bs-parent="#accordion-info-1">
+                    <div id="collapse-info-4" class="accordion-collapse collapse show" data-bs-parent="#accordion-info-4">
                         <div class="accordion-body py-2 px-3">
                             <div class="row row-gap-2">
                                 <div class="col-sm-12 text-truncate">

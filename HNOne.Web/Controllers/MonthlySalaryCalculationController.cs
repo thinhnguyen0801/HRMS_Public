@@ -242,6 +242,8 @@ namespace HNOne.Web.Controllers
                     ShowInfo(MessageConstants.MESSAGE_NO_PERMISSION);
                     return;
                 }
+                bool isConfirm = await confirm.SetConfirm(MessageConstants.MESSAGE_TITLE, $"Tính lương đối với nhân viên đã được khóa kỳ công & chưa được khóa kỳ lương. <br /> Bạn có chắc muốn tiếp tục");
+                if (!isConfirm) return;
                 await ShowLoading();
                 SelectedItems = null;
                 ListSalary = new List<PayrollModel>();
