@@ -40,7 +40,8 @@
         DanhMucImport,
         LoaiLuong,
         LoaiQuyetDinh,
-        LoaiTongHop
+        LoaiTongHop,
+        TrangThaiNghiThaiSan
     }
 
     public enum EnumObjType

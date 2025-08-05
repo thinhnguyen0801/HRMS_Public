@@ -86,6 +86,9 @@ namespace HNOne.API.Services
                     case ProcessConstants.PUT_EMPLOYEE_INFO:
                         response = await _personnelRepository.UpdateEmployeeInfo(entity);
                         break;
+                    case ProcessConstants.PUT_EMPLOYEE_MATERNITY_LEAVE:
+                        response = await _personnelRepository.UpdateMaternityRegistrationRequest(entity);
+                        break;
                 }
                 return response;
             }

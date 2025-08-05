@@ -1,6 +1,4 @@
-﻿using Azure.Core;
-using Dapper;
-using DocumentFormat.OpenXml.Vml.Office;
+﻿using Dapper;
 using HNOne.API.Constants;
 using HNOne.API.Repositories.Interfaces;
 using HNOne.Common;
@@ -8,15 +6,9 @@ using HNOne.Model;
 using HNOne.Model.Entities;
 using HNOne.Model.Models;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Metadata.Internal;
-using Microsoft.VisualBasic;
 using Newtonsoft.Json;
 using System.Data;
-using System.Diagnostics;
-using System.Diagnostics.Contracts;
 using static Dapper.SqlMapper;
-using static Microsoft.EntityFrameworkCore.DbLoggerCategory;
-using static Microsoft.EntityFrameworkCore.DbLoggerCategory.Database;
 
 namespace HNOne.API.Repositories
 {
@@ -25,6 +17,7 @@ namespace HNOne.API.Repositories
         private readonly MasterDbContext _dbContext;
         private readonly IDapperDbContext _dapperDbContext;
         private readonly IDateTimeHelper _dateTimeHelper;
+
         public PersonnelRepository(MasterDbContext dbContext
             , IDapperDbContext dapperDbContext, IDateTimeHelper dateTimeHelper)
         {
@@ -55,7 +48,7 @@ namespace HNOne.API.Repositories
                 parameters.Add("@TabIndex", $"{request.opt1}", DbType.String);
                 var lstResult = await connection.QueryAsync<EmployeeModel>(StoreConstants.STORE_H1_EMPLOYEE_SELECT, param: parameters, commandTimeout: GlobalConstants.COMMAND_TIMEOUT, commandType: CommandType.StoredProcedure);
                 return lstResult;
-            }; 
+            };
         }
 
         /// <summary>
@@ -82,18 +75,18 @@ namespace HNOne.API.Repositories
                 parameters.Add("@DepartmentIds", $"{request.departmentIds}", DbType.String);
                 IEnumerable<ContractModel>? lstResult = null;
                 var dtResult = await connection.QueryMultipleAsync(StoreConstants.STORE_H1_CONTRACT_SELECT, param: parameters, commandTimeout: GlobalConstants.COMMAND_TIMEOUT, commandType: CommandType.StoredProcedure);
-                if(dtResult != null)
+                if (dtResult != null)
                 {
                     lstResult = dtResult.Read<ContractModel>();
-                    if(request.documentId > 0)
+                    if (request.documentId > 0)
                     {
                         var lstSalaryConfig = dtResult.Read<SalaryConfigurationModel>();
                         string jsonDetail = JsonConvert.SerializeObject(lstSalaryConfig);
                         lstResult = lstResult.Update(m => m.jsonDetail = jsonDetail);
-                    }    
-                }    
+                    }
+                }
                 return lstResult ?? new List<ContractModel>();
-            }    
+            }
         }
 
         /// <summary>
@@ -115,7 +108,7 @@ namespace HNOne.API.Repositories
                 return results;
             }
         }
-        
+
         /// <summary>
         /// lấy danh sách bảo hiểm
         /// </summary>
@@ -133,7 +126,7 @@ namespace HNOne.API.Repositories
                     " where T0.IsDelete = 0 and T0.EmployeeId = @EmployeeId";
                 var results = await connection.QueryAsync<InsuranceModel>(query, parameters, commandTimeout: GlobalConstants.COMMAND_TIMEOUT, commandType: CommandType.Text);
                 return results;
-            }    
+            }
         }
 
         /// <summary>
@@ -190,7 +183,7 @@ namespace HNOne.API.Repositories
                 return results;
             }
         }
-        
+
         /// <summary>
         /// Lấy lịch sử lương của nhân viên
         /// </summary>
@@ -208,9 +201,11 @@ namespace HNOne.API.Repositories
                 return lstResult;
             };
         }
-        #endregion
+
+        #endregion Query
 
         #region Command
+
         /// <summary>
         /// Thêm mới nhân viên
         /// </summary>
@@ -292,7 +287,6 @@ namespace HNOne.API.Repositories
                 if (isTran) await _dbContext.Database.RollbackTransactionAsync();
                 throw;
             }
-
         }
 
         /// <summary>
@@ -328,12 +322,12 @@ namespace HNOne.API.Repositories
                         bool isResult = true;
                         // lấy thông tin công ty
                         Branchs? branch = await _dbContext.Branchs.FirstOrDefaultAsync(m => m.BranchId == data.BranchId);
-                        if(branch == null || string.IsNullOrEmpty(branch.DefaultPassword))
+                        if (branch == null || string.IsNullOrEmpty(branch.DefaultPassword))
                         {
                             response.status = StatusCodes.Status409Conflict;
                             response.message = $"Chi nhánh [{branch?.BranchCode}] chưa được cấu hình mật khẩu mặc định!";
                             return response;
-                        }    
+                        }
                         // Tạo mới
                         isResult = await _dbContext.Users.AnyAsync(m => m.UserName == account.UserName && m.EmployeeId != account.EmployeeId);
                         if (isResult)
@@ -414,7 +408,7 @@ namespace HNOne.API.Repositories
                     //DynamicParameters parameters = new DynamicParameters();
                     //parameters.Add("@EmployeeId", entity.Id, DbType.Int32);
                     //var data = await connection.QueryFirstOrDefaultAsync<Employees>(strQuery, parameters, commandTimeout: 500, commandType: CommandType.Text);
-                    var data = await _dbContext.Employees.FirstOrDefaultAsync(m => m.Id == entity.Id && m.IsDelete == false); // thay hàm này để tracking dữ liệu
+                    var data = await _dbContext.Employees.AsTracking().FirstOrDefaultAsync(m => m.Id == entity.Id && m.IsDelete == false); // thay hàm này để tracking dữ liệu
                     if (data == null)
                     {
                         response.status = StatusCodes.Status404NotFound;
@@ -430,12 +424,56 @@ namespace HNOne.API.Repositories
                     response.message = MessageConstants.MESSAGE_UPDATE_SUCCESS;
                     response.data = entity.Id;
                     return response;
-                }    
+                }
             }
             catch (Exception)
             {
                 throw;
             }
+        }
+
+        /// <summary>
+        /// Cập nhật thông tin đăng ký thai sản
+        /// </summary>
+        /// <param name="entity"></param>
+        /// <returns></returns>
+        public async Task<ResponseModel> UpdateMaternityRegistrationRequest(Employees entity)
+        {
+            ResponseModel response = new ResponseModel();
+            try
+            {
+                // Kiểm cho có cho phép cập nhật thông tin nhân viên không
+                EnumCatagories? enumConfig = await _dbContext.EnumCatagories.FirstOrDefaultAsync(m => m.EnumType == CommonConstants.ENUM_MATERNITY_LEAVE_STATUS_CODE);
+                if (string.IsNullOrEmpty(enumConfig?.Value))
+                {
+                    response.status = StatusCodes.Status409Conflict;
+                    response.message = $"Chưa cấu hình trạng thái nghỉ thai sản. Vui lòng liên hệ IT để được hổ trợ!!!";
+                    return response;
+                }
+                var data = await _dbContext.Employees.AsTracking().FirstOrDefaultAsync(m => m.Id == entity.Id && m.IsDelete == false); // thay hàm này để tracking dữ liệu
+                if (data == null)
+                {
+                    response.status = StatusCodes.Status404NotFound;
+                    response.message = MessageConstants.MESSAGE_NOT_FOUNT;
+                    return response;
+                }
+                DateTime dateTimeNow = _dateTimeHelper.GetCurrentVietnamTime();
+                data.StatusId = enumConfig.Value; // trạng thái nghỉ thai sản
+                data.MaternityStartDate = entity.MaternityStartDate;
+                data.MaternityEndDate = entity.MaternityEndDate;
+                data.DateTracking = dateTimeNow;
+                data.UpdateDate = dateTimeNow;
+                data.UserSign2 = entity.UserSign2;
+                _dbContext.pUserId = entity.UserSign2 ?? -1;
+                _dbContext.pDocEntry = entity.Id;
+                _dbContext.Employees.Attach(data);
+                _dbContext.Entry(data).State = EntityState.Modified;
+                await _dbContext.SaveChangesAsync();
+                response.message = MessageConstants.MESSAGE_UPDATE_SUCCESS;
+                response.data = entity.Id;
+                return response;
+            }
+            catch (Exception) { throw; }
         }
 
         /// <summary>
@@ -486,7 +524,7 @@ namespace HNOne.API.Repositories
                             m.DateTracking = dateTimeNow;
                         });
                         await _dbContext.SalaryAdjustments.AddRangeAsync(lstSalaryConfig!);
-                    }    
+                    }
                     await _dbContext.SaveChangesAsync();
                     await _dbContext.Database.CommitTransactionAsync();
                     response.message = MessageConstants.MESSAGE_ADD_SUCCESS;
@@ -499,7 +537,6 @@ namespace HNOne.API.Repositories
                 if (isTrans) await _dbContext.Database.RollbackTransactionAsync();
                 throw;
             }
-
         }
 
         /// <summary>
@@ -521,12 +558,12 @@ namespace HNOne.API.Repositories
                     response.message = MessageConstants.MESSAGE_NOT_FOUNT;
                     return response;
                 }
-                if(data.DateTracking != entity.DateTracking)
+                if (data.DateTracking != entity.DateTracking)
                 {
                     response.status = StatusCodes.Status409Conflict;
                     response.message = MessageConstants.MESSAGE_DATA_CHECKING_MODIFIED;
                     return response;
-                }    
+                }
                 DateTime dateTimeNow = _dateTimeHelper.GetCurrentVietnamTime();
                 data.EmployeeId = entity.EmployeeId;
                 data.StartDate = entity.StartDate;
@@ -560,7 +597,7 @@ namespace HNOne.API.Repositories
                 // Nếu có điều chỉnh lương
                 if (!lstSalaryConfig.IsNullOrEmpty())
                 {
-                    foreach(var item in lstSalaryConfig!)
+                    foreach (var item in lstSalaryConfig!)
                     {
                         var dataSalary = await _dbContext.SalaryAdjustments.FirstOrDefaultAsync(m => m.Id == item.Id);
                         if (dataSalary == null) continue;
@@ -573,7 +610,7 @@ namespace HNOne.API.Repositories
                         dataSalary.UserSign2 = entity.UserSign2;
                         _dbContext.SalaryAdjustments.Attach(dataSalary);
                         _dbContext.Entry(dataSalary).State = EntityState.Modified;
-                    }    
+                    }
                 }
                 await _dbContext.SaveChangesAsync();
                 await _dbContext.Database.CommitTransactionAsync();
@@ -589,7 +626,7 @@ namespace HNOne.API.Repositories
         }
 
         /// <summary>
-        /// 
+        ///
         /// </summary>
         /// <param name="entity"></param>
         /// <param name="lstSalaryConfig"></param>
@@ -603,7 +640,7 @@ namespace HNOne.API.Repositories
                 using (var connection = _dapperDbContext.CreateConnection())
                 {
                     DateTime dateTimeNow = _dateTimeHelper.GetCurrentVietnamTime();
-                    
+
                     bool isResult = true;
                     isResult = await _dbContext.ContractAppendices.FirstOrDefaultAsync(m => m.ContractCode == entity.ContractCode && m.ContractAppendixCode == entity.ContractAppendixCode) != null;
                     if (isResult)
@@ -664,7 +701,6 @@ namespace HNOne.API.Repositories
                 if (isTrans) await _dbContext.Database.RollbackTransactionAsync();
                 throw;
             }
-
         }
 
         /// <summary>
@@ -741,7 +777,7 @@ namespace HNOne.API.Repositories
                 data.UpdateDate = dateTimeNow;
                 data.UserSign2 = entity.UserSign2;
                 _dbContext.ContractAppendices.Attach(data);
-                _dbContext.Entry(data).State = EntityState.Modified; 
+                _dbContext.Entry(data).State = EntityState.Modified;
                 await _dbContext.SaveChangesAsync();
                 await _dbContext.Database.CommitTransactionAsync();
                 response.message = MessageConstants.MESSAGE_UPDATE_SUCCESS;
@@ -823,7 +859,7 @@ namespace HNOne.API.Repositories
             }
             catch (Exception) { throw; }
         }
-        
+
         /// <summary>
         /// Cập nhật thông tin hợp đồng
         /// </summary>
@@ -946,7 +982,7 @@ namespace HNOne.API.Repositories
             }
             return response;
         }
-        
+
         /// <summary>
         /// Kiểm tra dữ liệu hợp đồng
         /// </summary>
@@ -974,7 +1010,8 @@ namespace HNOne.API.Repositories
                 return response;
             }
         }
-        #endregion
+
+        #endregion Command
 
         #region Private Functions
 
@@ -1150,8 +1187,8 @@ namespace HNOne.API.Repositories
             data.DateTracking = dateTimeNow;
             data.UpdateDate = dateTimeNow;
             data.UserSign2 = entity.UserSign2;
-
         }
-        #endregion
+
+        #endregion Private Functions
     }
 }

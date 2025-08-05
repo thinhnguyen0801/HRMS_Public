@@ -1,4 +1,5 @@
-﻿using HNOne.Common;
+﻿using DevExpress.Utils.IoC;
+using HNOne.Common;
 using HNOne.Model;
 using HNOne.Model.Entities;
 using HNOne.Model.Models;
@@ -31,6 +32,7 @@ namespace HNOne.Web.Controllers
         public W1Confirm confirm { get; set; }
 
         public string AllowedExtensions { get; set; } = ".png, .jpg, .jpeg, .docx, .xlsx, .pdf, .zip, .rar, .7z";
+        public string MATERNITY_LEAVE_STATUS_CODE { get; set; } = ""; // trạng thái nghỉ thai sản
         #region Properties
         public string? pActionType { get; set; } = nameof(EnumType.Add);
         private int pDocEntry { get; set; } = 0;
@@ -64,6 +66,9 @@ namespace HNOne.Web.Controllers
         public string? StatusIds { get; set; } // Tình trạng nào
         public object? EmployeeSelected { get; set; } // Nhân viên được chọn
         private List<FileUploadModel>? lstImageTemp { get; set; } // danh sách ảnh tạm
+
+        public bool IsShowPopupMaternityRegistration { get; set; } // popup đăng ký thai sản
+        public ComboboxModel MaternityRegistrationRequest { get; set; } = new ComboboxModel(); // đăng ký thai sản
         #endregion
 
         protected override async Task OnAfterRenderAsync(bool firstRender)
@@ -147,6 +152,7 @@ namespace HNOne.Web.Controllers
                 var getTask10 = _masterDataService.GetEnumAsync(UserId, Token, nameof(EnumCatagory.CaLamViec)); // ds loại nhân viên
                 var getTask11 = _masterDataService.GetBranchAsync(1, "", opt: CommonConstants.ENUM_PAGE_LOGIN); // danh sách chi nhánh
                 var getTask12 = _masterDataService.GetMasterAsync<WorkingBranchModel>(request, isShowToast: false); // danh sách chi nhánh
+                var getTask13 = _masterDataService.GetEnumAsync(UserId, Token, nameof(EnumCatagory.TrangThaiNghiThaiSan)); // trạng thái nghỉ thai sảng
                 await Task.WhenAll(
                     getTask1,
                     getTask2,
@@ -158,7 +164,8 @@ namespace HNOne.Web.Controllers
                     getTask9,
                     getTask10,
                     getTask11,
-                    getTask12
+                    getTask12,
+                    getTask13
                 );
                 ListCboBranch = (await getTask11)?.Select(m => new ComboboxModel() { id = m.branchId, name = m.branchName })?.ToList();
                 ListCboDepartment = (await getTask1)?.Select(m => new ComboboxModel() { id = m.id, name = m.name })?.ToList();
@@ -172,6 +179,7 @@ namespace HNOne.Web.Controllers
                 ListCboEmployeeType = await getTask9;
                 ListCboShift = await getTask10;
                 ListCboWorkingBranch = (await getTask12)?.Select(m => new ComboboxModel() { id = m.id, name = m.name})?.ToList();
+                MATERNITY_LEAVE_STATUS_CODE = (await getTask13)?.FirstOrDefault()?.value ?? "";
             }
             catch (Exception ex)
             {
@@ -488,6 +496,12 @@ namespace HNOne.Web.Controllers
                         ActionLogSelected.entityType = auditLog.entityType;
                         ActionLogSelected.jsonPropsChange = formattedJson;
                         IsShowPopupActionHistory = true;
+                        break;
+                    case nameof(IsShowPopupMaternityRegistration):
+                        MaternityRegistrationRequest = new ComboboxModel();
+                        MaternityRegistrationRequest.fromDate = EmployeeUpdate.maternityStartDate;
+                        MaternityRegistrationRequest.toDate = EmployeeUpdate.maternityEndDate;
+                        IsShowPopupMaternityRegistration = true;
                         break;
                 }
             }
@@ -935,6 +949,57 @@ namespace HNOne.Web.Controllers
             {
                 ShowError(ex.Message);
                 _logger.LogError(ex, "CreateContractHandler");
+            }
+            finally
+            {
+                await ShowLoading(false);
+                await InvokeAsync(StateHasChanged);
+            }
+        }
+        
+        /// <summary>
+        /// Lưu đăng ký thai sản
+        /// </summary>
+        /// <returns></returns>
+        protected async Task SaveMaternityRegistrationRequestHandler()
+        {
+            try
+            {
+                if (MaternityRegistrationRequest.fromDate == null)
+                {
+                    ShowWarning(string.Format(MessageConstants.MESSAGE_COMBOBOX_REQUIRE, "Từ ngày"));
+                    return;
+                }
+                if (MaternityRegistrationRequest.toDate == null)
+                {
+                    ShowWarning(string.Format(MessageConstants.MESSAGE_COMBOBOX_REQUIRE, "Đến ngày"));
+                    return;
+                }
+                if (MaternityRegistrationRequest.toDate.Value.Date < MaternityRegistrationRequest.fromDate.Value.Date)
+                {
+                    ShowWarning(MessageConstants.MESSAGE_FROM_DATE_TO_DATE_INVALID);
+                    return;
+                }
+                await ShowLoading();
+                EmployeeModel employee = new EmployeeModel();
+                employee.userSign2 = UserId;
+                employee.id = EmployeeUpdate.id;
+                employee.maternityStartDate = MaternityRegistrationRequest.fromDate;
+                employee.maternityEndDate = MaternityRegistrationRequest.toDate;
+                string content = JsonConvert.SerializeObject(employee);
+                int result = await _personnelService.UpdateEmployeeAsync(ProcessConstants.PUT_EMPLOYEE_MATERNITY_LEAVE, UserId, Token, content);
+                if (result > 0)
+                {
+                    IsShowPopupMaternityRegistration = false;
+                    pActionType = nameof(EnumType.Update);
+                    pDocEntry = result;
+                    await showVoucher();
+                }
+            }
+            catch (Exception ex)
+            {
+                ShowError(ex.Message);
+                _logger.LogError(ex, "SaveMaternityRegistrationRequestHandler");
             }
             finally
             {

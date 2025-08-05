@@ -37,16 +37,16 @@
                 <DxToolbarItem Text="Lưu & tạo tài khoản" BeginGroup="true" IconCssClass="@($"{IconClassConstants.ICON_UPDATE}")" CssClass="w1FontSize"
                                Alignment="@ToolbarItemAlignment.Right" Click="@(() => SaveDataHandler(isCreateAccount: true))" />
 
-                 <DxToolbarItem Text="Đăng ký thai sản" BeginGroup="true" IconCssClass="@($"{IconClassConstants.ICON_ADD}")" CssClass="w1FontSize"
-                               Alignment="@ToolbarItemAlignment.Right" Click="@(() => CreateContractHandler())" 
-                               Visible="@(pActionType == nameof(EnumType.Update))" />
-
                 <DxToolbarItem Text="Phát sinh công" BeginGroup="true" IconCssClass="@($"{IconClassConstants.ICON_CALENDAR_CHECK}")" CssClass="w1FontSize"
                                Alignment="@ToolbarItemAlignment.Right" Click="@(() => GenerateWorkHandler())" 
                                Visible="@(pActionType == nameof(EnumType.Update))" />
 
                 <DxToolbarItem Text="Tạo hợp đồng" BeginGroup="true" IconCssClass="@($"{IconClassConstants.ICON_ADD}")" CssClass="w1FontSize"
                                Alignment="@ToolbarItemAlignment.Right" Click="@(() => CreateContractHandler())" 
+                               Visible="@(pActionType == nameof(EnumType.Update))" />
+
+                <DxToolbarItem Text="Đăng ký thai sản" BeginGroup="true" IconCssClass="@($"{IconClassConstants.ICON_ADD}")" CssClass="w1FontSize"
+                               Alignment="@ToolbarItemAlignment.Right" Click="@(async () => await OpenPopupHandler(nameof(IsShowPopupMaternityRegistration)))"
                                Visible="@(pActionType == nameof(EnumType.Update))" />
 
                 <DxToolbarItem Text="Làm mới" BeginGroup="true" IconCssClass="@($"{IconClassConstants.ICON_REFRESH}")" CssClass="w1FontSize"
@@ -333,6 +333,30 @@
                                                     </div>
                                                 </div>
                                             </div>
+                                            @if(MATERNITY_LEAVE_STATUS_CODE == EmployeeUpdate.statusId)
+                                            {
+                                                <div class="col-md-6 col-sm-12">
+                                                    <div class="d-flex ">
+                                                        <W1Label Value="Ngày nghỉ thai sản" Styles="width: 120px" IsRequired="true" />
+                                                        <div style="width: calc(100% - 120px)">
+                                                            <div class="grid gap-1 row-gap-2">
+                                                                <div class="g-col-md-6 g-col-sm-12 g-col-12">
+                                                                    <DxDateEdit @bind-Date="@EmployeeUpdate.maternityStartDate"
+                                                                                CssClass="w1FontSize" Id="maternityStartDate" ReadOnly="true"
+                                                                                Mask="@GlobalContants.FORMAT_DATE" Format="@GlobalContants.FORMAT_DATE"
+                                                                                DisplayFormat="@GlobalContants.FORMAT_DATE" />
+                                                                </div>
+                                                                <div class="g-col-md-6 g-col-sm-12 g-col-12">
+                                                                    <DxDateEdit @bind-Date="@EmployeeUpdate.maternityEndDate"
+                                                                                CssClass="w1FontSize" Id="maternityEndDate" ReadOnly="true"
+                                                                                Mask="@GlobalContants.FORMAT_DATE" Format="@GlobalContants.FORMAT_DATE"
+                                                                                DisplayFormat="@GlobalContants.FORMAT_DATE" />
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            }
                                         </div>
                                     </div>
                                 </div>
@@ -1756,6 +1780,36 @@
                         </div>
                     </div>
                 }
+            </div>
+        </W1Popup>
+
+        @* Thêm thông quan hệ gia đình *@
+        <W1Popup @bind-IsOpenModal="@IsShowPopupMaternityRegistration"
+                 TextBtnAccept="Cập nhật" Width="50%"
+                 HeaderText="Đăng ký thai sản"
+                 HandleClickAccept="@SaveMaternityRegistrationRequestHandler">
+            <div class="row row-gap-2">
+                <div class="col-sm-12">
+                    <div class="d-flex ">
+                        <W1Label Value="Từ ngày/đến ngày" Id="ngayBatDau" Styles="width: 125px" IsRequired="true" />
+                        <div style="width: calc(100% - 125px)">
+                            <div class="grid gap-1 row-gap-2">
+                                <div class="g-col-md-6 g-col-sm-12 g-col-12">
+                                    <DxDateEdit @bind-Date="@MaternityRegistrationRequest.fromDate"
+                                                CssClass="w1FontSize" Id="startDate"
+                                                Mask="@GlobalContants.FORMAT_DATE" Format="@GlobalContants.FORMAT_DATE"
+                                                DisplayFormat="@GlobalContants.FORMAT_DATE" />
+                                </div>
+                                <div class="g-col-md-6 g-col-sm-12 g-col-12">
+                                    <DxDateEdit @bind-Date="@MaternityRegistrationRequest.toDate"
+                                                CssClass="w1FontSize" Id="endDate"
+                                                Mask="@GlobalContants.FORMAT_DATE" Format="@GlobalContants.FORMAT_DATE"
+                                                DisplayFormat="@GlobalContants.FORMAT_DATE" />
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </div>
         </W1Popup>
     }

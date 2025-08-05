@@ -68,6 +68,8 @@ namespace HNOne.Model.Models
         public string? link { get; set; }
         public string? statusName { get; set; } // trạng thái làm việc
         public string? textColor { get; set; } // màu chữ
+        public DateTime? maternityStartDate { get; set; } // ngày bắt đầu đăng ký thai sản
+        public DateTime? maternityEndDate { get; set; } // ngày kết thúc đăng ký thai sản
         #region thông tin cmnd, hộ chiếu
         public string? cIC { get; set; } // số căn cước
         public DateTime? issuanceDateCIC { get; set; } // Ngày cấp CCCD

@@ -147,7 +147,7 @@ namespace HNOne.API.Repositories
                 auditLog.EntityType = item.Entity.GetType().Name;
                 auditLog.TimeStamp = DateTime.UtcNow;
                 auditLog.JsonPropsChange = getChanges(item);
-                await AuditLogs.AddAsync(auditLog);
+                if(!string.IsNullOrEmpty(auditLog.JsonPropsChange)) await AuditLogs.AddAsync(auditLog);
             }
 
             return await base.SaveChangesAsync(cancellationToken);

@@ -145,6 +145,10 @@ namespace HNOne.Model.Entities
         [MaxLength(250)]
         public string? HouseholdNumber { get; set; } // Số hộ gia đình
 
+        [Column(TypeName = "date")]
+        public DateTime? MaternityStartDate { get; set; } // ngày bắt đầu đăng ký thai sản
+        [Column(TypeName = "date")]
+        public DateTime? MaternityEndDate { get; set; } // ngày kết thúc đăng ký thai sản
         #endregion
 
         #region Chổ ở hiện nay

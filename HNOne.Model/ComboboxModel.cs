@@ -7,6 +7,8 @@ namespace HNOne.Model
         public string? code { get; set; }
         public string? name { get; set; }
         public string? value { get; set; }
+        public DateTime? fromDate { get; set; }
+        public DateTime? toDate { get; set; }
     }
 
     public class SearchModel

@@ -26,6 +26,7 @@
         public const string POST_EMPLOYEE = "post-employee";
         public const string PUT_EMPLOYEE = "put-employee";
         public const string PUT_EMPLOYEE_INFO = "put-employee-info";
+        public const string PUT_EMPLOYEE_MATERNITY_LEAVE = "put-employee-maternity-leave";
         public const string GET_EMPLOYEE_SALARY_HISTORY = "get-employee-salary-history";
         public const string GET_ENUM = "get-enum";
         public const string POST_ENUM_CATA = "post-enum-cata";

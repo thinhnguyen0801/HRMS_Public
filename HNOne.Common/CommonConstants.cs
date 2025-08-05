@@ -34,6 +34,7 @@ namespace HNOne.Common
         public const string ENUM_ALLOWANCE_SALARY = "LPC";
         public const string ENUM_ALLOWANCE_TYPE_CDTT = "CDTT"; // Cố định theo tháng
         public const string ENUM_ALLOWANCE_TYPE_KTPC = "KTPC"; // Khen thưởng & Phụ cấp khác
+        public const string ENUM_MATERNITY_LEAVE_STATUS_CODE = "TrangThaiNghiThaiSan"; // Khen thưởng & Phụ cấp khác
         #endregion
     }
 }
