@@ -1,0 +1,627 @@
+﻿@page "/tong-quan"
+@inherits Controllers.SummaryRptController
+
+<div class="h-content-filter mt-1 mb-5">
+    <div class="row row-deck row-cards">
+        <div class="col-sm-12 col-lg-6">
+            <div class="row row-deck row-cards">
+                <div class="col-sm-12 col-lg-12">
+                    <div class="card border-0 rounded-3" style="background-image: url(https://hrm.ipos.vn/img/live_salary.c4f1bacf.png); background-repeat: no-repeat; background-size: cover; color: #fff">
+                        <div class="card-body">
+                            <div class="row gy-3">
+                                <div class="col-12 col-sm d-flex flex-column">
+                                    <div class="subheader text-white-50">Tổng số nhân viên</div>
+                                    <div class="h1 mb-0 me-2">@SummaryReport.totalEmployees.ToString(GlobalContants.FORMAT_CURRENCY)</div>
+                                    <div class="row g-5 mt-auto">
+                                        <div class="col-md-3 col-sm-6 mt-3">
+                                            <div class="subheader text-white-50">Chỉnh thức</div>
+                                            <div class="d-flex align-items-baseline">
+                                                <div class="h3 me-2">@SummaryReport.totalOfficialEmployees.ToString(GlobalContants.FORMAT_CURRENCY)</div>
+                                            </div>
+                                            <div class="progress progress-sm">
+                                                <div class="progress-bar bg-green" style="width: 100%" role="progressbar" aria-valuenow="100" aria-valuemin="0" aria-valuemax="100" aria-label="100% Complete">
+                                                    <span class="visually-hidden">75% Complete</span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-3 col-sm-6 mt-3">
+                                            <div class="subheader text-white-50">Thử việc</div>
+                                            <div class="d-flex align-items-baseline">
+                                                <div class="h3 me-2">@SummaryReport.totalProbationaryEmployees.ToString(GlobalContants.FORMAT_CURRENCY)</div>
+                                            </div>
+                                            <div class="progress progress-sm">
+                                                <div class="progress-bar bg-purple" style="width: 100%" role="progressbar" aria-valuenow="100" aria-valuemin="0" aria-valuemax="100" aria-label="100% Complete">
+                                                    <span class="visually-hidden">78% Complete</span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-3 col-sm-6 mt-3">
+                                            <div class="subheader text-white-50">Nghỉ thai sản</div>
+                                            <div class="d-flex align-items-baseline">
+                                                <div class="h3 me-2">@SummaryReport.totalEmployeesOnMaternityLeave.ToString(GlobalContants.FORMAT_CURRENCY)</div>
+                                            </div>
+                                            <div class="progress progress-sm">
+                                                <div class="progress-bar bg-orange" style="width: 100%" role="progressbar" aria-valuenow="100" aria-valuemin="0" aria-valuemax="100" aria-label="100% Complete">
+                                                    <span class="visually-hidden">78% Complete</span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-3 col-sm-6 mt-3">
+                                            <div class="subheader text-white-50">Khác</div>
+                                            <div class="d-flex align-items-baseline">
+                                                <div class="h3 me-2">@SummaryReport.totalOtherEmployees.ToString(GlobalContants.FORMAT_CURRENCY)</div>
+                                            </div>
+                                            <div class="progress progress-sm">
+                                                <div class="progress-bar bg-gray-400" style="width: 100%" role="progressbar" aria-valuenow="100" aria-valuemin="0" aria-valuemax="100" aria-label="100% Complete">
+                                                    <span class="visually-hidden">78% Complete</span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="col-sm-12 col-lg-12">
+                    <div class="card rounded-3">
+                        <div class="card-body">
+                            <div class="row row-rap-1">
+                                <div class="col-12 col-sm d-flex flex-column">
+                                    <div class="subheader d-flex justify-content-between align-items-center">
+                                        <div class="d-flex align-items-center"><i class="fa-solid fa-star fs-3 me-2" style="color: #ffc107"></i>Hôm nay - @DateTime.Now.Date.ToString(GlobalContants.FORMAT_DATE)</div>
+                                        <div><a href="/thong-ke-theo-ngay">Xem thêm</a></div>
+                                    </div>
+                                    <div class="row row-gap-2 mt-auto">
+                                        <div class="col-md-3 col-sm-6 mt-2">
+                                            <div class="card cursor-pointer border-0 rounded-3 position-relative bg-orange-lt" style="color: unset !important"
+                                                 href="#offcanvasBottom" aria-controls="offcanvasBottom" @onclick="@(() => OpenPopupHandler(nameof(SummaryReport.totalLeaveRequests)))">
+                                                <div class="card-body p-2">
+                                                    <div class="d-flex align-items-baseline">
+                                                        <div class="h3 me-2 mb-1">@SummaryReport.totalLeaveRequests.ToString(GlobalContants.FORMAT_CURRENCY)</div>
+                                                    </div>
+                                                    <div class="subheader text-truncate">Xin nghỉ</div>
+
+                                                </div>
+                                                <div class="position-absolute top-0 end-0">
+                                                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+                                                         class="icon icon-tabler icons-tabler-outline icon-tabler-beach h1-color-bg-orange-lt" style="width: 40px; height: 40px">
+                                                        <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+                                                        <path d="M17.553 16.75a7.5 7.5 0 0 0 -10.606 0" />
+                                                        <path d="M18 3.804a6 6 0 0 0 -8.196 2.196l10.392 6a6 6 0 0 0 -2.196 -8.196z" />
+                                                        <path d="M16.732 10c1.658 -2.87 2.225 -5.644 1.268 -6.196c-.957 -.552 -3.075 1.326 -4.732 4.196" />
+                                                        <path d="M15 9l-3 5.196" />
+                                                        <path d="M3 19.25a2.4 2.4 0 0 1 1 -.25a2.4 2.4 0 0 1 2 1a2.4 2.4 0 0 0 2 1a2.4 2.4 0 0 0 2 -1a2.4 2.4 0 0 1 2 -1a2.4 2.4 0 0 1 2 1a2.4 2.4 0 0 0 2 1a2.4 2.4 0 0 0 2 -1a2.4 2.4 0 0 1 2 -1a2.4 2.4 0 0 1 1 .25" />
+                                                    </svg>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-3 col-sm-6 mt-2">
+                                            <div class="card cursor-pointer border-0 rounded-3 position-relative bg-indigo-lt" style="color: unset !important"
+                                                 href="#offcanvasBottom" aria-controls="offcanvasBottom" @onclick="@(() => OpenPopupHandler(nameof(SummaryReport.totalOvertimes)))">
+                                                <div class="card-body p-2">
+                                                    <div class="d-flex align-items-baseline">
+                                                        <div class="h3 me-2 mb-1">@SummaryReport.totalOvertimes.ToString(GlobalContants.FORMAT_CURRENCY)</div>
+                                                    </div>
+                                                    <div class="subheader text-truncate">Tăng ca</div>
+
+                                                </div>
+                                                <div class="position-absolute top-0 end-0">
+                                                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+                                                         class="icon icon-tabler icons-tabler-outline icon-tabler-clock-plus h1-color-bg-indigo-lt" style="width: 40px; height: 37.5px">
+                                                        <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+                                                        <path d="M20.984 12.535a9 9 0 1 0 -8.468 8.45" />
+                                                        <path d="M16 19h6" />
+                                                        <path d="M19 16v6" />
+                                                        <path d="M12 7v5l3 3" />
+                                                    </svg>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-3 col-sm-6 mt-2">
+                                            <div class="card cursor-pointer border-0 rounded-3 position-relative bg-purple-lt" style="color: unset !important"
+                                                 href="#offcanvasBottom" aria-controls="offcanvasBottom" @onclick="@(() => OpenPopupHandler(nameof(SummaryReport.totalLateArrivalsAndEarlyLeaves)))">
+                                                <div class="card-body p-2">
+                                                    <div class="d-flex align-items-baseline">
+                                                        <div class="h3 me-2 mb-1">@SummaryReport.totalLateArrivalsAndEarlyLeaves.ToString(GlobalContants.FORMAT_CURRENCY)</div>
+                                                    </div>
+                                                    <div class="subheader text-truncate">Đi trễ/Về sớm</div>
+                                                </div>
+                                                <div class="position-absolute top-0 end-0">
+                                                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+                                                         class="icon icon-tabler icons-tabler-outline icon-tabler-clock-hour-8 h1-color-bg-indigo-lt" style="width: 40px; height: 40px">
+                                                        <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+                                                        <path d="M12 12m-9 0a9 9 0 1 0 18 0a9 9 0 1 0 -18 0" />
+                                                        <path d="M12 12l-3 2" />
+                                                        <path d="M12 7v5" />
+                                                    </svg>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-3 col-sm-6 mt-2">
+                                            <div class="card cursor-pointer border-0 rounded-3 position-relative bg-red-lt" style="color: unset !important"
+                                                 href="#offcanvasBottom" aria-controls="offcanvasBottom" @onclick="@(() => OpenPopupHandler(nameof(SummaryReport.totalMissingTimeAttendance)))">
+                                                <div class="card-body p-2">
+                                                    <div class="d-flex align-items-baseline">
+                                                        <div class="h3 me-2 mb-1">@SummaryReport.totalMissingTimeAttendance.ToString(GlobalContants.FORMAT_CURRENCY)</div>
+                                                    </div>
+                                                    <div class="subheader text-truncate">Quên chấm công</div>
+                                                </div>
+                                                <div class="position-absolute top-0 end-0">
+                                                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+                                                         class="icon icon-tabler icons-tabler-outline icon-tabler-clock-hour-8 h1-color-bg-orange-lt" style="width: 40px; height: 40px">
+                                                        <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+                                                        <path d="M12 12m-9 0a9 9 0 1 0 18 0a9 9 0 1 0 -18 0" />
+                                                        <path d="M12 12l-3 2" />
+                                                        <path d="M12 7v5" />
+                                                    </svg>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-sm-6 col-lg-3">
+            <div class="card rounded-3 position-relative cursor-pointer" href="#offcanvasBottom" aria-controls="offcanvasBottom" @onclick="@(() => OpenPopupHandler(nameof(SummaryReport.totalContractExpired)))">
+                <div class="card-body" style="min-height: 280px">
+                    <div class="d-flex align-items-center">
+                        <div class="subheader">Hợp đồng hết hạn</div>
+                    </div>
+                    
+                    <div class="d-flex align-items-baseline">
+                        <div class="h1 mb-0 me-2">@SummaryReport.totalContractExpired.ToString(GlobalContants.FORMAT_CURRENCY)</div>
+                    </div>
+                    <div class="position-absolute end-0" style="bottom: 15px !important">
+                        <img src="/assets/contract.80a51b5d.png" alt="" style="width: 235px;height: auto;">
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-sm-6 col-lg-3">
+            <div class="card rounded-3 position-relative cursor-pointer" href="#offcanvasBottom" aria-controls="offcanvasBottom" @onclick="@(() => OpenPopupHandler(nameof(SummaryReport.totalContractSoon)))">
+                <div class="card-body" style="min-height: 280px">
+                    <div class="d-flex align-items-center">
+                        <div class="subheader">Hợp đồng sắp hết hạn</div>
+                        <div class="ms-auto lh-1">
+                            <div class="dropdown">
+                                <a class="dropdown-toggle text-secondary" id="revenue-dropdown" href="#" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false" aria-label="Select time range for revenue">@($"{SummaryReport.dayContractSoon} ngày")</a>
+                                <div class="dropdown-menu dropdown-menu-end" aria-labelledby="revenue-dropdown" style="">
+                                    @foreach (var item in ListCboFilterDays)
+                                    {
+                                        <a class="dropdown-item @(item.code == SummaryReport.dayContractSoon ? "active" : "")" @onclick="@(() => ComboboxValueChangedHandler(item.code, controlID: ProcessConstants.GET_REPORT_SUMMARY_CONTRACT_SOON))">@item.name</a>
+                                    }
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="d-flex align-items-baseline">
+                        <div class="h1 mb-0 me-2">@SummaryReport.totalContractSoon.ToString(GlobalContants.FORMAT_CURRENCY)</div>
+                    </div>
+                    <div class="position-absolute end-0" style="bottom: 15px !important">
+                        <img src="/assets/contract.80a51b5d.png" alt="" style="width: 235px;height: auto;">
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-sm-12 col-lg-6">
+            <div class="card rounded-3">
+                <div class="card-header d-flex align-items-center">
+                    <div class="d-flex">
+                        <div class="subheader card-title">Sắp hết hạn thử việc</div>
+                        @if (SummaryReport.totalEmployeesEndingProbationSoon > 0)
+                        {
+                            <div class="h1 mb-0 ms-2" style="line-height: 0.3">@SummaryReport.totalEmployeesEndingProbationSoon.ToString(GlobalContants.FORMAT_CURRENCY)</div>
+                        }
+                    </div>
+                    <div class="ms-auto lh-1">
+                        <div class="dropdown">
+                            <a class="dropdown-toggle text-secondary" id="revenue-dropdown" href="#" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false" aria-label="Select time range for revenue">@($"{SummaryReport.dayEmployeesEndingProbationSoon} ngày")</a>
+                            <div class="dropdown-menu dropdown-menu-end" aria-labelledby="revenue-dropdown" style="">
+                                @foreach(var item in ListCboFilterDays)
+                                {
+                                    <a class="dropdown-item @(item.code == SummaryReport.dayEmployeesEndingProbationSoon ? "active" : "")" @onclick="@(() => ComboboxValueChangedHandler(item.code, controlID: ProcessConstants.GET_REPORT_SUMMARY_EMPLOYEES_ENDING_PROBATIONSOON))">@item.name</a>
+                                }
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                @if (SummaryReport.totalEmployeesEndingProbationSoon > 0)
+                {
+                    <div class="table-responsive" style="max-height: 400px; overflow-x: hidden; overflow-y: auto">
+                        <table class="table table-selectable card-table table-vcenter">
+                            <tbody>
+                                @foreach (var item in ListEmployeesEndingProbationSoon!)
+                                {
+                                    <tr>
+                                        <td class="w-1 pe-0">
+                                            <span class="avatar avatar-sm" style="background-image: url(@item.imageViewUrl)"> </span>
+                                        </td>
+                                        <td class="w-100">
+                                            <a href="@item.link" class="a">@item.code</a>
+                                            <div>@item.name</div>
+                                        </td>
+                                        <td class="text-nowrap text-secondary">
+                                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-1">
+                                                <path d="M4 7a2 2 0 0 1 2 -2h12a2 2 0 0 1 2 2v12a2 2 0 0 1 -2 2h-12a2 2 0 0 1 -2 -2v-12z"></path>
+                                                <path d="M16 3v4"></path>
+                                                <path d="M8 3v4"></path>
+                                                <path d="M4 11h16"></path>
+                                                <path d="M11 15h1"></path>
+                                                <path d="M12 15v3"></path>
+                                            </svg>
+                                            @item.probationEndDate?.ToString(GlobalContants.FORMAT_DATE)
+                                        </td>
+                                        <td class="text-nowrap">
+                                            <a href="#" class="text-secondary">
+                                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-tabler icons-tabler-outline icon-tabler-calendar-time">
+                                                    <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+                                                    <path d="M11.795 21h-6.795a2 2 0 0 1 -2 -2v-12a2 2 0 0 1 2 -2h12a2 2 0 0 1 2 2v4" />
+                                                    <path d="M18 18m-4 0a4 4 0 1 0 8 0a4 4 0 1 0 -8 0" />
+                                                    <path d="M15 3v4" />
+                                                    <path d="M7 3v4" />
+                                                    <path d="M3 11h16" />
+                                                    <path d="M18 16.496v1.504l1 1" />
+                                                </svg>
+                                                Còn @item.totalNumOfDay ngày
+                                            </a>
+                                        </td>
+
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                }
+                else
+                {
+                    <div class="card-body">
+                        <div class="text-center">
+                            <img src="/assets/same_device.a2cc1c05.png" alt="" height="107" width="119">
+                            <div class="mt-2 mb-3 text-secondary" style="font-size: 14px">Không có nhân viên sắp hết hạn thử việc</div>
+                        </div>
+                    </div>
+                }
+            </div>
+        </div>
+
+        <div class="col-sm-12 col-lg-6">
+            <div class="card rounded-3">
+                <div class="card-header d-flex align-items-center">
+                    <div class="d-flex">
+                        <div class="subheader card-title">Nghỉ thai sản sắp đến hạn</div>
+                        @if (SummaryReport.totalEmployeesOnMaternityLeaveSoon > 0)
+                        {
+                            <div class="h1 mb-0 ms-2" style="line-height: 0.3">@SummaryReport.totalEmployeesOnMaternityLeaveSoon.ToString(GlobalContants.FORMAT_CURRENCY)</div>
+                        }
+                    </div>
+                    <div class="ms-auto lh-1">
+                        <div class="dropdown">
+                            <a class="dropdown-toggle text-secondary" id="revenue-dropdown" href="#" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false" aria-label="Select time range for revenue">@($"{SummaryReport.dayEmployeesOnMaternityLeaveSoon} ngày")</a>
+                            <div class="dropdown-menu dropdown-menu-end" aria-labelledby="revenue-dropdown" style="">
+                                @foreach(var item in ListCboFilterDays)
+                                {
+                                    <a class="dropdown-item @(item.code == SummaryReport.dayEmployeesOnMaternityLeaveSoon ? "active" : "")" @onclick="@(() => ComboboxValueChangedHandler(item.code, controlID: ProcessConstants.GET_REPORT_SUMMARY_EMPLOYEES_ONMATERNITY_LEAVESOON))">@item.name</a>
+                                }
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                @if (SummaryReport.totalEmployeesOnMaternityLeaveSoon > 0)
+                {
+                    <div class="table-responsive" style="max-height: 400px; overflow-x: hidden; overflow-y: auto">
+                        <table class="table table-selectable card-table table-vcenter">
+                            <tbody>
+                                @foreach (var item in ListEmployeesOnMaternityLeaveSoon!)
+                                {
+                                    <tr>
+                                        <td class="w-1 pe-0">
+                                            <span class="avatar avatar-sm" style="background-image: url(@item.imageViewUrl)"> </span>
+                                        </td>
+                                        <td class="w-100">
+                                            <a href="@item.link" class="a">@item.code</a>
+                                            <div>@item.name</div>
+                                        </td>
+                                        <td class="text-nowrap text-secondary">
+                                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-1">
+                                                <path d="M4 7a2 2 0 0 1 2 -2h12a2 2 0 0 1 2 2v12a2 2 0 0 1 -2 2h-12a2 2 0 0 1 -2 -2v-12z"></path>
+                                                <path d="M16 3v4"></path>
+                                                <path d="M8 3v4"></path>
+                                                <path d="M4 11h16"></path>
+                                                <path d="M11 15h1"></path>
+                                                <path d="M12 15v3"></path>
+                                            </svg>
+                                            @item.probationEndDate?.ToString(GlobalContants.FORMAT_DATE)
+                                        </td>
+                                        <td class="text-nowrap">
+                                            <a href="#" class="text-secondary">
+                                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-tabler icons-tabler-outline icon-tabler-calendar-time">
+                                                    <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+                                                    <path d="M11.795 21h-6.795a2 2 0 0 1 -2 -2v-12a2 2 0 0 1 2 -2h12a2 2 0 0 1 2 2v4" />
+                                                    <path d="M18 18m-4 0a4 4 0 1 0 8 0a4 4 0 1 0 -8 0" />
+                                                    <path d="M15 3v4" />
+                                                    <path d="M7 3v4" />
+                                                    <path d="M3 11h16" />
+                                                    <path d="M18 16.496v1.504l1 1" />
+                                                </svg>
+                                                Còn @item.totalNumOfDay ngày
+                                            </a>
+                                        </td>
+
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                }
+                else
+                {
+                    <div class="card-body">
+                        <div class="text-center">
+                            <img src="/assets/same_device.a2cc1c05.png" alt="" height="107" width="119">
+                            <div class="mt-2 mb-3 text-secondary" style="font-size: 14px">Không có nhân viên nghỉ thai sản sắp đến hạn</div>
+                        </div>
+                    </div>
+                }
+            </div>
+        </div>
+
+        <div class="col-sm-12 col-lg-6">
+            <div class="card rounded-3">
+                <div class="card-header d-flex align-items-center">
+                    <div class="d-flex">
+                        <div class="subheader card-title">Sinh nhật sắp đến hạn</div>
+                        @if (SummaryReport.totalBirthdays > 0)
+                        {
+                            <div class="h1 mb-0 ms-2" style="line-height: 0.3">@SummaryReport.totalBirthdays.ToString(GlobalContants.FORMAT_CURRENCY)</div>
+                        }
+                    </div>
+                    <div class="ms-auto lh-1">
+                        <div class="dropdown">
+                            <a class="dropdown-toggle text-secondary" id="revenue-dropdown" href="#" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false" aria-label="Select time range for revenue">@($"{SummaryReport.dayBirthdays} ngày")</a>
+                            <div class="dropdown-menu dropdown-menu-end" aria-labelledby="revenue-dropdown" style="">
+                                @foreach(var item in ListCboFilterDays)
+                                {
+                                    <a class="dropdown-item @(item.code == SummaryReport.dayBirthdays ? "active" : "")" @onclick="@(() => ComboboxValueChangedHandler(item.code, controlID: ProcessConstants.GET_REPORT_SUMMARY_BIRTHDAY))">@item.name</a>
+                                }
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                @if (SummaryReport.totalBirthdays > 0)
+                {
+                    <div class="table-responsive" style="max-height: 400px; overflow-x: hidden; overflow-y: auto">
+                        <table class="table table-selectable card-table table-vcenter">
+                            <tbody>
+                                @foreach (var item in ListBirthdays!)
+                                {
+                                    <tr>
+                                        <td class="w-1 pe-0">
+                                            <span class="avatar avatar-sm" style="background-image: url(@item.imageViewUrl)"> </span>
+                                        </td>
+                                        <td class="w-100">
+                                            <a href="@item.link" class="a">@item.code</a>
+                                            <div>@item.name</div>
+                                        </td>
+                                        <td class="text-nowrap text-secondary">
+                                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-1">
+                                                <path d="M4 7a2 2 0 0 1 2 -2h12a2 2 0 0 1 2 2v12a2 2 0 0 1 -2 2h-12a2 2 0 0 1 -2 -2v-12z"></path>
+                                                <path d="M16 3v4"></path>
+                                                <path d="M8 3v4"></path>
+                                                <path d="M4 11h16"></path>
+                                                <path d="M11 15h1"></path>
+                                                <path d="M12 15v3"></path>
+                                            </svg>
+                                            @item.dateOfBirth?.ToString(GlobalContants.FORMAT_DATE)
+                                        </td>
+                                        <td class="text-nowrap">
+                                            <a href="#" class="text-secondary">
+                                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-tabler icons-tabler-outline icon-tabler-calendar-time">
+                                                    <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+                                                    <path d="M11.795 21h-6.795a2 2 0 0 1 -2 -2v-12a2 2 0 0 1 2 -2h12a2 2 0 0 1 2 2v4" />
+                                                    <path d="M18 18m-4 0a4 4 0 1 0 8 0a4 4 0 1 0 -8 0" />
+                                                    <path d="M15 3v4" />
+                                                    <path d="M7 3v4" />
+                                                    <path d="M3 11h16" />
+                                                    <path d="M18 16.496v1.504l1 1" />
+                                                </svg>
+                                                Còn @item.totalNumOfDay ngày
+                                            </a>
+                                        </td>
+
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                }
+                else
+                {
+                    <div class="card-body">
+                        <div class="text-center">
+                            <img src="/assets/same_device.a2cc1c05.png" alt="" height="107" width="119">
+                            <div class="mt-2 mb-3 text-secondary" style="font-size: 14px">Không có nhân viên có sinh nhật sắp đến hạn</div>
+                        </div>
+                    </div>
+                }
+                
+            </div>
+        </div>
+
+        <div class="col-sm-12 col-lg-6">
+            <div class="card rounded-3">
+                <div class="card-header d-flex align-items-center">
+                    <div class="d-flex">
+                        <div class="subheader card-title">Kỷ niệm ngày vào làm</div>
+                        @if (SummaryReport.totalUpcomingWorkAnniversaries > 0)
+                        {
+                            <div class="h1 mb-0 ms-2" style="line-height: 0.3">@SummaryReport.totalUpcomingWorkAnniversaries.ToString(GlobalContants.FORMAT_CURRENCY)</div>
+                        }
+                    </div>
+                    <div class="ms-auto lh-1">
+                        <div class="dropdown">
+                            <a class="dropdown-toggle text-secondary" id="revenue-dropdown" href="#" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false" aria-label="Select time range for revenue">@($"{SummaryReport.dayUpcomingWorkAnniversaries} ngày")</a>
+                            <div class="dropdown-menu dropdown-menu-end" aria-labelledby="revenue-dropdown" style="">
+                                @foreach(var item in ListCboFilterDays)
+                                {
+                                    <a class="dropdown-item @(item.code == SummaryReport.dayUpcomingWorkAnniversaries ? "active" : "")" @onclick="@(() => ComboboxValueChangedHandler(item.code, controlID: ProcessConstants.GET_REPORT_SUMMARY_UPCOMING_WORK_ANNIVERSARIES))">@item.name</a>
+                                }
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                @if (SummaryReport.totalUpcomingWorkAnniversaries > 0)
+                {
+                    <div class="table-responsive" style="max-height: 400px; overflow-x: hidden; overflow-y: auto">
+                        <table class="table table-selectable card-table table-vcenter">
+                            <tbody>
+                                @foreach (var item in ListUpcomingWorkAnniversaries!)
+                                {
+                                    <tr>
+                                        <td class="w-1 pe-0">
+                                            <span class="avatar avatar-sm" style="background-image: url(@item.imageViewUrl)"> </span>
+                                        </td>
+                                        <td class="w-100">
+                                            <a href="@item.link" class="a">@item.code</a>
+                                            <div>@item.name</div>
+                                        </td>
+                                        <td class="text-nowrap text-secondary">
+                                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-1">
+                                                <path d="M4 7a2 2 0 0 1 2 -2h12a2 2 0 0 1 2 2v12a2 2 0 0 1 -2 2h-12a2 2 0 0 1 -2 -2v-12z"></path>
+                                                <path d="M16 3v4"></path>
+                                                <path d="M8 3v4"></path>
+                                                <path d="M4 11h16"></path>
+                                                <path d="M11 15h1"></path>
+                                                <path d="M12 15v3"></path>
+                                            </svg>
+                                            @item.probationStartDate?.ToString(GlobalContants.FORMAT_DATE)
+                                        </td>
+                                        <td class="text-nowrap">
+                                            <a class="text-secondary">
+                                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-tabler icons-tabler-outline icon-tabler-calendar-time">
+                                                    <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+                                                    <path d="M11.795 21h-6.795a2 2 0 0 1 -2 -2v-12a2 2 0 0 1 2 -2h12a2 2 0 0 1 2 2v4" />
+                                                    <path d="M18 18m-4 0a4 4 0 1 0 8 0a4 4 0 1 0 -8 0" />
+                                                    <path d="M15 3v4" />
+                                                    <path d="M7 3v4" />
+                                                    <path d="M3 11h16" />
+                                                    <path d="M18 16.496v1.504l1 1" />
+                                                </svg>
+                                                Còn @item.totalNumOfDay ngày
+                                            </a>
+                                        </td>
+
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                }
+                else
+                {
+                    <div class="card-body">
+                        <div class="text-center">
+                            <img src="/assets/same_device.a2cc1c05.png" alt="" height="107" width="119">
+                            <div class="mt-2 mb-3 text-secondary" style="font-size: 14px">Không có nhân viên sắp kỷ niệm ngày vào làm</div>
+                        </div>
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="offcanvas offcanvas-bottom h-auto" tabindex="-1" id="offcanvasBottom" aria-labelledby="offcanvasBottomLabel" style="border-top-left-radius: 20px; border-top-right-radius: 20px;">
+    <div class="offcanvas-header px-3 py-3">
+        <h3 class="offcanvas-title" id="offcanvasBottomLabel">@PopupTypeName</h3>
+        <button type="button" class="btn-close text-reset" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+    </div>
+    <div class="offcanvas-body py-2 px-2" style="max-height: 400px;min-height: 200px; overflow-x: hidden; overflow-y: auto">
+        @if (ListEmployeeByOverview != null && ListEmployeeByOverview.Any())
+        {
+            <div class="table-responsive">
+                <table class="table table-selectable card-table table-vcenter">
+                    <tbody>
+                        @foreach (var item in ListEmployeeByOverview!)
+                        {
+                            <tr>
+                                <td class="w-1 pe-0">
+                                    <span class="avatar avatar-sm" style="background-image: url(@item.imageViewUrl)"> </span>
+                                </td>
+                                <td class="w-50">
+                                    <a href="@item.link" class="a">@item.code</a>
+                                    <div>@item.name</div>
+                                </td>
+                                <td class="text-nowrap">
+                                    <div>@item.remark</div>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        }
+        else if (ListContracts != null && ListContracts.Any())
+        {
+            <div class="table-responsive">
+                <table class="table table-selectable card-table table-vcenter">
+                    <tbody>
+                        @foreach (var item in ListContracts!)
+                        {
+                            <tr>
+                                <td class="w-33">
+                                    <a href="@item.linkContract" class="a">@item.contractCode</a>
+                                    <div>@item.contractTypeName</div>
+                                </td>
+                                <td class="w-33">
+                                    <a>@item.employeeCode</a>
+                                    <div>@item.employeeName</div>
+                                </td>
+                                <td class="text-nowrap text-secondary">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-1">
+                                        <path d="M4 7a2 2 0 0 1 2 -2h12a2 2 0 0 1 2 2v12a2 2 0 0 1 -2 2h-12a2 2 0 0 1 -2 -2v-12z"></path>
+                                        <path d="M16 3v4"></path>
+                                        <path d="M8 3v4"></path>
+                                        <path d="M4 11h16"></path>
+                                        <path d="M11 15h1"></path>
+                                        <path d="M12 15v3"></path>
+                                    </svg>
+                                    @item.endDate?.ToString(GlobalContants.FORMAT_DATE)
+                                </td>
+                                @if (item.contractNumber > 0)
+                                {
+                                    <td class="text-nowrap">
+                                        <a class="text-secondary">
+                                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-tabler icons-tabler-outline icon-tabler-calendar-time">
+                                                <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+                                                <path d="M11.795 21h-6.795a2 2 0 0 1 -2 -2v-12a2 2 0 0 1 2 -2h12a2 2 0 0 1 2 2v4" />
+                                                <path d="M18 18m-4 0a4 4 0 1 0 8 0a4 4 0 1 0 -8 0" />
+                                                <path d="M15 3v4" />
+                                                <path d="M7 3v4" />
+                                                <path d="M3 11h16" />
+                                                <path d="M18 16.496v1.504l1 1" />
+                                            </svg>
+                                            Còn @item.contractNumber ngày
+                                        </a>
+                                    </td>
+                                }
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        }
+        else
+        {
+            <W1NoData />
+        }
+    </div>
+</div>

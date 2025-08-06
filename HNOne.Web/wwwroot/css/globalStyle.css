@@ -207,3 +207,13 @@
     background-color: #f5f5f5;
 }
 /*style cho danh sách hiển thị ở mobile*/
+
+/*sstyle color cho icon ở biểu đồ thống kế ở trang home */
+.h1-color-bg-indigo-lt {
+    color: color-mix(in srgb, #b0b6d0 calc(var(--tblr-bg-opacity, 1)* 100%), transparent) !important;
+}
+
+.h1-color-bg-orange-lt {
+    color: color-mix(in srgb, #e2cbbb calc(var(--tblr-text-opacity, 1) * 100%), transparent) !important;
+}
+/*sstyle color cho icon ở biểu đồ thống kế ở trang home */

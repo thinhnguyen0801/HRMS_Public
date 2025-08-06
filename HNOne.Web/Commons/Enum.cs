@@ -41,7 +41,8 @@
         LoaiLuong,
         LoaiQuyetDinh,
         LoaiTongHop,
-        TrangThaiNghiThaiSan
+        TrangThaiNghiThaiSan,
+        BoLocNgayBaoCao
     }
 
     public enum EnumObjType

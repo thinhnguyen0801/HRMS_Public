@@ -36,6 +36,9 @@ namespace HNOne.API.Controllers
                     case ProcessConstants.GET_RPT_PAYROLL_SUMMARY:
                         response.data = await _reportRepository.GetRptPayrollSummary(request);
                         break;
+                    case ProcessConstants.GET_RPT_SUMMARY:
+                        response.data = await _reportRepository.GetRptSummanry(request);
+                        break;
                     default:
                         response.status = StatusCodes.Status404NotFound;
                         response.message = $"Process Key {processKey} was not provider!!!";

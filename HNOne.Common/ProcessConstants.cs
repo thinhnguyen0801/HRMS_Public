@@ -175,6 +175,7 @@
         public const string PUT_WORKING_BRANCH = "put-working-branch";
 
         public const string GET_RPT_PAYROLL_SUMMARY = "get-rpt-payroll-summary";
+        public const string GET_RPT_SUMMARY = "get-rpt-summary";
 
         public const string GET_SUB_DEPARTMENT = "get-sub-department";
         public const string POST_SUB_DEPARTMENT = "post-sub-department";
@@ -217,6 +218,20 @@
         public const string GET_COMBO_LIST_ACCOUNTED_SALARY_TYPE = "SA_LIST_ACCOUNTED_SALARY_TYPE"; // danh sách các khoản lương cần hạch toán
         public const string GET_COMBO_LIST_ACCOUNTING = "SA_LIST_ACCOUNTING"; // danh sách các TÀI KHOẢN
         public const string GET_COMBO_AUDIT_LOG_BY_EMPLOYEE = "AUDIT_LOG_BY_EMPLOYEE"; // danh sách các LOG CỦA NHÂN VIÊN
+        public const string GET_REPORT_SUMMARY_EMPLOYEE = "SUMMARY_EMPLOYEE"; // danh sách các LOG CỦA NHÂN VIÊN
+        public const string GET_REPORT_SUMMARY_STATISTICS_BY_DAY = "SUMMARY_STATISTICS_BY_DAY"; // thống kê theo ngày của nhân viên
+        public const string GET_REPORT_SUMMARY_BIRTHDAY = "SUMMARY_BIRTHDAY"; // Lấy nhân có sinh nhật sắp đến
+        public const string GET_REPORT_SUMMARY_UPCOMING_WORK_ANNIVERSARIES = "SUMMARY_UPCOMING_WORK_ANNIVERSARIES"; // Lấy nhân viên có sắp đến kỹ niệm ngày thử việc
+        public const string GET_REPORT_SUMMARY_EMPLOYEES_ENDING_PROBATIONSOON = "SUMMARY_EMPLOYEES_ENDING_PROBATIONSOON"; // Lấy nhân viên sắp hết hạn thử việc
+        public const string GET_REPORT_SUMMARY_EMPLOYEES_ONMATERNITY_LEAVESOON = "SUMMARY_EMPLOYEES_ONMATERNITY_LEAVESOON"; // Lấy nhân viên nghỉ thai sản sắp đến hạn
+        public const string GET_REPORT_SUMMARY_CONTRACT_SOON = "SUMMARY_CONTRACT_SOON"; // Lấy hơp đồng hết hạn
+        public const string GET_REPORT_SUMMARY_CONTRACT_EXPIRED = "SUMMARY_CONTRACT_EXPIRED"; // Lấy hơp đồng hết hạn
+        public const string GET_REPORT_SUMMARY_STATISTICS_BY_DAY_CHECK_IN_OUT_DETAIL = "SUMMARY_STATISTICS_BY_DAY_CHECK_IN_OUT_DETAIL"; // lấy chi tiết nhân viên quên checkinout
+        public const string GET_REPORT_SUMMARY_STATISTICS_BY_DAY_LATE_EARLY_DETAIL = "SUMMARY_STATISTICS_BY_DAY_LATE_EARLY_DETAIL"; // lấy chi tiết nhân viên đi trễ về sớm
+        public const string GET_REPORT_SUMMARY_STATISTICS_BY_DAY_OVERTIME_DETAIL = "SUMMARY_STATISTICS_BY_DAY_OVERTIME_DETAIL"; // lấy chi tiết nhân viên đi trễ về sớm
+        public const string GET_REPORT_SUMMARY_STATISTICS_BY_DAY_LEAVE_REQUEST_DETAIL = "SUMMARY_STATISTICS_BY_DAY_LEAVE_REQUEST_DETAIL"; // lấy chi tiết nhân viên đi trễ về sớm
+        public const string GET_REPORT_SUMMARY_CONTRACT_SOON_DETAIL = "SUMMARY_CONTRACT_SOON_DETAIL"; // hợp đồng sắp đến hạn
+        public const string GET_REPORT_SUMMARY_CONTRACT_EXPIRED_DETAIL = "SUMMARY_CONTRACT_EXPIRED_DETAIL"; // hợp đồng hết hạn
         #endregion
     }
 }

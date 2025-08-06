@@ -54,5 +54,6 @@
         public const string STORE_H1_DAILY_JOB_UPDATE = "[dbo].[H1_DAILY_JOB_UPDATE]";
         public const string STORE_H1_REWARD_ALLOWANCE_REQUEST_SELECT = "[dbo].[H1_REWARD_ALLOWANCE_REQUEST_SELECT]";
         public const string STORE_H1_REWARD_ALLOWANCE_REQUEST_VALIDATE_CHECK = "[dbo].[H1_REWARD_ALLOWANCE_REQUEST_VALIDATE_CHECK]";
+        public const string STORE_H1_RPT_SUMMARY_SELECT = "[dbo].[H1_RPT_SUMMARY_SELECT]";
     }
 }

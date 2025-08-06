@@ -155,3 +155,11 @@ async function createUrlViewer(contentStreamReference, type) {
 window.triggerClick = function (element) {
     element.click();
 };
+
+// toggle offcanvas
+window.toggleOffcanvas = (elementId) => {
+    const el = document.getElementById(elementId);
+    if (!el) return;
+    let myOffcanvas = new bootstrap.Offcanvas(el);
+    myOffcanvas.show();
+}

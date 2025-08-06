@@ -153,6 +153,7 @@ namespace HNOne.Model.Models
         public string? shiftName { get; set; }
         public string? userName { get; set; } // tài khoản đăng nhập
         #endregion
+        public int totalNumOfDay { get; set; } // tổng số ngày
 
     }
 
