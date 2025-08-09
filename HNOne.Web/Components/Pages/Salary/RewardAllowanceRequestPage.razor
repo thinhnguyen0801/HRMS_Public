@@ -2,6 +2,7 @@
 @inherits Controllers.RewardAllowanceRequestController
 <PageTitle>Khen thưởng & phụ cấp</PageTitle>
 
+<InputFile id="ref-upload-insurance" @ref="@inputFile" accept=".xlsx" OnChange="@OnLoadFileHandler" style="display:none" />
 <div class="h-content-filter">
     @if (!IsReadonlyControl)
     {
@@ -222,6 +223,10 @@
                                     <ToolbarTemplate>
                                         <DxToolbar ItemRenderStyleMode="@ToolbarRenderStyleMode.Plain">
                                             <Items>
+
+                                                <DxToolbarItem Tooltip="Import nhân viên khen thưởng" BeginGroup="true" IconCssClass="@($"{IconClassConstants.ICON_IMPORT}")"
+                                                               Alignment="@ToolbarItemAlignment.Right" Click="@ImportExcelHandler" Visible="@(!IsReadonlyControl)"  />
+
                                                 <DxToolbarItem IconCssClass="@IconClassConstants.ICON_DOWN" BeginGroup="true"
                                                                Alignment="@ToolbarItemAlignment.Right" Tooltip="Điền tiền thưởng & giới hạn theo loại"
                                                                Visible="@(!IsReadonlyControl)" 

@@ -11,6 +11,10 @@ using HNOne.Web.Models;
 using Microsoft.AspNetCore.WebUtilities;
 using Newtonsoft.Json;
 using HNOne.Web.Services;
+using Microsoft.AspNetCore.Components.Forms;
+using ClosedXML.Excel;
+using System.Reflection;
+using DevExpress.Data.ExpressionEditor;
 
 namespace HNOne.Web.Controllers
 {
@@ -58,6 +62,7 @@ namespace HNOne.Web.Controllers
         public bool IsAllowCancel { get; set; } // hủy phiếu để văn thư hay pns hủy
         public bool IsAllowApproval { get; set; }
         public bool IsShowPromptDeny { get; set; }
+        public InputFile? inputFile { get; set; } // file
         #endregion
 
         protected override async Task OnAfterRenderAsync(bool firstRender)
@@ -201,27 +206,21 @@ namespace HNOne.Web.Controllers
                 return;
             }
             // Kiểm tra dữ liệu lưới
-            RewardAllowanceRequest1Model? itemCheck = ListEmployeeReward!.FirstOrDefault(m => m.rewardAmount == 0);
-            if (itemCheck != null)
-            {
-                errorMessage = $"Nhân viên [{itemCheck.employeeCode}]. Vui lòng điền số tiền thưởng";
-                fieldName = "gridInfo";
-                return;
-            }
-            itemCheck = ListEmployeeReward!.FirstOrDefault(m => m.paidAmount == 0);
+
+            RewardAllowanceRequest1Model? itemCheck = ListEmployeeReward!.FirstOrDefault(m => m.paidAmount == 0);
             if (itemCheck != null)
             {
                 errorMessage = $"Nhân viên [{itemCheck.employeeCode}]. Vui lòng điền số chi trả";
                 fieldName = "gridInfo";
                 return;
             }
-            //itemCheck = ListEmployeeAdjusted!.FirstOrDefault(m => m.startDate.Year != RequestDocument.year);
-            //if (itemCheck != null)
-            //{
-            //    errorMessage = $"Nhân viên [{itemCheck.employeeCode}]. Ngày áp dụng phải nằm trong năm {RequestDocument.year}";
-            //    fieldName = "gridInfo";
-            //    return;
-            //}
+            itemCheck = ListEmployeeReward!.FirstOrDefault(m => m.netSalary <= 0);
+            if (itemCheck != null)
+            {
+                errorMessage = $"Nhân viên [{itemCheck.employeeCode}]. Số tiền thực lãnh không hợp lệ";
+                fieldName = "gridInfo";
+                return;
+            }
         }
 
         /// <summary>
@@ -364,6 +363,76 @@ namespace HNOne.Web.Controllers
                 await ShowLoading(false);
                 await InvokeAsync(StateHasChanged);
             }
+        }
+
+        /// <summary>
+        /// đọc dữ liệu excel đổ vào lưới
+        /// </summary>
+        /// <param name="excelStream"></param>
+        /// <returns></returns>
+        private List<RewardAllowanceRequest1Model> readExcelToDataTable(Stream excelStream)
+        {
+            try
+            {
+                var list = new List<RewardAllowanceRequest1Model>();
+                using (var workbook = new XLWorkbook(excelStream))
+                {
+                    var worksheet = workbook.Worksheet(1);
+                    var range = worksheet.RangeUsed();
+                    var rows = range.RowsUsed();
+
+                    var headerRow = rows.First();
+                    var headers = headerRow.Cells().Select(c => c.GetString()).ToList();
+                    // Map từ cột có dấu sang property
+                    Dictionary<string, string> columnMap = new(StringComparer.OrdinalIgnoreCase)
+                    {
+                        { "Mã nhân viên", "employeeCode" },
+                        { "Tên nhân viên", "employeeName" },
+                        { "Tiền thưởng", "rewardAmount" },
+                        { "Tiền chi trả", "paidAmount" },
+                        { "Tiền thuế", "taxPayment" },
+                        { "Tổng tiền", "totalSalary" },
+                        { "Giới hạn", "maxSalary" },
+                        { "Thực lãnh", "netSalary" },
+                        { "Ghi chú", "remark" },
+                    };
+
+                    foreach (var row in rows.Skip(1))
+                    {
+                        var obj = new RewardAllowanceRequest1Model();
+
+                        for (int i = 0; i < headers.Count; i++)
+                        {
+                            string excelHeader = headers[i];
+                            if (string.IsNullOrWhiteSpace(excelHeader)) continue;
+
+                            // 1. Map nếu nằm trong dictionary
+                            string propertyName = columnMap != null && columnMap.TryGetValue(excelHeader, out var mappedName)
+                                ? mappedName
+                                : excelHeader; // 2. Nếu không, dùng luôn header
+
+                            PropertyInfo? prop = typeof(RewardAllowanceRequest1Model).GetProperty(propertyName, BindingFlags.IgnoreCase | BindingFlags.Public | BindingFlags.Instance);
+                            if (prop != null && prop.CanWrite)
+                            {
+                                string? cellValue = row.Cell(i + 1).GetString()?.Trim();
+                                try
+                                {
+                                    object? convertedValue = Convert.ChangeType(cellValue, Nullable.GetUnderlyingType(prop.PropertyType) ?? prop.PropertyType);
+                                    prop.SetValue(obj, convertedValue);
+                                }
+                                catch
+                                {
+                                    // Option: log hoặc bỏ qua lỗi nếu không convert được
+                                }
+                            }
+                        }
+
+                        list.Add(obj);
+                    }
+                }
+                return list;
+            }
+            catch (Exception) { throw; }
         }
         #endregion
 
@@ -885,6 +954,98 @@ namespace HNOne.Web.Controllers
             {
                 _logger!.LogError(ex, "ExportExcelHandler");
                 ShowError(ex.Message);
+            }
+        }
+
+        /// <summary>
+        /// Import file
+        /// </summary>
+        /// <returns></returns>
+        protected async Task ImportExcelHandler()
+        {
+            try
+            {
+                if (inputFile == null) return;
+                await _jsRuntime.InvokeVoidAsync("triggerClick", inputFile.Element);
+            }
+            catch (Exception ex)
+            {
+                _logger!.LogError(ex, "ImportExcelHandler");
+                ShowError(ex.Message);
+            }
+        }
+
+        /// <summary>
+        /// Import dữ liệu từ file excel
+        /// </summary>
+        /// <returns></returns>
+        protected async Task OnLoadFileHandler(InputFileChangeEventArgs args)
+        {
+            try
+            {
+                if (args.FileCount <= 0) return;
+                var lstFileExtension = args.GetMultipleFiles().Select(m => Path.GetExtension(m.Name));
+                var checkExist = lstFileExtension.Any(m => m != ".xlsx");
+                if (checkExist)
+                {
+                    ShowWarning("Bạn chỉ được phép đính kèm tệp excel(.xlsx)");
+                    return;
+                }
+                var isConfirm = await confirm.SetConfirm(MessageConstants.MESSAGE_TITLE, $"Nhân viên sẽ được thay thế dữ liệu từ Excel <br /> Bạn có chắc muốn tiếp tục?");
+                if (!isConfirm) return;
+                await ShowLoading();
+                using var stream = args.File.OpenReadStream();
+                using var memoryStream = new MemoryStream();
+                await stream.CopyToAsync(memoryStream);
+                memoryStream.Position = 0;
+                var result = readExcelToDataTable(memoryStream);
+                if (result.IsNullOrEmpty())
+                {
+                    ShowWarning(MessageConstants.MESSAGE_NOT_FOUNT);
+                    return;
+                }
+                ListEmployeeReward ??= new List<RewardAllowanceRequest1Model>();
+                var lstEmp = new List<RewardAllowanceRequest1Model>();
+                foreach (var item in result)
+                {
+                    if (string.IsNullOrEmpty(item.employeeCode)) continue;
+                    var itemInGrid = ListEmployeeReward.FirstOrDefault(m => m.employeeCode == item.employeeCode);
+                    if(itemInGrid != null)
+                    {
+                        // nếu trong lưới có ông nhân viên đó thì gán lại dữ liệu cho ổng
+                        itemInGrid.remark = item.remark;
+                        itemInGrid.rewardAmount = item.rewardAmount;
+                        itemInGrid.paidAmount = item.paidAmount;
+                        itemInGrid.taxPayment = item.taxPayment;
+                        itemInGrid.maxSalary = item.maxSalary;
+                        itemInGrid.totalSalary = item.paidAmount - item.taxPayment;
+                        itemInGrid.netSalary = (item.maxSalary > 0 && itemInGrid.totalSalary > item.maxSalary) ? item.maxSalary : itemInGrid.totalSalary;
+                        continue;
+                    }
+                    itemInGrid = new RewardAllowanceRequest1Model();
+                    itemInGrid.employeeCode = item.employeeCode;
+                    itemInGrid.employeeName = item.employeeName;
+                    itemInGrid.remark = item.remark;
+                    itemInGrid.rewardAmount = item.rewardAmount;
+                    itemInGrid.paidAmount = item.paidAmount;
+                    itemInGrid.taxPayment = item.taxPayment;
+                    itemInGrid.maxSalary = item.maxSalary;
+                    itemInGrid.totalSalary = item.paidAmount - item.taxPayment;
+                    itemInGrid.netSalary = (item.maxSalary > 0 && itemInGrid.totalSalary > item.maxSalary) ? item.maxSalary : itemInGrid.totalSalary;
+                    lstEmp.Add(itemInGrid);
+                }
+                ListEmployeeReward.AddRange(lstEmp);
+                GridEmployeeReward?.Reload();
+            }
+            catch (Exception ex)
+            {
+                ShowError(ex.Message);
+                _logger.LogError(ex, "ImportDataHandler");
+            }
+            finally
+            {
+                await ShowLoading(false);
+                await InvokeAsync(StateHasChanged);
             }
         }
         #endregion

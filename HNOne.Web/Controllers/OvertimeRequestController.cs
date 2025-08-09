@@ -761,10 +761,10 @@ namespace HNOne.Web.Controllers
                 var itemFind = ListOvertimeDays?.FirstOrDefault(m => m.overtimeDate == itemEdit.overtimeDate && m.id == itemEdit.id);
                 if (itemFind == null) return;
                 itemFind.remark = itemEdit.remark;
-                itemFind.startTime = itemEdit.startTime;
-                itemFind.endTime = itemEdit.endTime;
-                itemFind.startBreakTime = itemEdit.startBreakTime;
-                itemFind.endBreakTime = itemEdit.endBreakTime;
+                itemFind.startTime = new DateTime(itemFind.overtimeDate.Year, itemFind.overtimeDate.Month, itemFind.overtimeDate.Day, itemEdit.startTime.Hour, itemEdit.startTime.Minute, 0);
+                itemFind.endTime = new DateTime(itemFind.overtimeDate.Year, itemFind.overtimeDate.Month, itemFind.overtimeDate.Day, itemEdit.endTime.Hour, itemEdit.endTime.Minute, 0);
+                itemFind.startBreakTime = itemEdit.startTime;
+                itemFind.endBreakTime = itemEdit.startTime;
                 itemFind.totalBreakTimeMinutes = itemEdit.totalBreakTimeMinutes;
                 // Tính tổng giờ làm việc
                 double totalWorkHours = 0;
@@ -773,10 +773,10 @@ namespace HNOne.Web.Controllers
                     var startBT = itemEdit.startTime;
                     itemFind.startBreakTime = startBT;
                     itemFind.endBreakTime = startBT.AddMinutes(itemEdit.totalBreakTimeMinutes);
-                    TimeSpan workBeforeBreak = itemFind.startBreakTime!.Value - itemFind.startTime;
-                    TimeSpan workAfterBreak = itemFind.endTime - itemFind.endBreakTime!.Value;
-                    totalWorkHours = workBeforeBreak.TotalHours + workAfterBreak.TotalHours;
                 }
+                TimeSpan workBeforeBreak = itemFind.startBreakTime!.Value - itemFind.startTime;
+                TimeSpan workAfterBreak = itemFind.endTime - itemFind.endBreakTime!.Value;
+                totalWorkHours = workBeforeBreak.TotalHours + workAfterBreak.TotalHours;
                 itemFind.totalWorkingHours = totalWorkHours;
                 StateHasChanged();
             }

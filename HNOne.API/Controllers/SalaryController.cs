@@ -3,6 +3,7 @@ using HNOne.API.Repositories.Interfaces;
 using HNOne.Common;
 using HNOne.Model;
 using HNOne.Model.Entities;
+using HNOne.Model.Models;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
 
@@ -97,7 +98,7 @@ namespace HNOne.API.Controllers
                     case ProcessConstants.POST_REWARD_ALLOWANCE_REQUEST:
                     case ProcessConstants.PUT_REWARD_ALLOWANCE_REQUEST:
                         var reward = DeserializeJson<RewardAllowanceRequests>($"{request.json}");
-                        var lstReward = DeserializeJson<List<RewardAllowanceRequest1s>>($"{request.jsonDetail}");
+                        var lstReward = DeserializeJson<List<RewardAllowanceRequest1Model>>($"{request.jsonDetail}");
                         response = await _salaryRepository.UpdateRewardAllowanceRequest(processKey, reward!, lstReward!);
                         break;
                     default:

@@ -581,7 +581,7 @@ namespace HNOne.API.Repositories
         /// <param name="entity"></param>
         /// <param name="lstEntity1"></param>
         /// <returns></returns>
-        public async Task<ResponseModel> UpdateRewardAllowanceRequest(string actionType, RewardAllowanceRequests entity, IEnumerable<RewardAllowanceRequest1s> lstEntity1)
+        public async Task<ResponseModel> UpdateRewardAllowanceRequest(string actionType, RewardAllowanceRequests entity, IEnumerable<RewardAllowanceRequest1Model> lstEntity1Model)
         {
             bool isTrans = false;
             ResponseModel response = new ResponseModel();
@@ -598,13 +598,20 @@ namespace HNOne.API.Repositories
                         parameters.Add("@BranchId", entity.BranchId, DbType.Int32);
                         parameters.Add("@ProcessKey", ProcessConstants.POST_REWARD_ALLOWANCE_REQUEST, DbType.String);
                         parameters.Add("@JHeader", JsonConvert.SerializeObject(entity), DbType.String);
-                        parameters.Add("@JLine", JsonConvert.SerializeObject(lstEntity1), DbType.String);
+                        parameters.Add("@JLine", JsonConvert.SerializeObject(lstEntity1Model), DbType.String);
                         var resultCheck = await connection.QueryFirstOrDefaultAsync<ResponseModel>(StoreConstants.STORE_H1_REWARD_ALLOWANCE_REQUEST_VALIDATE_CHECK, parameters
                         , commandTimeout: GlobalConstants.COMMAND_TIMEOUT, commandType: CommandType.StoredProcedure);
                         if (resultCheck == null || resultCheck.status != StatusCodes.Status200OK)
                         {
                             response.status = resultCheck?.status ?? StatusCodes.Status400BadRequest;
                             response.message = resultCheck?.message ?? MessageConstants.MESSAGE_IT_SUPPORT;
+                            return response;
+                        }
+                        var lstEntity1 = JsonConvert.DeserializeObject<List<RewardAllowanceRequest1s>>($"{resultCheck.returnValue}") ?? new List<RewardAllowanceRequest1s>();
+                        if (lstEntity1.IsNullOrEmpty())
+                        {
+                            response.status = StatusCodes.Status400BadRequest;
+                            response.message = $"Không lấy được dữ liệu thông tin nhân viên. Vui lòng liên hệ IT để được hổ trợ";
                             return response;
                         }
                         // đánh mã chứng từ
@@ -676,13 +683,20 @@ namespace HNOne.API.Repositories
                         parameters.Add("@BranchId", entity.BranchId, DbType.Int32);
                         parameters.Add("@ProcessKey", ProcessConstants.POST_REWARD_ALLOWANCE_REQUEST, DbType.String);
                         parameters.Add("@JHeader", JsonConvert.SerializeObject(entity), DbType.String);
-                        parameters.Add("@JLine", JsonConvert.SerializeObject(lstEntity1), DbType.String);
+                        parameters.Add("@JLine", JsonConvert.SerializeObject(lstEntity1Model), DbType.String);
                         var resultCheck = await connection.QueryFirstOrDefaultAsync<ResponseModel>(StoreConstants.STORE_H1_REWARD_ALLOWANCE_REQUEST_VALIDATE_CHECK, parameters
                         , commandTimeout: GlobalConstants.COMMAND_TIMEOUT, commandType: CommandType.StoredProcedure);
                         if (resultCheck == null || resultCheck.status != StatusCodes.Status200OK)
                         {
                             response.status = resultCheck?.status ?? StatusCodes.Status400BadRequest;
                             response.message = resultCheck?.message ?? MessageConstants.MESSAGE_IT_SUPPORT;
+                            return response;
+                        }
+                        var lstEntity1 = JsonConvert.DeserializeObject<List<RewardAllowanceRequest1s>>($"{resultCheck.returnValue}") ?? new List<RewardAllowanceRequest1s>();
+                        if (lstEntity1.IsNullOrEmpty())
+                        {
+                            response.status = StatusCodes.Status400BadRequest;
+                            response.message = $"Không lấy được dữ liệu thông tin nhân viên. Vui lòng liên hệ IT để được hổ trợ";
                             return response;
                         }
                         data.RewardName = entity.RewardName;
