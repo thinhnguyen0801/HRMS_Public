@@ -18,10 +18,10 @@
                 <h2 class="h3 text-center mb-3">
                     Thông tin đăng nhập
                 </h2>
-                <EditForm Model="LoginRequest" OnValidSubmit="(async() => await LoginHandler())" AdditionalAttributes="@(new Dictionary<string, object>() {{"autocomplete", "off"}})">
+                <EditForm Model="LoginRequest" OnValidSubmit="(async () => await LoginHandler())" AdditionalAttributes="@(new Dictionary<string, object>() { { "autocomplete", "off" } })">
                     <DataAnnotationsValidator />
-                    <div class="mb-3">
-                        <label class="form-label" for="cboBranch">Chi nhánh</label>
+                    <div class="mb-3" style="display: none;">
+                        <label class="form-label" for="cboBranch">Công ty</label>
                         <DxComboBox Data="@ListBranch"
                                     Id="cboBranch"
                                     @bind-Value="@LoginRequest.branchId"
@@ -43,9 +43,9 @@
                                 <a href="./forgot-password">Quên mật khẩu</a>
                             </span>
                         </label>
-                        <DxTextBox @bind-Text="@LoginRequest.password" @ref="RefPasswordBox" 
+                        <DxTextBox @bind-Text="@LoginRequest.password" @ref="RefPasswordBox"
                                    Id="txtPassword"
-                                   SizeMode="SizeMode.Medium" 
+                                   SizeMode="SizeMode.Medium"
                                    Password="true"
                                    Attributes="@(new Dictionary<string, object>() {{"autocomplete", "new-password"}})">
                             <Buttons>
@@ -76,7 +76,7 @@
                     </div>
                 </EditForm>
                 <div class="text-center text-secondary mt-3">
-                    Copyright © 2024  <a href="https://onesystem.com.vn/" target="_blank">OneSystem JSC</a>
+                    Copyright © 2025 <a href="https://www.huongnghiepaau.com/" target="_blank">Hướng Nghiệp Á Âu</a>
                 </div>
             </div>
         </div>
