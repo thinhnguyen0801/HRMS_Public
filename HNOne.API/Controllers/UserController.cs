@@ -11,6 +11,7 @@ using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Security.Cryptography;
 using System.Text;
+using Azure;
 
 namespace HNOne.API.Controllers
 {
@@ -75,6 +76,24 @@ namespace HNOne.API.Controllers
             catch (Exception ex)
             {
                 _logger.LogError(ex, $"Login: {ex.Message}. Request: {JsonConvert.SerializeObject(request)}");
+                response.status = StatusCodes.Status400BadRequest;
+                response.message = ex.Message;
+            }
+            return Ok(response);
+        }
+
+        [HttpPost]
+        [Route("change-password")]
+        public async Task<IActionResult> ChangePassword([FromBody] RequestModel request)
+        {
+            ResponseModel response = new ResponseModel();
+            try
+            {
+                
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, $"ChangePassword: {ex.Message}. Request: {JsonConvert.SerializeObject(request)}");
                 response.status = StatusCodes.Status400BadRequest;
                 response.message = ex.Message;
             }
@@ -197,6 +216,10 @@ namespace HNOne.API.Controllers
                         var perGroupAccessControl = JsonConvert.DeserializeObject<List<GroupAccessControls>>($"{request.json}");
                         var perGroupDataAuth = JsonConvert.DeserializeObject<List<DataPermissions>>($"{request.jsonDetail}");
                         response = await _userService.UpdateGroupAccessControl(request.documentId, perGroupAccessControl!, perGroupDataAuth!);
+                        break;
+                    case ProcessConstants.CHANGE_PASSWORD_USER:
+                        var userPass = JsonConvert.DeserializeObject<UserModel>($"{request.json}")!;
+                        response = await _userService.UpdatePassword(userPass);
                         break;
                     default:
                         response.status = StatusCodes.Status404NotFound;

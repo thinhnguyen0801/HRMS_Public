@@ -356,6 +356,7 @@ namespace HNOne.Web.Controllers
         /// <returns></returns>
         private async Task getUserById()
         {
+            UserUpdate = new UserModel();
             RequestModel request = new RequestModel();
             request.userId = UserId;
             request.branchId = BranchId;
@@ -364,7 +365,11 @@ namespace HNOne.Web.Controllers
             var listUser = await _userDataService.GetUserAsync(request);
             if (!listUser.IsNullOrEmpty())
             {
-                UserUpdate = listUser![0];
+                var user = listUser![0];
+                UserUpdate.userId = user.userId;
+                UserUpdate.userName = user.userName;
+                UserUpdate.employeeCode = user.employeeCode;
+                UserUpdate.employeeName = user.employeeName;
                 IsShowPopupChangePass = true;
             }
         }
@@ -727,7 +732,42 @@ namespace HNOne.Web.Controllers
         {
             try
             {
-
+                if (string.IsNullOrEmpty(UserUpdate.password))
+                {
+                    ShowWarning(string.Format(MessageConstants.MESSAGE_STRING_REQUIRE, "Mật khẩu củ"));
+                    await _jsRuntime.InvokeVoidAsync("focusInput", "password");
+                    return;
+                }
+                if (string.IsNullOrEmpty(UserUpdate.passwordNew))
+                {
+                    ShowWarning(string.Format(MessageConstants.MESSAGE_STRING_REQUIRE, "Mật khẩu mới"));
+                    await _jsRuntime.InvokeVoidAsync("focusInput", "passwordNew");
+                    return;
+                }
+                if (string.IsNullOrEmpty(UserUpdate.rePassword))
+                {
+                    ShowWarning(string.Format(MessageConstants.MESSAGE_STRING_REQUIRE, "lại mật khẩu mới"));
+                    await _jsRuntime.InvokeVoidAsync("focusInput", "rePassword");
+                    return;
+                }
+                if(UserUpdate.passwordNew != UserUpdate.rePassword)
+                {
+                    ShowWarning("Nhập lại mật khẩu mới không khớp");
+                    await _jsRuntime.InvokeVoidAsync("focusInput", "rePassword");
+                    return;
+                }
+                bool isConfirm = await confirm.SetConfirm(MessageConstants.MESSAGE_TITLE, "Bạn có chắc muốn thay đổi mật khẩu không?");
+                if (!isConfirm) return;
+                await ShowLoading();
+                var userUpdate = new UserModel();
+                userUpdate.userId = UserUpdate.userId;
+                userUpdate.password = _encryptHelper.Encrypt(UserUpdate.password);
+                userUpdate.passwordNew = _encryptHelper.Encrypt(UserUpdate.passwordNew);
+                userUpdate.userSign2 = UserId;
+                userUpdate.userSign = UserId;
+                string content = JsonConvert.SerializeObject(userUpdate);
+                isConfirm = await _userDataService.UpdateUserAsync(processKey: ProcessConstants.CHANGE_PASSWORD_USER, UserId, Token, content);
+                if (isConfirm) IsShowPopupChangePass = false;
             }
             catch (Exception ex)
             {

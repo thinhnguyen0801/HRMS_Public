@@ -89,6 +89,9 @@ namespace HNOne.API.Services
 
         public async Task<ResponseModel> UpdateGroupAccessControl(int groupId, IEnumerable<GroupAccessControls> listEntity, IEnumerable<DataPermissions> lstAuthData)
             => await _userRepository.UpdateGroupAccessControl(groupId, listEntity, lstAuthData);
+        
+        public async Task<ResponseModel> UpdatePassword(UserModel request)
+            => await _userRepository.UpdatePassword(request);
         #endregion
     }
 }

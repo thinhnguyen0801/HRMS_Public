@@ -1571,49 +1571,49 @@
     <div class="row row-gap-2">
         <div class="col-sm-12">
             <div class="d-flex ">
-                <W1Label Value="Mã nhân viên" Styles="width: 110px" />
-                <div style="width: calc(100% - 110px)">
+                <W1Label Value="Mã nhân viên" Styles="width: 140px" />
+                <div style="width: calc(100% - 140px)">
                     <DxTextBox @bind-Text="@UserUpdate.employeeCode" CssClass="w1FontSize" ReadOnly="true"></DxTextBox>
                 </div>
             </div>
         </div>
         <div class="col-sm-12">
             <div class="d-flex ">
-                <W1Label Value="Họ tên" Styles="width: 110px" />
-                <div style="width: calc(100% - 110px)">
+                <W1Label Value="Họ tên" Styles="width: 140px" />
+                <div style="width: calc(100% - 140px)">
                     <DxTextBox @bind-Text="@UserUpdate.employeeName" CssClass="w1FontSize" ReadOnly="true"></DxTextBox>
                 </div>
             </div>
         </div>
         <div class="col-sm-12">
             <div class="d-flex ">
-                <W1Label Value="Mã tài khoản" Styles="width: 110px" />
-                <div style="width: calc(100% - 110px)">
+                <W1Label Value="Mã tài khoản" Styles="width: 140px" />
+                <div style="width: calc(100% - 140px)">
                     <DxTextBox @bind-Text="@UserUpdate.userName" CssClass="w1FontSize" ReadOnly="true"></DxTextBox>
                 </div>
             </div>
         </div>
         <div class="col-sm-12">
             <div class="d-flex ">
-                <W1Label Value="Mật khẩu củ" Styles="width: 110px" />
-                <div style="width: calc(100% - 110px)">
-                    <DxTextBox @bind-Text="@UserUpdate.password" CssClass="w1FontSize" Password="true"></DxTextBox>
+                <W1Label Value="Mật khẩu củ" Styles="width: 140px" IsRequired="true" />
+                <div style="width: calc(100% - 140px)">
+                    <DxTextBox Id="password" @bind-Text="@UserUpdate.password" CssClass="w1FontSize" Password="true"></DxTextBox>
                 </div>
             </div>
         </div>
         <div class="col-sm-12">
             <div class="d-flex ">
-                <W1Label Value="Mật khẩu mới" Styles="width: 110px" />
-                <div style="width: calc(100% - 110px)">
-                    <DxTextBox @bind-Text="@UserUpdate.passwordNew" CssClass="w1FontSize" Password="true"></DxTextBox>
+                <W1Label Value="Mật khẩu mới" Styles="width: 140px" IsRequired="true" />
+                <div style="width: calc(100% - 140px)">
+                    <DxTextBox Id="passwordNew" @bind-Text="@UserUpdate.passwordNew" CssClass="w1FontSize" Password="true"></DxTextBox>
                 </div>
             </div>
         </div>
         <div class="col-sm-12">
             <div class="d-flex ">
-                <W1Label Value="Nhập lại mật khẩu mới" Styles="width: 110px" />
-                <div style="width: calc(100% - 110px)">
-                    <DxTextBox @bind-Text="@UserUpdate.rePassword" CssClass="w1FontSize" Password="true"></DxTextBox>
+                <W1Label Value="Nhập lại mật khẩu mới" Styles="width: 140px" IsRequired="true" />
+                <div style="width: calc(100% - 140px)">
+                    <DxTextBox Id="rePassword" @bind-Text="@UserUpdate.rePassword" CssClass="w1FontSize" Password="true"></DxTextBox>
                 </div>
             </div>
         </div>

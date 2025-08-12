@@ -10,6 +10,7 @@
         public const string POST_USER= "post-user";
         public const string PUT_USER= "put-user";
         public const string DELETE_USER= "delete-user";
+        public const string CHANGE_PASSWORD_USER= "chage-password-user";
 
         public const string GET_DEPARTMENT= "get-department";
         public const string POST_DEPARTMENT= "post-department";

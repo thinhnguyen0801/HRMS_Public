@@ -1,6 +1,7 @@
 ﻿using Azure;
 using Azure.Core;
 using Dapper;
+using DocumentFormat.OpenXml.Vml.Office;
 using HNOne.API.Constants;
 using HNOne.API.Repositories.Interfaces;
 using HNOne.Common;
@@ -281,6 +282,42 @@ namespace HNOne.API.Repositories
                     response.message = MessageConstants.MESSAGE_UPDATE_SUCCESS;
                     return response;
                 }    
+            }
+            catch (Exception) { throw; }
+        }
+
+        /// <summary>
+        /// Cập nhật thông tin mật khẩu
+        /// </summary>
+        /// <param name="request"></param>
+        /// <returns></returns>
+        public async Task<ResponseModel> UpdatePassword(UserModel entity)
+        {
+            ResponseModel response = new ResponseModel();
+            try
+            {
+                var data = await _dbContext.Users.FirstOrDefaultAsync(m => m.UserId == entity.userId);
+                if (data == null)
+                {
+                    response.status = StatusCodes.Status404NotFound;
+                    response.message = MessageConstants.MESSAGE_NOT_FOUNT;
+                    return response;
+                }
+                if(data.Password != entity.password)
+                {
+                    response.status = StatusCodes.Status409Conflict;
+                    response.message = "Mật khẩu củ không hợp lệ!";
+                    return response;
+                }
+                data.Password = entity.passwordNew;
+                data.DateTracking = _dateTimeHelper.GetCurrentVietnamTime();
+                data.UpdateDate = _dateTimeHelper.GetCurrentVietnamTime();
+                data.UserSign2 = entity.userSign2;
+                _dbContext.Users.Attach(data);
+                _dbContext.Entry(data).State = EntityState.Modified;
+                await _dbContext.SaveChangesAsync();
+                response.message = MessageConstants.MESSAGE_UPDATE_SUCCESS;
+                return response;
             }
             catch (Exception) { throw; }
         }
