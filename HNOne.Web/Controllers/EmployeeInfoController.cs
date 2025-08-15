@@ -734,7 +734,7 @@ namespace HNOne.Web.Controllers
             {
                 if (string.IsNullOrEmpty(UserUpdate.password))
                 {
-                    ShowWarning(string.Format(MessageConstants.MESSAGE_STRING_REQUIRE, "Mật khẩu củ"));
+                    ShowWarning(string.Format(MessageConstants.MESSAGE_STRING_REQUIRE, "Mật khẩu cũ"));
                     await _jsRuntime.InvokeVoidAsync("focusInput", "password");
                     return;
                 }

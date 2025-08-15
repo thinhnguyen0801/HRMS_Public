@@ -60,7 +60,7 @@
                             <DxGridDataColumn FieldName="@nameof(LeaveConfigModel.branchName)" Caption="Chi nhánh" MinWidth="160" />
                             <DxGridDataColumn FieldName="@nameof(LeaveConfigModel.fromDate)" Caption="Ngày bắt đầu" MinWidth="110" DisplayFormat="@GlobalContants.FORMAT_DATE" />
                             <DxGridDataColumn FieldName="@nameof(LeaveConfigModel.toDate)" Caption="Ngày kết thúc" MinWidth="110" DisplayFormat="@GlobalContants.FORMAT_DATE" />
-                            <DxGridDataColumn FieldName="@nameof(LeaveConfigModel.expiryDate)" Caption="Ngày hết hạn phép năm củ" MinWidth="165" DisplayFormat="@GlobalContants.FORMAT_DATE" />
+                            <DxGridDataColumn FieldName="@nameof(LeaveConfigModel.expiryDate)" Caption="Ngày hết hạn phép năm cũ" MinWidth="165" DisplayFormat="@GlobalContants.FORMAT_DATE" />
                             <DxGridDataColumn FieldName="@nameof(LeaveConfigModel.numOfLeave)" Caption="Số phép năm" MinWidth="110" />
                             <DxGridDataColumn FieldName="@nameof(LeaveConfigModel.numOfYearIncrease)" Caption="Số năm tăng phép" MinWidth="130" />
                             <DxGridDataColumn FieldName="@nameof(LeaveConfigModel.numOfLeaveIncrease)" Caption="Số phép tăng" MinWidth="110" />
@@ -148,7 +148,7 @@
         </div>
         <div class="col-sm-12">
             <div class="d-flex ">
-                <W1Label Value="Ngày hết hạn phép năm củ" Styles="width: 230px" IsRequired="true" />
+                <W1Label Value="Ngày hết hạn phép năm cũ" Styles="width: 230px" IsRequired="true" />
                 <div style="width: calc(100% - 230px)">
                     <DxDateEdit @bind-Date="@LeaveConfigUpdate.expiryDate" CssClass="w1FontSize" Id="expiryDate"
                                 Mask="@GlobalContants.FORMAT_DATE" Format="@GlobalContants.FORMAT_DATE"

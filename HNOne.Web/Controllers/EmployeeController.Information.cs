@@ -504,7 +504,7 @@ namespace HNOne.Web.Controllers
                 itemFile.filePath = strFileFullName;
                 itemFile.isDelete = false;
                 // cập nhật nó là true để khỏi upload -> nhưng phải remove temp. ví dụ họ chọn mà không lưu
-                // lấy file chọn mới nhất. xóa mấy cái chọn củ đi
+                // lấy file chọn mới nhất. xóa mấy cái chọn cũ đi
                 foreach (var item in lstFileTemp)
                 {
                     item.isDelete = true;
