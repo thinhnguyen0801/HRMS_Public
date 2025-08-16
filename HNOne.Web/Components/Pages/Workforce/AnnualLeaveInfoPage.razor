@@ -129,6 +129,8 @@
                                                    Alignment="@ToolbarItemAlignment.Right" Click="@RefreshHandler" />
                                     <DxToolbarItem Text="Điều chỉnh phép" BeginGroup="true" IconCssClass="@($"{IconClassConstants.ICON_ADD}")" CssClass="w1FontSize"
                                                    Alignment="@ToolbarItemAlignment.Right" Click="@CreateAdjustedALRequestHandler" />
+                                    <DxToolbarItem Text="Kết xuất" BeginGroup="true" IconCssClass="@($"{IconClassConstants.ICON_EXPORT_EXCEL}")" CssClass="w1FontSize"
+                                                   Alignment="@ToolbarItemAlignment.Right" Click="@(()=> ExportExcelHandler())" />
                                 </Items>
                             </DxToolbar>
                         </div>
@@ -202,23 +204,23 @@
                                         </HeaderCaptionTemplate>
                                     </DxGridDataColumn>
                                     <DxGridDataColumn FieldName="@nameof(AnnualLeaveInfoModel.numOfLeaveOld)" DisplayFormat="@GlobalContants.FORMAT_NUMBER_DOUBLE_1PLACE"
-                                                      Caption="Phép năm củ" MinWidth="90" Width="100px" TextAlignment="@GridTextAlignment.Center" CaptionAlignment="@GridTextAlignment.Center">
+                                                      Caption="Phép năm cũ" MinWidth="90" Width="100px" TextAlignment="@GridTextAlignment.Center" CaptionAlignment="@GridTextAlignment.Center">
                                         <HeaderCaptionTemplate>
                                             <div>Phép</div>
-                                            <div>năm củ</div>
+                                            <div>năm cũ</div>
                                         </HeaderCaptionTemplate>
                                     </DxGridDataColumn>
-                                    <DxGridDataColumn FieldName="@nameof(AnnualLeaveInfoModel.expiryDate)" Caption="Ngày hết hạn phép năm củ" DisplayFormat="@GlobalContants.FORMAT_DATE"
+                                    <DxGridDataColumn FieldName="@nameof(AnnualLeaveInfoModel.expiryDate)" Caption="Ngày hết hạn phép năm cũ" DisplayFormat="@GlobalContants.FORMAT_DATE"
                                                       MinWidth="100" Width="110px" TextAlignment="@GridTextAlignment.Center" CaptionAlignment="@GridTextAlignment.Center">
                                         <HeaderCaptionTemplate>
                                             <div>Ngày hết hạn</div>
-                                            <div>phép năm củ</div>
+                                            <div>phép năm cũ</div>
                                         </HeaderCaptionTemplate>
                                     </DxGridDataColumn>
                                     <DxGridDataColumn FieldName="@nameof(AnnualLeaveInfoModel.numOfLeaveOldPaid)" DisplayFormat="@GlobalContants.FORMAT_NUMBER_DOUBLE_1PLACE"
-                                                      Caption="Phép củ đã thanh toán" MinWidth="110" Width="110px" TextAlignment="@GridTextAlignment.Center" CaptionAlignment="@GridTextAlignment.Center">
+                                                      Caption="Phép cũ đã thanh toán" MinWidth="110" Width="110px" TextAlignment="@GridTextAlignment.Center" CaptionAlignment="@GridTextAlignment.Center">
                                         <HeaderCaptionTemplate>
-                                            <div>Phép năm củ</div>
+                                            <div>Phép năm cũ</div>
                                             <div>đã thanh toán</div>
                                         </HeaderCaptionTemplate>
                                     </DxGridDataColumn>

@@ -42,6 +42,7 @@ namespace HNOne.Model.Models
         public string? employeeListCode { get; set; }
         public string? employeeListName { get; set; }
         #endregion
+        public double? TotalLeaveDays { get; set; }
     }
 
     // danh sách chi tiết ngày nghỉ

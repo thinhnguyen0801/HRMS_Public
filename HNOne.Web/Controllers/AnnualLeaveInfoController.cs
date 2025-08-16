@@ -182,6 +182,39 @@ namespace HNOne.Web.Controllers
         }
 
         /// <summary>
+        /// Kết xuất dữ liệu sang file excel
+        /// xlsx
+        /// </summary>
+        /// <returns></returns>
+        protected async Task ExportExcelHandler()
+        {
+            try
+            {
+                if (GridAnnualLeaveInfo == null || ListAnnualLeaveInfo.IsNullOrEmpty())
+                {
+                    ShowWarning(MessageConstants.MESSAGE_NOT_FOUNT);
+                    return;
+                }
+                await ShowLoading();
+                await GridAnnualLeaveInfo!.ExportToXlsxAsync("Quan-ly-phep-nam", new GridXlExportOptions()
+                {
+                    ExportTotalSummaries = false,
+                    ExportGroupSummaries = false
+                });
+            }
+            catch (Exception ex)
+            {
+                _logger!.LogError(ex, "ExportExcelHandler");
+                ShowError(ex.Message);
+            }
+            finally
+            {
+                await ShowLoading(false);
+                await InvokeAsync(StateHasChanged);
+            }
+        }
+
+        /// <summary>
         /// làm mới danh sách nhân viên
         /// </summary>
         /// <returns></returns>

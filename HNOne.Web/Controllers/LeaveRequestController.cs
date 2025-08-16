@@ -360,8 +360,8 @@ namespace HNOne.Web.Controllers
                     var header = result![0];
                     LeaveRequestDocument.numOfLeave = header.numOfLeave; // Phép trong năm
                     LeaveRequestDocument.numOfLeaveLevel = header.numOfLeaveLevel; // Phép thâm niên
-                    LeaveRequestDocument.numOfLeaveOld = header.numOfLeaveOld; // Phép năm củ
-                    LeaveRequestDocument.expiryALOldDate = header.expiryDate; // Ngày hết hạn phép năm củ
+                    LeaveRequestDocument.numOfLeaveOld = header.numOfLeaveOld; // Phép năm cũ
+                    LeaveRequestDocument.expiryALOldDate = header.expiryDate; // Ngày hết hạn phép năm cũ
                     LeaveRequestDocument.numOfAdjustedLeave = header.numOfAdjustedLeave; // Phép năm được điều chỉnh
                     LeaveRequestDocument.numOfLeaveUsed = header.numOfLeaveUsed; // phép đã dùng
                     LeaveRequestDocument.numOfLeavePending = header.numOfLeavePending; // Phép tạo mới chờ duyệt
